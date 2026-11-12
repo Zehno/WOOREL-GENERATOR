@@ -369,42 +369,33 @@ header {position:relative; padding-right:110px; padding-left:110px}
   <h2>GÉNÉRATEUR DE WOD</h2>
 
   <div class="panel center">
-    <div class="muted">TA BIBLIOTHÈQUE PERSONNELLE</div>
-    <div style="font-size:38px;font-weight:900;margin:12px 0" id="wodCount">0</div>
-    <div class="muted">WOD disponibles</div>
+    <div class="muted">GÉNÉRATION À PARTIR DE TA BASE DE DONNÉES PRIVÉE</div>
 
     <button class="generate-button" id="randomButton">
       <span style="font-size:30px">↻</span><br>
-      GÉNÉRER UN WOD
+      WOD ALÉATOIRE
     </button>
+    <div class="muted">Sélectionne un WOD existant dans ta base.</div>
 
-    <div class="muted">Tirage aléatoire parmi ta bibliothèque</div>
+    <button class="primary" id="mixButton" type="button" style="margin-top:18px">
+      CRÉER UN WOD PAR MIXAGE
+    </button>
+    <div class="muted" style="margin-top:9px">Combine des WOD compatibles pour créer une nouvelle séance.</div>
+    <div id="generationStatus" class="small-note" role="status" style="margin-top:14px"></div>
   </div>
 
   <div id="selectedWod" class="panel hidden">
-    <div class="muted">WOD SÉLECTIONNÉ</div>
+    <div class="muted">WOD GÉNÉRÉ</div>
     <div id="selectedContent"></div>
     <button class="primary" id="sendToTimer">
       ENVOYER VERS LE CHRONO →
     </button>
   </div>
 
-  <div class="panel">
-    <h2>MA BIBLIOTHÈQUE</h2>
-
-    <div class="field">
-      <input id="searchWod" placeholder="Rechercher un WOD...">
-    </div>
-
-    <div id="library"></div>
-
-    <div class="small-note" style="margin-top:15px">
-      La bibliothèque sera alimentée par tes PDF via Supabase.
-      La recherche et la sélection fonctionneront sur les WOD importés.
-    </div>
-  </div>
-
-  <div class="panel">
+  <details class="panel" style="margin-top:24px">
+    <summary style="cursor:pointer;font-weight:bold">ADMINISTRATION — IMPORT PDF ET RECONNAISSANCE</summary>
+    <div style="margin-top:20px">
+      <div class="panel">
     <h2>IMPORTER MES PDF</h2>
 
     <div class="field">
@@ -442,6 +433,8 @@ header {position:relative; padding-right:110px; padding-left:110px}
     <div id="analysisStatus" class="small-note" role="status" style="margin-top:12px"></div>
     <div id="detectedWods" style="margin-top:15px"></div>
   </div>
+    </div>
+  </details>
 
 </section>
 
@@ -620,10 +613,13 @@ function escapeHTML(value) {
 }
 
 function updateCount() {
-  document.getElementById("wodCount").textContent = wods.length;
+  const count = document.getElementById("wodCount");
+  if (count) count.textContent = wods.length;
 }
 
 function displayLibrary() {
+  // La bibliothèque reste en base Supabase, mais n'est plus affichée dans l'interface.
+  return;
   const search = document.getElementById("searchWod").value.toLowerCase();
   const container = document.getElementById("library");
 
@@ -667,13 +663,66 @@ function selectWod(wod) {
 }
 
 document.getElementById("randomButton").addEventListener("click", () => {
-  if (!wods.length) return;
+  const status = document.getElementById("generationStatus");
+  if (!wods.length) {
+    status.textContent = "Aucun WOD disponible dans la base. Vérifie l'import et la connexion Supabase.";
+    return;
+  }
 
   const wod = wods[Math.floor(Math.random() * wods.length)];
   selectWod(wod);
+  status.textContent = "WOD existant sélectionné depuis ta base.";
 });
 
-document.getElementById("searchWod").addEventListener("input", displayLibrary);
+document.getElementById("mixButton").addEventListener("click", () => {
+  const status = document.getElementById("generationStatus");
+  const groups = new Map();
+
+  wods.filter(w => Array.isArray(w.movements) && w.movements.length >= 2).forEach(w => {
+    const type = String(w.type || "LIBRE").trim().toUpperCase();
+    if (!groups.has(type)) groups.set(type, []);
+    groups.get(type).push(w);
+  });
+
+  const compatibleGroups = Array.from(groups.entries()).filter(([, items]) => items.length >= 2);
+  if (!compatibleGroups.length) {
+    status.textContent = "Pas assez de WOD compatibles pour effectuer un mixage. Il faut au moins deux WOD du même format avec des mouvements enregistrés.";
+    return;
+  }
+
+  const [type, candidates] = compatibleGroups[Math.floor(Math.random() * compatibleGroups.length)];
+  const shuffledSources = [...candidates].sort(() => Math.random() - 0.5);
+  const sources = shuffledSources.slice(0, 2);
+  const uniqueMovements = new Map();
+
+  sources.forEach(source => {
+    const shuffledMovements = [...source.movements].sort(() => Math.random() - 0.5);
+    shuffledMovements.forEach(movement => {
+      const key = String(movement.name || "").trim().toLowerCase();
+      if (key && !uniqueMovements.has(key)) uniqueMovements.set(key, { ...movement });
+    });
+  });
+
+  const movementPool = Array.from(uniqueMovements.values());
+  const mixedMovements = movementPool.sort(() => Math.random() - 0.5).slice(0, Math.min(5, movementPool.length));
+  if (mixedMovements.length < 3) {
+    status.textContent = "Le mixage n'a pas trouvé assez de mouvements différents. Relance la génération.";
+    return;
+  }
+
+  const durations = sources.map(w => Number(w.duration)).filter(n => Number.isFinite(n) && n > 0);
+  const mixedWod = {
+    id: null,
+    name: "WOD MIX — " + type,
+    type,
+    duration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
+    description: "Nouveau mixage temporaire construit à partir de deux WOD de ta base : " + sources.map(w => w.name).join(" + "),
+    movements: mixedMovements
+  };
+
+  selectWod(mixedWod);
+  status.textContent = "Nouveau WOD composé à partir de : " + sources.map(w => w.name).join(" et ") + ". Ce mixage n'est pas enregistré dans la base.";
+});
 
 // =======================================
 // TRANSFERT VERS CHRONOMETRE
