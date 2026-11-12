@@ -415,10 +415,16 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
     <div id="pdfList" class="muted"></div>
 
-    <p class="small-note">
-      Cette première version permet de sélectionner tes fichiers.
-      Leur extraction et leur analyse automatique seront ajoutées
-      avec le moteur PDF et Supabase.
+    <div class="field" style="margin-top:18px">
+      <label>PDF DÉJÀ PRÉSENT DANS SUPABASE STORAGE</label>
+      <input id="existingPdfName" type="text" value="EBOOK-FO copie.pdf" placeholder="Nom exact du PDF">
+    </div>
+    <button class="primary" id="extractExistingPdf" type="button">EXTRAIRE CE PDF DEPUIS SUPABASE</button>
+    <div id="extractStatus" class="small-note" role="status" style="margin-top:12px"></div>
+
+    <p class="small-note" style="margin-top:14px">
+      L'extraction de test lit le texte de chaque page et l'enregistre dans Supabase.
+      Les PDF scannés nécessiteront une étape OCR distincte.
     </p>
   </div>
 
@@ -931,6 +937,111 @@ const authScreen = document.getElementById("authScreen");
 const appShell = document.getElementById("appShell");
 const authMessage = document.getElementById("authMessage");
 const loginButton = document.getElementById("loginButton");
+const extractButton = document.getElementById("extractExistingPdf");
+const extractStatus = document.getElementById("extractStatus");
+
+async function extractExistingPdfFromStorage() {
+  const filename = document.getElementById("existingPdfName").value.trim();
+  if (!filename) {
+    extractStatus.textContent = "Saisis le nom exact du PDF.";
+    return;
+  }
+
+  extractButton.disabled = true;
+  extractButton.textContent = "EXTRACTION EN COURS...";
+  extractStatus.textContent = "Recherche du document dans source_documents...";
+
+  let sourceDocumentId = null;
+  try {
+    const { data: documentRow, error: documentError } = await supabase
+      .from("source_documents")
+      .select("id, filename, storage_path")
+      .eq("filename", filename)
+      .limit(1)
+      .maybeSingle();
+
+    if (documentError) throw documentError;
+    if (!documentRow) {
+      throw new Error("Document introuvable dans source_documents. Vérifie la ligne et le nom du fichier.");
+    }
+    if (!documentRow.storage_path) {
+      throw new Error("Le champ storage_path est vide.");
+    }
+    sourceDocumentId = documentRow.id;
+
+    const { error: processingError } = await supabase
+      .from("source_documents")
+      .update({ extraction_status: "processing" })
+      .eq("id", sourceDocumentId);
+    if (processingError) throw processingError;
+
+    extractStatus.textContent = "Téléchargement du PDF privé depuis Storage...";
+    const { data: pdfBlob, error: downloadError } = await supabase
+      .storage
+      .from("wod-pdfs")
+      .download(documentRow.storage_path);
+    if (downloadError) throw downloadError;
+    if (!pdfBlob) throw new Error("Supabase n'a renvoyé aucun fichier.");
+
+    extractStatus.textContent = "Chargement du moteur PDF...";
+    const pdfjsLib = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+
+    const pdfBytes = new Uint8Array(await pdfBlob.arrayBuffer());
+    const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+    const pageRows = [];
+    let extractedCharacters = 0;
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      extractStatus.textContent = `Lecture du PDF : page ${pageNumber} / ${pdf.numPages}...`;
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map(item => typeof item.str === "string" ? item.str : "")
+        .join(" ")
+        .replace(/[ \t]+/g, " ")
+        .trim();
+      extractedCharacters += pageText.length;
+      pageRows.push({
+        source_document_id: sourceDocumentId,
+        page_number: pageNumber,
+        extracted_text: pageText
+      });
+
+      if (pageRows.length >= 10 || pageNumber === pdf.numPages) {
+        const { error: pageInsertError } = await supabase
+          .from("source_document_pages")
+          .upsert(pageRows.splice(0), { onConflict: "source_document_id,page_number" });
+        if (pageInsertError) throw pageInsertError;
+      }
+    }
+
+    const { error: completeError } = await supabase
+      .from("source_documents")
+      .update({ total_pages: pdf.numPages, extraction_status: "completed" })
+      .eq("id", sourceDocumentId);
+    if (completeError) throw completeError;
+
+    if (extractedCharacters === 0) {
+      extractStatus.textContent = `Extraction terminée : ${pdf.numPages} pages, mais aucun texte détecté. Ce PDF semble scanné et nécessitera un OCR.`;
+    } else {
+      extractStatus.textContent = `Extraction réussie : ${pdf.numPages} pages et ${extractedCharacters.toLocaleString("fr-FR")} caractères enregistrés dans source_document_pages. Prochaine étape : reconnaissance des WOD.`;
+    }
+  } catch (error) {
+    console.error("Erreur extraction PDF :", error);
+    if (sourceDocumentId) {
+      await supabase.from("source_documents")
+        .update({ extraction_status: "error" })
+        .eq("id", sourceDocumentId);
+    }
+    extractStatus.textContent = "Échec de l'extraction : " + (error?.message || String(error));
+  } finally {
+    extractButton.disabled = false;
+    extractButton.textContent = "EXTRAIRE CE PDF DEPUIS SUPABASE";
+  }
+}
+
+extractButton.addEventListener("click", extractExistingPdfFromStorage);
 
 function showLoggedOut(message = "") {
   appShell.style.display = "none";
