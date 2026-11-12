@@ -425,6 +425,22 @@ header {position:relative; padding-right:110px; padding-left:110px}
       L'extraction de test lit le texte de chaque page et l'enregistre dans Supabase.
       Les PDF scannés nécessiteront une étape OCR distincte.
     </p>
+   </div>
+
+  <div class="panel">
+    <h2>RECONNAISSANCE AUTOMATIQUE DES WOD</h2>
+
+    <p class="small-note">
+      Analyse le PDF sélectionné dans Supabase et détecte les WOD,
+      leurs formats et leurs mouvements.
+    </p>
+
+    <button class="primary" id="analyzePdfButton" type="button">
+      ANALYSER LE PDF ET DÉTECTER LES WOD
+    </button>
+
+    <div id="analysisStatus" class="small-note" role="status" style="margin-top:12px"></div>
+    <div id="detectedWods" style="margin-top:15px"></div>
   </div>
 
 </section>
