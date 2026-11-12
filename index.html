@@ -996,7 +996,9 @@ async function extractExistingPdfFromStorage() {
       extractStatus.textContent = `Lecture du PDF : page ${pageNumber} / ${pdf.numPages}...`;
       const page = await pdf.getPage(pageNumber);
       pageRows.push({
+  pageRows.push({
   source_document_id: sourceDocumentId,
   page_number: pageNumber,
-  extracted_text: pageText
+  extracted_text: pageText,
+  layout_data: layoutData
 });
