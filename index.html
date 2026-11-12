@@ -727,16 +727,96 @@ document.querySelectorAll(".type-button").forEach(button => {
   button.addEventListener("click", () => setTimerType(button.dataset.type));
 });
 
+
 // =======================================
-// CHRONOMETRE
+// CHRONOMETRE AVEC SIGNAUX SONORES
 // =======================================
 
 let interval = null;
+let countdownInterval = null;
 let running = false;
+let countdownActive = false;
+let countdownRemaining = 0;
 let remaining = 0;
 let elapsed = 0;
 let phase = "work";
 let cycle = 1;
+
+let audioContext = null;
+
+// =======================================
+// SYSTEME AUDIO
+// =======================================
+
+function getAudioContext() {
+  if (!audioContext) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) {
+      throw new Error("Audio non disponible sur ce navigateur.");
+    }
+
+    audioContext = new AudioContextClass();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
+  return audioContext;
+}
+
+function playTone(frequency = 880, duration = 0.35) {
+  try {
+    const audio = getAudioContext();
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(0.0001, audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.18, audio.currentTime + 0.025);
+    gain.gain.setValueAtTime(0.18, audio.currentTime + duration * 0.65);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+
+    oscillator.start();
+    oscillator.stop(audio.currentTime + duration);
+
+  } catch (error) {
+    console.warn("Signal sonore indisponible :", error);
+  }
+}
+
+// Timbre de préparation : deux notes simultanées
+function playStartBell() {
+  playTone(660, 0.8);
+  playTone(990, 0.8);
+}
+
+// Même tonalité pour tous les signaux de mi-temps
+function playMidpointTone() {
+  playTone(880, 0.55);
+}
+
+// Décompte sonore
+function playCountdownTone(number) {
+  const frequencies = {
+    3: 600,
+    2: 700,
+    1: 800,
+    GO: 1100
+  };
+
+  playTone(frequencies[number] || 880, number === "GO" ? 0.6 : 0.22);
+}
+
+// =======================================
+// DUREE DU CHRONOMETRE
+// =======================================
 
 function getDuration() {
   if (timerType === "AMRAP") {
@@ -754,12 +834,16 @@ function getDuration() {
   return Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
 }
 
+// =======================================
+// AFFICHAGE
+// =======================================
+
 function formatTime(seconds) {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
 
-  return String(mins).padStart(2,"0") + ":" +
-         String(secs).padStart(2,"0");
+  return String(mins).padStart(2, "0") + ":" +
+         String(secs).padStart(2, "0");
 }
 
 function updateClock() {
@@ -778,7 +862,7 @@ function updateClock() {
   let info = timerType;
 
   if (timerType === "TABATA") {
-    info = `CYCLE ${cycle} / ${Math.max(1,Number(document.getElementById("tabataCycles").value)||8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
+    info = `CYCLE ${cycle} / ${Math.max(1, Number(document.getElementById("tabataCycles").value) || 8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
   }
 
   if (timerType === "EMOM") {
@@ -790,31 +874,162 @@ function updateClock() {
   document.getElementById("timerInfo").textContent = info;
 }
 
+// =======================================
+// ARRET ET RESET
+// =======================================
+
 function stopTimer() {
   clearInterval(interval);
+  clearInterval(countdownInterval);
+
   interval = null;
+  countdownInterval = null;
+
   running = false;
+  countdownActive = false;
 }
 
 function resetTimer() {
   stopTimer();
+
   elapsed = 0;
   phase = "work";
   cycle = 1;
+  countdownRemaining = 0;
   remaining = getDuration();
 
   document.getElementById("timerStatus").textContent = "PRÊT";
+
   updateClock();
 }
 
 function finishTimer(message) {
   stopTimer();
+
   document.getElementById("timerStatus").textContent = message;
 }
+
+// =======================================
+// DECOMPTE AVANT DEPART : 10 SECONDES
+// =======================================
+
+function startPreparation() {
+  try {
+    getAudioContext();
+  } catch (error) {
+    console.warn(error);
+  }
+
+  countdownActive = true;
+  countdownRemaining = 10;
+
+  document.getElementById("timerStatus").textContent = "PRÉPARATION";
+  document.getElementById("clock").textContent = "00:10";
+  document.getElementById("timerInfo").textContent = "PRÉPARE-TOI";
+
+  // Timbre au début des 10 secondes
+  playStartBell();
+
+  countdownInterval = setInterval(() => {
+    countdownRemaining--;
+
+    if (countdownRemaining === 3) {
+      playCountdownTone(3);
+    }
+
+    if (countdownRemaining === 2) {
+      playCountdownTone(2);
+    }
+
+    if (countdownRemaining === 1) {
+      playCountdownTone(1);
+    }
+
+    if (countdownRemaining <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      countdownActive = false;
+
+      playCountdownTone("GO");
+
+      startWorkout();
+      return;
+    }
+
+    document.getElementById("clock").textContent =
+      formatTime(countdownRemaining);
+
+    document.getElementById("timerInfo").textContent =
+      "DÉPART IMMINENT";
+
+  }, 1000);
+}
+
+// =======================================
+// DEMARRAGE EFFECTIF DU WOD
+// =======================================
+
+function startWorkout() {
+  running = true;
+
+  document.getElementById("timerStatus").textContent = "EN COURS";
+
+  updateClock();
+
+  interval = setInterval(tick, 1000);
+}
+
+// =======================================
+// DETECTION DES MI-TEMPS
+// =======================================
+
+function checkMidpointSignal() {
+
+  // FOR TIME : moitié de la limite de temps
+  if (timerType === "FORTIME") {
+    const limit = getDuration();
+
+    if (limit > 0 && elapsed === Math.floor(limit / 2)) {
+      playMidpointTone();
+    }
+  }
+
+  // AMRAP : moitié du temps total
+  if (timerType === "AMRAP") {
+    const duration = getDuration();
+
+    if (elapsed === Math.floor(duration / 2)) {
+      playMidpointTone();
+    }
+  }
+
+  // EMOM : moitié de chaque intervalle de travail
+  if (timerType === "EMOM") {
+    const intervalMinutes = Math.max(
+      1,
+      Number(document.getElementById("emomInterval").value) || 1
+    );
+
+    const intervalSeconds = intervalMinutes * 60;
+    const midpoint = Math.floor(intervalSeconds / 2);
+
+    if (elapsed % intervalSeconds === midpoint) {
+      playMidpointTone();
+    }
+  }
+}
+
+// =======================================
+// TICK DU CHRONOMETRE
+// =======================================
 
 function tick() {
   elapsed++;
 
+  // Signaux de mi-temps
+  checkMidpointSignal();
+
+  // FOR TIME
   if (timerType === "FORTIME") {
     const limit = getDuration();
 
@@ -829,13 +1044,14 @@ function tick() {
     return;
   }
 
+  // TABATA
   if (timerType === "TABATA") {
     remaining--;
 
     if (remaining <= 0) {
-      const work = Math.max(1, Number(document.getElementById("tabataWork").value)||20);
-      const rest = Math.max(0, Number(document.getElementById("tabataRest").value)||10);
-      const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value)||8);
+      const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+      const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
+      const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
 
       if (phase === "work" && rest > 0) {
         phase = "rest";
@@ -859,6 +1075,7 @@ function tick() {
     return;
   }
 
+  // AMRAP ET EMOM
   remaining--;
 
   if (remaining <= 0) {
@@ -871,13 +1088,22 @@ function tick() {
   updateClock();
 }
 
-document.getElementById("startTimer").addEventListener("click", () => {
-  if (running) return;
+// =======================================
+// BOUTON DEMARRER
+// =======================================
 
+document.getElementById("startTimer").addEventListener("click", () => {
+  if (running || countdownActive) return;
+
+  // Initialisation du TABATA
   if (timerType === "TABATA" && elapsed === 0) {
-    remaining = Math.max(1, Number(document.getElementById("tabataWork").value)||20);
+    remaining = Math.max(
+      1,
+      Number(document.getElementById("tabataWork").value) || 20
+    );
   }
 
+  // Initialisation du FOR TIME
   if (timerType === "FORTIME" && elapsed === 0) {
     remaining = 0;
   }
@@ -886,18 +1112,39 @@ document.getElementById("startTimer").addEventListener("click", () => {
     resetTimer();
   }
 
-  running = true;
-  document.getElementById("timerStatus").textContent = "EN COURS";
-
-  interval = setInterval(tick,1000);
+  // Première mise en route : préparation de 10 secondes
+  if (elapsed === 0) {
+    startPreparation();
+  } else {
+    // Reprise après une pause : pas de nouveau décompte
+    startWorkout();
+  }
 });
 
+// =======================================
+// BOUTON PAUSE
+// =======================================
+
 document.getElementById("pauseTimer").addEventListener("click", () => {
+  if (countdownActive) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+    countdownActive = false;
+
+    document.getElementById("timerStatus").textContent = "EN PAUSE";
+    return;
+  }
+
   if (!running) return;
 
   stopTimer();
+
   document.getElementById("timerStatus").textContent = "EN PAUSE";
 });
+
+// =======================================
+// BOUTON RESET
+// =======================================
 
 document.getElementById("resetTimer").addEventListener("click", resetTimer);
 
@@ -905,10 +1152,11 @@ document.getElementById("resetTimer").addEventListener("click", resetTimer);
 
 document.querySelectorAll("#timerSettings input").forEach(input => {
   input.addEventListener("input", () => {
-    if (!running && elapsed === 0) resetTimer();
+    if (!running && !countdownActive && elapsed === 0) {
+      resetTimer();
+    }
   });
 });
-
 // =======================================
 // IMPORT PDF - PREPARATION
 // =======================================
