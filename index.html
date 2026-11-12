@@ -1080,12 +1080,18 @@ extractButton.addEventListener("click", extractExistingPdfFromStorage);
 // RECONNAISSANCE AUTOMATIQUE DES WOD
 // ==========================================
 
+
 const analyzePdfButton = document.getElementById("analyzePdfButton");
 const analysisStatus = document.getElementById("analysisStatus");
 const detectedWods = document.getElementById("detectedWods");
 
+// ==========================================
+// RECONNAISSANCE AUTOMATIQUE DES WOD - V2
+// MODE APERÇU : AUCUN ENREGISTREMENT
+// ==========================================
+
 function detectWodType(text) {
-  const value = text.toUpperCase();
+  const value = String(text || "").toUpperCase();
 
   if (/\bAMRAP\b/.test(value)) return "AMRAP";
   if (/\bEMOM\b/.test(value)) return "EMOM";
@@ -1096,34 +1102,72 @@ function detectWodType(text) {
 }
 
 function detectWodDuration(text) {
-  const match = text.match(/(\d{1,3})\s*(?:min|minutes)\b|(\d{1,2})\s*[:h]\s*(\d{2})/i);
+  const value = String(text || "");
 
-  if (!match) return null;
+  let match = value.match(/(\d{1,3})\s*(?:min|minutes)\b/i);
+  if (match) return Number(match[1]);
 
-  if (match[1]) return Number(match[1]);
+  match = value.match(/(\d{1,2})\s*[:h]\s*(\d{2})/i);
+  if (match) return Number(match[1]) * 60 + Number(match[2]);
 
-  return Number(match[2]) * 60 + Number(match[3]);
+  match = value.match(/(\d{1,2})\s*['’]\s*(\d{2})/);
+  if (match) return Number(match[1]);
+
+  return null;
 }
 
-function detectWodTitle(text, type, pageNumber) {
-  let title = text
-    .replace(/^[\s\-–—•]*/, "")
-    .replace(/\bAMRAP\b|\bEMOM\b|\bTABATA\b|\bFOR[\s-]*TIME\b/i, "")
-    .replace(/\bWOD\b/i, "")
-    .replace(/Effectuer.*$/i, "")
-    .replace(/Réaliser.*$/i, "")
-    .replace(/Le plus vite possible.*$/i, "")
-    .replace(/[–—\-:]/g, " ")
+function cleanText(value) {
+  return String(value || "")
     .replace(/\s+/g, " ")
+    .replace(/[•●▪]/g, " ")
+    .trim();
+}
+
+function isDateOrPage(line) {
+  return (
+    /\b\d{1,2}\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4}\b/i.test(line) ||
+    /\b(page|training|semaine)\s*\d+\b/i.test(line) ||
+    /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}$/.test(line)
+  );
+}
+
+function isBadTitle(line) {
+  const value = cleanText(line);
+
+  if (!value || value.length < 3 || value.length > 65) return true;
+  if (isDateOrPage(value)) return true;
+  if (detectWodType(value)) return true;
+  if (/^\d+([.,]\d+)?\s*(['’":]|min|minutes)/i.test(value)) return true;
+  if (/^(effectuer|réaliser|faire|consigne|objectif|repos|échauffement)\b/i.test(value)) return true;
+  if (/^(1|2|3|4|5|6|7|8|9|10)\s*(ère|ème|e)?\s*(série|round|tour|exercice)/i.test(value)) return true;
+  if (/^(le plus vite|le maximum|autant que possible)/i.test(value)) return true;
+  if (/^\d+$/.test(value)) return true;
+
+  return false;
+}
+
+function detectWodTitle(header, previousLines, type, pageNumber) {
+  let title = cleanText(header)
+    .replace(/\bAMRAP\b|\bEMOM\b|\bTABATA\b|\bFOR[\s-]*TIME\b/ig, " ")
+    .replace(/\bWOD\b/ig, " ")
+    .replace(/\b\d{1,3}\s*(?:min|minutes)\b/ig, " ")
+    .replace(/\b\d{1,2}\s*['’]\s*\d{2}\b/g, " ")
+    .replace(/[–—\-:]/g, " ")
     .trim();
 
-  title = title.replace(/^\d{1,2}\s+\w+\s+\d{4}\s*/, "").trim();
-
-  if (!title || title.length < 2) {
-    return `${type} — page ${pageNumber}`;
+  if (!isBadTitle(title)) {
+    return title.substring(0, 65);
   }
 
-  return title.substring(0, 100);
+  for (let i = previousLines.length - 1; i >= 0; i--) {
+    const candidate = cleanText(previousLines[i]);
+
+    if (!isBadTitle(candidate)) {
+      return candidate.substring(0, 65);
+    }
+  }
+
+  return `WOD à identifier — page ${pageNumber}`;
 }
 
 function getLinesFromPage(page) {
@@ -1139,7 +1183,7 @@ function getLinesFromPage(page) {
   if (!items.length) {
     return (page.extracted_text || "")
       .split(/\n+/)
-      .map(text => text.trim())
+      .map(cleanText)
       .filter(Boolean);
   }
 
@@ -1169,12 +1213,12 @@ function getLinesFromPage(page) {
   return lines
     .sort((a, b) => b.y - a.y)
     .map(line =>
-      line.items
-        .sort((a, b) => a.x - b.x)
-        .map(item => item.text)
-        .join(" ")
-        .replace(/\s+/g, " ")
-        .trim()
+      cleanText(
+        line.items
+          .sort((a, b) => a.x - b.x)
+          .map(item => item.text)
+          .join(" ")
+      )
     )
     .filter(Boolean);
 }
@@ -1183,17 +1227,57 @@ function isWodHeader(line) {
   return detectWodType(line) !== null;
 }
 
+function normalizeMovementName(name) {
+  return cleanText(name)
+    .replace(/\bPull\s+u\s+ps\b/ig, "Pull ups")
+    .replace(/\bPush\s+u\s+ps\b/ig, "Push ups")
+    .replace(/\bAir\s+squat\s+s\b/ig, "Air squats")
+    .replace(/\bJump\s+s\s+quats\b/ig, "Jump squats")
+    .replace(/\bHandst\s+and\b/ig, "Handstand")
+    .replace(/\s+([,.])/g, "$1")
+    .replace(/[.:;,]+$/, "")
+    .trim();
+}
+
+function isBadMovement(name) {
+  const value = cleanText(name);
+
+  if (value.length < 3 || value.length > 75) return true;
+  if (isDateOrPage(value)) return true;
+  if (/^(min|minutes|secondes|sec|rounds?|tours?)\b/i.test(value)) return true;
+  if (/^(série|series|exercice|round)\b/i.test(value)) return true;
+  if (/^(effectuer|réaliser|faire|repos|objectif|consigne)\b/i.test(value)) return true;
+  if (/^(amrap|emom|tabata|for time)\b/i.test(value)) return true;
+  if (/^\d+\s*['’":]/.test(value)) return true;
+  if (/^\d+\s*(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\b/i.test(value)) return true;
+  if (/^(chaque minute|le plus vite|autant que possible)\b/i.test(value)) return true;
+
+  return false;
+}
+
 function extractWodMovements(lines) {
   const movements = [];
 
   lines.forEach(line => {
-    const cleanedLine = line
+    let cleanedLine = cleanText(line);
+
+    if (!cleanedLine || isDateOrPage(cleanedLine)) return;
+
+    cleanedLine = cleanedLine
       .replace(/REPOS\s*:?.*$/i, "")
       .replace(/Effectuer.*$/i, "")
       .replace(/Réaliser.*$/i, "")
+      .replace(/Le plus vite possible.*$/i, "")
+      .replace(/^\d+\s*(?:ère|ème|e)?\s*série\s*:?\s*/i, "")
+      .replace(/^\d+\s*(?:ème|e)?\s*round\s*:?\s*/i, "")
       .trim();
 
-    const segments = cleanedLine.split(/\s+[–—-]\s+/);
+    if (!cleanedLine) return;
+
+    const segments = cleanedLine
+      .split(/\s+[–—-]\s+|\s+\+\s+/)
+      .map(cleanText)
+      .filter(Boolean);
 
     segments.forEach(segment => {
       const match = segment.match(/^\s*(\d{1,4})\s+(.+?)\s*$/);
@@ -1201,15 +1285,12 @@ function extractWodMovements(lines) {
       if (!match) return;
 
       const repetitions = Number(match[1]);
-      const movementName = match[2]
-        .replace(/[.:;,]+$/, "")
-        .trim();
+      const movementName = normalizeMovementName(match[2]);
 
       if (
-        !movementName ||
-        movementName.length < 3 ||
-        /^(min|minutes|secondes|sec|rounds?)\b/i.test(movementName) ||
-        /^\d+['’":]/.test(movementName)
+        repetitions < 1 ||
+        repetitions > 1000 ||
+        isBadMovement(movementName)
       ) {
         return;
       }
@@ -1222,36 +1303,55 @@ function extractWodMovements(lines) {
     });
   });
 
-  return movements;
+  // Suppression des doublons strictement identiques et consécutifs
+  return movements.filter((movement, index, array) => {
+    if (index === 0) return true;
+
+    const previous = array[index - 1];
+
+    return !(
+      previous.repetitions === movement.repetitions &&
+      previous.movement_name.toLowerCase() === movement.movement_name.toLowerCase()
+    );
+  }).map((movement, index) => ({
+    ...movement,
+    position: index + 1
+  }));
 }
 
 function renderDetectedWods(wods) {
   detectedWods.innerHTML = "";
 
   if (!wods.length) {
-    detectedWods.textContent = "Aucun WOD détecté pour le moment.";
+    detectedWods.textContent = "Aucun WOD exploitable détecté.";
     return;
   }
 
   const heading = document.createElement("p");
-  heading.textContent = `${wods.length} WOD détecté(s) et enregistré(s) à vérifier.`;
+  heading.textContent =
+    `${wods.length} WOD détecté(s) — aperçu uniquement, aucun enregistrement effectué.`;
+
   detectedWods.appendChild(heading);
 
-  wods.forEach(wod => {
+  wods.forEach((wod, index) => {
     const card = document.createElement("div");
     card.className = "panel";
     card.style.marginTop = "10px";
 
     const title = document.createElement("h3");
-    title.textContent = wod.name;
+    title.textContent = `${index + 1}. ${wod.name}`;
 
     const details = document.createElement("p");
     details.textContent =
-      `${wod.wod_type} — page ${wod.source_page} — ${wod.movements.length} mouvement(s)`;
+      `${wod.wod_type} — page ${wod.source_page} — ` +
+      `${wod.movements.length} mouvement(s)` +
+      (wod.duration_minutes ? ` — ${wod.duration_minutes} min` : "");
 
     const movements = document.createElement("p");
     movements.textContent = wod.movements
-      .map(movement => `${movement.repetitions} ${movement.movement_name}`)
+      .map(movement =>
+        `${movement.repetitions} ${movement.movement_name}`
+      )
       .join(" / ");
 
     card.append(title, details, movements);
@@ -1278,6 +1378,7 @@ async function analyzeSelectedPdf() {
       .maybeSingle();
 
     if (documentError) throw documentError;
+
     if (!documentRow) {
       throw new Error("PDF introuvable dans source_documents.");
     }
@@ -1291,6 +1392,7 @@ async function analyzeSelectedPdf() {
       .order("page_number", { ascending: true });
 
     if (pagesError) throw pagesError;
+
     if (!pages || !pages.length) {
       throw new Error("Aucune page extraite trouvée pour ce PDF.");
     }
@@ -1310,6 +1412,7 @@ async function analyzeSelectedPdf() {
 
     const blocks = [];
     let currentBlock = null;
+    let previousLines = [];
 
     allLines.forEach(line => {
       if (isWodHeader(line.text)) {
@@ -1321,40 +1424,42 @@ async function analyzeSelectedPdf() {
           type,
           header: line.text,
           page: line.page_number,
+          previousLines: [...previousLines],
           lines: [line.text]
         };
       } else if (currentBlock) {
         currentBlock.lines.push(line.text);
+      }
+
+      previousLines.push(line.text);
+
+      if (previousLines.length > 4) {
+        previousLines.shift();
       }
     });
 
     if (currentBlock) blocks.push(currentBlock);
 
     if (!blocks.length) {
-      throw new Error("Aucun format AMRAP, EMOM, TABATA ou FOR TIME reconnu.");
+      throw new Error(
+        "Aucun format AMRAP, EMOM, TABATA ou FOR TIME reconnu."
+      );
     }
 
-    analysisStatus.textContent = `${blocks.length} bloc(s) repéré(s). Préparation de l'enregistrement...`;
+    analysisStatus.textContent =
+      `${blocks.length} bloc(s) repéré(s). Analyse des mouvements...`;
 
-    const { data: existingWods, error: existingError } = await supabase
-      .from("wods")
-      .select("name, source_page")
-      .eq("source_document_id", documentRow.id)
-      .eq("origin", "pdf");
-
-    if (existingError) throw existingError;
-
-    const existingKeys = new Set(
-      (existingWods || []).map(wod =>
-        `${wod.source_page}|${wod.name.toLowerCase().trim()}`
-      )
-    );
-
-    const savedWods = [];
+    const previewWods = [];
     let skipped = 0;
 
     for (const block of blocks) {
-      const name = detectWodTitle(block.header, block.type, block.page);
+      const name = detectWodTitle(
+        block.header,
+        block.previousLines,
+        block.type,
+        block.page
+      );
+
       const movements = extractWodMovements(block.lines);
 
       if (!movements.length) {
@@ -1362,62 +1467,24 @@ async function analyzeSelectedPdf() {
         continue;
       }
 
-      const key = `${block.page}|${name.toLowerCase().trim()}`;
-
-      if (existingKeys.has(key)) {
-        skipped++;
-        continue;
-      }
-
       const rawText = block.lines.join("\n");
 
-      const { data: insertedWod, error: insertError } = await supabase
-        .from("wods")
-        .insert({
-          name,
-          wod_type: block.type,
-          duration_minutes: detectWodDuration(block.header),
-          description: rawText,
-          instructions: rawText,
-          source_document_id: documentRow.id,
-          source_page: block.page,
-          raw_text: rawText,
-          origin: "pdf",
-          validation_status: "to_review"
-        })
-        .select("id")
-        .single();
-
-      if (insertError) throw insertError;
-
-      const movementRows = movements.map(movement => ({
-        wod_id: insertedWod.id,
-        movement_name: movement.movement_name,
-        position: movement.position,
-        repetitions: movement.repetitions
-      }));
-
-      const { error: movementError } = await supabase
-        .from("wod_movements")
-        .insert(movementRows);
-
-      if (movementError) throw movementError;
-
-      existingKeys.add(key);
-
-      savedWods.push({
+      previewWods.push({
         name,
         wod_type: block.type,
+        duration_minutes: detectWodDuration(block.header),
         source_page: block.page,
+        raw_text: rawText,
         movements
       });
     }
 
-    renderDetectedWods(savedWods);
+    renderDetectedWods(previewWods);
 
     analysisStatus.textContent =
-      `Analyse terminée : ${savedWods.length} WOD enregistré(s) à vérifier. ` +
-      `${skipped} bloc(s) ignoré(s).`;
+      `Aperçu terminé : ${previewWods.length} WOD détecté(s), ` +
+      `${skipped} bloc(s) ignoré(s). ` +
+      `Aucune donnée enregistrée dans Supabase.`;
 
   } catch (error) {
     console.error("Erreur reconnaissance WOD :", error);
