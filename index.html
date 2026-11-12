@@ -1751,11 +1751,10 @@ function showLoggedOut(message = "") {
 
 async function loadWodsFromSupabase() {
   const { data, error } = await supabase
-    .from("wods")
-    .select("*, wod_movements(*)")
-    .eq("validation_status", "validated")
-    .order("created_at", { ascending: false });
-
+  .from("wods")
+  .select("*, wod_movements(*)")
+  .order("created_at", { ascending: false });
+  
   if (error) throw error;
 
   wods = (data || []).map(row => ({
