@@ -996,13 +996,36 @@ async function extractExistingPdfFromStorage() {
       extractStatus.textContent = `Lecture du PDF : page ${pageNumber} / ${pdf.numPages}...`;
       const page = await pdf.getPage(pageNumber);
       const content = await page.getTextContent();
-      const pageText = content.items
-        .map(item => typeof item.str === "string" ? item.str : "")
-        .join(" ")
-        .replace(/[ \t]+/g, " ")
-        .trim();
-      extractedCharacters += pageText.length;
-      pageRows.push({
+
+const layoutData = content.items
+  .filter(item => typeof item.str === "string" && item.str.trim() !== "")
+  .map(item => ({
+    text: item.str,
+    font: item.fontName || "",
+    x: item.transform?.[4] ?? 0,
+    y: item.transform?.[5] ?? 0,
+    fontSize: item.transform
+      ? Math.hypot(item.transform[0], item.transform[1])
+      : 0,
+    width: item.width ?? 0,
+    height: item.height ?? 0,
+    hasEOL: item.hasEOL ?? false
+  }));
+
+const pageText = layoutData
+  .map(item => item.text)
+  .join(" ")
+  .replace(/[ \t]+/g, " ")
+  .trim();
+
+extractedCharacters += pageText.length;
+
+pageRows.push({
+  source_document_id: sourceDocumentId,
+  page_number: pageNumber,
+  extracted_text: pageText,
+  layout_data: layoutData
+});
         source_document_id: sourceDocumentId,
         page_number: pageNumber,
         extracted_text: pageText
