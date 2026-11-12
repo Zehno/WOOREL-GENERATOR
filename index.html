@@ -294,6 +294,30 @@ footer {
   letter-spacing:2px;
 }
 
+
+.auth-screen {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:20px;
+}
+.auth-card {
+  width:100%; max-width:420px; background:var(--panel);
+  border:1px solid var(--border); border-radius:14px; padding:25px;
+}
+.auth-card h1 {font-size:22px; text-align:center; margin:0 0 8px}
+.auth-card .muted {text-align:center; margin-bottom:24px}
+.auth-message {min-height:20px; margin:12px 0; font-size:13px; color:var(--orange)}
+#appShell {display:none}
+.logout-button {
+  position:absolute; right:16px; top:18px; background:var(--panel2);
+  color:var(--muted); border:1px solid var(--border); border-radius:7px;
+  padding:8px 10px; cursor:pointer; font-size:11px; font-weight:bold;
+}
+header {position:relative; padding-right:110px; padding-left:110px}
+@media(max-width:550px) {
+  header {padding-left:10px; padding-right:95px}
+  .logout-button {right:8px; top:15px; padding:7px}
+}
+
 @media(max-width:550px) {
   main {padding:5px 12px 35px}
   .panel {padding:15px}
@@ -306,9 +330,30 @@ footer {
 
 <body>
 
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <h1>WOOREL <span style="color:var(--green)">GENERATOR</span></h1>
+    <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
+    <form id="loginForm">
+      <div class="field">
+        <label>ADRESSE E-MAIL</label>
+        <input id="loginEmail" type="email" autocomplete="username" required placeholder="ton@email.fr">
+      </div>
+      <div class="field">
+        <label>MOT DE PASSE</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Mot de passe" >
+      </div>
+      <button class="primary" id="loginButton" type="submit">SE CONNECTER</button>
+      <div id="authMessage" class="auth-message" role="status"></div>
+    </form>
+  </div>
+</section>
+
+<div id="appShell">
 <header>
   <div class="logo">WOOREL <span>GENERATOR</span></div>
   <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
+  <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
 </header>
 
 <nav class="tabs">
@@ -479,6 +524,7 @@ footer {
 </main>
 
 <footer>WOOREL GENERATOR</footer>
+</div><!-- /appShell -->
 
 <script>
 
@@ -513,40 +559,7 @@ function openPage(page) {
 // Données de démonstration.
 // Elles seront remplacées par les WOD extraits des PDF.
 
-let wods = [
-  {
-    id:1,
-    name:"WOD DEMO - CONDITIONING",
-    type:"AMRAP",
-    duration:20,
-    movements:[
-      {name:"Wall Balls",reps:15},
-      {name:"Burpees",reps:12},
-      {name:"Pull-ups",reps:10}
-    ]
-  },
-  {
-    id:2,
-    name:"WOD DEMO - ENGINE",
-    type:"FOR TIME",
-    duration:15,
-    movements:[
-      {name:"Row",reps:500,unit:"m"},
-      {name:"Air Squats",reps:30},
-      {name:"Push-ups",reps:20}
-    ]
-  },
-  {
-    id:3,
-    name:"WOD DEMO - EMOM",
-    type:"EMOM",
-    duration:12,
-    movements:[
-      {name:"Deadlift",reps:8},
-      {name:"Box Jumps",reps:10}
-    ]
-  }
-];
+let wods = []; // Chargés depuis Supabase après connexion
 
 let selectedWod = null;
 
@@ -904,5 +917,111 @@ displayLibrary();
 resetTimer();
 
 </script>
+
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// Configuration publique du projet : la clé publishable peut être utilisée côté navigateur.
+const SUPABASE_URL = "https://tfaarrfjmaaxauzrratx.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xOrQfokHftTW1czGvoCtDg_kupMXCEQ";
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+const authScreen = document.getElementById("authScreen");
+const appShell = document.getElementById("appShell");
+const authMessage = document.getElementById("authMessage");
+const loginButton = document.getElementById("loginButton");
+
+function showLoggedOut(message = "") {
+  appShell.style.display = "none";
+  authScreen.style.display = "flex";
+  authMessage.textContent = message;
+}
+
+async function loadWodsFromSupabase() {
+  const { data, error } = await supabase
+    .from("wods")
+    .select("*, wod_movements(*)")
+    .eq("validation_status", "validated")
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  wods = (data || []).map(row => ({
+    id: row.id,
+    name: row.name || "WOD sans titre",
+    type: normalizeWodType(row.wod_type),
+    duration: row.duration_minutes ? Number(row.duration_minutes) : null,
+    description: row.description || row.instructions || "",
+    movements: (row.wod_movements || []).sort((a,b) => (a.position || 0) - (b.position || 0)).map(m => ({
+      name: m.movement_name || "Mouvement",
+      reps: m.repetitions ?? null,
+      unit: m.distance != null ? `${m.distance}${m.distance_unit || "m"}` : "",
+      load: m.load != null ? `${m.load} ${m.load_unit || "kg"}` : ""
+    }))
+  }));
+
+  updateCount();
+  displayLibrary();
+  document.getElementById("selectedWod").classList.add("hidden");
+  selectedWod = null;
+}
+
+function normalizeWodType(type) {
+  const value = String(type || "LIBRE").trim().toUpperCase().replace(/[ _-]/g, "");
+  if (value === "FORTIME" || value === "FOR TIME") return "FOR TIME";
+  if (["AMRAP", "EMOM", "TABATA"].includes(value)) return value;
+  return type || "LIBRE";
+}
+
+async function showLoggedIn() {
+  authScreen.style.display = "none";
+  appShell.style.display = "block";
+  authMessage.textContent = "";
+  try {
+    await loadWodsFromSupabase();
+  } catch (error) {
+    console.error("Erreur chargement WOD :", error);
+    alert("Connexion réussie, mais impossible de charger les WOD. Vérifie les autorisations Supabase. Détail : " + error.message);
+  }
+}
+
+document.getElementById("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  loginButton.disabled = true;
+  loginButton.textContent = "CONNEXION...";
+  authMessage.textContent = "";
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  loginButton.disabled = false;
+  loginButton.textContent = "SE CONNECTER";
+  if (error) {
+    authMessage.textContent = "Connexion impossible : " + error.message;
+    return;
+  }
+  if (data.session) await showLoggedIn();
+});
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert("Erreur de déconnexion : " + error.message);
+    return;
+  }
+  showLoggedOut();
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+if (session) {
+  await showLoggedIn();
+} else {
+  showLoggedOut();
+}
+
+</script>
+
 </body>
 </html>
