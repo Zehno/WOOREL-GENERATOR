@@ -1040,8 +1040,117 @@ async function extractExistingPdfFromStorage() {
     extractButton.textContent = "EXTRAIRE CE PDF DEPUIS SUPABASE";
   }
 }
+// =======================================
+// PREMIER TEST DE RECONNAISSANCE DES WOD
+// =======================================
 
-extractButton.addEventListener("click", extractExistingPdfFromStorage);
+const recognitionButton = document.createElement("button");
+recognitionButton.className = "secondary";
+recognitionButton.type = "button";
+recognitionButton.textContent = "ANALYSER LES WOD DU PDF";
+recognitionButton.style.width = "100%";
+recognitionButton.style.marginTop = "12px";
+
+const recognitionResults = document.createElement("div");
+recognitionResults.className = "small-note";
+recognitionResults.style.marginTop = "15px";
+recognitionResults.style.whiteSpace = "pre-wrap";
+
+extractStatus.parentNode.appendChild(recognitionButton);
+extractStatus.parentNode.appendChild(recognitionResults);
+
+recognitionButton.addEventListener("click", async () => {
+  recognitionButton.disabled = true;
+  recognitionButton.textContent = "ANALYSE EN COURS...";
+  recognitionResults.textContent = "Lecture des pages extraites...";
+
+  try {
+    const filename = document.getElementById("existingPdfName").value.trim();
+
+    const { data: doc, error: docError } = await supabase
+      .from("source_documents")
+      .select("id, filename")
+      .eq("filename", filename)
+      .maybeSingle();
+
+    if (docError) throw docError;
+    if (!doc) throw new Error("PDF introuvable.");
+
+    const { data: pages, error: pagesError } = await supabase
+      .from("source_document_pages")
+      .select("page_number, extracted_text")
+      .eq("source_document_id", doc.id)
+      .order("page_number");
+
+    if (pagesError) throw pagesError;
+    if (!pages || !pages.length) throw new Error("Aucune page extraite.");
+
+    const fullText = pages
+      .map(p => p.extracted_text || "")
+      .join("\n");
+
+    const pattern = /\b(AMRAP|FOR\s+TIME|EMOM|TABATA)\b(?!\s*\d)/gi;
+    const matches = [...fullText.matchAll(pattern)];
+
+    const results = [];
+
+    matches.forEach((match, index) => {
+      const start = match.index;
+      const end = index + 1 < matches.length
+        ? matches[index + 1].index
+        : fullText.length;
+
+      const raw = fullText.slice(start, end).trim();
+
+      if (raw.length < 35) return;
+
+      const type = match[0].toUpperCase().replace(/\s+/g, " ");
+
+      const durationMatch = raw.match(
+        /(\d+)\s*['’]\s*(\d{2})?\s*(?:''|"|’’)?/
+      );
+
+      const duration = durationMatch
+        ? Number(durationMatch[1]) +
+          (Number(durationMatch[2] || 0) / 60)
+        : null;
+
+      const nameMatch = raw.match(
+        /WOD\s+(.+?)(?=\s+(?:Effectuer|AMRAP|FOR TIME|REPOS|CONSIGNES)\b|$)/i
+      );
+
+      const name = nameMatch
+        ? nameMatch[1].replace(/[-–:]+$/, "").trim()
+        : "WOD sans nom détecté";
+
+      results.push({
+        type,
+        name,
+        duration,
+        raw: raw.slice(0, 450)
+      });
+    });
+
+    recognitionResults.textContent =
+      `PDF : ${filename}\n` +
+      `Pages analysées : ${pages.length}\n` +
+      `Débuts de formats détectés : ${matches.length}\n` +
+      `Blocs candidats : ${results.length}\n\n` +
+      results.slice(0, 20).map((wod, i) =>
+        `${i + 1}. ${wod.name}\n` +
+        `Type : ${wod.type}\n` +
+        `Durée détectée : ${wod.duration ?? "Non détectée"} min\n` +
+        `${wod.raw}\n`
+      ).join("\n--------------------\n");
+
+  } catch (error) {
+    recognitionResults.textContent =
+      "Erreur d'analyse : " + error.message;
+  } finally {
+    recognitionButton.disabled = false;
+    recognitionButton.textContent = "ANALYSER LES WOD DU PDF";
+  }
+});
 
 function showLoggedOut(message = "") {
   appShell.style.display = "none";
