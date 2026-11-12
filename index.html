@@ -1003,18 +1003,42 @@ function checkMidpointSignal() {
     }
   }
 
-  // EMOM : moitié de chaque intervalle de travail
-  if (timerType === "EMOM") {
-    const intervalMinutes = Math.max(
-      1,
-      Number(document.getElementById("emomInterval").value) || 1
-    );
 
-    const intervalSeconds = intervalMinutes * 60;
-    const midpoint = Math.floor(intervalSeconds / 2);
+// EMOM : signal de mi-temps et décompte avant chaque nouveau tour
+if (timerType === "EMOM") {
+  const intervalMinutes = Math.max(
+    1,
+    Number(document.getElementById("emomInterval").value) || 1
+  );
 
-    if (elapsed % intervalSeconds === midpoint) {
-      playMidpointTone();
+  const intervalSeconds = intervalMinutes * 60;
+  const position = elapsed % intervalSeconds;
+  const totalDuration = getDuration();
+
+  // Signal de mi-temps
+  const midpoint = Math.floor(intervalSeconds / 2);
+
+  if (position === midpoint) {
+    playMidpointTone();
+  }
+
+  // Décompte 3 - 2 - 1 avant le nouveau tour
+  if (elapsed < totalDuration) {
+    if (position === intervalSeconds - 3) {
+      playCountdownTone(3);
+    }
+
+    if (position === intervalSeconds - 2) {
+      playCountdownTone(2);
+    }
+
+    if (position === intervalSeconds - 1) {
+      playCountdownTone(1);
+    }
+
+    // Début du nouveau tour
+    if (position === 0 && elapsed > 0) {
+      playCountdownTone("GO");
     }
   }
 }
