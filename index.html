@@ -1,1 +1,908 @@
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>WOOREL GENERATOR</title>
+
+<style>
+:root {
+  --bg:#101419;
+  --panel:#1b222a;
+  --panel2:#242d37;
+  --text:#f3f5f7;
+  --muted:#929eaa;
+  --green:#26c281;
+  --orange:#f2a344;
+  --red:#e45b5b;
+  --border:#303b46;
+}
+
+* {box-sizing:border-box}
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;
+}
+
+header {
+  padding:25px 20px 18px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+
+.logo {
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.logo span {color:var(--green)}
+
+.subtitle {
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:2px;
+  margin-top:7px;
+}
+
+.tabs {
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  padding:18px 12px;
+  max-width:750px;
+  margin:auto;
+}
+
+.tab {
+  flex:1;
+  padding:15px 10px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--muted);
+  border-radius:9px;
+  font-size:13px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.tab.active {
+  background:var(--green);
+  border-color:var(--green);
+  color:#101419;
+}
+
+main {
+  max-width:850px;
+  margin:auto;
+  padding:10px 18px 50px;
+}
+
+.page {display:none}
+.page.active {display:block}
+
+h2 {
+  font-size:17px;
+  letter-spacing:1px;
+  margin:12px 0 20px;
+}
+
+.panel {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:16px;
+}
+
+.center {text-align:center}
+
+.muted {
+  color:var(--muted);
+  font-size:13px;
+}
+
+button {
+  font-family:inherit;
+}
+
+.primary {
+  background:var(--green);
+  color:#101419;
+  border:0;
+  padding:17px 24px;
+  border-radius:9px;
+  font-weight:900;
+  font-size:15px;
+  cursor:pointer;
+  width:100%;
+  transition:.15s;
+}
+
+.primary:hover {filter:brightness(1.08)}
+.primary:disabled {opacity:.4;cursor:not-allowed}
+
+.secondary {
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:12px 15px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.actions {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.actions button {flex:1}
+
+input,select,textarea {
+  width:100%;
+  background:#111820;
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:7px;
+  font-size:14px;
+  outline:none;
+}
+
+input:focus,select:focus,textarea:focus {
+  border-color:var(--green);
+}
+
+label {
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+
+.field {margin-bottom:15px}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.wod-card {
+  background:#141b22;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:15px;
+  margin-top:12px;
+}
+
+.wod-card h3 {
+  margin:0 0 8px;
+  font-size:17px;
+}
+
+.tag {
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:5px;
+  background:#263b35;
+  color:var(--green);
+  font-size:10px;
+  font-weight:bold;
+  margin:3px 3px 8px 0;
+}
+
+.exercise {
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+  font-size:14px;
+}
+
+.exercise:last-child {border:0}
+
+.wod-title {
+  font-size:25px;
+  font-weight:900;
+  margin:5px 0 10px;
+}
+
+.generate-button {
+  width:100%;
+  max-width:390px;
+  height:125px;
+  border-radius:14px;
+  background:var(--green);
+  color:#101419;
+  border:0;
+  font-size:23px;
+  font-weight:900;
+  cursor:pointer;
+  margin:12px auto;
+  display:block;
+}
+
+.generate-button:hover {filter:brightness(1.08)}
+
+.timer-types {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:20px;
+}
+
+.type-button {
+  padding:14px 5px;
+  background:var(--panel2);
+  color:var(--muted);
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.type-button.active {
+  background:var(--green);
+  color:#101419;
+  border-color:var(--green);
+}
+
+.clock {
+  font-size:clamp(55px,12vw,95px);
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-3px;
+  margin:15px 0;
+}
+
+.timer-status {
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:2px;
+}
+
+.timer-exercises {
+  text-align:left;
+  margin-top:18px;
+}
+
+.timer-exercises .exercise {
+  font-size:16px;
+}
+
+.small-note {
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.hidden {display:none!important}
+
+footer {
+  text-align:center;
+  color:#687581;
+  padding:20px;
+  font-size:10px;
+  letter-spacing:2px;
+}
+
+@media(max-width:550px) {
+  main {padding:5px 12px 35px}
+  .panel {padding:15px}
+  .grid {grid-template-columns:1fr}
+  .timer-types {grid-template-columns:repeat(2,1fr)}
+  .tab {font-size:11px;padding:14px 5px}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">WOOREL <span>GENERATOR</span></div>
+  <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-page="generator">GÉNÉRATEUR DE WOD</button>
+  <button class="tab" data-page="timer">CHRONOMÈTRE</button>
+</nav>
+
+<main>
+
+<!-- GENERATEUR -->
+
+<section id="generator" class="page active">
+
+  <h2>GÉNÉRATEUR DE WOD</h2>
+
+  <div class="panel center">
+    <div class="muted">TA BIBLIOTHÈQUE PERSONNELLE</div>
+    <div style="font-size:38px;font-weight:900;margin:12px 0" id="wodCount">0</div>
+    <div class="muted">WOD disponibles</div>
+
+    <button class="generate-button" id="randomButton">
+      <span style="font-size:30px">↻</span><br>
+      GÉNÉRER UN WOD
+    </button>
+
+    <div class="muted">Tirage aléatoire parmi ta bibliothèque</div>
+  </div>
+
+  <div id="selectedWod" class="panel hidden">
+    <div class="muted">WOD SÉLECTIONNÉ</div>
+    <div id="selectedContent"></div>
+    <button class="primary" id="sendToTimer">
+      ENVOYER VERS LE CHRONO →
+    </button>
+  </div>
+
+  <div class="panel">
+    <h2>MA BIBLIOTHÈQUE</h2>
+
+    <div class="field">
+      <input id="searchWod" placeholder="Rechercher un WOD...">
+    </div>
+
+    <div id="library"></div>
+
+    <div class="small-note" style="margin-top:15px">
+      La bibliothèque sera alimentée par tes PDF via Supabase.
+      La recherche et la sélection fonctionneront sur les WOD importés.
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>IMPORTER MES PDF</h2>
+
+    <div class="field">
+      <label>SÉLECTIONNER TES DOCUMENTS PDF</label>
+      <input type="file" id="pdfFiles" accept=".pdf,application/pdf" multiple>
+    </div>
+
+    <div id="pdfList" class="muted"></div>
+
+    <p class="small-note">
+      Cette première version permet de sélectionner tes fichiers.
+      Leur extraction et leur analyse automatique seront ajoutées
+      avec le moteur PDF et Supabase.
+    </p>
+  </div>
+
+</section>
+
+<!-- CHRONOMETRE -->
+
+<section id="timer" class="page">
+
+  <h2>CHRONOMÈTRE</h2>
+
+  <div class="panel">
+    <div class="timer-types">
+      <button class="type-button active" data-type="AMRAP">AMRAP</button>
+      <button class="type-button" data-type="EMOM">EMOM</button>
+      <button class="type-button" data-type="TABATA">TABATA</button>
+      <button class="type-button" data-type="FORTIME">FOR TIME</button>
+    </div>
+
+    <div id="timerSettings">
+
+      <div id="amrapSettings">
+        <div class="field">
+          <label>DURÉE (MINUTES)</label>
+          <input id="amrapDuration" type="number" min="1" value="20">
+        </div>
+      </div>
+
+      <div id="emomSettings" class="hidden">
+        <div class="grid">
+          <div class="field">
+            <label>DURÉE TOTALE (MIN)</label>
+            <input id="emomDuration" type="number" min="1" value="12">
+          </div>
+          <div class="field">
+            <label>INTERVALLE (MIN)</label>
+            <input id="emomInterval" type="number" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <div id="tabataSettings" class="hidden">
+        <div class="grid">
+          <div class="field">
+            <label>TRAVAIL (SECONDES)</label>
+            <input id="tabataWork" type="number" min="1" value="20">
+          </div>
+          <div class="field">
+            <label>REPOS (SECONDES)</label>
+            <input id="tabataRest" type="number" min="0" value="10">
+          </div>
+          <div class="field">
+            <label>NOMBRE DE CYCLES</label>
+            <input id="tabataCycles" type="number" min="1" value="8">
+          </div>
+        </div>
+      </div>
+
+      <div id="fortimeSettings" class="hidden">
+        <div class="field">
+          <label>LIMITE DE TEMPS (MINUTES, 0 = SANS LIMITE)</label>
+          <input id="fortimeLimit" type="number" min="0" value="20">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="panel center">
+    <div class="timer-status" id="timerStatus">PRÊT</div>
+    <div class="clock" id="clock">20:00</div>
+    <div id="timerInfo" class="muted">AMRAP</div>
+
+    <div class="actions" style="margin-top:25px">
+      <button class="primary" id="startTimer">DÉMARRER</button>
+      <button class="secondary" id="pauseTimer">PAUSE</button>
+      <button class="secondary" id="resetTimer">RESET</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>MON WOD</h2>
+
+    <div class="field">
+      <label>NOM DE LA SÉANCE</label>
+      <input id="timerWodName" placeholder="Nom de mon WOD">
+    </div>
+
+    <div class="field">
+      <label>CONTENU DE LA SÉANCE</label>
+      <textarea id="timerWodContent" rows="7"
+        placeholder="Exemple :&#10;15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea>
+    </div>
+
+    <div class="small-note">
+      Tu peux saisir ton propre WOD ou récupérer directement
+      celui sélectionné dans le générateur.
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<footer>WOOREL GENERATOR</footer>
+
+<script>
+
+// =======================================
+// NAVIGATION
+// =======================================
+
+document.querySelectorAll(".tab").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+
+    button.classList.add("active");
+    document.getElementById(button.dataset.page).classList.add("active");
+  });
+});
+
+function openPage(page) {
+  document.querySelectorAll(".tab").forEach(b => {
+    b.classList.toggle("active", b.dataset.page === page);
+  });
+
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.toggle("active", p.id === page);
+  });
+}
+
+// =======================================
+// BIBLIOTHEQUE
+// =======================================
+
+// Données de démonstration.
+// Elles seront remplacées par les WOD extraits des PDF.
+
+let wods = [
+  {
+    id:1,
+    name:"WOD DEMO - CONDITIONING",
+    type:"AMRAP",
+    duration:20,
+    movements:[
+      {name:"Wall Balls",reps:15},
+      {name:"Burpees",reps:12},
+      {name:"Pull-ups",reps:10}
+    ]
+  },
+  {
+    id:2,
+    name:"WOD DEMO - ENGINE",
+    type:"FOR TIME",
+    duration:15,
+    movements:[
+      {name:"Row",reps:500,unit:"m"},
+      {name:"Air Squats",reps:30},
+      {name:"Push-ups",reps:20}
+    ]
+  },
+  {
+    id:3,
+    name:"WOD DEMO - EMOM",
+    type:"EMOM",
+    duration:12,
+    movements:[
+      {name:"Deadlift",reps:8},
+      {name:"Box Jumps",reps:10}
+    ]
+  }
+];
+
+let selectedWod = null;
+
+function renderWod(wod) {
+  return `
+    <div class="wod-title">${escapeHTML(wod.name)}</div>
+    <span class="tag">${escapeHTML(wod.type)}</span>
+    ${wod.duration ? `<span class="tag">${wod.duration} MIN</span>` : ""}
+    <div style="margin-top:10px">
+      ${wod.movements.map(m => `
+        <div class="exercise">
+          <strong>${m.reps ?? ""}${m.unit ? " "+escapeHTML(m.unit) : ""}</strong>
+          ${escapeHTML(m.name)}
+          ${m.load ? " — "+escapeHTML(String(m.load)) : ""}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[c]);
+}
+
+function updateCount() {
+  document.getElementById("wodCount").textContent = wods.length;
+}
+
+function displayLibrary() {
+  const search = document.getElementById("searchWod").value.toLowerCase();
+  const container = document.getElementById("library");
+
+  const filtered = wods.filter(w =>
+    w.name.toLowerCase().includes(search) ||
+    w.type.toLowerCase().includes(search) ||
+    w.movements.some(m => m.name.toLowerCase().includes(search))
+  );
+
+  container.innerHTML = "";
+
+  if (!filtered.length) {
+    container.innerHTML = `<p class="muted">Aucun WOD trouvé.</p>`;
+    return;
+  }
+
+  filtered.forEach(wod => {
+    const card = document.createElement("div");
+    card.className = "wod-card";
+    card.innerHTML = `
+      ${renderWod(wod)}
+      <button class="secondary" style="width:100%;margin-top:12px">
+        CHOISIR CE WOD
+      </button>
+    `;
+
+    card.querySelector("button").addEventListener("click", () => {
+      selectWod(wod);
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function selectWod(wod) {
+  selectedWod = wod;
+
+  document.getElementById("selectedContent").innerHTML = renderWod(wod);
+  document.getElementById("selectedWod").classList.remove("hidden");
+}
+
+document.getElementById("randomButton").addEventListener("click", () => {
+  if (!wods.length) return;
+
+  const wod = wods[Math.floor(Math.random() * wods.length)];
+  selectWod(wod);
+});
+
+document.getElementById("searchWod").addEventListener("input", displayLibrary);
+
+// =======================================
+// TRANSFERT VERS CHRONOMETRE
+// =======================================
+
+document.getElementById("sendToTimer").addEventListener("click", () => {
+  if (!selectedWod) return;
+
+  document.getElementById("timerWodName").value = selectedWod.name;
+
+  document.getElementById("timerWodContent").value =
+    selectedWod.movements.map(m =>
+      `${m.reps ?? ""}${m.unit ? " "+m.unit : ""} ${m.name}${m.load ? " — "+m.load : ""}`
+    ).join("\n");
+
+  const type = selectedWod.type === "FOR TIME"
+    ? "FORTIME"
+    : selectedWod.type;
+
+  if (["AMRAP","EMOM","TABATA","FORTIME"].includes(type)) {
+    setTimerType(type);
+  }
+
+  if (selectedWod.duration) {
+    if (type === "AMRAP") document.getElementById("amrapDuration").value = selectedWod.duration;
+    if (type === "EMOM") document.getElementById("emomDuration").value = selectedWod.duration;
+    if (type === "FORTIME") document.getElementById("fortimeLimit").value = selectedWod.duration;
+  }
+
+  resetTimer();
+  openPage("timer");
+  updateClock();
+});
+
+// =======================================
+// SELECTION DU TYPE DE CHRONO
+// =======================================
+
+let timerType = "AMRAP";
+
+function setTimerType(type) {
+  timerType = type;
+
+  document.querySelectorAll(".type-button").forEach(b => {
+    b.classList.toggle("active", b.dataset.type === type);
+  });
+
+  ["amrap","emom","tabata","fortime"].forEach(id => {
+    document.getElementById(id+"Settings").classList.add("hidden");
+  });
+
+  document.getElementById(type.toLowerCase()+"Settings").classList.remove("hidden");
+
+  resetTimer();
+  updateClock();
+}
+
+document.querySelectorAll(".type-button").forEach(button => {
+  button.addEventListener("click", () => setTimerType(button.dataset.type));
+});
+
+// =======================================
+// CHRONOMETRE
+// =======================================
+
+let interval = null;
+let running = false;
+let remaining = 0;
+let elapsed = 0;
+let phase = "work";
+let cycle = 1;
+
+function getDuration() {
+  if (timerType === "AMRAP") {
+    return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
+  }
+
+  if (timerType === "EMOM") {
+    return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
+  }
+
+  if (timerType === "FORTIME") {
+    return Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0) * 60;
+  }
+
+  return Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+}
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  return String(mins).padStart(2,"0") + ":" +
+         String(secs).padStart(2,"0");
+}
+
+function updateClock() {
+  let value = remaining;
+
+  if (timerType === "FORTIME" && remaining === 0 && elapsed > 0) {
+    value = elapsed;
+  }
+
+  if (timerType === "FORTIME" && !running && elapsed === 0) {
+    value = 0;
+  }
+
+  document.getElementById("clock").textContent = formatTime(value);
+
+  let info = timerType;
+
+  if (timerType === "TABATA") {
+    info = `CYCLE ${cycle} / ${Math.max(1,Number(document.getElementById("tabataCycles").value)||8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
+  }
+
+  if (timerType === "EMOM") {
+    const duration = Math.max(1, Number(document.getElementById("emomInterval").value) || 1);
+    const currentMinute = Math.floor(elapsed / (duration * 60)) + 1;
+    info = `EMOM — MINUTE ${currentMinute}`;
+  }
+
+  document.getElementById("timerInfo").textContent = info;
+}
+
+function stopTimer() {
+  clearInterval(interval);
+  interval = null;
+  running = false;
+}
+
+function resetTimer() {
+  stopTimer();
+  elapsed = 0;
+  phase = "work";
+  cycle = 1;
+  remaining = getDuration();
+
+  document.getElementById("timerStatus").textContent = "PRÊT";
+  updateClock();
+}
+
+function finishTimer(message) {
+  stopTimer();
+  document.getElementById("timerStatus").textContent = message;
+}
+
+function tick() {
+  elapsed++;
+
+  if (timerType === "FORTIME") {
+    const limit = getDuration();
+
+    if (limit > 0 && elapsed >= limit) {
+      remaining = 0;
+      updateClock();
+      finishTimer("TIME CAP");
+      return;
+    }
+
+    updateClock();
+    return;
+  }
+
+  if (timerType === "TABATA") {
+    remaining--;
+
+    if (remaining <= 0) {
+      const work = Math.max(1, Number(document.getElementById("tabataWork").value)||20);
+      const rest = Math.max(0, Number(document.getElementById("tabataRest").value)||10);
+      const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value)||8);
+
+      if (phase === "work" && rest > 0) {
+        phase = "rest";
+        remaining = rest;
+      } else {
+        phase = "work";
+        cycle++;
+
+        if (cycle > cycles) {
+          remaining = 0;
+          updateClock();
+          finishTimer("TERMINÉ");
+          return;
+        }
+
+        remaining = work;
+      }
+    }
+
+    updateClock();
+    return;
+  }
+
+  remaining--;
+
+  if (remaining <= 0) {
+    remaining = 0;
+    updateClock();
+    finishTimer("TERMINÉ");
+    return;
+  }
+
+  updateClock();
+}
+
+document.getElementById("startTimer").addEventListener("click", () => {
+  if (running) return;
+
+  if (timerType === "TABATA" && elapsed === 0) {
+    remaining = Math.max(1, Number(document.getElementById("tabataWork").value)||20);
+  }
+
+  if (timerType === "FORTIME" && elapsed === 0) {
+    remaining = 0;
+  }
+
+  if (timerType !== "FORTIME" && remaining <= 0) {
+    resetTimer();
+  }
+
+  running = true;
+  document.getElementById("timerStatus").textContent = "EN COURS";
+
+  interval = setInterval(tick,1000);
+});
+
+document.getElementById("pauseTimer").addEventListener("click", () => {
+  if (!running) return;
+
+  stopTimer();
+  document.getElementById("timerStatus").textContent = "EN PAUSE";
+});
+
+document.getElementById("resetTimer").addEventListener("click", resetTimer);
+
+// Actualisation de l'affichage quand les paramètres changent.
+
+document.querySelectorAll("#timerSettings input").forEach(input => {
+  input.addEventListener("input", () => {
+    if (!running && elapsed === 0) resetTimer();
+  });
+});
+
+// =======================================
+// IMPORT PDF - PREPARATION
+// =======================================
+
+document.getElementById("pdfFiles").addEventListener("change", event => {
+  const files = Array.from(event.target.files);
+  const container = document.getElementById("pdfList");
+
+  container.innerHTML = "";
+
+  if (!files.length) return;
+
+  files.forEach(file => {
+    const line = document.createElement("div");
+    line.style.padding = "7px 0";
+    line.textContent = "PDF sélectionné : " + file.name;
+    container.appendChild(line);
+  });
+});
+
+// =======================================
+// INITIALISATION
+// =======================================
+
+updateCount();
+displayLibrary();
+resetTimer();
+
+</script>
+</body>
+</html>
