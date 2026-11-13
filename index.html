@@ -319,6 +319,15 @@ label {
   font-size:16px;
 }
 
+.timer-demo-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
+.timer-demo-card{display:flex;flex-direction:column;gap:8px;padding:10px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;text-align:left;min-width:0}
+.timer-demo-card button{border:0;background:transparent;color:inherit;padding:0;text-align:left;cursor:pointer;width:100%}
+.timer-demo-card img{width:100%;height:130px;object-fit:contain;background:#fff;border-radius:7px}
+.timer-demo-card strong{font-size:13px;line-height:1.35;display:block}
+.timer-demo-card .demo-original{font-size:11px;color:var(--muted);display:block;margin-top:5px}
+.timer-demo-missing{font-size:12px;color:var(--muted);padding:10px;border:1px dashed var(--border);border-radius:8px}
+.timer-demo-heading{margin:18px 0 8px;font-size:14px;font-weight:800}
+
 .small-note {
   font-size:11px;
   color:var(--muted);
@@ -994,6 +1003,10 @@ header {
       <label>CONTENU DE LA SÉANCE</label>
       <textarea id="timerWodContent" rows="7"
         placeholder="Exemple :&#10;15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea>
+      <div class="timer-demo-heading">DÉMONSTRATIONS DES EXERCICES</div>
+      <div id="timerDemoPreview" class="timer-demo-list" aria-live="polite">
+        <p class="small-note">Les démonstrations correspondantes apparaîtront ici.</p>
+      </div>
     </div>
 
     <div class="small-note">
@@ -1400,6 +1413,7 @@ function sendWodToTimer(wod) {
   document.getElementById("timerWodContent").value = (wod.movements || []).map(m =>
     `${m.reps ?? ""}${m.unit ? " "+m.unit : ""} ${m.name || ""}${m.load ? " — "+m.load : ""}`.trim()
   ).join("\n");
+  renderTimerDemoPreview();
 
   const type = wod.type === "FOR TIME" ? "FORTIME" : wod.type;
   if (wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length) {
@@ -1407,6 +1421,7 @@ function sendWodToTimer(wod) {
     setTimerType("MIX");
     document.getElementById("timerWodContent").value = sequenceBlocks.map((b,i) =>
       `BLOC ${i+1} — ${b.type}\n${b.exercises || ""}`).join("\n\n");
+    renderTimerDemoPreview();
     resetTimer(); openPage("timer"); updateClock(); return;
   }
   sequenceBlocks = [];
@@ -1784,6 +1799,52 @@ function getPreparationDuration() {
 function getExerciseLines() {
   const raw = document.getElementById("timerWodContent")?.value || "";
   return raw.split(/\n+/).map(x => x.trim()).filter(Boolean);
+}
+// Les répétitions placées avant le nom sont ignorées pour retrouver la fiche.
+function cleanExerciseNameForMatch(line) {
+  return String(line || "")
+    .replace(/^\s*(?:(?:\d+\s*(?:x|×)?\s*)+)(?=[A-Za-zÀ-ÿ])/i, "")
+    .replace(/^\s*(?:x|×)\s*/i, "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
+}
+function findMovementForTimerLine(line) {
+  const list = window.WODFactoryMovements || [];
+  const target = cleanExerciseNameForMatch(line);
+  if (!target) return null;
+  let best = null, bestScore = 0;
+  for (const movement of list) {
+    for (const candidate of [movement.name, movement.fr].map(cleanExerciseNameForMatch)) {
+      if (candidate === target) return movement;
+      const a = new Set(target.split(" ")), b = new Set(candidate.split(" "));
+      const common = [...a].filter(token => b.has(token)).length;
+      const score = common / Math.max(a.size, b.size);
+      if (score > bestScore) { bestScore = score; best = movement; }
+    }
+  }
+  return bestScore >= 0.82 ? best : null;
+}
+function renderTimerDemoPreview() {
+  const container = document.getElementById("timerDemoPreview");
+  if (!container) return;
+  const lines = getExerciseLines();
+  if (!lines.length) {
+    container.innerHTML = '<p class="small-note">Ajoute les exercices dans le WOD pour afficher leurs démonstrations.</p>';
+    return;
+  }
+  container.innerHTML = lines.map(line => {
+    const movement = findMovementForTimerLine(line);
+    if (!movement) return `<div class="timer-demo-card"><strong>${escapeHTML(line)}</strong><div class="timer-demo-missing">Aucune correspondance dans la bibliothèque.</div></div>`;
+    let imageUrl = "";
+    try {
+      const slug = new URL(movement.source).pathname.split("/").filter(Boolean).pop().replace(/-\d+$/, "");
+      imageUrl = "https://liftmanual.com/wp-content/uploads/2023/04/" + slug + ".webp";
+    } catch (_) {}
+    return `<article class="timer-demo-card"><button type="button" data-movement-id="${escapeHTML(movement.id)}" aria-label="Ouvrir la démonstration de ${escapeHTML(movement.name)}">
+      ${imageUrl ? `<img src="${imageUrl}" alt="Démonstration ${escapeHTML(movement.name)}" loading="lazy" onerror="this.style.display='none'">` : ""}
+      <strong>${escapeHTML(line)}</strong><span class="demo-original">${escapeHTML(movement.name)} · Voir la démonstration ↗</span>
+    </button></article>`;
+  }).join("");
 }
 function getExerciseFocus(roundText = "") {
   const lines = getExerciseLines();
@@ -2630,7 +2691,14 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
 
 ["timerWodName", "timerWodConsigne", "timerWodContent"].forEach(id => {
   const el = document.getElementById(id);
-  if (el) el.addEventListener("input", () => updateClock());
+  if (el) el.addEventListener("input", () => {
+    updateClock();
+    if (id === "timerWodContent") renderTimerDemoPreview();
+  });
+});
+document.getElementById("timerDemoPreview")?.addEventListener("click", event => {
+  const button = event.target.closest("[data-movement-id]");
+  if (button) window.WODFactoryOpenMovementDetail?.(button.dataset.movementId);
 });
 
 
@@ -3170,6 +3238,7 @@ if (session) {
  function movementImageMarkup(m, detail=false){const url=movementImageUrl(m);const cls=detail?'movement-detail-image':'movement-image';const fallback=detail?'movement-image-fallback':'movement-image-fallback';return url?`<a class="${detail?'movement-detail-image-link':'movement-image-link'}" href="${m.source}" target="_blank" rel="noopener" aria-label="Ouvrir la fiche ${m.name} sur Lift Manual"><img class="${cls}" src="${url}" alt="Illustration du mouvement ${m.fr} (${m.name})" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\"${fallback}\\">Visuel non disponible — ouvrir la fiche Lift Manual</div>'"></a>`:'';}
  function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movementCategory')?.value||'';const list=movements.filter(m=>(!cat||m.family===cat)&&(!q||norm([m.name,m.fr,m.family,m.equipment,m.muscles].join(' ')).includes(q)));$('movementCount').textContent=movements.length ? `${list.length} / ${movements.length} fiches documentées` : '0 mouvement dans la bibliothèque';$('movementResults').innerHTML=list.map(m=>`<article class="movement-card" data-detail="${m.id}" tabindex="0" role="button" aria-label="Voir la fiche ${m.fr}">${movementImageMarkup(m)}<div class="movement-card-body"><h3>${m.fr} <small>(${m.name})</small></h3><span class="tag">${m.family}</span><p class="small-note">${m.equipment}</p><p class="small-note">${m.desc}</p><a class="movement-source-link" href="${m.source}" target="_blank" rel="noopener">Voir la fiche Lift Manual ↗</a></div></article>`).join('')||'<p class="muted">Aucun mouvement trouvé.</p>';}
  function openMovementDetail(id){const m=movements.find(x=>x.id===id);if(!m)return;$('movementDetailContent').innerHTML=`<h2 id="movementDetailTitle">${m.fr} — ${m.name}</h2>${movementImageMarkup(m,true)}<span class="tag">${m.family}</span><span class="tag">${m.equipment}</span><h3>Description</h3><p>${m.desc}</p><h3>Muscles sollicités</h3><p>${m.muscles}</p><h3>Consignes techniques</h3><ol>${(m.steps||[]).map(x=>`<li>${x}</li>`).join('')}</ol><h3>Bénéfices</h3><ul>${(m.benefits||[]).map(x=>`<li>${x}</li>`).join('')}</ul><h3>Variantes</h3><p>${(m.variations||[]).join(' · ')}</p><a class="movement-source-link" href="${m.source}" target="_blank" rel="noopener">Consulter la fiche originale Lift Manual ↗</a>`;$('movementDetailModal').classList.remove('hidden');}
+ window.WODFactoryMovements = movements; window.WODFactoryOpenMovementDetail = openMovementDetail; renderTimerDemoPreview();
  $('movementSearch')?.addEventListener('input',renderLibrary);$('movementCategory')?.addEventListener('change',renderLibrary);$('movementResults')?.addEventListener('click',e=>{if(e.target.closest('a'))return;const card=e.target.closest('[data-detail]');if(card)openMovementDetail(card.dataset.detail)});$('movementResults')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-detail]')){e.preventDefault();openMovementDetail(e.target.closest('[data-detail]').dataset.detail)}});$('closeMovementDetail')?.addEventListener('click',()=>$('movementDetailModal').classList.add('hidden'));$('movementDetailModal')?.addEventListener('click',e=>{if(e.target===$('movementDetailModal'))$('movementDetailModal').classList.add('hidden')});renderLibrary();
 })();
 </script>
