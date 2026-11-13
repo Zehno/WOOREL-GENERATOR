@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>LES WODs d'OREL</title>
+<title>WOOREL GENERATOR</title>
 
 <style>
 :root {
@@ -360,7 +360,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 <div id="appShell">
 <header>
   <div class="logo">WOOREL <span>GENERATOR</span></div>
-  <div class="subtitle">LES WODs d'OREL</div>
+  <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
   <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
 </header>
 
@@ -379,18 +379,18 @@ header {position:relative; padding-right:110px; padding-left:110px}
   <h2>GÉNÉRATEUR DE WOD</h2>
 
   <div class="panel center">
-    <div class="muted"></div>
+    <div class="muted">GÉNÉRATION À PARTIR DE TA BASE DE DONNÉES PRIVÉE</div>
 
     <button class="generate-button" id="randomButton">
       <span style="font-size:30px">↻</span><br>
       WOD ALÉATOIRE
     </button>
-    <div class="muted"></div>
+    <div class="muted">Sélectionne un WOD existant dans ta base.</div>
 
     <button class="primary" id="mixButton" type="button" style="margin-top:18px">
       CRÉER UN WOD PAR MIXAGE
     </button>
-    <div class="muted" style="margin-top:9px"></div>
+    <div class="muted" style="margin-top:9px">Combine des WOD compatibles pour créer une nouvelle séance.</div>
     <div id="generationStatus" class="small-note" role="status" style="margin-top:14px"></div>
   </div>
 
@@ -432,6 +432,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
           <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
         </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
         <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
+        <div class="field"><label for="manualWodConsigne">CONSIGNE</label><textarea id="manualWodConsigne" rows="3" placeholder="Ex. : Garder une intensité régulière, respecter les amplitudes..."></textarea></div>
         <div class="field"><label for="manualWodExercises">EXERCICES (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea></div>
         <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="primary" id="saveManualWod" type="submit">AJOUTER DANS LA BIBLIOTHÈQUE</button><button class="secondary hidden" id="cancelEditWod" type="button">ANNULER LA MODIFICATION</button></div>
         <div id="manualWodStatus" class="small-note" role="status" aria-live="polite" style="margin-top:12px"></div>
@@ -531,6 +532,11 @@ header {position:relative; padding-right:110px; padding-left:110px}
     <div class="field">
       <label>NOM DE LA SÉANCE</label>
       <input id="timerWodName" placeholder="Nom de mon WOD">
+    </div>
+
+    <div class="field" id="timerConsigneBox" style="display:none">
+      <label>CONSIGNE</label>
+      <div id="timerWodConsigne" class="panel" style="margin:0;white-space:pre-wrap"></div>
     </div>
 
     <div class="field">
@@ -695,6 +701,7 @@ function beginEditWod(wod) {
   } else {
     document.getElementById("manualFortimeCap").value = cfg.time_cap_minutes ?? wod.duration ?? 0;
   }
+  document.getElementById("manualWodConsigne").value = wod.consigne || "";
   document.getElementById("manualWodExercises").value = (wod.movements || []).map(m => `${m.reps != null ? m.reps + " " : ""}${m.name || ""}`.trim()).join("\n");
   updateManualFormatFields();
   document.getElementById("saveManualWod").textContent = "ENREGISTRER LES MODIFICATIONS";
@@ -795,6 +802,9 @@ document.getElementById("mixButton").addEventListener("click", () => {
 function sendWodToTimer(wod) {
   if (!wod) return;
   document.getElementById("timerWodName").value = wod.name || "WOD partagé";
+  const consigne = String(wod.consigne || "").trim();
+  document.getElementById("timerWodConsigne").textContent = consigne;
+  document.getElementById("timerConsigneBox").style.display = consigne ? "block" : "none";
   document.getElementById("timerWodContent").value = (wod.movements || []).map(m =>
     `${m.reps ?? ""}${m.unit ? " "+m.unit : ""} ${m.name || ""}${m.load ? " — "+m.load : ""}`.trim()
   ).join("\n");
@@ -821,7 +831,7 @@ function sendWodToTimer(wod) {
 }
 
 function encodeSharePayload(wod) {
-  const payload = { v: 1, name: wod.name, type: wod.type, duration: wod.duration ?? null, timerConfig: wod.timerConfig || null, movements: (wod.movements || []).map(m => ({ name: m.name, reps: m.reps ?? null, unit: m.unit || "", load: m.load || "" })) };
+  const payload = { v: 1, name: wod.name, type: wod.type, duration: wod.duration ?? null, consigne: wod.consigne || "", timerConfig: wod.timerConfig || null, movements: (wod.movements || []).map(m => ({ name: m.name, reps: m.reps ?? null, unit: m.unit || "", load: m.load || "" })) };
   const bytes = new TextEncoder().encode(JSON.stringify(payload));
   let binary = ""; bytes.forEach(byte => binary += String.fromCharCode(byte));
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -1398,6 +1408,7 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   const name = document.getElementById("manualWodTitle").value.trim();
   const type = manualFormat.value;
   const movements = parseManualExercises(document.getElementById("manualWodExercises").value);
+  const consigne = document.getElementById("manualWodConsigne").value.trim();
   if (!name || !movements.length) { status.textContent = "Renseigne un titre et au moins un exercice."; return; }
 
   let duration = null;
@@ -1424,7 +1435,7 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   button.disabled = true; button.textContent = "ENREGISTREMENT...";
   status.textContent = "Enregistrement dans Supabase...";
   try {
-    const wodData = { name, type, duration, movements, timerConfig };
+    const wodData = { name, type, duration, movements, timerConfig, consigne };
     if (editingWodId !== null) {
       const updated = await window.updateManualWodInSupabase(editingWodId, wodData);
       const index = wods.findIndex(item => String(item.id) === String(editingWodId));
@@ -1494,7 +1505,7 @@ window.saveManualWodToSupabase = async function(wod) {
     name: wod.name,
     wod_type: wod.type,
     duration_minutes: wod.duration,
-    instructions: "WOOREL_TIMER_CONFIG:" + JSON.stringify(wod.timerConfig)
+    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "" })
   }).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
 
@@ -1509,7 +1520,7 @@ window.saveManualWodToSupabase = async function(wod) {
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    description: row.instructions || "", timerConfig: wod.timerConfig, movements: wod.movements
+    description: row.instructions || "", consigne: wod.consigne || "", timerConfig: wod.timerConfig, movements: wod.movements
   };
 };
 
@@ -1518,7 +1529,7 @@ window.updateManualWodInSupabase = async function(id, wod) {
     name: wod.name,
     wod_type: wod.type,
     duration_minutes: wod.duration,
-    instructions: "WOOREL_TIMER_CONFIG:" + JSON.stringify(wod.timerConfig)
+    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "" })
   }).eq("id", id).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
 
@@ -1532,7 +1543,7 @@ window.updateManualWodInSupabase = async function(id, wod) {
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    description: row.instructions || "", timerConfig: wod.timerConfig,
+    description: row.instructions || "", consigne: wod.consigne || "", timerConfig: wod.timerConfig,
     movements: wod.movements
   };
 };
@@ -1550,9 +1561,15 @@ async function loadWodsFromSupabase() {
     name: row.name || "WOD sans titre",
     type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    description: row.description || row.instructions || "",
+    description: row.description || "",
+    consigne: (() => {
+      const raw = String(row.instructions || "");
+      if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).consigne || ""; } catch (_) {} }
+      return "";
+    })(),
     timerConfig: (() => {
       const raw = String(row.instructions || "");
+      if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).timerConfig || null; } catch (_) { return null; } }
       const prefix = "WOOREL_TIMER_CONFIG:";
       if (!raw.startsWith(prefix)) return null;
       try { return JSON.parse(raw.slice(prefix.length)); } catch (_) { return null; }
