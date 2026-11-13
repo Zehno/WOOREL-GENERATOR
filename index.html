@@ -4,19 +4,49 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>LES WODs d'OREL</title>
+<title>Les WODS d'OREL</title>
 
 <style>
 :root {
   --bg:#101419;
   --panel:#1b222a;
   --panel2:#242d37;
+  --card-bg:#141b22;
+  --input-bg:#111820;
   --text:#f3f5f7;
   --muted:#929eaa;
   --green:#26c281;
   --orange:#f2a344;
   --red:#e45b5b;
   --border:#303b46;
+}
+
+body.theme-light {
+  --bg:#f2f5f8;
+  --panel:#ffffff;
+  --panel2:#e6ecf2;
+  --card-bg:#f8fafc;
+  --input-bg:#ffffff;
+  --text:#101419;
+  --muted:#52606d;
+  --green:#169c65;
+  --orange:#d97706;
+  --red:#dc2626;
+  --border:#cbd5e1;
+}
+
+body.theme-box {
+  --bg:#000000;
+  --panel:#111111;
+  --panel2:#1e1e1e;
+  --card-bg:#0a0a0a;
+  --input-bg:#000000;
+  --text:#ffffff;
+  --muted:#b0b0b0;
+  --green:#00ff66;
+  --orange:#ffaa00;
+  --red:#ff3333;
+  --border:#383838;
 }
 
 * {box-sizing:border-box}
@@ -83,7 +113,7 @@ main {
   padding:10px 18px 50px;
 }
 
-.page {display:none}
+ .page {display:none}
 .page.active {display:block}
 
 .library-subtabs {display:flex;gap:10px;margin:0 0 16px}
@@ -156,7 +186,7 @@ button {
 
 input,select,textarea {
   width:100%;
-  background:#111820;
+  background:var(--input-bg);
   color:var(--text);
   border:1px solid var(--border);
   padding:12px;
@@ -185,7 +215,7 @@ label {
 }
 
 .wod-card {
-  background:#141b22;
+  background:var(--card-bg);
   border:1px solid var(--border);
   border-radius:9px;
   padding:15px;
@@ -277,6 +307,15 @@ label {
   letter-spacing:2px;
 }
 
+.timer-exercises {
+  text-align:left;
+  margin-top:18px;
+}
+
+.timer-exercises .exercise {
+  font-size:16px;
+}
+
 .small-note {
   font-size:11px;
   color:var(--muted);
@@ -292,6 +331,7 @@ footer {
   font-size:10px;
   letter-spacing:2px;
 }
+
 
 .auth-screen {
   min-height:100vh; display:flex; align-items:center; justify-content:center;
@@ -324,7 +364,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
   .tab {font-size:11px;padding:14px 5px}
 }
 
-/* FULLSCREEN GIANT TIMER OVERLAY (Style Timer Rogue / LED) */
+/* FULLSCREEN GIANT TIMER OVERLAY */
 .fs-overlay {
   position: fixed;
   inset: 0;
@@ -334,17 +374,15 @@ header {position:relative; padding-right:110px; padding-left:110px}
   justify-content: space-between;
   align-items: center;
   padding: 24px 20px 32px;
-  background: #000000;
+  background: #101419;
   color: #f3f5f7;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.35s ease;
   user-select: none;
 }
 .fs-overlay.hidden { display: none !important; }
-
-/* Colors requested: Rouge pour l'exercice / Vert pour le repos */
 .fs-overlay.phase-prep { background: #1c2430; }
-.fs-overlay.phase-work { background: #1a0505; }
-.fs-overlay.phase-rest { background: #051a10; }
+.fs-overlay.phase-work { background: #0f3827; }
+.fs-overlay.phase-rest { background: #4a2a0b; }
 .fs-overlay.phase-done { background: #1f2937; }
 
 .fs-top {
@@ -362,7 +400,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
   letter-spacing: 2px;
   padding: 10px 18px;
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 .fs-phase-pill {
@@ -374,12 +412,12 @@ header {position:relative; padding-right:110px; padding-left:110px}
   text-transform: uppercase;
 }
 .phase-prep .fs-phase-pill { background: #3b82f6; color: #fff; }
-.phase-work .fs-phase-pill { background: #e45b5b; color: #fff; }
-.phase-rest .fs-phase-pill { background: #26c281; color: #101419; }
+.phase-work .fs-phase-pill { background: #26c281; color: #101419; }
+.phase-rest .fs-phase-pill { background: #f2a344; color: #101419; }
 .phase-done .fs-phase-pill { background: #e45b5b; color: #fff; }
 
 .fs-exit-btn {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.45);
   color: #f3f5f7;
   border: 1px solid rgba(255, 255, 255, 0.25);
   padding: 12px 20px;
@@ -410,28 +448,32 @@ header {position:relative; padding-right:110px; padding-left:110px}
   font-variant-numeric: tabular-nums;
   letter-spacing: -4px;
   margin: 10px 0;
-  text-shadow: 0 0 35px rgba(228,91,91,0.4);
+  text-shadow: 0 8px 30px rgba(0,0,0,0.45);
 }
-.phase-work .fs-clock { color: #e45b5b; text-shadow: 0 0 40px rgba(228,91,91,0.6); }
-.phase-rest .fs-clock { color: #26c281; text-shadow: 0 0 40px rgba(38,194,129,0.6); }
-.phase-prep .fs-clock { color: #3b82f6; }
-.phase-done .fs-clock { color: #f3f5f7; }
-
-.fs-round-info {
-  color: #60a5fa !important;
+.fs-round-info {
+  font-size: clamp(22px, 4vw, 44px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-top: 8px;
 }
-.phase-work .fs-round-info {
-  color: #60a5fa !important;
+.fs-exercises-box {
+  margin: 16px auto 0;
+  max-width: 900px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: clamp(15px, 2.2vw, 22px);
+  line-height: 1.45;
+  max-height: 22vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
 }
-.phase-rest .fs-round-info {
-  color: #60a5fa !important;
-}
-
 .fs-next-box {
   margin-top: 14px;
   font-size: clamp(14px, 2vw, 20px);
   color: rgba(255, 255, 255, 0.85);
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.28);
   display: inline-block;
   padding: 8px 18px;
   border-radius: 8px;
@@ -461,6 +503,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 }
 .danger-btn:hover { background: #52242a !important; }
 
+
 .consigne-box {
   background: rgba(38, 194, 129, 0.08);
   border-left: 3px solid var(--green);
@@ -480,6 +523,164 @@ header {position:relative; padding-right:110px; padding-left:110px}
   margin-bottom: 4px;
   text-transform: uppercase;
 }
+.fs-content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px auto 0;
+  max-width: 960px;
+  width: 100%;
+}
+.fs-consigne-box {
+  background: rgba(38, 194, 129, 0.14);
+  border: 1px solid rgba(38, 194, 129, 0.45);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: clamp(14px, 2vw, 20px);
+  line-height: 1.4;
+  max-height: 15vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  text-align: left;
+}
+.fs-consigne-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #6ee7b7;
+  margin-bottom: 4px;
+}
+.fs-exercises-box {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 960px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: clamp(15px, 2.2vw, 22px);
+  line-height: 1.45;
+  max-height: 22vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
+
+.header-controls {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.logout-button {
+  position: static;
+}
+.theme-btn, .install-btn {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+}
+.theme-btn:hover, .install-btn:hover {
+  border-color: var(--green);
+}
+header {
+  padding-right: 180px;
+  padding-left: 180px;
+}
+@media(max-width:650px) {
+  header { padding-left: 12px; padding-right: 12px; padding-top: 52px; }
+  .header-controls { top: 10px; right: 10px; left: 10px; justify-content: flex-end; }
+}
+
+.timer-types {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media(min-width:600px) {
+  .timer-types { grid-template-columns: repeat(6, 1fr); }
+}
+
+.audio-wakelock-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.status-pill {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--panel2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.status-pill.active {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+/* Modal QR & Score */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.modal-card {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+.qr-box {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 14px auto;
+}
+.history-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.history-score-badge {
+  background: rgba(38, 194, 129, 0.15);
+  color: var(--green);
+  border: 1px solid var(--green);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 </style>
 </head>
 
@@ -487,7 +688,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <section id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <h1>LES WODs <span style="color:var(--green)">d'OREL</span></h1>
+    <h1>Les WODS d'OREL<span style="color:var(--green)">d'OREL</span></h1>
     <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
     <form id="loginForm">
       <div class="field">
@@ -496,7 +697,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
       </div>
       <div class="field">
         <label>MOT DE PASSE</label>
-        <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Mot de passe">
+        <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Mot de passe" >
       </div>
       <button class="primary" id="loginButton" type="submit">SE CONNECTER</button>
       <div id="authMessage" class="auth-message" role="status"></div>
@@ -506,22 +707,30 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <div id="appShell">
 <header>
-  <div class="logo">LES WODs <span>d'OREL</span></div>
-  <div class="subtitle">SEANCES ET CHRONOMETRE</div>
-  <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
+  <div class="logo">Les WODS<span>d'OREL</span></div>
+  <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
+  <div class="header-controls">
+    <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
+    <button class="theme-btn" id="themeToggleBtn" type="button" title="Changer le thème">🌓 THÈME : SOMBRE</button>
+    <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
+  </div>
 </header>
 
 <nav class="tabs">
-  <button class="tab active" data-page="generator">GÉNÉRATEUR DE WOD</button>
+  <button class="tab active" data-page="generator">GÉNÉRATEUR</button>
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
+  <button class="tab" data-page="historyPage">HISTORIQUE</button>
 </nav>
 
 <main>
 
 <!-- GENERATEUR -->
+
 <section id="generator" class="page active">
+
   <h2>GÉNÉRATEUR DE WOD</h2>
+
   <div class="panel center">
     <div class="muted">GÉNÉRATION À PARTIR DE TA BASE DE DONNÉES PRIVÉE</div>
 
@@ -545,6 +754,9 @@ header {position:relative; padding-right:110px; padding-left:110px}
       ENVOYER VERS LE CHRONO →
     </button>
   </div>
+
+
+
 </section>
 
 <!-- BIBLIOTHEQUE -->
@@ -564,21 +776,21 @@ header {position:relative; padding-right:110px; padding-left:110px}
           <p class="small-note">Ajoute autant de blocs que nécessaire, avec un format et un temps de repos entre chaque bloc.</p>
         </div>
         <div id="singleWodFields">
-          <div class="field"><label for="manualWodFormat">FORMAT</label>
-            <select id="manualWodFormat"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
-          </div>
-          <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MINUTES)</label><input id="manualAmrapDuration" type="number" min="1" value="20"></div>
-          <div id="manualEmomFields" class="hidden"><div class="grid">
-            <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MINUTES)</label><input id="manualEmomDuration" type="number" min="1" value="12"></div>
-            <div class="field"><label for="manualEmomWork">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="manualEmomWork" type="number" min="1" max="59" value="40"></div>
-          </div><p class="small-note" id="manualEmomRestPreview">Repos automatique : 20 secondes par minute.</p></div>
-          <div id="manualTabataFields" class="hidden"><div class="grid">
-            <div class="field"><label for="manualTabataWork">TRAVAIL (SECONDES)</label><input id="manualTabataWork" type="number" min="1" value="20"></div>
-            <div class="field"><label for="manualTabataRest">REPOS (SECONDES)</label><input id="manualTabataRest" type="number" min="0" value="10"></div>
-            <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
-          </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
-          <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
-          <div class="field"><label for="manualWodExercises">EXERCICES (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea></div>
+        <div class="field"><label for="manualWodFormat">FORMAT</label>
+          <select id="manualWodFormat"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
+        </div>
+        <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MINUTES)</label><input id="manualAmrapDuration" type="number" min="1" value="20"></div>
+        <div id="manualEmomFields" class="hidden"><div class="grid">
+          <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MINUTES)</label><input id="manualEmomDuration" type="number" min="1" value="12"></div>
+          <div class="field"><label for="manualEmomWork">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="manualEmomWork" type="number" min="1" max="59" value="40"></div>
+        </div><p class="small-note" id="manualEmomRestPreview">Repos automatique : 20 secondes par minute.</p></div>
+        <div id="manualTabataFields" class="hidden"><div class="grid">
+          <div class="field"><label for="manualTabataWork">TRAVAIL (SECONDES)</label><input id="manualTabataWork" type="number" min="1" value="20"></div>
+          <div class="field"><label for="manualTabataRest">REPOS (SECONDES)</label><input id="manualTabataRest" type="number" min="0" value="10"></div>
+          <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
+        </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
+        <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
+        <div class="field"><label for="manualWodExercises">EXERCICES (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea></div>
         </div>
         <div class="field"><label for="manualWodConsigne">CONSIGNE</label><textarea id="manualWodConsigne" rows="3" placeholder="Ex. : Garder une intensité régulière, respecter les amplitudes..."></textarea></div>
         <div id="multiBlockEditor" class="hidden">
@@ -604,7 +816,9 @@ header {position:relative; padding-right:110px; padding-left:110px}
 </section>
 
 <!-- CHRONOMETRE -->
+
 <section id="timer" class="page">
+
   <h2>CHRONOMÈTRE</h2>
 
   <div class="panel">
@@ -613,10 +827,12 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <button class="type-button" data-type="EMOM">EMOM</button>
       <button class="type-button" data-type="TABATA">TABATA</button>
       <button class="type-button" data-type="FORTIME">FOR TIME</button>
+      <button class="type-button" data-type="STOPWATCH">CHRONO LIBRE</button>
       <button class="type-button" data-type="MIX">MIX (2 WOD)</button>
     </div>
 
     <div id="timerSettings">
+
       <div id="amrapSettings">
         <div class="field">
           <label>DURÉE (MINUTES)</label>
@@ -656,11 +872,14 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
       <div id="fortimeSettings" class="hidden">
         <div class="field">
-          <label>LIMITE DE TEMPS (MINUTES, 0 = SANS LIMITE)</label>
+          <label>TIME CAP (MINUTES, 0 = CHRONO MONTANT SANS LIMITE)</label>
           <input id="fortimeLimit" type="number" min="0" value="20">
         </div>
+        <p class="small-note">Avec un Time Cap (&gt; 0), le chrono affiche le décompte négatif (temps restant avant le Cap). À 0, il défile vers le haut.</p>
       </div>
-
+      <div id="stopwatchSettings" class="hidden">
+        <p class="small-note">Chronomètre libre (Stopwatch) : compte vers le haut à partir de 00:00 sans limite de temps.</p>
+      </div>
       <div id="mixSettings" class="hidden">
         <p class="small-note">Compose une séance avec deux blocs chronométrés. Tu peux choisir le même format deux fois ou mélanger AMRAP et EMOM.</p>
         <div class="panel" style="margin:12px 0">
@@ -680,14 +899,14 @@ header {position:relative; padding-right:110px; padding-left:110px}
         </div>
         <p class="small-note" id="mixTotalPreview">Durée totale : 37 min (repos compris).</p>
       </div>
+
     </div>
   </div>
 
   <div class="panel center">
     <div class="timer-status" id="timerStatus">PRÊT</div>
     <div class="clock" id="clock">20:00</div>
-    <div id="timerTotalDurationNote" class="muted" style="margin-top:6px;font-weight:bold;color:var(--green)">Durée totale de la séance : 20 min</div>
-    <div id="timerInfo" class="muted" style="margin-top:4px">AMRAP</div>
+    <div id="timerInfo" class="muted">AMRAP</div>
 
     <div class="actions" style="margin-top:25px">
       <button class="primary" id="startTimer">DÉMARRER</button>
@@ -697,31 +916,109 @@ header {position:relative; padding-right:110px; padding-left:110px}
     <div style="margin-top:12px">
       <button class="secondary hidden" id="reenterFullscreenBtn" type="button" style="width:100%">⛶ RETOURNER EN PLEIN ÉCRAN</button>
     </div>
+    <div style="margin-top:10px">
+      <button class="secondary" id="logWorkoutBtn" type="button" style="width:100%">✓ ENREGISTRER CETTE SÉANCE DANS L'HISTORIQUE</button>
+    </div>
+    <div class="audio-wakelock-bar">
+      <button class="secondary" id="testAudioBtn" type="button" style="padding:8px 12px;font-size:12px">🔊 TESTER LE SON</button>
+      <span class="status-pill" id="wakeLockBadge">📱 ÉCRAN : VEILLE AUTO</span>
+    </div>
   </div>
 
   <div class="panel">
     <h2>MON WOD</h2>
+
     <div class="field">
       <label>NOM DE LA SÉANCE</label>
       <input id="timerWodName" placeholder="Nom de mon WOD">
     </div>
+
     <div class="field" id="timerConsigneBox">
       <label for="timerWodConsigne">CONSIGNES</label>
-      <textarea id="timerWodConsigne" rows="3" placeholder="Consignes de la séance..."></textarea>
+      <textarea id="timerWodConsigne" rows="3" placeholder="Consignes de la séance (s'affiche dans la fenêtre plein écran du chrono)..."></textarea>
     </div>
+
     <div class="field">
       <label>CONTENU DE LA SÉANCE</label>
-      <textarea id="timerWodContent" rows="7" placeholder="Exemple :&#10;15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea>
+      <textarea id="timerWodContent" rows="7"
+        placeholder="Exemple :&#10;15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea>
+    </div>
+
+    <div class="small-note">
+      Tu peux saisir ton propre WOD ou récupérer directement
+      celui sélectionné dans le générateur.
+    </div>
+  </div>
+
+</section>
+
+
+<!-- HISTORIQUE -->
+<section id="historyPage" class="page">
+  <h2>HISTORIQUE DES SÉANCES</h2>
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:bold">SÉANCES RÉALISÉES</div>
+        <div class="small-note" id="historyCountLabel">0 séance enregistrée</div>
+      </div>
+      <button class="secondary" id="openManualLogBtn" type="button">+ AJOUTER UN RÉSULTAT</button>
+    </div>
+    <div id="historyList" style="margin-top:14px">
+      <p class="muted">Aucune séance enregistrée pour le moment.</p>
     </div>
   </div>
 </section>
 
 </main>
 
-<footer>Application créée par Aurélien E.</footer>
+<footer>Application crée par Aurélien E</footer>
 </div><!-- /appShell -->
 
-<!-- CHRONO PLEIN ECRAN GEANT (Style Timer Rogue / LED) -->
+
+<!-- MODAL QR CODE PARTAGE -->
+<div id="qrModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h3 id="qrModalTitle" style="margin:0 0 6px">PARTAGER LE WOD</h3>
+    <div class="muted">Scanne ce QR Code pour charger le WOD sur un autre téléphone</div>
+    <div class="qr-box">
+      <canvas id="qrCanvas" width="220" height="220"></canvas>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="primary" id="copyShareLinkBtn" type="button">COPIER LE LIEN</button>
+      <button class="secondary" id="closeQrModalBtn" type="button">FERMER</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENREGISTRER SÉANCE / SCORE -->
+<div id="logModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card" style="text-align:left">
+    <h3 style="margin:0 0 12px;text-align:center">ENREGISTRER LA SÉANCE</h3>
+    <div class="field">
+      <label for="logWodName">NOM DU WOD</label>
+      <input id="logWodName" placeholder="Ex. : FRAN / AMRAP 20">
+    </div>
+    <div class="field">
+      <label for="logWodFormat">FORMAT</label>
+      <input id="logWodFormat" placeholder="AMRAP, FOR TIME, EMOM...">
+    </div>
+    <div class="field">
+      <label for="logWodScore">SCORE / TEMPS RÉALISÉ</label>
+      <input id="logWodScore" placeholder="Ex. : 14:32 ou 6 rounds + 12 reps">
+    </div>
+    <div class="field">
+      <label for="logWodNotes">RESSENTI / NOTES (OPTIONNEL)</label>
+      <textarea id="logWodNotes" rows="3" placeholder="Charge utilisée, sensations..."></textarea>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button class="primary" id="saveHistoryEntryBtn" type="button">ENREGISTRER</button>
+      <button class="secondary" id="closeLogModalBtn" type="button">ANNULER</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHRONO PLEIN ECRAN GEANT -->
 <div id="fsTimerOverlay" class="fs-overlay phase-prep hidden" role="dialog" aria-modal="true">
   <div class="fs-top">
     <div class="fs-badge" id="fsBlockBadge">BLOC 1 / 1</div>
@@ -738,25 +1035,42 @@ header {position:relative; padding-right:110px; padding-left:110px}
   <div class="fs-controls">
     <button type="button" class="fs-btn-pause" id="fsPauseResumeBtn">PAUSE</button>
     <button type="button" class="fs-btn-reset" id="fsResetBtn">RESET</button>
+    <button type="button" class="fs-btn-resume hidden" id="fsLogBtn">✓ NOTER SCORE</button>
   </div>
 </div>
 
+
 <script>
+
 // =======================================
 // NAVIGATION
 // =======================================
+
+// Navigation par délégation : les onglets restent cliquables même si
+// leur contenu est reconstruit ultérieurement.
 document.addEventListener("click", event => {
   const button = event.target.closest(".tab");
   if (!button) return;
+
   const targetPage = document.getElementById(button.dataset.page);
   if (!targetPage) return;
-  document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab === button));
-  document.querySelectorAll(".page").forEach(page => page.classList.toggle("active", page === targetPage));
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.toggle("active", tab === button);
+  });
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.toggle("active", page === targetPage);
+  });
 });
 
 function openPage(page) {
-  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.page === page));
-  document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.id === page));
+  document.querySelectorAll(".tab").forEach(b => {
+    b.classList.toggle("active", b.dataset.page === page);
+  });
+
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.toggle("active", p.id === page);
+  });
 }
 
 document.querySelectorAll(".library-subtab").forEach(button => {
@@ -773,9 +1087,15 @@ function openLibraryPanel(panelId) {
 }
 
 // =======================================
-// BIBLIOTHEQUE & DONNEES
+// BIBLIOTHEQUE
 // =======================================
-var wods = [];
+
+// Données de démonstration.
+// Elles seront remplacées par les WOD extraits des PDF.
+
+// Variables globales partagées avec le script module Supabase.
+// `var` les expose sur window, contrairement à `let` dans un script classique.
+var wods = []; // Chargés depuis Supabase après connexion
 var selectedWod = null;
 var editingWodId = null;
 
@@ -855,7 +1175,9 @@ function displayLibrary() {
     card.querySelector(".choose-library-wod").addEventListener("click", () => {
       selectWod(wod); openPage("generator"); window.scrollTo({top:0,behavior:"smooth"});
     });
-    card.querySelector(".edit-library-wod").addEventListener("click", () => beginEditWod(wod));
+    card.querySelector(".edit-library-wod").addEventListener("click", () => {
+      beginEditWod(wod);
+    });
     card.querySelector(".share-library-wod").addEventListener("click", async () => {
       try { await shareWodLink(wod); }
       catch (error) { alert("Impossible de créer le lien : " + (error?.message || error)); }
@@ -872,7 +1194,8 @@ function displayLibrary() {
           selectedWod = null;
           document.getElementById("selectedWod").classList.add("hidden");
         }
-        updateCount(); displayLibrary();
+        updateCount();
+        displayLibrary();
         if (statusEl) statusEl.textContent = `WOD « ${wod.name} » supprimé.`;
       } catch (error) {
         console.error(error);
@@ -890,7 +1213,9 @@ function beginEditWod(wod) {
   document.getElementById("manualMultiBlock").checked = isMulti;
   document.getElementById("singleWodFields").classList.toggle("hidden", isMulti);
   document.getElementById("multiBlockEditor").classList.toggle("hidden", !isMulti);
-  if (isMulti) renderMultiBlocks(wod.timerConfig.blocks);
+  if (isMulti) {
+    renderMultiBlocks(wod.timerConfig.blocks);
+  }
   const format = String(wod.type || "AMRAP").toUpperCase();
   manualFormat.value = ["AMRAP", "EMOM", "TABATA", "FOR TIME"].includes(format) ? format : "AMRAP";
   const cfg = wod.timerConfig || {};
@@ -937,6 +1262,7 @@ document.getElementById("cancelEditWod").addEventListener("click", () => {
 
 function selectWod(wod) {
   selectedWod = wod;
+
   document.getElementById("selectedContent").innerHTML = renderWod(wod);
   document.getElementById("selectedWod").classList.remove("hidden");
 }
@@ -944,9 +1270,10 @@ function selectWod(wod) {
 document.getElementById("randomButton").addEventListener("click", () => {
   const status = document.getElementById("generationStatus");
   if (!wods.length) {
-    status.textContent = "Aucun WOD disponible dans la base.";
+    status.textContent = "Aucun WOD disponible dans la base. Vérifie l'import et la connexion Supabase.";
     return;
   }
+
   const wod = wods[Math.floor(Math.random() * wods.length)];
   selectWod(wod);
   status.textContent = "WOD existant sélectionné depuis ta base.";
@@ -955,48 +1282,62 @@ document.getElementById("randomButton").addEventListener("click", () => {
 document.getElementById("mixButton").addEventListener("click", () => {
   const status = document.getElementById("generationStatus");
   const groups = new Map();
+
   wods.filter(w => Array.isArray(w.movements) && w.movements.length >= 2).forEach(w => {
     const type = String(w.type || "LIBRE").trim().toUpperCase();
     if (!groups.has(type)) groups.set(type, []);
     groups.get(type).push(w);
   });
+
   const compatibleGroups = Array.from(groups.entries()).filter(([, items]) => items.length >= 2);
   if (!compatibleGroups.length) {
-    status.textContent = "Pas assez de WOD compatibles pour effectuer un mixage.";
+    status.textContent = "Pas assez de WOD compatibles pour effectuer un mixage. Il faut au moins deux WOD du même format avec des mouvements enregistrés.";
     return;
   }
+
   const [type, candidates] = compatibleGroups[Math.floor(Math.random() * compatibleGroups.length)];
-  const sources = [...candidates].sort(() => Math.random() - 0.5).slice(0, 2);
+  const shuffledSources = [...candidates].sort(() => Math.random() - 0.5);
+  const sources = shuffledSources.slice(0, 2);
   const uniqueMovements = new Map();
+
   sources.forEach(source => {
-    [...source.movements].sort(() => Math.random() - 0.5).forEach(movement => {
+    const shuffledMovements = [...source.movements].sort(() => Math.random() - 0.5);
+    shuffledMovements.forEach(movement => {
       const key = String(movement.name || "").trim().toLowerCase();
       if (key && !uniqueMovements.has(key)) uniqueMovements.set(key, { ...movement });
     });
   });
+
   const movementPool = Array.from(uniqueMovements.values());
   const mixedMovements = movementPool.sort(() => Math.random() - 0.5).slice(0, Math.min(5, movementPool.length));
   if (mixedMovements.length < 3) {
-    status.textContent = "Le mixage n'a pas trouvé assez de mouvements différents. Relance.";
+    status.textContent = "Le mixage n'a pas trouvé assez de mouvements différents. Relance la génération.";
     return;
   }
+
   const durations = sources.map(w => Number(w.duration)).filter(n => Number.isFinite(n) && n > 0);
-  const combinedConsignes = sources.map(w => String(w.consigne || "").trim()).filter(Boolean).join("\n—\n");
+  const combinedConsignes = sources
+    .map(w => String(w.consigne || "").trim())
+    .filter(Boolean)
+    .join("\n—\n");
   const mixedWod = {
     id: null,
     name: "WOD MIX — " + type,
     type,
     duration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
     consigne: combinedConsignes,
+    description: "Nouveau mixage temporaire construit à partir de deux WOD de ta base : " + sources.map(w => w.name).join(" + "),
     movements: mixedMovements
   };
+
   selectWod(mixedWod);
-  status.textContent = "Nouveau WOD composé à partir de : " + sources.map(w => w.name).join(" et ");
+  status.textContent = "Nouveau WOD composé à partir de : " + sources.map(w => w.name).join(" et ") + ". Ce mixage n'est pas enregistré dans la base.";
 });
 
 // =======================================
 // TRANSFERT VERS CHRONOMETRE
 // =======================================
+
 function sendWodToTimer(wod) {
   if (!wod) return;
   document.getElementById("timerWodName").value = wod.name || "WOD partagé";
@@ -1035,20 +1376,100 @@ function sendWodToTimer(wod) {
   updateClock();
 }
 
+function encodeSharePayload(wod) {
+  const payload = { v: 1, name: wod.name, type: wod.type, duration: wod.duration ?? null, consigne: wod.consigne || "", timerConfig: wod.timerConfig || null, blocks: (wod.timerConfig && wod.timerConfig.blocks) || null, movements: (wod.movements || []).map(m => ({ name: m.name, reps: m.reps ?? null, unit: m.unit || "", load: m.load || "" })) };
+  const bytes = new TextEncoder().encode(JSON.stringify(payload));
+  let binary = ""; bytes.forEach(byte => binary += String.fromCharCode(byte));
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function decodeSharePayload(encoded) {
+  const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+  const binary = atob(base64 + "=".repeat((4 - base64.length % 4) % 4));
+  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+  const payload = JSON.parse(new TextDecoder().decode(bytes));
+  if (!payload || payload.v !== 1 || !payload.name || !Array.isArray(payload.movements)) throw new Error("Lien de partage invalide.");
+  return payload;
+}
+
+let currentShareLink = "";
+
+// Générateur QR Code matriciel autonome (sans dépendance externe) via API QR fallback ou dessin canvas
+function drawQrCodeOnCanvas(canvas, text) {
+  const ctx = canvas.getContext("2d");
+  const size = canvas.width;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
+
+  // Utilisation d'une image QR haute fiabilité dessinée sur le canvas + fallback matrice déterministe
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+  };
+  img.onerror = () => {
+    // Fallback visuel si hors-ligne
+    ctx.fillStyle = "#101419";
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("QR Code disponible en ligne", size / 2, size / 2 - 8);
+    ctx.font = "11px Arial";
+    ctx.fillText("Utilise le bouton Copier le lien", size / 2, size / 2 + 12);
+  };
+  img.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=4&data=" + encodeURIComponent(text);
+}
+
+async function shareWodLink(wod) {
+  const baseUrl = window.location.href.split("#")[0];
+  currentShareLink = baseUrl + "#share=" + encodeSharePayload(wod);
+
+  const qrModal = document.getElementById("qrModal");
+  const qrTitle = document.getElementById("qrModalTitle");
+  const qrCanvas = document.getElementById("qrCanvas");
+  if (qrTitle) qrTitle.textContent = "PARTAGER : " + (wod.name || "WOD");
+  if (qrCanvas) drawQrCodeOnCanvas(qrCanvas, currentShareLink);
+  if (qrModal) qrModal.classList.remove("hidden");
+}
+
+async function openSharedWodFromLink() {
+  const match = window.location.hash.match(/^#share=(.+)$/);
+  if (!match) return false;
+  try {
+    const wod = decodeSharePayload(match[1]);
+    sendWodToTimer(wod);
+    openPage("timer");
+    window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    alert("Le WOD partagé est chargé dans le chronomètre. Vérifie les réglages puis appuie sur DÉMARRER.");
+    return true;
+  } catch (error) {
+    alert("Impossible d'ouvrir ce WOD partagé : " + (error?.message || error));
+    return false;
+  }
+}
+
 document.getElementById("sendToTimer").addEventListener("click", () => sendWodToTimer(selectedWod));
 
 // =======================================
 // SELECTION DU TYPE DE CHRONO
 // =======================================
+
 let timerType = "AMRAP";
 
 function setTimerType(type) {
   timerType = type;
-  document.querySelectorAll(".type-button").forEach(b => b.classList.toggle("active", b.dataset.type === type));
-  ["amrap","emom","tabata","fortime","mix"].forEach(id => {
+
+  document.querySelectorAll(".type-button").forEach(b => {
+    b.classList.toggle("active", b.dataset.type === type);
+  });
+
+  ["amrap","emom","tabata","fortime","stopwatch","mix"].forEach(id => {
     document.getElementById(id+"Settings").classList.add("hidden");
   });
+
   document.getElementById(type.toLowerCase()+"Settings").classList.remove("hidden");
+
   resetTimer();
   updateClock();
 }
@@ -1057,9 +1478,11 @@ document.querySelectorAll(".type-button").forEach(button => {
   button.addEventListener("click", () => setTimerType(button.dataset.type));
 });
 
+
 // =======================================
-// CHRONOMETRE AVEC AUDIO & COULEURS
+// CHRONOMETRE AVEC SIGNAUX SONORES
 // =======================================
+
 let interval = null;
 let countdownInterval = null;
 let running = false;
@@ -1069,15 +1492,28 @@ let remaining = 0;
 let elapsed = 0;
 let phase = "work";
 let cycle = 1;
+
 let audioContext = null;
+
+// =======================================
+// SYSTEME AUDIO
+// =======================================
 
 function getAudioContext() {
   if (!audioContext) {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) throw new Error("Audio non disponible");
+
+    if (!AudioContextClass) {
+      throw new Error("Audio non disponible sur ce navigateur.");
+    }
+
     audioContext = new AudioContextClass();
   }
-  if (audioContext.state === "suspended") audioContext.resume();
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
   return audioContext;
 }
 
@@ -1086,35 +1522,54 @@ function playTone(frequency = 880, duration = 0.35) {
     const audio = getAudioContext();
     const oscillator = audio.createOscillator();
     const gain = audio.createGain();
+
     oscillator.type = "sine";
     oscillator.frequency.value = frequency;
+
     gain.gain.setValueAtTime(0.0001, audio.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.18, audio.currentTime + 0.025);
     gain.gain.setValueAtTime(0.18, audio.currentTime + duration * 0.65);
     gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
+
     oscillator.connect(gain);
     gain.connect(audio.destination);
+
     oscillator.start();
     oscillator.stop(audio.currentTime + duration);
+
   } catch (error) {
     console.warn("Signal sonore indisponible :", error);
   }
 }
 
+// Timbre de préparation : deux notes simultanées
 function playStartBell() {
   playTone(660, 0.8);
   playTone(990, 0.8);
 }
 
+// Même tonalité pour tous les signaux de mi-temps
 function playMidpointTone() {
   playTone(880, 0.55);
 }
 
+// Décompte sonore
 function playCountdownTone(number) {
-  const frequencies = { 3: 600, 2: 700, 1: 800, GO: 1100 };
+  const frequencies = {
+    3: 600,
+    2: 700,
+    1: 800,
+    GO: 1100
+  };
+
   playTone(frequencies[number] || 880, number === "GO" ? 0.6 : 0.22);
 }
 
+// =======================================
+// DUREE DU CHRONOMETRE
+// =======================================
+
+let sequenceBlocks = [];
 function blockDurationSeconds(block) {
   const type = block.type;
   if (type === "TABATA") return Math.max(1, block.work || 20) * Math.max(1, block.cycles || 8) +
@@ -1122,101 +1577,53 @@ function blockDurationSeconds(block) {
   if (type === "FORTIME") return Math.max(1, block.duration || 1) * 60;
   return Math.max(1, block.duration || 1) * 60;
 }
-
-function getEffectiveMixBlocks() {
-  if (sequenceBlocks && sequenceBlocks.length) return sequenceBlocks;
-  const t1 = document.getElementById("mixType1")?.value || "AMRAP";
-  const d1 = Math.max(1, Number(document.getElementById("mixDuration1")?.value) || 20);
-  const w1 = Math.max(1, Math.min(59, Number(document.getElementById("mixWork1")?.value) || 40));
-  const rest = Math.max(0, Number(document.getElementById("mixRest")?.value) || 0);
-  const t2 = document.getElementById("mixType2")?.value || "AMRAP";
-  const d2 = Math.max(1, Number(document.getElementById("mixDuration2")?.value) || 12);
-  const w2 = Math.max(1, Math.min(59, Number(document.getElementById("mixWork2")?.value) || 40));
-  return [
-    { type: t1, duration: d1, work: w1, rest_after: rest },
-    { type: t2, duration: d2, work: w2, rest_after: 0 }
-  ];
-}
-
 function getSequenceTimeline() {
-  const blocks = getEffectiveMixBlocks();
   let cursor = 0;
-  return blocks.map((b, index) => {
+  return sequenceBlocks.map((b, index) => {
     const start = cursor;
     const duration = blockDurationSeconds(b);
     cursor += duration;
     const end = cursor;
-    const rest = index < blocks.length - 1 ? Math.max(0, Number(b.rest_after) || 0) * 60 : 0;
+    const rest = index < sequenceBlocks.length - 1 ? Math.max(0, Number(b.rest_after) || 0) * 60 : 0;
     cursor += rest;
     return { ...b, index, start, end, restStart:end, restEnd:cursor, duration, rest };
   });
 }
-
 function getSequenceDuration() {
   const timeline = getSequenceTimeline();
   return timeline.length ? timeline[timeline.length-1].restEnd : 0;
 }
+function updateMixControls() {
+  const preview = document.getElementById("mixTotalPreview");
+  if (preview) preview.textContent = "La séance multi-blocs est configurée depuis l'onglet Bibliothèque.";
+}
 
 function getDuration() {
   if (timerType === "MIX") return getSequenceDuration();
-  if (timerType === "AMRAP") return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
-  if (timerType === "EMOM") return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
-  if (timerType === "FORTIME") return Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0) * 60;
-  return Math.max(1, Number(document.getElementById("tabataWork").value) || 20) * Math.max(1, Number(document.getElementById("tabataCycles").value) || 8) +
-    Math.max(0, Number(document.getElementById("tabataRest").value) || 10) * (Math.max(1, Number(document.getElementById("tabataCycles").value) || 8) - 1);
-}
-
-function updateTimerTotalDurationDisplay() {
-  const note = document.getElementById("timerTotalDurationNote");
-  if (!note) return;
-  let totalSec = 0;
-  let label = "";
-
   if (timerType === "AMRAP") {
-    const mins = Math.max(1, Number(document.getElementById("amrapDuration").value) || 20);
-    totalSec = mins * 60;
-    label = `Durée totale de la séance : ${mins} min`;
-  } else if (timerType === "EMOM") {
-    const mins = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
-    totalSec = mins * 60;
-    label = `Durée totale de la séance : ${mins} min (EMOM)`;
-  } else if (timerType === "TABATA") {
-    const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
-    const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
-    const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
-    totalSec = (work + rest) * cycles - rest;
-    label = `Durée totale de la séance : ${Math.floor(totalSec/60)} min ${String(totalSec%60).padStart(2,"0")} s (Tabata)`;
-  } else if (timerType === "FORTIME") {
-    const cap = Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0);
-    label = cap > 0 ? `Time Cap : ${cap} min` : `Sans limite de temps (For Time)`;
-  } else if (timerType === "MIX") {
-    totalSec = getSequenceDuration();
-    const mins = Math.floor(totalSec / 60);
-    const secs = totalSec % 60;
-    label = `Durée totale estimée (avec repos) : ${mins} min${secs ? ' ' + secs + ' s' : ''}`;
+    return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
   }
-  note.textContent = label;
+
+  if (timerType === "EMOM") {
+    return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
+  }
+
+  if (timerType === "FORTIME") {
+    return Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0) * 60;
+  }
+
+  if (timerType === "STOPWATCH") {
+    return 0;
+  }
+
+  return Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
 }
+
+// =======================================
+// PLEIN ECRAN & AFFICHAGE GEANT
+// =======================================
 
 let fsOverlayActive = false;
-let wakeLock = null;
-
-async function requestWakeLock() {
-  try {
-    if ('wakeLock' in navigator) {
-      wakeLock = await navigator.wakeLock.request('screen');
-    }
-  } catch (err) {
-    console.warn(`Wake Lock error: ${err.name}, ${err.message}`);
-  }
-}
-
-async function releaseWakeLock() {
-  if (wakeLock !== null) {
-    await wakeLock.release();
-    wakeLock = null;
-  }
-}
 
 function enterFullscreenOverlay() {
   const overlay = document.getElementById("fsTimerOverlay");
@@ -1225,7 +1632,6 @@ function enterFullscreenOverlay() {
   overlay.classList.remove("hidden");
   updateFsPauseButton();
   updateReenterFullscreenButton();
-  requestWakeLock();
   const docEl = document.documentElement;
   if (docEl.requestFullscreen && !document.fullscreenElement) {
     docEl.requestFullscreen().catch(() => {});
@@ -1237,14 +1643,16 @@ function exitFullscreenOverlay() {
   if (overlay) overlay.classList.add("hidden");
   fsOverlayActive = false;
   updateReenterFullscreenButton();
-  releaseWakeLock();
   if (document.fullscreenElement && document.exitFullscreen) {
     document.exitFullscreen().catch(() => {});
   }
 }
 
 document.addEventListener("fullscreenchange", () => {
+  // Si l'utilisateur quitte via Échap, on synchronise l'overlay ou on laisse l'overlay fermé proprement
   if (!document.fullscreenElement && fsOverlayActive) {
+    // On garde l'overlay accessible ou on peut le fermer sur clic du bouton dédiée ;
+    // si Échap est pressé, on revient au site proprement.
     exitFullscreenOverlay();
   }
 });
@@ -1261,11 +1669,45 @@ function updateFsPauseButton() {
   }
 }
 
+function getEffectiveMixBlocks() {
+  if (sequenceBlocks && sequenceBlocks.length) return sequenceBlocks;
+  // Fallback depuis les champs manuels MIX (2 WOD) de l'onglet Chronomètre
+  const t1 = document.getElementById("mixType1")?.value || "AMRAP";
+  const d1 = Math.max(1, Number(document.getElementById("mixDuration1")?.value) || 20);
+  const w1 = Math.max(1, Math.min(59, Number(document.getElementById("mixWork1")?.value) || 40));
+  const e1 = document.getElementById("mixExercises1")?.value || "";
+  const rest = Math.max(0, Number(document.getElementById("mixRest")?.value) || 0);
+  const t2 = document.getElementById("mixType2")?.value || "AMRAP";
+  const d2 = Math.max(1, Number(document.getElementById("mixDuration2")?.value) || 12);
+  const w2 = Math.max(1, Math.min(59, Number(document.getElementById("mixWork2")?.value) || 40));
+  const e2 = document.getElementById("mixExercises2")?.value || "";
+  return [
+    { type: t1, duration: d1, work: w1, exercises: e1, rest_after: rest },
+    { type: t2, duration: d2, work: w2, exercises: e2, rest_after: 0 }
+  ];
+}
+
+function getActiveSequenceTimeline() {
+  const blocks = getEffectiveMixBlocks();
+  let cursor = 0;
+  return blocks.map((b, index) => {
+    const start = cursor;
+    const duration = blockDurationSeconds(b);
+    cursor += duration;
+    const end = cursor;
+    const rest = index < blocks.length - 1 ? Math.max(0, Number(b.rest_after) || 0) * 60 : 0;
+    cursor += rest;
+    return { ...b, index, start, end, restStart: end, restEnd: cursor, duration, rest };
+  });
+}
+
 function formatTime(seconds) {
   const safe = Math.max(0, Math.floor(seconds));
   const mins = Math.floor(safe / 60);
   const secs = safe % 60;
-  return String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+
+  return String(mins).padStart(2, "0") + ":" +
+         String(secs).padStart(2, "0");
 }
 
 function updateReenterFullscreenButton() {
@@ -1301,46 +1743,49 @@ function updateClock() {
   let state = {
     visualPhase: "work",
     blockLabel: timerType,
-    phaseLabel: "EXERCICE",
+    phaseLabel: "TRAVAIL",
     clockText: formatTime(value),
     roundLabel: timerType,
     nextText: ""
   };
 
   if (timerType === "FORTIME") {
-    if (remaining === 0 && elapsed > 0) value = elapsed;
-    if (!running && elapsed === 0) value = 0;
-    const limit = Number(document.getElementById("fortimeLimit").value) || 0;
-    state.blockLabel = "FOR TIME";
-    state.roundLabel = limit > 0 ? `TIME CAP : ${limit} MIN` : "SANS LIMITE DE TEMPS";
-    state.visualPhase = "work";
-    state.phaseLabel = "EXERCICE";
+    const limit = Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0);
+    const capSeconds = limit * 60;
+    if (capSeconds > 0) {
+      // Décompte négatif à partir du Time Cap
+      const remCap = Math.max(0, capSeconds - elapsed);
+      value = remCap;
+      state.blockLabel = `FOR TIME — CAP ${limit} MIN`;
+      state.roundLabel = remCap > 0
+        ? `TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})`
+        : "TIME CAP ATTEINT";
+    } else {
+      value = elapsed;
+      state.blockLabel = "FOR TIME";
+      state.roundLabel = "CHRONO MONTANT — SANS TIME CAP";
+    }
+  }
+
+  if (timerType === "STOPWATCH") {
+    value = elapsed;
+    state.blockLabel = "CHRONO LIBRE";
+    state.roundLabel = "COMPTEUR MONTANT";
   }
 
   if (timerType === "AMRAP") {
     const dur = Math.max(1, Number(document.getElementById("amrapDuration").value) || 20);
     state.blockLabel = `AMRAP — ${dur} MIN`;
     state.roundLabel = "MAX DE ROUNDS";
-    state.visualPhase = "work";
-    state.phaseLabel = "EXERCICE";
   }
 
   if (timerType === "TABATA") {
-    const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
-    const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
     const totalCycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
-    
-    // Calcul précis du round en cours en temps réel selon elapsed
-    const cycleLen = work + rest;
-    let curCycle = Math.floor(elapsed / cycleLen) + 1;
-    if (curCycle > totalCycles) curCycle = totalCycles;
-    cycle = curCycle;
-
     const isWork = phase === "work";
     state.visualPhase = isWork ? "work" : "rest";
-    state.phaseLabel = isWork ? "EXERCICE" : "REPOS";
+    state.phaseLabel = isWork ? "TRAVAIL" : "REPOS";
     state.blockLabel = "TABATA";
-    state.roundLabel = `ROUND ${cycle} / ${totalCycles}`;
+    state.roundLabel = `ROUND ${Math.min(cycle, totalCycles)} / ${totalCycles}`;
   }
 
   if (timerType === "EMOM") {
@@ -1348,61 +1793,62 @@ function updateClock() {
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
     const currentMinute = Math.min(totalMins, Math.floor(elapsed / 60) + 1);
     const isWork = (elapsed % 60) < workSeconds;
-    
     state.visualPhase = isWork ? "work" : "rest";
-    state.phaseLabel = isWork ? "EXERCICE" : "REPOS";
+    state.phaseLabel = isWork ? "TRAVAIL" : "REPOS";
     state.blockLabel = "EMOM";
     state.roundLabel = `ROUND / MINUTE ${currentMinute} / ${totalMins}`;
   }
 
   if (timerType === "MIX") {
-    const timeline = getSequenceTimeline();
+    const timeline = getActiveSequenceTimeline();
     const current = timeline.find(b => elapsed < b.end || (b.rest && elapsed < b.restEnd));
     if (current) {
       const nextBlock = timeline[current.index + 1] || null;
       if (elapsed >= current.end && current.rest) {
         value = current.restEnd - elapsed;
         state.visualPhase = "rest";
-        state.phaseLabel = "REPOS";
+        state.phaseLabel = "REPOS INTER-BLOCS";
         state.blockLabel = `REPOS APRÈS BLOC ${current.index + 1} / ${timeline.length}`;
-        state.roundLabel = `REPOS INTER-BLOCS (${Math.round(current.rest / 60 * 10) / 10} MIN)`;
-        state.nextText = nextBlock ? `À SUIVRE : BLOC ${nextBlock.index + 1} (${nextBlock.type})` : "";
+        state.roundLabel = `REPOS (${Math.round(current.rest / 60 * 10) / 10} MIN)`;
+
+        state.nextText = nextBlock
+          ? `À SUIVRE : BLOC ${nextBlock.index + 1} (${nextBlock.type} — ${nextBlock.duration / 60} min)`
+          : "";
       } else {
         const local = elapsed - current.start;
         value = Math.max(0, current.duration - local);
         state.blockLabel = `BLOC ${current.index + 1} / ${timeline.length} — ${current.type}`;
+
 
         let roundInfo = current.type;
         let isWork = true;
         if (current.type === "EMOM") {
           const totalMins = Math.max(1, Math.round(current.duration / 60));
           const minNo = Math.min(totalMins, Math.floor(local / 60) + 1);
-          isWork = (local % 60) < (current.work || 40);
-          roundInfo = `ROUND / MINUTE ${minNo} / ${totalMins}`;
+          isWork = (local % 60) < current.work;
+          roundInfo = `MINUTE ${minNo} / ${totalMins}`;
         } else if (current.type === "TABATA") {
-          const w = current.work || 20;
-          const r = current.rest || 10;
-          const cyc = current.cycles || 8;
-          const cycleLength = w + r;
-          let cycleNo = Math.floor(local / cycleLength) + 1;
-          if (cycleNo > cyc) cycleNo = cyc;
+          const cycleLength = current.work + current.rest;
+          const cycleNo = Math.min(current.cycles, Math.floor(local / cycleLength) + 1);
           const inCycle = local - (cycleNo - 1) * cycleLength;
-          isWork = inCycle < w;
-          roundInfo = `ROUND ${cycleNo} / ${cyc}`;
-        } else {
-          roundInfo = current.type;
+          isWork = inCycle < current.work;
+          roundInfo = `ROUND ${cycleNo} / ${current.cycles}`;
+        } else if (current.type === "AMRAP") {
+          roundInfo = `AMRAP — ${Math.round(current.duration / 60)} MIN`;
+        } else if (current.type === "FORTIME") {
+          roundInfo = `FOR TIME — CAP ${Math.round(current.duration / 60)} MIN`;
         }
 
         state.visualPhase = isWork ? "work" : "rest";
-        state.phaseLabel = isWork ? "EXERCICE" : "REPOS";
+        state.phaseLabel = isWork ? "TRAVAIL" : "REPOS";
         state.roundLabel = roundInfo;
 
         if (current.rest > 0 && nextBlock) {
-          state.nextText = `ENSUITE : REPOS → BLOC ${nextBlock.index + 1} (${nextBlock.type})`;
+          state.nextText = `ENSUITE : ${Math.round(current.rest / 60 * 10) / 10} min repos → BLOC ${nextBlock.index + 1} (${nextBlock.type})`;
         } else if (nextBlock) {
           state.nextText = `ENSUITE : BLOC ${nextBlock.index + 1} (${nextBlock.type})`;
         } else {
-          state.nextText = "DERNIER BLOC";
+          state.nextText = "DERNIER BLOC DE LA SÉANCE";
         }
       }
     }
@@ -1410,7 +1856,10 @@ function updateClock() {
 
   state.clockText = formatTime(value);
   document.getElementById("clock").textContent = state.clockText;
-  document.getElementById("timerInfo").textContent = `${state.roundLabel} — ${state.phaseLabel}`;
+  document.getElementById("timerInfo").textContent =
+    timerType === "MIX"
+      ? `${state.blockLabel} — ${state.roundLabel} (${state.phaseLabel})`
+      : `${state.roundLabel} — ${state.phaseLabel}`;
 
   if (countdownActive) {
     state.visualPhase = "prep";
@@ -1423,31 +1872,93 @@ function updateClock() {
   updateReenterFullscreenButton();
 }
 
+// =======================================
+// ARRET ET RESET
+// =======================================
+
+let wakeLockSentinel = null;
+
+async function requestWakeLock() {
+  const badge = document.getElementById("wakeLockBadge");
+  if (!("wakeLock" in navigator)) {
+    if (badge) badge.textContent = "📱 ÉCRAN : NON SUPPORTÉ";
+    return;
+  }
+  try {
+    if (!wakeLockSentinel) {
+      wakeLockSentinel = await navigator.wakeLock.request("screen");
+      wakeLockSentinel.addEventListener("release", () => {
+        wakeLockSentinel = null;
+        if (badge) {
+          badge.textContent = "📱 ÉCRAN : VEILLE AUTO";
+          badge.classList.remove("active");
+        }
+      });
+    }
+    if (badge) {
+      badge.textContent = "📱 ÉCRAN MAINTENU ALLUMÉ";
+      badge.classList.add("active");
+    }
+  } catch (err) {
+    console.warn("Wake Lock refusé :", err);
+  }
+}
+
+async function releaseWakeLock() {
+  const badge = document.getElementById("wakeLockBadge");
+  if (wakeLockSentinel) {
+    try { await wakeLockSentinel.release(); } catch (_) {}
+    wakeLockSentinel = null;
+  }
+  if (badge) {
+    badge.textContent = "📱 ÉCRAN : VEILLE AUTO";
+    badge.classList.remove("active");
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && (running || countdownActive)) {
+    requestWakeLock();
+  }
+});
+
 function stopTimer() {
   clearInterval(interval);
   clearInterval(countdownInterval);
+
   interval = null;
   countdownInterval = null;
+
   running = false;
   countdownActive = false;
+  releaseWakeLock();
   updateFsPauseButton();
 }
 
 function resetTimer() {
   stopTimer();
+
   elapsed = 0;
   phase = "work";
   cycle = 1;
   countdownRemaining = 0;
-  remaining = getDuration();
+  remaining = timerType === "MIX"
+    ? (getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0)
+    : getDuration();
+
   document.getElementById("timerStatus").textContent = "PRÊT";
-  updateTimerTotalDurationDisplay();
+  const fsLogBtn = document.getElementById("fsLogBtn");
+  if (fsLogBtn) fsLogBtn.classList.add("hidden");
+
   updateClock();
 }
 
 function finishTimer(message) {
   stopTimer();
+
   document.getElementById("timerStatus").textContent = message;
+  const fsLogBtn = document.getElementById("fsLogBtn");
+  if (fsLogBtn) fsLogBtn.classList.remove("hidden");
   const overlay = document.getElementById("fsTimerOverlay");
   if (overlay) {
     overlay.classList.remove("phase-prep", "phase-work", "phase-rest");
@@ -1457,53 +1968,107 @@ function finishTimer(message) {
   }
 }
 
+// =======================================
+// DECOMPTE AVANT DEPART : 10 SECONDES
+// =======================================
+
 function startPreparation() {
-  try { getAudioContext(); } catch (error) {}
+  try {
+    getAudioContext();
+  } catch (error) {
+    console.warn(error);
+  }
+
   countdownActive = true;
   countdownRemaining = 10;
+  requestWakeLock();
+
   document.getElementById("timerStatus").textContent = "PRÉPARATION";
   document.getElementById("clock").textContent = "00:10";
   document.getElementById("timerInfo").textContent = "PRÉPARE-TOI";
   updateClock();
   updateFsPauseButton();
+
+  // Timbre au début des 10 secondes
   playStartBell();
 
   countdownInterval = setInterval(() => {
     countdownRemaining--;
-    if (countdownRemaining === 3 || countdownRemaining === 2 || countdownRemaining === 1) {
-      playCountdownTone(countdownRemaining);
+
+    if (countdownRemaining === 3) {
+      playCountdownTone(3);
     }
+
+    if (countdownRemaining === 2) {
+      playCountdownTone(2);
+    }
+
+    if (countdownRemaining === 1) {
+      playCountdownTone(1);
+    }
+
     if (countdownRemaining <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
       countdownActive = false;
+
       playCountdownTone("GO");
+
       startWorkout();
       return;
     }
-    document.getElementById("clock").textContent = formatTime(countdownRemaining);
-    document.getElementById("timerInfo").textContent = "DÉPART IMMINENT";
+
+    document.getElementById("clock").textContent =
+      formatTime(countdownRemaining);
+
+    document.getElementById("timerInfo").textContent =
+      "DÉPART IMMINENT";
+
     updateClock();
   }, 1000);
 }
 
+// =======================================
+// DEMARRAGE EFFECTIF DU WOD
+// =======================================
+
 function startWorkout() {
   running = true;
+  requestWakeLock();
+
   document.getElementById("timerStatus").textContent = "EN COURS";
   updateFsPauseButton();
+
   updateClock();
+
   interval = setInterval(tick, 1000);
 }
 
+// =======================================
+// DETECTION DES MI-TEMPS
+// =======================================
+
 function checkMidpointSignal() {
+
+  // FOR TIME : moitié de la limite de temps
   if (timerType === "FORTIME") {
     const limit = getDuration();
-    if (limit > 0 && elapsed === Math.floor(limit / 2)) playMidpointTone();
+
+    if (limit > 0 && elapsed === Math.floor(limit / 2)) {
+      playMidpointTone();
+    }
   }
+
+  // AMRAP : moitié du temps total
   if (timerType === "AMRAP") {
     const duration = getDuration();
-    if (elapsed === Math.floor(duration / 2)) playMidpointTone();
+
+    if (elapsed === Math.floor(duration / 2)) {
+      playMidpointTone();
+    }
   }
+
+  // EMOM : moitié de chaque intervalle de travail
   if (timerType === "EMOM") {
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
     if (elapsed % 60 === Math.floor(workSeconds / 2) ||
@@ -1513,12 +2078,19 @@ function checkMidpointSignal() {
   }
 }
 
+// =======================================
+// TICK DU CHRONOMETRE
+// =======================================
+
 function tick() {
   elapsed++;
+
+  // Signaux de mi-temps
   checkMidpointSignal();
 
+  // MIX : enchaînement illimité de blocs et de repos
   if (timerType === "MIX") {
-    const timeline = getSequenceTimeline();
+    const timeline = getActiveSequenceTimeline();
     const total = timeline.length ? timeline[timeline.length - 1].restEnd : 0;
     if (elapsed >= total) {
       remaining = 0;
@@ -1535,13 +2107,11 @@ function tick() {
       const local = elapsed - current.start;
       if (current.type === "TABATA" && local > 0) {
         const prev = local - 1;
-        const w = current.work || 20;
-        const r = current.rest || 10;
-        const prevPhase = (prev % (w + r)) < w ? "work" : "rest";
-        const nowPhase = (local % (w + r)) < w ? "work" : "rest";
+        const prevPhase = (prev % (current.work + current.rest)) < current.work ? "work" : "rest";
+        const nowPhase = (local % (current.work + current.rest)) < current.work ? "work" : "rest";
         if (prevPhase !== nowPhase) playCountdownTone("GO");
       }
-      if (current.type === "EMOM" && local > 0 && (local % 60 === (current.work || 40) || local % 60 === 0)) {
+      if (current.type === "EMOM" && local > 0 && (local % 60 === current.work || local % 60 === 0)) {
         playCountdownTone("GO");
       }
     }
@@ -1550,49 +2120,69 @@ function tick() {
     return;
   }
 
+  // FOR TIME
   if (timerType === "FORTIME") {
     const limit = getDuration();
-    if (limit > 0 && elapsed >= limit) {
-      remaining = 0;
-      playCountdownTone("GO");
-      updateClock();
-      finishTimer("TIME CAP");
-      return;
+
+    if (limit > 0) {
+      remaining = Math.max(0, limit - elapsed);
+      if (elapsed >= limit) {
+        remaining = 0;
+        playCountdownTone("GO");
+        updateClock();
+        finishTimer("TIME CAP");
+        return;
+      }
+    } else {
+      remaining = elapsed;
     }
+
     updateClock();
     return;
   }
 
+  // CHRONO LIBRE (STOPWATCH)
+  if (timerType === "STOPWATCH") {
+    remaining = elapsed;
+    updateClock();
+    return;
+  }
+
+  // TABATA
   if (timerType === "TABATA") {
     remaining--;
-    const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
-    const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
-    const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
-    const cycleLength = work + rest;
-    
-    // Suivi précis du cycle en cours basé sur elapsed
-    const curCycle = Math.min(cycles, Math.floor(elapsed / cycleLength) + 1);
-    const inCycle = elapsed % cycleLength;
-    const newPhase = inCycle < work ? "work" : "rest";
 
-    if (newPhase !== phase) {
-      phase = newPhase;
-      playCountdownTone("GO");
+    if (remaining <= 0) {
+      const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+      const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
+      const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
+
+      if (phase === "work" && rest > 0) {
+        phase = "rest";
+        remaining = rest;
+        playCountdownTone("GO");
+      } else {
+        phase = "work";
+        cycle++;
+
+        if (cycle > cycles) {
+          remaining = 0;
+          playCountdownTone("GO");
+          updateClock();
+          finishTimer("TERMINÉ");
+          return;
+        }
+
+        remaining = work;
+        playCountdownTone("GO");
+      }
     }
 
-    if (elapsed >= cycleLength * cycles) {
-      remaining = 0;
-      playCountdownTone("GO");
-      updateClock();
-      finishTimer("TERMINÉ");
-      return;
-    }
-
-    remaining = newPhase === "work" ? work - (inCycle) : cycleLength - inCycle;
     updateClock();
     return;
   }
 
+  // EMOM : bip au passage travail <-> repos chaque minute
   if (timerType === "EMOM") {
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
     if (elapsed % 60 === workSeconds || (elapsed % 60 === 0 && remaining > 1)) {
@@ -1600,7 +2190,9 @@ function tick() {
     }
   }
 
+  // AMRAP ET EMOM
   remaining--;
+
   if (remaining <= 0) {
     remaining = 0;
     playCountdownTone("GO");
@@ -1612,21 +2204,39 @@ function tick() {
   updateClock();
 }
 
+// =======================================
+// BOUTONS DEMARRER / PAUSE / RESET / PLEIN ECRAN
+// =======================================
+
 function triggerStartOrResume() {
   if (running || countdownActive) return;
+
   if (timerType === "TABATA" && elapsed === 0) {
-    remaining = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+    remaining = Math.max(
+      1,
+      Number(document.getElementById("tabataWork").value) || 20
+    );
   }
+
   if (timerType === "FORTIME" && elapsed === 0) {
+    remaining = getDuration();
+  }
+
+  if (timerType === "STOPWATCH" && elapsed === 0) {
     remaining = 0;
   }
+
   if (timerType === "MIX" && elapsed === 0) {
-    remaining = getSequenceTimeline().slice(-1)[0]?.restEnd || 0;
+    remaining = getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0;
   }
-  if (timerType !== "FORTIME" && remaining <= 0) {
+
+  const isCountUp = timerType === "STOPWATCH" || (timerType === "FORTIME" && getDuration() === 0);
+  if (!isCountUp && remaining <= 0) {
     resetTimer();
   }
+
   enterFullscreenOverlay();
+
   if (elapsed === 0) {
     startPreparation();
   } else {
@@ -1639,13 +2249,17 @@ function triggerPause() {
     clearInterval(countdownInterval);
     countdownInterval = null;
     countdownActive = false;
+
     document.getElementById("timerStatus").textContent = "EN PAUSE";
     document.getElementById("fsPhasePill").textContent = "EN PAUSE";
     updateFsPauseButton();
     return;
   }
+
   if (!running) return;
+
   stopTimer();
+
   document.getElementById("timerStatus").textContent = "EN PAUSE";
   document.getElementById("fsPhasePill").textContent = "EN PAUSE";
   updateFsPauseButton();
@@ -1656,8 +2270,11 @@ document.getElementById("pauseTimer").addEventListener("click", triggerPause);
 document.getElementById("resetTimer").addEventListener("click", resetTimer);
 
 document.getElementById("fsPauseResumeBtn").addEventListener("click", () => {
-  if (running || countdownActive) triggerPause();
-  else triggerStartOrResume();
+  if (running || countdownActive) {
+    triggerPause();
+  } else {
+    triggerStartOrResume();
+  }
 });
 
 document.getElementById("fsResetBtn").addEventListener("click", () => {
@@ -1666,22 +2283,32 @@ document.getElementById("fsResetBtn").addEventListener("click", () => {
   updateFsPauseButton();
 });
 
-document.getElementById("fsExitBtn").addEventListener("click", () => exitFullscreenOverlay());
+document.getElementById("fsExitBtn").addEventListener("click", () => {
+  exitFullscreenOverlay();
+});
+
 document.getElementById("reenterFullscreenBtn").addEventListener("click", () => {
   enterFullscreenOverlay();
   updateClock();
 });
 
+// Actualisation de l'affichage quand les paramètres changent.
+
 document.querySelectorAll("#timerSettings input, #timerSettings select").forEach(input => {
   input.addEventListener("change", () => {
     if (!running && !countdownActive && elapsed === 0) resetTimer();
-    updateTimerTotalDurationDisplay();
   });
   input.addEventListener("input", () => {
-    if (!running && !countdownActive && elapsed === 0) resetTimer();
-    updateTimerTotalDurationDisplay();
+    if (!running && !countdownActive && elapsed === 0) {
+      resetTimer();
+    }
   });
 });
+// =======================================
+// IMPORT PDF - PREPARATION
+// =======================================
+
+// Les contrôles d’administration PDF ont été retirés de cette interface.
 
 // =======================================
 // FORMULAIRE DE CREATION MANUELLE
@@ -1710,15 +2337,411 @@ manualFormat.addEventListener("change", updateManualFormatFields);
 ["manualEmomWork","manualTabataWork","manualTabataRest","manualTabataCycles"].forEach(id => document.getElementById(id).addEventListener("input", updateManualPreviews));
 updateManualFormatFields();
 
-// Initialisation
+function parseManualExercises(raw) {
+  return raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean).map((line, i) => {
+    const match = line.match(/^(\d+)\s+(.+)$/);
+    return { name: match ? match[2].trim() : line, reps: match ? Number(match[1]) : null, position: i+1 };
+  });
+}
+const clearLibraryButton = document.getElementById("clearLibraryButton");
+if (clearLibraryButton) {
+  clearLibraryButton.addEventListener("click", async () => {
+    if (!wods.length) {
+      document.getElementById("libraryStatus").textContent = "La bibliothèque est déjà vide.";
+      return;
+    }
+    const confirmed = window.confirm(`Supprimer définitivement les ${wods.length} WOD de ta bibliothèque Supabase ? Cette action est irréversible.`);
+    if (!confirmed) return;
+    clearLibraryButton.disabled = true;
+    document.getElementById("libraryStatus").textContent = "Suppression des WOD en cours...";
+    try {
+      await window.clearAllWodsFromSupabase();
+      wods = [];
+      selectedWod = null;
+      document.getElementById("selectedWod").classList.add("hidden");
+      updateCount();
+      displayLibrary();
+      document.getElementById("libraryStatus").textContent = "Bibliothèque vidée : tous les WOD enregistrés ont été supprimés.";
+    } catch (error) {
+      console.error(error);
+      document.getElementById("libraryStatus").textContent = "Suppression impossible : " + (error?.message || String(error));
+    } finally {
+      clearLibraryButton.disabled = false;
+    }
+  });
+}
+
+
+let multiBlockDraft = [];
+function renderMultiBlocks(existing = multiBlockDraft) {
+  multiBlockDraft = (existing || []).map(b => ({...b}));
+  const host = document.getElementById("multiBlocksList");
+  if (!host) return;
+  host.innerHTML = "";
+  multiBlockDraft.forEach((block, index) => {
+    const card = document.createElement("div");
+    card.className = "panel";
+    card.style.margin = "12px 0";
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <h3>BLOC ${index+1}</h3>
+        <button type="button" class="secondary" data-remove-block="${index}">SUPPRIMER</button>
+      </div>
+      <div class="field"><label>FORMAT</label><select data-block-field="type" data-index="${index}">
+        ${["AMRAP","EMOM","TABATA","FORTIME"].map(t=>`<option ${block.type===t?"selected":""}>${t}</option>`).join("")}
+      </select></div>
+      <div class="grid">
+        <div class="field"><label>DURÉE / TIME CAP (MINUTES)</label><input type="number" min="1" data-block-field="duration" data-index="${index}" value="${block.duration ?? (block.type==="TABATA"?4:12)}"></div>
+        <div class="field ${block.type==="EMOM"?"":"hidden"}" data-emom-wrap="${index}"><label>TRAVAIL PAR MINUTE (SEC)</label><input type="number" min="1" max="59" data-block-field="work" data-index="${index}" value="${block.work ?? 40}"></div>
+        <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-wrap="${index}"><label>TRAVAIL (SEC)</label><input type="number" min="1" data-block-field="work" data-index="${index}" value="${block.work ?? 20}"></div>
+        <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-rest-wrap="${index}"><label>REPOS (SEC)</label><input type="number" min="0" data-block-field="rest" data-index="${index}" value="${block.rest ?? 10}"></div>
+        <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-cycles-wrap="${index}"><label>CYCLES</label><input type="number" min="1" data-block-field="cycles" data-index="${index}" value="${block.cycles ?? 8}"></div>
+      </div>
+      <div class="field"><label>EXERCICES (UN PAR LIGNE)</label><textarea rows="4" data-block-field="exercises" data-index="${index}" placeholder="15 Wall Balls&#10;12 Burpees">${(block.exercises||"").replace(/</g,"&lt;")}</textarea></div>
+      <div class="field"><label>REPOS APRÈS CE BLOC (MINUTES)</label><input type="number" min="0" step="0.5" data-block-field="rest_after" data-index="${index}" value="${block.rest_after ?? 0}" ${index===multiBlockDraft.length-1?"disabled":""}></div>`;
+    host.appendChild(card);
+  });
+  host.querySelectorAll("[data-block-field]").forEach(el => {
+    el.addEventListener("input", () => {
+      const i=Number(el.dataset.index), key=el.dataset.blockField;
+      multiBlockDraft[i][key] = key==="type" || key==="exercises" ? el.value : Number(el.value);
+      if (key==="type") renderMultiBlocks(multiBlockDraft);
+      updateMultiBlockTotal();
+    });
+  });
+  host.querySelectorAll("[data-remove-block]").forEach(btn => btn.addEventListener("click", () => {
+    multiBlockDraft.splice(Number(btn.dataset.removeBlock),1); renderMultiBlocks(multiBlockDraft);
+  }));
+  updateMultiBlockTotal();
+}
+function updateMultiBlockTotal() {
+  const blocks = collectMultiBlocks(false);
+  const seconds = blocks.reduce((sum,b,i)=>sum+blockDurationSeconds(b)+(i<blocks.length-1?(Number(b.rest_after)||0)*60:0),0);
+  const el=document.getElementById("multiBlocksTotal");
+  if(el) el.textContent=`Durée totale estimée : ${Math.floor(seconds/60)} min ${String(seconds%60).padStart(2,"0")} s (repos compris).`;
+}
+function getSequenceDurationFromBlocks(blocks) {
+  return blocks.reduce((sum,b,i)=>sum+blockDurationSeconds(b)+(i<blocks.length-1?(Number(b.rest_after)||0)*60:0),0);
+}
+function collectMultiBlocks(readDOM=true) {
+  if (!readDOM) return multiBlockDraft;
+  const blocks=[];
+  document.querySelectorAll("#multiBlocksList .panel").forEach((card,i)=>{
+    const get=k=>card.querySelector(`[data-block-field="${k}"]`)?.value;
+    const type=get("type")||"AMRAP";
+    blocks.push({type,duration:Number(get("duration"))||1,work:Number(get("work"))||(type==="TABATA"?20:40),
+      rest:Number(get("rest"))||10,cycles:Number(get("cycles"))||8,exercises:get("exercises")||"",
+      rest_after:Number(get("rest_after"))||0});
+  });
+  return blocks;
+}
+document.getElementById("manualMultiBlock").addEventListener("change", e => {
+  const multi=e.target.checked;
+  document.getElementById("singleWodFields").classList.toggle("hidden",multi);
+  document.getElementById("multiBlockEditor").classList.toggle("hidden",!multi);
+  if(multi && !multiBlockDraft.length) renderMultiBlocks([{type:"AMRAP",duration:20,exercises:"",rest_after:5},{type:"EMOM",duration:12,work:40,exercises:"",rest_after:0}]);
+});
+document.getElementById("addMultiBlock").addEventListener("click",()=>{
+  multiBlockDraft.push({type:"AMRAP",duration:10,work:40,rest:10,cycles:8,exercises:"",rest_after:0});
+  renderMultiBlocks(multiBlockDraft);
+});
+renderMultiBlocks([]);
+
+document.getElementById("manualWodForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const status = document.getElementById("manualWodStatus");
+  const button = document.getElementById("saveManualWod");
+  const name = document.getElementById("manualWodTitle").value.trim();
+  const multiMode = document.getElementById("manualMultiBlock").checked;
+  const type = multiMode ? "MIX" : manualFormat.value;
+  const movements = multiMode ? [] : parseManualExercises(document.getElementById("manualWodExercises").value);
+  const consigne = document.getElementById("manualWodConsigne").value.trim();
+  let blocks = multiMode ? collectMultiBlocks() : [];
+  if (!name || (multiMode ? (!blocks.length || blocks.some(b => !String(b.exercises||"").trim())) : !movements.length)) {
+    status.textContent = multiMode ? "Ajoute au moins un bloc et renseigne les exercices de chaque bloc." : "Renseigne un titre et au moins un exercice.";
+    return;
+  }
+
+  let duration = null;
+  let timerConfig = { format: type };
+  if (multiMode) {
+    blocks = blocks.map((b,i)=>({...b, duration:Math.max(1,Number(b.duration)||1), rest_after:i===blocks.length-1?0:Math.max(0,Number(b.rest_after)||0)}));
+    timerConfig = { format:"MIX", blocks };
+    duration = Math.ceil(getSequenceDurationFromBlocks(blocks)/60);
+  } else if (type === "AMRAP") {
+    duration = Math.max(1, Number(document.getElementById("manualAmrapDuration").value) || 1);
+    timerConfig.duration_minutes = duration;
+  } else if (type === "EMOM") {
+    duration = Math.max(1, Number(document.getElementById("manualEmomDuration").value) || 1);
+    const work = Math.max(1, Math.min(59, Number(document.getElementById("manualEmomWork").value) || 40));
+    timerConfig = { format:type, duration_minutes:duration, work_seconds:work, rest_seconds:60-work, interval_seconds:60 };
+  } else if (type === "TABATA") {
+    const work = Math.max(1, Number(document.getElementById("manualTabataWork").value) || 20);
+    const rest = Math.max(0, Number(document.getElementById("manualTabataRest").value) || 0);
+    const cycles = Math.max(1, Number(document.getElementById("manualTabataCycles").value) || 1);
+    const totalSeconds = (work+rest)*cycles-rest;
+    duration = Math.ceil(totalSeconds/60);
+    timerConfig = { format:type, work_seconds:work, rest_seconds:rest, cycles, total_seconds:totalSeconds };
+  } else {
+    duration = Math.max(0, Number(document.getElementById("manualFortimeCap").value) || 0) || null;
+    timerConfig.time_cap_minutes = duration;
+  }
+
+  button.disabled = true; button.textContent = "ENREGISTREMENT...";
+  status.textContent = "Enregistrement dans Supabase...";
+  try {
+    const wodData = { name, type, duration, movements, timerConfig, consigne };
+    if (editingWodId !== null) {
+      const updated = await window.updateManualWodInSupabase(editingWodId, wodData);
+      const index = wods.findIndex(item => String(item.id) === String(editingWodId));
+      if (index !== -1) wods[index] = updated;
+      status.textContent = "WOD modifié avec succès.";
+    } else {
+      const saved = await window.saveManualWodToSupabase(wodData);
+      wods.unshift(saved);
+      status.textContent = "WOD ajouté à ta bibliothèque.";
+    }
+    updateCount(); displayLibrary();
+    resetManualWodEditor();
+    openLibraryPanel("savedWodsPanel");
+  } catch (error) {
+    console.error(error); status.textContent = "Enregistrement impossible : " + (error?.message || String(error));
+  } finally { button.disabled = false; button.textContent = "AJOUTER DANS LA BIBLIOTHÈQUE"; }
+});
+
+["timerWodName", "timerWodConsigne", "timerWodContent"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("input", () => updateClock());
+});
+
+
+// =======================================
+// 1. GESTION DES THÈMES (SOMBRE / CLAIR / BOX)
+// =======================================
+const THEMES = [
+  { id: "dark", label: "🌓 THÈME : SOMBRE", className: "" },
+  { id: "light", label: "☀️ THÈME : CLAIR", className: "theme-light" },
+  { id: "box", label: "⚡ THÈME : BOX CONTRASTE", className: "theme-box" }
+];
+let currentThemeIndex = Math.max(0, THEMES.findIndex(t => t.id === (localStorage.getItem("woorel_theme") || "dark")));
+
+function applyTheme(index) {
+  currentThemeIndex = index % THEMES.length;
+  const theme = THEMES[currentThemeIndex];
+  document.body.classList.remove("theme-light", "theme-box");
+  if (theme.className) document.body.classList.add(theme.className);
+  const btn = document.getElementById("themeToggleBtn");
+  if (btn) btn.textContent = theme.label;
+  localStorage.setItem("woorel_theme", theme.id);
+}
+applyTheme(currentThemeIndex);
+
+document.getElementById("themeToggleBtn")?.addEventListener("click", () => {
+  applyTheme(currentThemeIndex + 1);
+});
+
+// =======================================
+// 2. TEST AUDIO & MODALE QR CODE
+// =======================================
+document.getElementById("testAudioBtn")?.addEventListener("click", () => {
+  playStartBell();
+  setTimeout(() => playCountdownTone("GO"), 450);
+  const btn = document.getElementById("testAudioBtn");
+  if (btn) {
+    const oldText = btn.textContent;
+    btn.textContent = "🔊 SON ACTIVÉ !";
+    setTimeout(() => { btn.textContent = oldText; }, 1500);
+  }
+});
+
+document.getElementById("closeQrModalBtn")?.addEventListener("click", () => {
+  document.getElementById("qrModal")?.classList.add("hidden");
+});
+
+document.getElementById("copyShareLinkBtn")?.addEventListener("click", async () => {
+  if (!currentShareLink) return;
+  try {
+    await navigator.clipboard.writeText(currentShareLink);
+    alert("Lien du WOD copié dans le presse-papiers !");
+  } catch (_) {
+    window.prompt("Copie ce lien pour le partager :", currentShareLink);
+  }
+});
+
+// =======================================
+// 3. HISTORIQUE DES SÉANCES RÉALISÉES
+// =======================================
+function getWorkoutHistory() {
+  try {
+    return JSON.parse(localStorage.getItem("woorel_history") || "[]");
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveWorkoutHistory(list) {
+  localStorage.setItem("woorel_history", JSON.stringify(list));
+}
+
+function renderWorkoutHistory() {
+  const list = getWorkoutHistory();
+  const container = document.getElementById("historyList");
+  const countLabel = document.getElementById("historyCountLabel");
+  if (countLabel) {
+    countLabel.textContent = `${list.length} séance${list.length > 1 ? "s" : ""} enregistrée${list.length > 1 ? "s" : ""}`;
+  }
+  if (!container) return;
+  if (!list.length) {
+    container.innerHTML = '<p class="muted">Aucune séance enregistrée pour le moment. Termine un WOD ou clique sur « + Ajouter un résultat ».</p>';
+    return;
+  }
+  container.innerHTML = "";
+  list.forEach((entry, idx) => {
+    const card = document.createElement("div");
+    card.className = "history-card";
+    card.innerHTML = `
+      <div>
+        <div style="font-weight:900;font-size:15px">${escapeHTML(entry.name || "Séance sans titre")}</div>
+        <div class="small-note" style="margin-top:3px">${escapeHTML(entry.date)} • <span class="tag" style="margin:0">${escapeHTML(entry.format || "WOD")}</span></div>
+        ${entry.notes ? `<div class="small-note" style="margin-top:6px;color:var(--text)">${escapeHTML(entry.notes)}</div>` : ""}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <div class="history-score-badge">${escapeHTML(entry.score || "Terminé")}</div>
+        <button type="button" class="secondary danger-btn" style="padding:5px 8px;font-size:11px" data-del-history="${idx}">SUPPRIMER</button>
+      </div>
+    `;
+    card.querySelector("[data-del-history]").addEventListener("click", () => {
+      const updated = getWorkoutHistory();
+      updated.splice(idx, 1);
+      saveWorkoutHistory(updated);
+      renderWorkoutHistory();
+    });
+    container.appendChild(card);
+  });
+}
+
+function openLogModal(prefill = true) {
+  const modal = document.getElementById("logModal");
+  if (!modal) return;
+  if (prefill) {
+    const wodName = (document.getElementById("timerWodName")?.value || "").trim() || `Séance ${timerType}`;
+    document.getElementById("logWodName").value = wodName;
+    document.getElementById("logWodFormat").value = timerType === "FORTIME" ? "FOR TIME" : (timerType === "STOPWATCH" ? "CHRONO LIBRE" : timerType);
+    document.getElementById("logWodScore").value = elapsed > 0 ? `Temps : ${formatTime(elapsed)}` : "";
+    document.getElementById("logWodNotes").value = "";
+  } else {
+    document.getElementById("logWodName").value = "";
+    document.getElementById("logWodFormat").value = "FOR TIME";
+    document.getElementById("logWodScore").value = "";
+    document.getElementById("logWodNotes").value = "";
+  }
+  modal.classList.remove("hidden");
+}
+
+document.getElementById("logWorkoutBtn")?.addEventListener("click", () => openLogModal(true));
+document.getElementById("fsLogBtn")?.addEventListener("click", () => {
+  exitFullscreenOverlay();
+  openLogModal(true);
+});
+document.getElementById("openManualLogBtn")?.addEventListener("click", () => openLogModal(false));
+document.getElementById("closeLogModalBtn")?.addEventListener("click", () => {
+  document.getElementById("logModal")?.classList.add("hidden");
+});
+
+document.getElementById("saveHistoryEntryBtn")?.addEventListener("click", () => {
+  const name = document.getElementById("logWodName").value.trim() || "Séance";
+  const format = document.getElementById("logWodFormat").value.trim() || "WOD";
+  const score = document.getElementById("logWodScore").value.trim() || "Terminé";
+  const notes = document.getElementById("logWodNotes").value.trim();
+  const date = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  const list = getWorkoutHistory();
+  list.unshift({ name, format, score, notes, date });
+  saveWorkoutHistory(list);
+  renderWorkoutHistory();
+  document.getElementById("logModal")?.classList.add("hidden");
+  openPage("historyPage");
+});
+
+renderWorkoutHistory();
+
+// =======================================
+// 4. PWA (MANIFEST DYNAMIQUE + SERVICE WORKER)
+// =======================================
+(function setupPWA() {
+  const manifest = {
+    name: "WOOREL GENERATOR",
+    short_name: "WOOREL",
+    description: "Générateur de WOD et Chronomètre d'entraînement",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#101419",
+    theme_color: "#101419",
+    icons: [
+      {
+        src: "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="36" fill="#101419"/><text x="96" y="122" font-family="Arial,sans-serif" font-weight="900" font-size="92" fill="#26c281" text-anchor="middle">W</text></svg>'),
+        sizes: "192x192",
+        type: "image/svg+xml"
+      }
+    ]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+  const manifestLink = document.createElement("link");
+  manifestLink.rel = "manifest";
+  manifestLink.href = URL.createObjectURL(manifestBlob);
+  document.head.appendChild(manifestLink);
+
+  let deferredPrompt = null;
+  const installBtn = document.getElementById("installPwaBtn");
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.classList.remove("hidden");
+  });
+  installBtn?.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.classList.add("hidden");
+  });
+
+  if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
+    const swCode = `
+      const CACHE = "woorel-v1";
+      self.addEventListener("install", e => self.skipWaiting());
+      self.addEventListener("activate", e => e.waitUntil(clients.claim()));
+      self.addEventListener("fetch", e => {
+        if (e.request.method !== "GET") return;
+        e.respondWith(
+          fetch(e.request).then(res => {
+            const copy = res.clone();
+            caches.open(CACHE).then(cache => cache.put(e.request, copy)).catch(() => {});
+            return res;
+          }).catch(() => caches.match(e.request))
+        );
+      });
+    `;
+    const swBlob = new Blob([swCode], { type: "application/javascript" });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+  }
+})();
+
+// =======================================
+// INITIALISATION
+// =======================================
+
 updateCount();
 displayLibrary();
 resetTimer();
-updateTimerTotalDurationDisplay();
+
 </script>
+
 
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// Configuration publique du projet : la clé publishable peut être utilisée côté navigateur.
 const SUPABASE_URL = "https://tfaarrfjmaaxauzrratx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xOrQfokHftTW1czGvoCtDg_kupMXCEQ";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -1727,6 +2750,7 @@ const authScreen = document.getElementById("authScreen");
 const appShell = document.getElementById("appShell");
 const authMessage = document.getElementById("authMessage");
 const loginButton = document.getElementById("loginButton");
+// Les fonctions d’import PDF et de reconnaissance ont été retirées.
 
 function showLoggedOut(message = "") {
   appShell.style.display = "none";
@@ -1735,13 +2759,32 @@ function showLoggedOut(message = "") {
 }
 
 window.deleteWodFromSupabase = async function(id) {
-  await supabase.from("wod_movements").delete().eq("wod_id", id);
-  await supabase.from("wods").delete().eq("id", id);
+  const { error: movementsError } = await supabase
+    .from("wod_movements")
+    .delete()
+    .eq("wod_id", id);
+  if (movementsError) throw movementsError;
+
+  const { error: wodError } = await supabase
+    .from("wods")
+    .delete()
+    .eq("id", id);
+  if (wodError) throw wodError;
 };
 
 window.clearAllWodsFromSupabase = async function() {
-  await supabase.from("wod_movements").delete().not("wod_id", "is", null);
-  await supabase.from("wods").delete().not("id", "is", null);
+  // Les mouvements sont supprimés d'abord pour respecter la relation wod_id.
+  const { error: movementsError } = await supabase
+    .from("wod_movements")
+    .delete()
+    .not("wod_id", "is", null);
+  if (movementsError) throw movementsError;
+
+  const { error: wodsError } = await supabase
+    .from("wods")
+    .delete()
+    .not("id", "is", null);
+  if (wodsError) throw wodsError;
 };
 
 window.saveManualWodToSupabase = async function(wod) {
@@ -1752,14 +2795,21 @@ window.saveManualWodToSupabase = async function(wod) {
     instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "" })
   }).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
+
   const rows = wod.movements.map(m => ({
     wod_id: row.id, movement_name: m.name, repetitions: m.reps, position: m.position
   }));
-  if (rows.length) await supabase.from("wod_movements").insert(rows);
+  if (rows.length) {
+    const { error: movementError } = await supabase.from("wod_movements").insert(rows);
+    if (movementError) {
+      await supabase.from("wods").delete().eq("id", row.id);
+      throw movementError;
+    }
+  }
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    consigne: wod.consigne || "", timerConfig: wod.timerConfig, movements: wod.movements
+    description: row.instructions || "", consigne: wod.consigne || "", timerConfig: wod.timerConfig, movements: wod.movements
   };
 };
 
@@ -1771,26 +2821,38 @@ window.updateManualWodInSupabase = async function(id, wod) {
     instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "" })
   }).eq("id", id).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
-  await supabase.from("wod_movements").delete().eq("wod_id", id);
+
+  const { error: deleteError } = await supabase.from("wod_movements").delete().eq("wod_id", id);
+  if (deleteError) throw deleteError;
   const rows = wod.movements.map(m => ({
     wod_id: id, movement_name: m.name, repetitions: m.reps, position: m.position
   }));
-  if (rows.length) await supabase.from("wod_movements").insert(rows);
+  if (rows.length) {
+    const { error: insertError } = await supabase.from("wod_movements").insert(rows);
+    if (insertError) throw insertError;
+  }
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    consigne: wod.consigne || "", timerConfig: wod.timerConfig, movements: wod.movements
+    description: row.instructions || "", consigne: wod.consigne || "", timerConfig: wod.timerConfig,
+    movements: wod.movements
   };
 };
 
 async function loadWodsFromSupabase() {
-  const { data, error } = await supabase.from("wods").select("*, wod_movements(*)").order("created_at", { ascending: false });
+  const { data, error } = await supabase
+  .from("wods")
+  .select("*, wod_movements(*)")
+  .order("created_at", { ascending: false });
+  
   if (error) throw error;
+
   wods = (data || []).map(row => ({
     id: row.id,
     name: row.name || "WOD sans titre",
     type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
+    description: row.description || "",
     consigne: (() => {
       const raw = String(row.instructions || "");
       if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).consigne || ""; } catch (_) {} }
@@ -1798,15 +2860,23 @@ async function loadWodsFromSupabase() {
     })(),
     timerConfig: (() => {
       const raw = String(row.instructions || "");
-      if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(row.instructions.slice("WOOREL_WOD_DATA:".length)).timerConfig || null; } catch (_) { return null; } }
-      return null;
+      if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).timerConfig || null; } catch (_) { return null; } }
+      const prefix = "WOOREL_TIMER_CONFIG:";
+      if (!raw.startsWith(prefix)) return null;
+      try { return JSON.parse(raw.slice(prefix.length)); } catch (_) { return null; }
     })(),
     movements: (row.wod_movements || []).sort((a,b) => (a.position || 0) - (b.position || 0)).map(m => ({
-      name: m.movement_name || "Mouvement", reps: m.repetitions ?? null
+      name: m.movement_name || "Mouvement",
+      reps: m.repetitions ?? null,
+      unit: m.distance != null ? `${m.distance}${m.distance_unit || "m"}` : "",
+      load: m.load != null ? `${m.load} ${m.load_unit || "kg"}` : ""
     }))
   }));
+
   updateCount();
   displayLibrary();
+  document.getElementById("selectedWod").classList.add("hidden");
+  selectedWod = null;
 }
 
 function normalizeWodType(type) {
@@ -1822,8 +2892,10 @@ async function showLoggedIn() {
   authMessage.textContent = "";
   try {
     await loadWodsFromSupabase();
+    await openSharedWodFromLink();
   } catch (error) {
     console.error("Erreur chargement WOD :", error);
+    alert("Connexion réussie, mais impossible de charger les WOD. Vérifie les autorisations Supabase. Détail : " + error.message);
   }
 }
 
@@ -1831,9 +2903,12 @@ document.getElementById("loginForm").addEventListener("submit", async event => {
   event.preventDefault();
   loginButton.disabled = true;
   loginButton.textContent = "CONNEXION...";
+  authMessage.textContent = "";
+
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
   loginButton.disabled = false;
   loginButton.textContent = "SE CONNECTER";
   if (error) {
@@ -1844,7 +2919,11 @@ document.getElementById("loginForm").addEventListener("submit", async event => {
 });
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
-  await supabase.auth.signOut();
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert("Erreur de déconnexion : " + error.message);
+    return;
+  }
   showLoggedOut();
 });
 
@@ -1854,6 +2933,7 @@ if (session) {
 } else {
   showLoggedOut();
 }
+
 </script>
 
 </body>
