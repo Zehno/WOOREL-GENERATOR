@@ -393,49 +393,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
     </button>
   </div>
 
-  <details class="panel" style="margin-top:24px">
-    <summary style="cursor:pointer;font-weight:bold">ADMINISTRATION — IMPORT PDF ET RECONNAISSANCE</summary>
-    <div style="margin-top:20px">
-      <div class="panel">
-    <h2>IMPORTER MES PDF</h2>
 
-    <div class="field">
-      <label>SÉLECTIONNER TES DOCUMENTS PDF</label>
-      <input type="file" id="pdfFiles" accept=".pdf,application/pdf" multiple>
-    </div>
-
-    <div id="pdfList" class="muted"></div>
-
-    <div class="field" style="margin-top:18px">
-      <label>PDF DÉJÀ PRÉSENT DANS SUPABASE STORAGE</label>
-      <input id="existingPdfName" type="text" value="EBOOK-FO copie.pdf" placeholder="Nom exact du PDF">
-    </div>
-    <button class="primary" id="extractExistingPdf" type="button">EXTRAIRE CE PDF DEPUIS SUPABASE</button>
-    <div id="extractStatus" class="small-note" role="status" style="margin-top:12px"></div>
-
-    <p class="small-note" style="margin-top:14px">
-      L'extraction de test lit le texte de chaque page et l'enregistre dans Supabase.
-      Les PDF scannés nécessiteront une étape OCR distincte.
-    </p>
-   </div>
-
-  <div class="panel">
-    <h2>RECONNAISSANCE AUTOMATIQUE DES WOD</h2>
-
-    <p class="small-note">
-      Analyse le PDF sélectionné dans Supabase et détecte les WOD,
-      leurs formats et leurs mouvements.
-    </p>
-
-    <button class="primary" id="analyzePdfButton" type="button">
-      ANALYSER LE PDF ET DÉTECTER LES WOD
-    </button>
-
-    <div id="analysisStatus" class="small-note" role="status" style="margin-top:12px"></div>
-    <div id="detectedWods" style="margin-top:15px"></div>
-  </div>
-    </div>
-  </details>
 
 </section>
 
@@ -465,7 +423,14 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <div id="manualWodStatus" class="small-note" role="status" aria-live="polite" style="margin-top:12px"></div>
     </form>
   </div>
-  <div class="panel"><h2>WOD ENREGISTRÉS</h2><div id="libraryList"><p class="muted">Connecte-toi pour charger ta bibliothèque.</p></div></div>
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <h2 style="margin:0">WOD ENREGISTRÉS</h2>
+      <button class="secondary" id="clearLibraryButton" type="button">VIDER LA BIBLIOTHÈQUE</button>
+    </div>
+    <div id="libraryStatus" class="small-note" role="status" aria-live="polite" style="margin-top:10px"></div>
+    <div id="libraryList"><p class="muted">Connecte-toi pour charger ta bibliothèque.</p></div>
+  </div>
 </section>
 
 <!-- CHRONOMETRE -->
@@ -1236,21 +1201,7 @@ document.querySelectorAll("#timerSettings input").forEach(input => {
 // IMPORT PDF - PREPARATION
 // =======================================
 
-document.getElementById("pdfFiles").addEventListener("change", event => {
-  const files = Array.from(event.target.files);
-  const container = document.getElementById("pdfList");
-
-  container.innerHTML = "";
-
-  if (!files.length) return;
-
-  files.forEach(file => {
-    const line = document.createElement("div");
-    line.style.padding = "7px 0";
-    line.textContent = "PDF sélectionné : " + file.name;
-    container.appendChild(line);
-  });
-});
+// Les contrôles d’administration PDF ont été retirés de cette interface.
 
 // =======================================
 // FORMULAIRE DE CREATION MANUELLE
@@ -1280,11 +1231,39 @@ manualFormat.addEventListener("change", updateManualFormatFields);
 updateManualFormatFields();
 
 function parseManualExercises(raw) {
-  return raw.split(/\\r?\\n/).map(line => line.trim()).filter(Boolean).map((line, i) => {
-    const match = line.match(/^(\\d+)\\s+(.+)$/);
+  return raw.split(/\r?\n/).map(line => line.trim()).filter(Boolean).map((line, i) => {
+    const match = line.match(/^(\d+)\s+(.+)$/);
     return { name: match ? match[2].trim() : line, reps: match ? Number(match[1]) : null, position: i+1 };
   });
 }
+const clearLibraryButton = document.getElementById("clearLibraryButton");
+if (clearLibraryButton) {
+  clearLibraryButton.addEventListener("click", async () => {
+    if (!wods.length) {
+      document.getElementById("libraryStatus").textContent = "La bibliothèque est déjà vide.";
+      return;
+    }
+    const confirmed = window.confirm(`Supprimer définitivement les ${wods.length} WOD de ta bibliothèque Supabase ? Cette action est irréversible.`);
+    if (!confirmed) return;
+    clearLibraryButton.disabled = true;
+    document.getElementById("libraryStatus").textContent = "Suppression des WOD en cours...";
+    try {
+      await window.clearAllWodsFromSupabase();
+      wods = [];
+      selectedWod = null;
+      document.getElementById("selectedWod").classList.add("hidden");
+      updateCount();
+      displayLibrary();
+      document.getElementById("libraryStatus").textContent = "Bibliothèque vidée : tous les WOD enregistrés ont été supprimés.";
+    } catch (error) {
+      console.error(error);
+      document.getElementById("libraryStatus").textContent = "Suppression impossible : " + (error?.message || String(error));
+    } finally {
+      clearLibraryButton.disabled = false;
+    }
+  });
+}
+
 document.getElementById("manualWodForm").addEventListener("submit", async event => {
   event.preventDefault();
   const status = document.getElementById("manualWodStatus");
@@ -1350,554 +1329,28 @@ const authScreen = document.getElementById("authScreen");
 const appShell = document.getElementById("appShell");
 const authMessage = document.getElementById("authMessage");
 const loginButton = document.getElementById("loginButton");
-const extractButton = document.getElementById("extractExistingPdf");
-const extractStatus = document.getElementById("extractStatus");
+// Les fonctions d’import PDF et de reconnaissance ont été retirées.
 
-async function extractExistingPdfFromStorage() {
-  const filename = document.getElementById("existingPdfName").value.trim();
-  if (!filename) {
-    extractStatus.textContent = "Saisis le nom exact du PDF.";
-    return;
-  }
-
-  extractButton.disabled = true;
-  extractButton.textContent = "EXTRACTION EN COURS...";
-  extractStatus.textContent = "Recherche du document dans source_documents...";
-
-  let sourceDocumentId = null;
-  try {
-    const { data: documentRow, error: documentError } = await supabase
-      .from("source_documents")
-      .select("id, filename, storage_path")
-      .eq("filename", filename)
-      .limit(1)
-      .maybeSingle();
-
-    if (documentError) throw documentError;
-    if (!documentRow) {
-      throw new Error("Document introuvable dans source_documents. Vérifie la ligne et le nom du fichier.");
-    }
-    if (!documentRow.storage_path) {
-      throw new Error("Le champ storage_path est vide.");
-    }
-    sourceDocumentId = documentRow.id;
-
-    const { error: processingError } = await supabase
-      .from("source_documents")
-      .update({ extraction_status: "processing" })
-      .eq("id", sourceDocumentId);
-    if (processingError) throw processingError;
-
-    extractStatus.textContent = "Téléchargement du PDF privé depuis Storage...";
-    const { data: pdfBlob, error: downloadError } = await supabase
-      .storage
-      .from("wod-pdfs")
-      .download(documentRow.storage_path);
-    if (downloadError) throw downloadError;
-    if (!pdfBlob) throw new Error("Supabase n'a renvoyé aucun fichier.");
-
-    extractStatus.textContent = "Chargement du moteur PDF...";
-    const pdfjsLib = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
-
-    const pdfBytes = new Uint8Array(await pdfBlob.arrayBuffer());
-    const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
-    const pageRows = [];
-    let extractedCharacters = 0;
-
-    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
-      extractStatus.textContent = `Lecture du PDF : page ${pageNumber} / ${pdf.numPages}...`;
-      const page = await pdf.getPage(pageNumber);
-const content = await page.getTextContent();
-
-const layoutData = content.items
-  .filter(item => typeof item.str === "string" && item.str.trim() !== "")
-  .map(item => ({
-    text: item.str,
-    font: item.fontName || "",
-    x: item.transform?.[4] ?? 0,
-    y: item.transform?.[5] ?? 0,
-    fontSize: item.transform
-      ? Math.hypot(item.transform[0], item.transform[1])
-      : 0,
-    width: item.width ?? 0,
-    height: item.height ?? 0,
-    hasEOL: item.hasEOL ?? false
-  }));
-
-const pageText = layoutData
-  .map(item => item.text)
-  .join(" ")
-  .replace(/[ \t]+/g, " ")
-  .trim();
-
-extractedCharacters += pageText.length;
-
-pageRows.push({
-  source_document_id: sourceDocumentId,
-  page_number: pageNumber,
-  extracted_text: pageText,
-  layout_data: layoutData
-});
-
-      if (pageRows.length >= 10 || pageNumber === pdf.numPages) {
-        const { error: pageInsertError } = await supabase
-          .from("source_document_pages")
-          .upsert(pageRows.splice(0), { onConflict: "source_document_id,page_number" });
-        if (pageInsertError) throw pageInsertError;
-      }
-    }
-
-    const { error: completeError } = await supabase
-      .from("source_documents")
-      .update({ total_pages: pdf.numPages, extraction_status: "completed" })
-      .eq("id", sourceDocumentId);
-    if (completeError) throw completeError;
-
-    if (extractedCharacters === 0) {
-      extractStatus.textContent = `Extraction terminée : ${pdf.numPages} pages, mais aucun texte détecté. Ce PDF semble scanné et nécessitera un OCR.`;
-    } else {
-      extractStatus.textContent = `Extraction réussie : ${pdf.numPages} pages et ${extractedCharacters.toLocaleString("fr-FR")} caractères enregistrés dans source_document_pages. Prochaine étape : reconnaissance des WOD.`;
-    }
-  } catch (error) {
-    console.error("Erreur extraction PDF :", error);
-    if (sourceDocumentId) {
-      await supabase.from("source_documents")
-        .update({ extraction_status: "error" })
-        .eq("id", sourceDocumentId);
-    }
-    extractStatus.textContent = "Échec de l'extraction : " + (error?.message || String(error));
-  } finally {
-    extractButton.disabled = false;
-    extractButton.textContent = "EXTRAIRE CE PDF DEPUIS SUPABASE";
-  }
-}
-
-extractButton.addEventListener("click", extractExistingPdfFromStorage);
-// ==========================================
-// RECONNAISSANCE AUTOMATIQUE DES WOD
-// ==========================================
-
-
-const analyzePdfButton = document.getElementById("analyzePdfButton");
-const analysisStatus = document.getElementById("analysisStatus");
-const detectedWods = document.getElementById("detectedWods");
-
-// ==========================================
-// RECONNAISSANCE AUTOMATIQUE DES WOD - V2
-// MODE APERÇU : AUCUN ENREGISTREMENT
-// ==========================================
-
-function detectWodType(text) {
-  const value = String(text || "").toUpperCase();
-
-  if (/\bAMRAP\b/.test(value)) return "AMRAP";
-  if (/\bEMOM\b/.test(value)) return "EMOM";
-  if (/\bTABATA\b/.test(value)) return "TABATA";
-  if (/\bFOR[\s-]*TIME\b/.test(value)) return "FOR TIME";
-
-  return null;
-}
-
-function detectWodDuration(text) {
-  const value = String(text || "");
-
-  let match = value.match(/(\d{1,3})\s*(?:min|minutes)\b/i);
-  if (match) return Number(match[1]);
-
-  match = value.match(/(\d{1,2})\s*[:h]\s*(\d{2})/i);
-  if (match) return Number(match[1]) * 60 + Number(match[2]);
-
-  match = value.match(/(\d{1,2})\s*['’]\s*(\d{2})/);
-  if (match) return Number(match[1]);
-
-  return null;
-}
-
-function cleanText(value) {
-  return String(value || "")
-    .replace(/\s+/g, " ")
-    .replace(/[•●▪]/g, " ")
-    .trim();
-}
-
-function isDateOrPage(line) {
-  return (
-    /\b\d{1,2}\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4}\b/i.test(line) ||
-    /\b(page|training|semaine)\s*\d+\b/i.test(line) ||
-    /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}$/.test(line)
-  );
-}
-
-function isBadTitle(line) {
-  const value = cleanText(line);
-
-  if (!value || value.length < 3 || value.length > 65) return true;
-  if (isDateOrPage(value)) return true;
-  if (detectWodType(value)) return true;
-  if (/^\d+([.,]\d+)?\s*(['’":]|min|minutes)/i.test(value)) return true;
-  if (/^(effectuer|réaliser|faire|consigne|objectif|repos|échauffement)\b/i.test(value)) return true;
-  if (/^(1|2|3|4|5|6|7|8|9|10)\s*(ère|ème|e)?\s*(série|round|tour|exercice)/i.test(value)) return true;
-  if (/^(le plus vite|le maximum|autant que possible)/i.test(value)) return true;
-  if (/^\d+$/.test(value)) return true;
-
-  return false;
-}
-
-function detectWodTitle(header, previousLines, type, pageNumber) {
-  let title = cleanText(header)
-    .replace(/\bAMRAP\b|\bEMOM\b|\bTABATA\b|\bFOR[\s-]*TIME\b/ig, " ")
-    .replace(/\bWOD\b/ig, " ")
-    .replace(/\b\d{1,3}\s*(?:min|minutes)\b/ig, " ")
-    .replace(/\b\d{1,2}\s*['’]\s*\d{2}\b/g, " ")
-    .replace(/[–—\-:]/g, " ")
-    .trim();
-
-  if (!isBadTitle(title)) {
-    return title.substring(0, 65);
-  }
-
-  for (let i = previousLines.length - 1; i >= 0; i--) {
-    const candidate = cleanText(previousLines[i]);
-
-    if (!isBadTitle(candidate)) {
-      return candidate.substring(0, 65);
-    }
-  }
-
-  return `WOD à identifier — page ${pageNumber}`;
-}
-
-function getLinesFromPage(page) {
-  const layout = page.layout_data;
-  let items = [];
-
-  if (Array.isArray(layout)) {
-    items = layout;
-  } else if (layout && Array.isArray(layout.items)) {
-    items = layout.items;
-  }
-
-  if (!items.length) {
-    return (page.extracted_text || "")
-      .split(/\n+/)
-      .map(cleanText)
-      .filter(Boolean);
-  }
-
-  const validItems = items
-    .filter(item => typeof item.text === "string" && item.text.trim())
-    .map(item => ({
-      text: item.text.trim(),
-      x: Number(item.x) || 0,
-      y: Number(item.y) || 0
-    }));
-
-  validItems.sort((a, b) => b.y - a.y || a.x - b.x);
-
-  const lines = [];
-
-  validItems.forEach(item => {
-    let line = lines.find(entry => Math.abs(entry.y - item.y) < 3);
-
-    if (!line) {
-      line = { y: item.y, items: [] };
-      lines.push(line);
-    }
-
-    line.items.push(item);
-  });
-
-  return lines
-    .sort((a, b) => b.y - a.y)
-    .map(line =>
-      cleanText(
-        line.items
-          .sort((a, b) => a.x - b.x)
-          .map(item => item.text)
-          .join(" ")
-      )
-    )
-    .filter(Boolean);
-}
-
-function isWodHeader(line) {
-  return detectWodType(line) !== null;
-}
-
-function normalizeMovementName(name) {
-  return cleanText(name)
-    .replace(/\bPull\s+u\s+ps\b/ig, "Pull ups")
-    .replace(/\bPush\s+u\s+ps\b/ig, "Push ups")
-    .replace(/\bAir\s+squat\s+s\b/ig, "Air squats")
-    .replace(/\bJump\s+s\s+quats\b/ig, "Jump squats")
-    .replace(/\bHandst\s+and\b/ig, "Handstand")
-    .replace(/\s+([,.])/g, "$1")
-    .replace(/[.:;,]+$/, "")
-    .trim();
-}
-
-function isBadMovement(name) {
-  const value = cleanText(name);
-
-  if (value.length < 3 || value.length > 75) return true;
-  if (isDateOrPage(value)) return true;
-  if (/^(min|minutes|secondes|sec|rounds?|tours?)\b/i.test(value)) return true;
-  if (/^(série|series|exercice|round)\b/i.test(value)) return true;
-  if (/^(effectuer|réaliser|faire|repos|objectif|consigne)\b/i.test(value)) return true;
-  if (/^(amrap|emom|tabata|for time)\b/i.test(value)) return true;
-  if (/^\d+\s*['’":]/.test(value)) return true;
-  if (/^\d+\s*(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\b/i.test(value)) return true;
-  if (/^(chaque minute|le plus vite|autant que possible)\b/i.test(value)) return true;
-
-  return false;
-}
-
-function extractWodMovements(lines) {
-  const movements = [];
-
-  lines.forEach(line => {
-    let cleanedLine = cleanText(line);
-
-    if (!cleanedLine || isDateOrPage(cleanedLine)) return;
-
-    cleanedLine = cleanedLine
-      .replace(/REPOS\s*:?.*$/i, "")
-      .replace(/Effectuer.*$/i, "")
-      .replace(/Réaliser.*$/i, "")
-      .replace(/Le plus vite possible.*$/i, "")
-      .replace(/^\d+\s*(?:ère|ème|e)?\s*série\s*:?\s*/i, "")
-      .replace(/^\d+\s*(?:ème|e)?\s*round\s*:?\s*/i, "")
-      .trim();
-
-    if (!cleanedLine) return;
-
-    const segments = cleanedLine
-      .split(/\s+[–—-]\s+|\s+\+\s+/)
-      .map(cleanText)
-      .filter(Boolean);
-
-    segments.forEach(segment => {
-      const match = segment.match(/^\s*(\d{1,4})\s+(.+?)\s*$/);
-
-      if (!match) return;
-
-      const repetitions = Number(match[1]);
-      const movementName = normalizeMovementName(match[2]);
-
-      if (
-        repetitions < 1 ||
-        repetitions > 1000 ||
-        isBadMovement(movementName)
-      ) {
-        return;
-      }
-
-      movements.push({
-        movement_name: movementName,
-        repetitions,
-        position: movements.length + 1
-      });
-    });
-  });
-
-  // Suppression des doublons strictement identiques et consécutifs
-  return movements.filter((movement, index, array) => {
-    if (index === 0) return true;
-
-    const previous = array[index - 1];
-
-    return !(
-      previous.repetitions === movement.repetitions &&
-      previous.movement_name.toLowerCase() === movement.movement_name.toLowerCase()
-    );
-  }).map((movement, index) => ({
-    ...movement,
-    position: index + 1
-  }));
-}
-
-function renderDetectedWods(wods) {
-  detectedWods.innerHTML = "";
-
-  if (!wods.length) {
-    detectedWods.textContent = "Aucun WOD exploitable détecté.";
-    return;
-  }
-
-  const heading = document.createElement("p");
-  heading.textContent =
-    `${wods.length} WOD détecté(s) — aperçu uniquement, aucun enregistrement effectué.`;
-
-  detectedWods.appendChild(heading);
-
-  wods.forEach((wod, index) => {
-    const card = document.createElement("div");
-    card.className = "panel";
-    card.style.marginTop = "10px";
-
-    const title = document.createElement("h3");
-    title.textContent = `${index + 1}. ${wod.name}`;
-
-    const details = document.createElement("p");
-    details.textContent =
-      `${wod.wod_type} — page ${wod.source_page} — ` +
-      `${wod.movements.length} mouvement(s)` +
-      (wod.duration_minutes ? ` — ${wod.duration_minutes} min` : "");
-
-    const movements = document.createElement("p");
-    movements.textContent = wod.movements
-      .map(movement =>
-        `${movement.repetitions} ${movement.movement_name}`
-      )
-      .join(" / ");
-
-    card.append(title, details, movements);
-    detectedWods.appendChild(card);
-  });
-}
-
-async function analyzeSelectedPdf() {
-  analysisStatus.textContent = "Recherche du PDF dans Supabase...";
-  detectedWods.innerHTML = "";
-
-  try {
-    const filenameInput = document.getElementById("existingPdfName");
-    const filename = filenameInput?.value?.trim();
-
-    if (!filename) {
-      throw new Error("Sélectionne d'abord un PDF.");
-    }
-
-    const { data: documentRow, error: documentError } = await supabase
-      .from("source_documents")
-      .select("id, filename")
-      .eq("filename", filename)
-      .maybeSingle();
-
-    if (documentError) throw documentError;
-
-    if (!documentRow) {
-      throw new Error("PDF introuvable dans source_documents.");
-    }
-
-    analysisStatus.textContent = "Lecture des pages extraites...";
-
-    const { data: pages, error: pagesError } = await supabase
-      .from("source_document_pages")
-      .select("page_number, extracted_text, layout_data")
-      .eq("source_document_id", documentRow.id)
-      .order("page_number", { ascending: true });
-
-    if (pagesError) throw pagesError;
-
-    if (!pages || !pages.length) {
-      throw new Error("Aucune page extraite trouvée pour ce PDF.");
-    }
-
-    const allLines = [];
-
-    pages.forEach(page => {
-      const lines = getLinesFromPage(page);
-
-      lines.forEach(line => {
-        allLines.push({
-          text: line,
-          page_number: page.page_number
-        });
-      });
-    });
-
-    const blocks = [];
-    let currentBlock = null;
-    let previousLines = [];
-
-    allLines.forEach(line => {
-      if (isWodHeader(line.text)) {
-        if (currentBlock) blocks.push(currentBlock);
-
-        const type = detectWodType(line.text);
-
-        currentBlock = {
-          type,
-          header: line.text,
-          page: line.page_number,
-          previousLines: [...previousLines],
-          lines: [line.text]
-        };
-      } else if (currentBlock) {
-        currentBlock.lines.push(line.text);
-      }
-
-      previousLines.push(line.text);
-
-      if (previousLines.length > 4) {
-        previousLines.shift();
-      }
-    });
-
-    if (currentBlock) blocks.push(currentBlock);
-
-    if (!blocks.length) {
-      throw new Error(
-        "Aucun format AMRAP, EMOM, TABATA ou FOR TIME reconnu."
-      );
-    }
-
-    analysisStatus.textContent =
-      `${blocks.length} bloc(s) repéré(s). Analyse des mouvements...`;
-
-    const previewWods = [];
-    let skipped = 0;
-
-    for (const block of blocks) {
-      const name = detectWodTitle(
-        block.header,
-        block.previousLines,
-        block.type,
-        block.page
-      );
-
-      const movements = extractWodMovements(block.lines);
-
-      if (!movements.length) {
-        skipped++;
-        continue;
-      }
-
-      const rawText = block.lines.join("\n");
-
-      previewWods.push({
-        name,
-        wod_type: block.type,
-        duration_minutes: detectWodDuration(block.header),
-        source_page: block.page,
-        raw_text: rawText,
-        movements
-      });
-    }
-
-    renderDetectedWods(previewWods);
-
-    analysisStatus.textContent =
-      `Aperçu terminé : ${previewWods.length} WOD détecté(s), ` +
-      `${skipped} bloc(s) ignoré(s). ` +
-      `Aucune donnée enregistrée dans Supabase.`;
-
-  } catch (error) {
-    console.error("Erreur reconnaissance WOD :", error);
-    analysisStatus.textContent = `Erreur : ${error.message}`;
-  }
-}
-
-if (analyzePdfButton) {
-  analyzePdfButton.addEventListener("click", analyzeSelectedPdf);
-}
 function showLoggedOut(message = "") {
   appShell.style.display = "none";
   authScreen.style.display = "flex";
   authMessage.textContent = message;
 }
+
+window.clearAllWodsFromSupabase = async function() {
+  // Les mouvements sont supprimés d'abord pour respecter la relation wod_id.
+  const { error: movementsError } = await supabase
+    .from("wod_movements")
+    .delete()
+    .not("wod_id", "is", null);
+  if (movementsError) throw movementsError;
+
+  const { error: wodsError } = await supabase
+    .from("wods")
+    .delete()
+    .not("id", "is", null);
+  if (wodsError) throw wodsError;
+};
 
 window.saveManualWodToSupabase = async function(wod) {
   const { data: row, error } = await supabase.from("wods").insert({
