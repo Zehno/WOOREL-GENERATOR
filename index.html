@@ -448,6 +448,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
     <div class="timer-types">
       <button class="type-button active" data-type="AMRAP">AMRAP</button>
       <button class="type-button" data-type="EMOM">EMOM</button>
+      <button class="type-button" data-type="E4MOM">E4MOM</button>
       <button class="type-button" data-type="TABATA">TABATA</button>
       <button class="type-button" data-type="FORTIME">FOR TIME</button>
     </div>
@@ -738,18 +739,24 @@ document.getElementById("sendToTimer").addEventListener("click", () => {
       `${m.reps ?? ""}${m.unit ? " "+m.unit : ""} ${m.name}${m.load ? " — "+m.load : ""}`
     ).join("\n");
 
-  const type = selectedWod.type === "FOR TIME"
-    ? "FORTIME"
-    : selectedWod.type;
+  const rawType = String(selectedWod.type || "").toUpperCase();
+  const type = rawType === "FOR TIME" ? "FORTIME" : rawType.replace(/\s+/g, "");
+  if (["AMRAP","EMOM","E4MOM","TABATA","FORTIME"].includes(type)) setTimerType(type);
 
-  if (["AMRAP","EMOM","TABATA","FORTIME"].includes(type)) {
-    setTimerType(type);
+  const params = selectedWod.parameters || {};
+  const duration = Number(selectedWod.duration || params.duration_minutes || 0);
+  if (duration > 0) {
+    if (type === "AMRAP") document.getElementById("amrapDuration").value = duration;
+    if (type === "EMOM" || type === "E4MOM") document.getElementById("emomDuration").value = duration;
+    if (type === "FORTIME") document.getElementById("fortimeLimit").value = duration;
   }
-
-  if (selectedWod.duration) {
-    if (type === "AMRAP") document.getElementById("amrapDuration").value = selectedWod.duration;
-    if (type === "EMOM") document.getElementById("emomDuration").value = selectedWod.duration;
-    if (type === "FORTIME") document.getElementById("fortimeLimit").value = selectedWod.duration;
+  if (type === "EMOM" || type === "E4MOM") {
+    document.getElementById("emomInterval").value = params.interval_minutes || (type === "E4MOM" ? 4 : 1);
+  }
+  if (type === "TABATA") {
+    if (params.work_seconds) document.getElementById("tabataWork").value = params.work_seconds;
+    if (params.rest_seconds != null) document.getElementById("tabataRest").value = params.rest_seconds;
+    if (params.cycles) document.getElementById("tabataCycles").value = params.cycles;
   }
 
   resetTimer();
@@ -774,7 +781,9 @@ function setTimerType(type) {
     document.getElementById(id+"Settings").classList.add("hidden");
   });
 
-  document.getElementById(type.toLowerCase()+"Settings").classList.remove("hidden");
+  const settingsId = type === "FORTIME" ? "fortimeSettings" : (type === "E4MOM" ? "emomSettings" : type.toLowerCase()+"Settings");
+  document.getElementById(settingsId).classList.remove("hidden");
+  if (type === "E4MOM") document.getElementById("emomInterval").value = 4;
 
   resetTimer();
   updateClock();
@@ -880,7 +889,7 @@ function getDuration() {
     return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
   }
 
-  if (timerType === "EMOM") {
+  if (timerType === "EMOM" || timerType === "E4MOM") {
     return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
   }
 
@@ -922,10 +931,10 @@ function updateClock() {
     info = `CYCLE ${cycle} / ${Math.max(1, Number(document.getElementById("tabataCycles").value) || 8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
   }
 
-  if (timerType === "EMOM") {
-    const duration = Math.max(1, Number(document.getElementById("emomInterval").value) || 1);
+  if (timerType === "EMOM" || timerType === "E4MOM") {
+    const duration = Math.max(1, Number(document.getElementById("emomInterval").value) || (timerType === "E4MOM" ? 4 : 1));
     const currentMinute = Math.floor(elapsed / (duration * 60)) + 1;
-    info = `EMOM — MINUTE ${currentMinute}`;
+    info = `${timerType} — INTERVALLE ${currentMinute}`;
   }
 
   document.getElementById("timerInfo").textContent = info;
@@ -1061,10 +1070,10 @@ function checkMidpointSignal() {
   }
 
   // EMOM : moitié de chaque intervalle de travail
-  if (timerType === "EMOM") {
+  if (timerType === "EMOM" || timerType === "E4MOM") {
     const intervalMinutes = Math.max(
       1,
-      Number(document.getElementById("emomInterval").value) || 1
+      Number(document.getElementById("emomInterval").value) || (timerType === "E4MOM" ? 4 : 1)
     );
 
     const intervalSeconds = intervalMinutes * 60;
@@ -1396,29 +1405,73 @@ const detectedWods = document.getElementById("detectedWods");
 // ==========================================
 
 function detectWodType(text) {
-  const value = String(text || "").toUpperCase();
-
+  const value = String(text || "").toUpperCase().replace(/[–—]/g, "-");
+  if (/\bE\s*4\s*MOM\b|\bE4MOM\b/.test(value)) return "E4MOM";
   if (/\bAMRAP\b/.test(value)) return "AMRAP";
   if (/\bEMOM\b/.test(value)) return "EMOM";
   if (/\bTABATA\b/.test(value)) return "TABATA";
   if (/\bFOR[\s-]*TIME\b/.test(value)) return "FOR TIME";
-
   return null;
 }
 
+function detectWodParameters(text, type) {
+  const value = String(text || "").replace(/\s+/g, " ");
+  const result = { duration_minutes: null, interval_minutes: null, work_seconds: null, rest_seconds: null, cycles: null };
+  let match;
+
+  // Durée globale : « 12 min », « 12 minutes » ou « 12:00 ».
+  match = value.match(/\b(\d{1,3})\s*(?:min(?:ute)?s?)\b/i);
+  if (match) result.duration_minutes = Number(match[1]);
+  if (result.duration_minutes == null) {
+    match = value.match(/\b(\d{1,2}):(\d{2})\b/);
+    if (match) result.duration_minutes = Number(match[1]) + (Number(match[2]) >= 30 ? 1 : 0);
+  }
+  if (result.duration_minutes == null) {
+    match = value.match(/\b(\d{1,3})\s*['’]\b/);
+    if (match) result.duration_minutes = Number(match[1]);
+  }
+  if (result.duration_minutes == null && type) {
+    const escapedType = type === "FOR TIME" ? "FOR\\s*-?\\s*TIME" : type.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    match = value.match(new RegExp("\\b" + escapedType + "\\s+(\\d{1,3})\\b", "i"));
+    if (match && Number(match[1]) !== 4) result.duration_minutes = Number(match[1]);
+  }
+
+  // Intervalles explicitement indiqués, ou implicites dans E4MOM.
+  match = value.match(/\b(?:E\s*4\s*MOM|E4MOM)\b/i);
+  if (match) result.interval_minutes = 4;
+  if (result.interval_minutes == null) {
+    match = value.match(/\b(?:every|chaque)\s*(\d+)\s*(?:min(?:ute)?s?)\b/i) || value.match(/\b(\d+)\s*min(?:ute)?s?\s*(?:intervalle|interval)\b/i);
+    if (match) result.interval_minutes = Number(match[1]);
+  }
+  if (result.interval_minutes == null && type === "EMOM") result.interval_minutes = 1;
+
+  // TABATA : « 20s/10s x 8 », « 20 sec travail / 10 sec repos ».
+  if (type === "TABATA") {
+    match = value.match(/\b(\d{1,3})\s*(?:s|sec|secondes?)\s*[\/–-]\s*(\d{1,3})\s*(?:s|sec|secondes?)\b/i);
+    if (match) { result.work_seconds = Number(match[1]); result.rest_seconds = Number(match[2]); }
+    if (result.work_seconds == null) {
+      match = value.match(/(\d{1,3})\s*(?:s|sec|secondes?)\s*(?:de\s*)?travail/i);
+      if (match) result.work_seconds = Number(match[1]);
+    }
+    if (result.rest_seconds == null) {
+      match = value.match(/(\d{1,3})\s*(?:s|sec|secondes?)\s*(?:de\s*)?repos/i);
+      if (match) result.rest_seconds = Number(match[1]);
+    }
+    match = value.match(/\b(?:x|×)\s*(\d{1,2})\s*(?:cycles?|rounds?|tours?)?\b/i) || value.match(/\b(\d{1,2})\s*cycles?\b/i);
+    if (match) result.cycles = Number(match[1]);
+    if (result.duration_minutes == null && result.work_seconds != null && result.cycles != null) {
+      result.duration_minutes = Math.ceil((result.work_seconds + (result.rest_seconds || 0)) * result.cycles / 60);
+    }
+  }
+  if (type === "E4MOM" && result.duration_minutes == null) {
+    match = value.match(/\b(\d{1,2})\s*(?:rounds?|tours?|cycles?)\b/i);
+    if (match) result.duration_minutes = Number(match[1]) * 4;
+  }
+  return result;
+}
+
 function detectWodDuration(text) {
-  const value = String(text || "");
-
-  let match = value.match(/(\d{1,3})\s*(?:min|minutes)\b/i);
-  if (match) return Number(match[1]);
-
-  match = value.match(/(\d{1,2})\s*[:h]\s*(\d{2})/i);
-  if (match) return Number(match[1]) * 60 + Number(match[2]);
-
-  match = value.match(/(\d{1,2})\s*['’]\s*(\d{2})/);
-  if (match) return Number(match[1]);
-
-  return null;
+  return detectWodParameters(text, detectWodType(text)).duration_minutes;
 }
 
 function cleanText(value) {
@@ -1432,6 +1485,9 @@ function isDateOrPage(line) {
   return (
     /\b\d{1,2}\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4}\b/i.test(line) ||
     /\b(page|training|semaine)\s*\d+\b/i.test(line) ||
+    /\b(?:copyright|tous droits réservés|all rights reserved)\b/i.test(line) ||
+    /\b20\d{2}\b.*(?:©|copyright)/i.test(line) ||
+    /^\d{1,4}$/.test(line) ||
     /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}$/.test(line)
   );
 }
@@ -1457,6 +1513,11 @@ function detectWodTitle(header, previousLines, type, pageNumber) {
     .replace(/\bWOD\b/ig, " ")
     .replace(/\b\d{1,3}\s*(?:min|minutes)\b/ig, " ")
     .replace(/\b\d{1,2}\s*['’]\s*\d{2}\b/g, " ")
+    .replace(/\bE\s*4\s*MOM\b/ig, " ")
+    .replace(/\b(?:copyright|tous droits réservés|all rights reserved)\b.*$/ig, " ")
+    .replace(/\bpage\s*\d+\b/ig, " ")
+    .replace(/\b\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}\b/g, " ")
+    .replace(/[©®™]/g, " ")
     .replace(/[–—\-:]/g, " ")
     .trim();
 
@@ -1472,7 +1533,7 @@ function detectWodTitle(header, previousLines, type, pageNumber) {
     }
   }
 
-  return `WOD à identifier — page ${pageNumber}`;
+  return "WOD sans titre";
 }
 
 function getLinesFromPage(page) {
@@ -1525,7 +1586,8 @@ function getLinesFromPage(page) {
           .join(" ")
       )
     )
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter(line => !isDateOrPage(line) && !/copyright|tous droits réservés|all rights reserved|\bwww\.|https?:\/\//i.test(line));
 }
 
 function isWodHeader(line) {
@@ -1552,7 +1614,7 @@ function isBadMovement(name) {
   if (/^(min|minutes|secondes|sec|rounds?|tours?)\b/i.test(value)) return true;
   if (/^(série|series|exercice|round)\b/i.test(value)) return true;
   if (/^(effectuer|réaliser|faire|repos|objectif|consigne)\b/i.test(value)) return true;
-  if (/^(amrap|emom|tabata|for time)\b/i.test(value)) return true;
+  if (/^(amrap|emom|e4mom|tabata|for time)\b/i.test(value)) return true;
   if (/^\d+\s*['’":]/.test(value)) return true;
   if (/^\d+\s*(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\b/i.test(value)) return true;
   if (/^(chaque minute|le plus vite|autant que possible)\b/i.test(value)) return true;
@@ -1647,10 +1709,14 @@ function renderDetectedWods(wods) {
     title.textContent = `${index + 1}. ${wod.name}`;
 
     const details = document.createElement("p");
-    details.textContent =
-      `${wod.wod_type} — page ${wod.source_page} — ` +
-      `${wod.movements.length} mouvement(s)` +
-      (wod.duration_minutes ? ` — ${wod.duration_minutes} min` : "");
+    const format = document.createElement("p");
+    format.innerHTML = `<strong>FORMAT :</strong> ${escapeHTML(wod.wod_type)}`;
+    const duration = document.createElement("p");
+    duration.innerHTML = `<strong>DURÉE :</strong> ${wod.duration_minutes ? escapeHTML(String(wod.duration_minutes)) + " min" : "Non détectée"}`;
+    const intervalInfo = document.createElement("p");
+    if (wod.parameters?.interval_minutes) intervalInfo.textContent = `INTERVALLE : ${wod.parameters.interval_minutes} min`;
+    else if (wod.wod_type === "TABATA") intervalInfo.textContent = `TRAVAIL / REPOS : ${wod.parameters.work_seconds ?? "?"} s / ${wod.parameters.rest_seconds ?? "?"} s — CYCLES : ${wod.parameters.cycles ?? "?"}`;
+    details.textContent = `${wod.movements.length} mouvement(s) — page source ${wod.source_page}`;
 
     const movements = document.createElement("p");
     movements.textContent = wod.movements
@@ -1659,7 +1725,26 @@ function renderDetectedWods(wods) {
       )
       .join(" / ");
 
-    card.append(title, details, movements);
+    const useButton = document.createElement("button");
+    useButton.className = "secondary";
+    useButton.style.width = "100%";
+    useButton.style.marginTop = "12px";
+    useButton.textContent = "UTILISER CE WOD DANS LE CHRONOMÈTRE";
+    useButton.addEventListener("click", () => {
+      selectWod({
+        name: wod.name,
+        type: wod.wod_type,
+        duration: wod.duration_minutes,
+        parameters: wod.parameters || {},
+        movements: wod.movements.map(m => ({ name: m.movement_name, reps: m.repetitions, unit: "", load: "" }))
+      });
+      document.getElementById("generationStatus").textContent = "WOD détecté sélectionné. Tu peux l'envoyer vers le chronomètre.";
+      document.getElementById("selectedWod").scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+
+    card.append(title, format, duration);
+    if (intervalInfo.textContent) card.appendChild(intervalInfo);
+    card.append(details, movements, useButton);
     detectedWods.appendChild(card);
   });
 }
@@ -1777,7 +1862,8 @@ async function analyzeSelectedPdf() {
       previewWods.push({
         name,
         wod_type: block.type,
-        duration_minutes: detectWodDuration(block.header),
+        ...detectWodParameters(block.lines.join(" "), block.type),
+        parameters: detectWodParameters(block.lines.join(" "), block.type),
         source_page: block.page,
         raw_text: rawText,
         movements
@@ -1837,6 +1923,7 @@ async function loadWodsFromSupabase() {
 function normalizeWodType(type) {
   const value = String(type || "LIBRE").trim().toUpperCase().replace(/[ _-]/g, "");
   if (value === "FORTIME" || value === "FOR TIME") return "FOR TIME";
+  if (value === "E4MOM") return "E4MOM";
   if (["AMRAP", "EMOM", "TABATA"].includes(value)) return value;
   return type || "LIBRE";
 }
