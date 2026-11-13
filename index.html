@@ -699,6 +699,13 @@ header {
 .fs-skip-btn {background:#60a5fa;color:#101419;border:0;border-radius:10px;padding:12px 16px;font-weight:900;cursor:pointer}
 @media(max-width:600px){.fs-clock{font-size:clamp(82px,23vw,170px)}.fs-round-info{font-size:clamp(18px,5vw,28px);padding:8px 12px}.fs-controls{gap:8px}.fs-controls button{padding:13px 8px;font-size:14px}}
 
+
+/* ASSISTANT D'OREL */
+.coach-hero{background:linear-gradient(135deg,#173c32,#1b222a 68%);border:1px solid #287b5c;border-radius:14px;padding:22px;margin-bottom:16px}
+.coach-kicker{font-size:11px;letter-spacing:2px;color:#8ce0b8;font-weight:900}
+.coach-hero h2{font-size:24px;margin:8px 0}.coach-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.coach-grid .field{margin:0}.coach-checks{display:flex;flex-wrap:wrap;gap:9px}.coach-checks label{background:var(--card-bg);border:1px solid var(--border);padding:9px 11px;border-radius:8px;font-size:13px}.coach-result{border:1px solid var(--border);border-radius:12px;padding:16px;background:var(--card-bg);margin-top:14px}.coach-week{border:1px solid var(--border);border-radius:10px;padding:13px;margin:10px 0;background:var(--panel)}.coach-week h3{margin:0 0 8px;color:var(--green);font-size:15px}.coach-session{padding:10px 0;border-top:1px solid var(--border)}.coach-session:first-of-type{border-top:0}.coach-tag{display:inline-block;padding:4px 7px;border-radius:5px;background:var(--panel2);font-size:10px;font-weight:800;margin-right:5px}.coach-note{font-size:12px;color:var(--muted);line-height:1.5}.coach-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.coach-actions button{flex:1;min-width:170px}
+@media(max-width:560px){.coach-grid{grid-template-columns:1fr}.coach-hero{padding:17px}.tabs{gap:6px;flex-wrap:wrap}.tab{min-width:42%;padding:12px 7px;font-size:11px}}
+
 </style>
 </head>
 
@@ -739,6 +746,7 @@ header {
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
   <button class="tab" data-page="historyPage">HISTORIQUE</button>
+  <button class="tab" data-page="coachPage">ASSISTANT D'OREL</button>
 </nav>
 
 <main>
@@ -830,6 +838,41 @@ header {
       <div id="libraryStatus" class="small-note" role="status" aria-live="polite" style="margin-top:10px"></div>
       <div id="libraryList"><p class="muted">Connecte-toi pour charger ta bibliothèque.</p></div>
     </div>
+  </div>
+</section>
+
+
+<!-- ASSISTANT D'OREL -->
+<section id="coachPage" class="page">
+  <div class="coach-hero">
+    <div class="coach-kicker">LES WODS D'OREL · COACH INTELLIGENCE</div>
+    <h2>ASSISTANT D'OREL</h2>
+    <p style="margin:0;color:#d6e9df;line-height:1.5">Construis une programmation avec un objectif clair, une progression et des séances cohérentes. Définis ton profil : le coach te propose un premier cycle personnalisable.</p>
+  </div>
+  <div class="panel">
+    <h2>1 · TON OBJECTIF</h2>
+    <div class="field"><label for="coachGoal">OBJECTIF PRINCIPAL</label><select id="coachGoal">
+      <option value="force">Développer la force maximale</option><option value="hypertrophy">Développer la masse musculaire</option><option value="engine">Améliorer l'endurance et le cardio</option><option value="gym">Progresser en gymnastique</option><option value="oly">Progresser en haltérophilie</option><option value="general">Améliorer ma condition physique générale</option><option value="weightloss">Améliorer ma composition corporelle</option>
+    </select></div>
+    <div class="coach-grid">
+      <div class="field"><label for="coachDuration">DURÉE DU CYCLE</label><select id="coachDuration"><option value="4">4 semaines</option><option value="6">6 semaines</option><option value="8" selected>8 semaines</option><option value="12">12 semaines</option></select></div>
+      <div class="field"><label for="coachDays">SÉANCES / SEMAINE</label><select id="coachDays"><option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div>
+      <div class="field"><label for="coachLevel">NIVEAU</label><select id="coachLevel"><option>Débutant</option><option selected>Intermédiaire</option><option>Avancé</option></select></div>
+      <div class="field"><label for="coachSessionTime">DURÉE D'UNE SÉANCE</label><select id="coachSessionTime"><option value="45">45 minutes</option><option value="60" selected>60 minutes</option><option value="75">75 minutes</option><option value="90">90 minutes</option></select></div>
+    </div>
+    <div class="field" style="margin-top:14px"><label for="coachTarget">OBJECTIF MESURABLE / POINT DE DÉPART</label><textarea id="coachTarget" rows="2" placeholder="Ex. : squat 1RM actuel 100 kg, objectif 115 kg ; 5 tractions strictes, objectif 10..."></textarea></div>
+    <div class="field"><label>MATÉRIEL DISPONIBLE</label><div class="coach-checks">
+      <label><input type="checkbox" name="coachEquipment" value="barbell" checked> Barre / disques</label><label><input type="checkbox" name="coachEquipment" value="dumbbell" checked> Haltères</label><label><input type="checkbox" name="coachEquipment" value="kettlebell" checked> Kettlebells</label><label><input type="checkbox" name="coachEquipment" value="gym" checked> Barre traction / anneaux</label><label><input type="checkbox" name="coachEquipment" value="cardio" checked> Rameur / Bike / SkiErg</label><label><input type="checkbox" name="coachEquipment" value="bodyweight" checked> Poids du corps</label>
+    </div></div>
+    <div class="field"><label for="coachConstraints">CONTRAINTES, BLESSURES À PRENDRE EN COMPTE OU PRÉFÉRENCES</label><textarea id="coachConstraints" rows="2" placeholder="Ex. : éviter les impacts, pas de matériel cardio, priorité au squat..."></textarea><p class="coach-note">En cas de douleur ou de blessure, fais valider les adaptations par un professionnel de santé. L'assistant ne remplace pas un bilan médical.</p></div>
+    <button class="primary" id="coachGenerateBtn" type="button" style="width:100%;margin-top:8px">⚡ CONSTRUIRE MA PROGRAMMATION</button>
+    <p id="coachStatus" class="small-note" role="status" aria-live="polite"></p>
+  </div>
+  <div id="coachOutput" class="panel hidden">
+    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"><h2 style="margin:0">2 · TA PROGRAMMATION</h2><span class="coach-tag">PROPOSITION À AJUSTER</span></div>
+    <div id="coachPlan"></div>
+    <div class="coach-actions"><button class="secondary" id="coachCopyBtn" type="button">COPIER LE PROGRAMME</button><button class="primary" id="coachSessionBtn" type="button">ENVOYER UNE SÉANCE AU CHRONO →</button></div>
+    <p class="coach-note">Cette première version utilise des règles de programmation intégrées au fichier : elle ne se connecte pas encore à un modèle d'IA externe et ne remplace pas l'avis d'un préparateur physique. Les charges doivent être adaptées à ton niveau et à ta récupération.</p>
   </div>
 </section>
 
@@ -1478,6 +1521,103 @@ async function openSharedWodFromLink() {
 }
 
 document.getElementById("sendToTimer").addEventListener("click", () => sendWodToTimer(selectedWod));
+
+
+// =======================================
+// ASSISTANT D'OREL — moteur de programmation initial
+// Moteur local à règles : aucun appel IA externe dans cette version.
+// =======================================
+var coachGeneratedPlan = null;
+var coachSelectedSession = null;
+const coachExerciseLibrary = {
+  force: [
+    {title:"Force bas du corps",focus:"Squat",items:["Back Squat — 5 × 5 (RPE 7)","Romanian Deadlift — 3 × 8","Split Squat — 3 × 10 / jambe","Gainage — 3 × 40 s"],type:"FOR TIME"},
+    {title:"Force haut du corps",focus:"Poussée / tirage",items:["Strict Press — 5 × 5","Tractions strictes ou tirage — 4 × 6","Développé couché — 3 × 8","Rowing haltère — 3 × 10"],type:"FOR TIME"},
+    {title:"Force charnière",focus:"Soulevé de terre",items:["Deadlift — 5 × 3 (RPE 7–8)","Front Squat — 4 × 5","Hip Thrust — 3 × 10","Farmer Carry — 4 × 30 m"],type:"FOR TIME"},
+    {title:"Technique et assistance",focus:"Qualité de mouvement",items:["Tempo Squat — 3 × 5","Pompes strictes — 3 × 10","Ring Row — 3 × 12","Mobilité hanches / épaules — 8 min"],type:"AMRAP"}
+  ],
+  hypertrophy:[
+    {title:"Jambes",focus:"Quadriceps / fessiers",items:["Back Squat — 4 × 8","Bulgarian Split Squat — 3 × 10 / jambe","Leg Curl — 3 × 12","Mollets — 3 × 15"],type:"FOR TIME"},
+    {title:"Haut du corps — poussée",focus:"Pectoraux / épaules / triceps",items:["Développé couché — 4 × 8","Développé haltères — 3 × 10","Élévations latérales — 3 × 15","Extensions triceps — 3 × 12"],type:"FOR TIME"},
+    {title:"Haut du corps — tirage",focus:"Dos / biceps",items:["Rowing barre — 4 × 8","Tractions ou tirage vertical — 3 × 8","Rowing poulie — 3 × 12","Curl haltères — 3 × 12"],type:"FOR TIME"},
+    {title:"Chaîne postérieure",focus:"Ischios / fessiers / tronc",items:["Romanian Deadlift — 4 × 8","Hip Thrust — 3 × 10","Fentes marchées — 3 × 12","Gainage latéral — 3 × 30 s / côté"],type:"FOR TIME"}
+  ],
+  engine:[
+    {title:"Base aérobie",focus:"Endurance fondamentale",items:["Bike ou rameur — 25 min à allure conversationnelle","Step-up contrôlés — 3 × 12","Dead Bug — 3 × 10 / côté"],type:"AMRAP"},
+    {title:"Intervalles",focus:"Puissance aérobie",items:["Rameur — 6 × 2 min soutenues / 2 min faciles","Air Squat — 3 × 15","Repos et retour au calme — 5 min"],type:"EMOM"},
+    {title:"Conditionnement mixte",focus:"Endurance musculaire",items:["400 m course ou 500 m rameur","12 Kettlebell Swings légers","10 Burpees contrôlés"],type:"AMRAP"},
+    {title:"Récupération active",focus:"Capacité de récupération",items:["Bike facile — 20 min","Mobilité hanches / chevilles — 10 min","Respiration calme — 3 min"],type:"FOR TIME"}
+  ],
+  gym:[
+    {title:"Tirage gymnique",focus:"Tractions",items:["Scapular Pull-ups — 3 × 8","Tractions strictes / assistées — 5 × 3 à 6","Ring Row — 3 × 10","Hollow Hold — 4 × 20 s"],type:"EMOM"},
+    {title:"Poussée et inversion",focus:"Épaules",items:["Pike Push-ups — 4 × 8","Handstand hold au mur — 5 × 20 s","Pompes strictes — 3 × 10","Planche — 3 × 40 s"],type:"EMOM"},
+    {title:"Tronc et contrôle",focus:"Ligne corporelle",items:["Hollow Rocks — 4 × 12","Arch Hold — 4 × 20 s","Toes-to-Bar ou Knee Raises — 4 × 6","L-Sit tuck — 5 × 10 s"],type:"TABATA"},
+    {title:"Technique",focus:"Qualité et amplitude",items:["Tractions tempo — 4 × 3","Support hold aux anneaux — 4 × 15 s","Scapular Push-ups — 3 × 12","Mobilité épaules — 8 min"],type:"FOR TIME"}
+  ],
+  oly:[
+    {title:"Arraché",focus:"Technique snatch",items:["Snatch Pull — 4 × 3","Hang Power Snatch — 5 × 2 léger","Overhead Squat — 4 × 3","Snatch Balance technique — 3 × 2"],type:"FOR TIME"},
+    {title:"Épaulé",focus:"Technique clean",items:["Clean Pull — 4 × 3","Hang Power Clean — 5 × 2 léger","Front Squat — 4 × 3","Tall Clean — 3 × 3"],type:"FOR TIME"},
+    {title:"Jeté",focus:"Jerk",items:["Push Press — 4 × 4","Jerk Dip — 3 × 5","Split Jerk technique — 6 × 1","Overhead Carry — 3 × 20 m"],type:"FOR TIME"},
+    {title:"Force support",focus:"Positions et stabilité",items:["Front Squat — 4 × 5","Strict Press — 3 × 6","Romanian Deadlift — 3 × 8","Mobilité chevilles / épaules — 10 min"],type:"FOR TIME"}
+  ],
+  general:[
+    {title:"Force globale",focus:"Mouvements fondamentaux",items:["Goblet Squat — 4 × 10","Pompes — 4 × 8 à 12","Rowing haltère — 4 × 10","Dead Bug — 3 × 10"],type:"FOR TIME"},
+    {title:"Cardio et endurance",focus:"Moteur",items:["Bike — 3 min","Rameur — 3 min","Marche du fermier — 40 m","Repos — 1 min"],type:"AMRAP"},
+    {title:"Puissance et coordination",focus:"Mouvements dynamiques",items:["Kettlebell Deadlift — 3 × 10","Box Step-up — 3 × 10","Med Ball Slam — 3 × 12","Bear Crawl — 3 × 15 m"],type:"EMOM"},
+    {title:"Full body",focus:"Conditionnement général",items:["12 Dumbbell Thrusters légers","10 Ring Rows","12 Sit-ups","200 m course ou 250 m rameur"],type:"AMRAP"}
+  ],
+  weightloss:[
+    {title:"Renforcement global",focus:"Force et masse musculaire",items:["Goblet Squat — 3 × 12","Développé haltères — 3 × 10","Rowing haltère — 3 × 12","Gainage — 3 × 30 s"],type:"FOR TIME"},
+    {title:"Cardio régulier",focus:"Volume aérobie",items:["Bike ou marche rapide — 25 min à intensité modérée","Mobilité — 8 min"],type:"AMRAP"},
+    {title:"Circuit full body",focus:"Conditionnement",items:["10 Kettlebell Deadlifts","10 Pompes adaptées","12 Step-ups","30 s Bike soutenu"],type:"AMRAP"},
+    {title:"Endurance facile",focus:"Récupération active",items:["Rameur ou marche — 20 à 30 min facile","Mobilité globale — 10 min"],type:"FOR TIME"}
+  ]
+};
+function coachBuildPlan(){
+  const goal=document.getElementById('coachGoal').value, weeks=Number(document.getElementById('coachDuration').value), days=Number(document.getElementById('coachDays').value), level=document.getElementById('coachLevel').value, minutes=Number(document.getElementById('coachSessionTime').value), target=document.getElementById('coachTarget').value.trim(), constraints=document.getElementById('coachConstraints').value.trim();
+  const equipment=[...document.querySelectorAll('[name="coachEquipment"]:checked')].map(x=>x.value);
+  if(!equipment.length){document.getElementById('coachStatus').textContent='Sélectionne au moins un équipement disponible.';return;}
+  const templates=coachExerciseLibrary[goal]||coachExerciseLibrary.general;
+  const goalNames={force:'Force maximale',hypertrophy:'Hypertrophie',engine:'Endurance / cardio',gym:'Gymnastique',oly:'Haltérophilie',general:'Condition physique générale',weightloss:'Composition corporelle'};
+  const phaseNames=weeks<=4?['Accumulation technique','Consolidation','Intensification','Allègement']:['Fondations et technique','Développement du volume','Progression de la charge','Progression spécifique','Intensification','Consolidation','Affûtage','Bilan et récupération'];
+  const cycle=[]; const selectedSessions=[];
+  for(let w=1;w<=weeks;w++){
+    const phaseIndex=Math.min(phaseNames.length-1,Math.floor((w-1)*phaseNames.length/weeks));
+    const phase=phaseNames[phaseIndex];
+    const deload=(w===weeks || (weeks>=6 && w===Math.ceil(weeks*0.65)));
+    const sessions=[];
+    for(let d=0;d<days;d++){
+      const template=templates[(d+(w-1))%templates.length];
+      let volume=deload?'Volume réduit de 30 à 40 %':(w<=Math.ceil(weeks/3)?'Priorité à la technique et à la régularité':w<=Math.ceil(weeks*2/3)?'Augmentation progressive du volume ou de la charge':'Intensité maîtrisée, sans aller à l’échec systématique');
+      let items=[...template.items];
+      if(equipment.indexOf('barbell')<0) items=items.filter(x=>!/(Barbell|Back Squat|Front Squat|Deadlift|Snatch|Clean|Jerk|Développé couché|Rowing barre|Strict Press)/i.test(x));
+      if(equipment.indexOf('dumbbell')<0) items=items.filter(x=>!/(haltère|Dumbbell|élévations latérales|Curl haltères)/i.test(x));
+      if(equipment.indexOf('kettlebell')<0) items=items.filter(x=>!/Kettlebell/i.test(x));
+      if(equipment.indexOf('gym')<0) items=items.filter(x=>!/(Tractions|Ring|anneaux|Handstand|L-Sit|Toes-to-Bar)/i.test(x));
+      if(equipment.indexOf('cardio')<0) items=items.filter(x=>!/(Bike|rameur|Rameur|SkiErg)/i.test(x));
+      if(!items.length) items=['Circuit poids du corps adapté — 3 à 4 tours','Mobilité active — 8 min'];
+      const session={day:d+1,title:template.title,focus:template.focus,type:template.type,items,volume,week:w}; sessions.push(session); if(!coachSelectedSession) coachSelectedSession=session;
+    }
+    cycle.push({week:w,phase,deload,sessions});
+  }
+  coachGeneratedPlan={goal:goalNames[goal],weeks,days,level,minutes,target,constraints,equipment,cycle};
+  renderCoachPlan();
+  document.getElementById('coachOutput').classList.remove('hidden');
+  document.getElementById('coachStatus').textContent='Programmation construite. Ajuste les charges, les répétitions et la récupération selon tes retours.';
+}
+function renderCoachPlan(){
+  const p=coachGeneratedPlan;if(!p)return;
+  let html=`<div class="coach-result"><strong>${p.goal}</strong><p class="coach-note">${p.weeks} semaines · ${p.days} séances / semaine · ${p.level} · ${p.minutes} min / séance</p>${p.target?`<p><strong>Objectif mesurable :</strong> ${escapeCoachText(p.target)}</p>`:''}${p.constraints?`<p><strong>Contraintes à respecter :</strong> ${escapeCoachText(p.constraints)}</p>`:''}</div>`;
+  p.cycle.forEach(w=>{html+=`<div class="coach-week"><h3>SEMAINE ${w.week} — ${w.phase}${w.deload?' · ALLÈGEMENT':''}</h3>`;w.sessions.forEach(s=>{html+=`<div class="coach-session"><strong>Séance ${s.day} · ${s.title}</strong> <span class="coach-tag">${s.type}</span><div class="coach-note">Focus : ${s.focus} · ${s.volume}</div><ul>${s.items.map(i=>`<li>${escapeCoachText(i)}</li>`).join('')}</ul></div>`});html+='</div>'});
+  html+='<p class="coach-note">Progression : augmente une seule variable à la fois (charge, répétitions ou densité). Garde généralement 1 à 3 répétitions en réserve sur les séries de renforcement. Si la technique se dégrade, réduis la charge. Le cycle doit être réévalué selon les performances et la récupération.</p>';
+  document.getElementById('coachPlan').innerHTML=html;
+  coachSelectedSession=p.cycle[0].sessions[0];
+}
+function escapeCoachText(value){return String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+document.getElementById('coachGenerateBtn').addEventListener('click',coachBuildPlan);
+document.getElementById('coachCopyBtn').addEventListener('click',async()=>{if(!coachGeneratedPlan)return;const nl=String.fromCharCode(10);const text=coachGeneratedPlan.cycle.map(w=>'SEMAINE '+w.week+' — '+w.phase+nl+w.sessions.map(x=>'Séance '+x.day+' : '+x.title+nl+x.items.join(nl)).join(nl+nl)).join(nl+nl);try{await navigator.clipboard.writeText(text);document.getElementById('coachStatus').textContent='Programme copié.';}catch(e){document.getElementById('coachStatus').textContent='Copie indisponible sur ce navigateur.';}});
+document.getElementById('coachSessionBtn').addEventListener('click',()=>{if(!coachSelectedSession)return;const s=coachSelectedSession;const wod={name:`ASSISTANT D'OREL — ${s.title}`,type:s.type,duration:s.type==='AMRAP'?12: s.type==='EMOM'?12:20,consigne:`Semaine ${s.week} · ${s.focus}. ${s.volume}. Adapte la charge à ta technique et à ta récupération.`,movements:s.items.map(x=>({name:x,reps:null,unit:'',load:''}))};sendWodToTimer(wod);});
+
 
 // =======================================
 // SELECTION DU TYPE DE CHRONO
