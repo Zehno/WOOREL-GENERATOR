@@ -1,164 +1,1894 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#10141d">
-  <meta name="description" content="WOD FACTORY - Générateur intelligent de WOD CrossFit, HYROX et HIIT.">
-  <title>WOD FACTORY</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101419">
+<title>WOOREL GENERATOR</title>
+
+<style>
+:root {
+  --bg:#101419;
+  --panel:#1b222a;
+  --panel2:#242d37;
+  --text:#f3f5f7;
+  --muted:#929eaa;
+  --green:#26c281;
+  --orange:#f2a344;
+  --red:#e45b5b;
+  --border:#303b46;
+}
+
+* {box-sizing:border-box}
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  min-height:100vh;
+}
+
+header {
+  padding:25px 20px 18px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+}
+
+.logo {
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.logo span {color:var(--green)}
+
+.subtitle {
+  color:var(--muted);
+  font-size:11px;
+  letter-spacing:2px;
+  margin-top:7px;
+}
+
+.tabs {
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  padding:18px 12px;
+  max-width:750px;
+  margin:auto;
+}
+
+.tab {
+  flex:1;
+  padding:15px 10px;
+  background:var(--panel);
+  border:1px solid var(--border);
+  color:var(--muted);
+  border-radius:9px;
+  font-size:13px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.tab.active {
+  background:var(--green);
+  border-color:var(--green);
+  color:#101419;
+}
+
+main {
+  max-width:850px;
+  margin:auto;
+  padding:10px 18px 50px;
+}
+
+.page {display:none}
+.page.active {display:block}
+
+h2 {
+  font-size:17px;
+  letter-spacing:1px;
+  margin:12px 0 20px;
+}
+
+.panel {
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px;
+  margin-bottom:16px;
+}
+
+.center {text-align:center}
+
+.muted {
+  color:var(--muted);
+  font-size:13px;
+}
+
+button {
+  font-family:inherit;
+}
+
+.primary {
+  background:var(--green);
+  color:#101419;
+  border:0;
+  padding:17px 24px;
+  border-radius:9px;
+  font-weight:900;
+  font-size:15px;
+  cursor:pointer;
+  width:100%;
+  transition:.15s;
+}
+
+.primary:hover {filter:brightness(1.08)}
+.primary:disabled {opacity:.4;cursor:not-allowed}
+
+.secondary {
+  background:var(--panel2);
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:12px 15px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.actions {
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.actions button {flex:1}
+
+input,select,textarea {
+  width:100%;
+  background:#111820;
+  color:var(--text);
+  border:1px solid var(--border);
+  padding:12px;
+  border-radius:7px;
+  font-size:14px;
+  outline:none;
+}
+
+input:focus,select:focus,textarea:focus {
+  border-color:var(--green);
+}
+
+label {
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+
+.field {margin-bottom:15px}
+
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.wod-card {
+  background:#141b22;
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:15px;
+  margin-top:12px;
+}
+
+.wod-card h3 {
+  margin:0 0 8px;
+  font-size:17px;
+}
+
+.tag {
+  display:inline-block;
+  padding:5px 8px;
+  border-radius:5px;
+  background:#263b35;
+  color:var(--green);
+  font-size:10px;
+  font-weight:bold;
+  margin:3px 3px 8px 0;
+}
+
+.exercise {
+  padding:10px 0;
+  border-bottom:1px solid var(--border);
+  font-size:14px;
+}
+
+.exercise:last-child {border:0}
+
+.wod-title {
+  font-size:25px;
+  font-weight:900;
+  margin:5px 0 10px;
+}
+
+.generate-button {
+  width:100%;
+  max-width:390px;
+  height:125px;
+  border-radius:14px;
+  background:var(--green);
+  color:#101419;
+  border:0;
+  font-size:23px;
+  font-weight:900;
+  cursor:pointer;
+  margin:12px auto;
+  display:block;
+}
+
+.generate-button:hover {filter:brightness(1.08)}
+
+.timer-types {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:20px;
+}
+
+.type-button {
+  padding:14px 5px;
+  background:var(--panel2);
+  color:var(--muted);
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.type-button.active {
+  background:var(--green);
+  color:#101419;
+  border-color:var(--green);
+}
+
+.clock {
+  font-size:clamp(55px,12vw,95px);
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-3px;
+  margin:15px 0;
+}
+
+.timer-status {
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:2px;
+}
+
+.timer-exercises {
+  text-align:left;
+  margin-top:18px;
+}
+
+.timer-exercises .exercise {
+  font-size:16px;
+}
+
+.small-note {
+  font-size:11px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.hidden {display:none!important}
+
+footer {
+  text-align:center;
+  color:#687581;
+  padding:20px;
+  font-size:10px;
+  letter-spacing:2px;
+}
+
+
+.auth-screen {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:20px;
+}
+.auth-card {
+  width:100%; max-width:420px; background:var(--panel);
+  border:1px solid var(--border); border-radius:14px; padding:25px;
+}
+.auth-card h1 {font-size:22px; text-align:center; margin:0 0 8px}
+.auth-card .muted {text-align:center; margin-bottom:24px}
+.auth-message {min-height:20px; margin:12px 0; font-size:13px; color:var(--orange)}
+#appShell {display:none}
+.logout-button {
+  position:absolute; right:16px; top:18px; background:var(--panel2);
+  color:var(--muted); border:1px solid var(--border); border-radius:7px;
+  padding:8px 10px; cursor:pointer; font-size:11px; font-weight:bold;
+}
+header {position:relative; padding-right:110px; padding-left:110px}
+@media(max-width:550px) {
+  header {padding-left:10px; padding-right:95px}
+  .logout-button {right:8px; top:15px; padding:7px}
+}
+
+@media(max-width:550px) {
+  main {padding:5px 12px 35px}
+  .panel {padding:15px}
+  .grid {grid-template-columns:1fr}
+  .timer-types {grid-template-columns:repeat(2,1fr)}
+  .tab {font-size:11px;padding:14px 5px}
+}
+</style>
 </head>
 
 <body>
 
-  <div class="app">
-
-    <aside class="sidebar">
-      <div class="logo">
-        <span class="logo-icon">W</span>
-        <span>WOD FACTORY</span>
+<section id="authScreen" class="auth-screen">
+  <div class="auth-card">
+    <h1>WOOREL <span style="color:var(--green)">GENERATOR</span></h1>
+    <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
+    <form id="loginForm">
+      <div class="field">
+        <label>ADRESSE E-MAIL</label>
+        <input id="loginEmail" type="email" autocomplete="username" required placeholder="ton@email.fr">
       </div>
-
-      <div class="menu-label">ESPACE TRAINING</div>
-
-      <nav>
-        <a href="#dashboard" class="active">▦ Tableau de bord</a>
-        <a href="#generator">⚡ Générateur de WOD</a>
-        <a href="#library">▤ Bibliothèque</a>
-        <a href="#remix">⟳ Remix de WOD</a>
-        <a href="#timer">◷ Chronomètres</a>
-        <a href="#create">＋ Ajouter un WOD</a>
-      </nav>
-
-      <div class="sidebar-bottom">
-        <div class="menu-label">CONFIGURATION</div>
-        <a href="#settings">⚙ Paramètres</a>
-        <div class="version">WOD FACTORY · V1.0</div>
+      <div class="field">
+        <label>MOT DE PASSE</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" required placeholder="Mot de passe" >
       </div>
-    </aside>
+      <button class="primary" id="loginButton" type="submit">SE CONNECTER</button>
+      <div id="authMessage" class="auth-message" role="status"></div>
+    </form>
+  </div>
+</section>
 
-    <main class="main">
+<div id="appShell">
+<header>
+  <div class="logo">WOOREL <span>GENERATOR</span></div>
+  <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
+  <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
+</header>
 
-      <header class="topbar">
-        <div>
-          <div class="breadcrumb">WOD FACTORY / <span>Dashboard</span></div>
-          <h1>Tableau de bord</h1>
-        </div>
+<nav class="tabs">
+  <button class="tab active" data-page="generator">GÉNÉRATEUR DE WOD</button>
+  <button class="tab" data-page="timer">CHRONOMÈTRE</button>
+</nav>
 
-        <div class="top-actions">
-          <span class="status">● Système prêt</span>
-          <div class="avatar">WF</div>
-        </div>
-      </header>
+<main>
 
-      <section class="welcome">
-        <div>
-          <div class="eyebrow">TRAINING MANAGEMENT SYSTEM</div>
-          <h2>Bienvenue dans <span>WOD FACTORY.</span></h2>
-          <p>Construis, génère, adapte et organise tes entraînements.</p>
-        </div>
-        <div class="welcome-icon">⚡</div>
-      </section>
+<!-- GENERATEUR -->
 
-      <section class="section">
-        <div class="section-heading">
-          <div>
-            <h3>Centre de commande</h3>
-            <p>Accède rapidement aux fonctionnalités principales.</p>
-          </div>
-        </div>
+<section id="generator" class="page active">
 
-        <div class="feature-grid">
+  <h2>GÉNÉRATEUR DE WOD</h2>
 
-          <a href="#generator" class="feature-card">
-            <div class="feature-icon orange">⚡</div>
-            <h4>Générateur de WOD</h4>
-            <p>Crée une séance selon tes objectifs, ton niveau et ton matériel.</p>
-            <span class="card-link">Créer un WOD →</span>
-          </a>
+  <div class="panel center">
+    <div class="muted">GÉNÉRATION À PARTIR DE TA BASE DE DONNÉES PRIVÉE</div>
 
-          <a href="#library" class="feature-card">
-            <div class="feature-icon blue">▤</div>
-            <h4>Bibliothèque</h4>
-            <p>Retrouve et organise tes entraînements et tes fichiers PDF.</p>
-            <span class="card-link">Explorer →</span>
-          </a>
+    <button class="generate-button" id="randomButton">
+      <span style="font-size:30px">↻</span><br>
+      WOD ALÉATOIRE
+    </button>
+    <div class="muted">Sélectionne un WOD existant dans ta base.</div>
 
-          <a href="#remix" class="feature-card">
-            <div class="feature-icon purple">⟳</div>
-            <h4>WOD Remix</h4>
-            <p>Mélange les exercices et les formats de plusieurs séances.</p>
-            <span class="card-link">Remixer →</span>
-          </a>
-
-          <a href="#timer" class="feature-card">
-            <div class="feature-icon green">◷</div>
-            <h4>Chronomètres</h4>
-            <p>FOR TIME, AMRAP, EMOM, TABATA et chronomètre libre.</p>
-            <span class="card-link">Lancer →</span>
-          </a>
-
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-heading">
-          <div>
-            <h3>Vue d'ensemble</h3>
-            <p>État actuel de ton espace d'entraînement.</p>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <span class="stat-label">WOD enregistrés</span>
-            <strong>0</strong>
-            <span class="stat-detail">Bibliothèque vide</span>
-          </div>
-
-          <div class="stat-card">
-            <span class="stat-label">Séances créées</span>
-            <strong>0</strong>
-            <span class="stat-detail">Aucune séance</span>
-          </div>
-
-          <div class="stat-card">
-            <span class="stat-label">PDF importés</span>
-            <strong>0</strong>
-            <span class="stat-detail">En attente d'importation</span>
-          </div>
-
-          <div class="stat-card">
-            <span class="stat-label">Exercices</span>
-            <strong>0</strong>
-            <span class="stat-detail">Base à construire</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-heading">
-          <div>
-            <h3>Dernières activités</h3>
-            <p>Historique de ton espace de travail.</p>
-          </div>
-        </div>
-
-        <div class="empty-state">
-          <div class="empty-icon">▤</div>
-          <h4>Aucune activité pour le moment</h4>
-          <p>Tes séances et tes WOD apparaîtront ici.</p>
-        </div>
-      </section>
-
-      <footer>
-        WOD FACTORY <span>·</span> Training Management System
-      </footer>
-
-    </main>
+    <button class="primary" id="mixButton" type="button" style="margin-top:18px">
+      CRÉER UN WOD PAR MIXAGE
+    </button>
+    <div class="muted" style="margin-top:9px">Combine des WOD compatibles pour créer une nouvelle séance.</div>
+    <div id="generationStatus" class="small-note" role="status" style="margin-top:14px"></div>
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+  <div id="selectedWod" class="panel hidden">
+    <div class="muted">WOD GÉNÉRÉ</div>
+    <div id="selectedContent"></div>
+    <button class="primary" id="sendToTimer">
+      ENVOYER VERS LE CHRONO →
+    </button>
+  </div>
+
+  <details class="panel" style="margin-top:24px">
+    <summary style="cursor:pointer;font-weight:bold">ADMINISTRATION — IMPORT PDF ET RECONNAISSANCE</summary>
+    <div style="margin-top:20px">
+      <div class="panel">
+    <h2>IMPORTER MES PDF</h2>
+
+    <div class="field">
+      <label>SÉLECTIONNER TES DOCUMENTS PDF</label>
+      <input type="file" id="pdfFiles" accept=".pdf,application/pdf" multiple>
+    </div>
+
+    <div id="pdfList" class="muted"></div>
+
+    <div class="field" style="margin-top:18px">
+      <label>PDF DÉJÀ PRÉSENT DANS SUPABASE STORAGE</label>
+      <input id="existingPdfName" type="text" value="EBOOK-FO copie.pdf" placeholder="Nom exact du PDF">
+    </div>
+    <button class="primary" id="extractExistingPdf" type="button">EXTRAIRE CE PDF DEPUIS SUPABASE</button>
+    <div id="extractStatus" class="small-note" role="status" style="margin-top:12px"></div>
+
+    <p class="small-note" style="margin-top:14px">
+      L'extraction de test lit le texte de chaque page et l'enregistre dans Supabase.
+      Les PDF scannés nécessiteront une étape OCR distincte.
+    </p>
+   </div>
+
+  <div class="panel">
+    <h2>RECONNAISSANCE AUTOMATIQUE DES WOD</h2>
+
+    <p class="small-note">
+      Analyse le PDF sélectionné dans Supabase et détecte les WOD,
+      leurs formats et leurs mouvements.
+    </p>
+
+    <button class="primary" id="analyzePdfButton" type="button">
+      ANALYSER LE PDF ET DÉTECTER LES WOD
+    </button>
+
+    <div id="analysisStatus" class="small-note" role="status" style="margin-top:12px"></div>
+    <div id="detectedWods" style="margin-top:15px"></div>
+  </div>
+    </div>
+  </details>
+
+</section>
+
+<!-- CHRONOMETRE -->
+
+<section id="timer" class="page">
+
+  <h2>CHRONOMÈTRE</h2>
+
+  <div class="panel">
+    <div class="timer-types">
+      <button class="type-button active" data-type="AMRAP">AMRAP</button>
+      <button class="type-button" data-type="EMOM">EMOM</button>
+      <button class="type-button" data-type="TABATA">TABATA</button>
+      <button class="type-button" data-type="FORTIME">FOR TIME</button>
+    </div>
+
+    <div id="timerSettings">
+
+      <div id="amrapSettings">
+        <div class="field">
+          <label>DURÉE (MINUTES)</label>
+          <input id="amrapDuration" type="number" min="1" value="20">
+        </div>
+      </div>
+
+      <div id="emomSettings" class="hidden">
+        <div class="grid">
+          <div class="field">
+            <label>DURÉE TOTALE (MIN)</label>
+            <input id="emomDuration" type="number" min="1" value="12">
+          </div>
+          <div class="field">
+            <label>INTERVALLE (MIN)</label>
+            <input id="emomInterval" type="number" min="1" value="1">
+          </div>
+        </div>
+      </div>
+
+      <div id="tabataSettings" class="hidden">
+        <div class="grid">
+          <div class="field">
+            <label>TRAVAIL (SECONDES)</label>
+            <input id="tabataWork" type="number" min="1" value="20">
+          </div>
+          <div class="field">
+            <label>REPOS (SECONDES)</label>
+            <input id="tabataRest" type="number" min="0" value="10">
+          </div>
+          <div class="field">
+            <label>NOMBRE DE CYCLES</label>
+            <input id="tabataCycles" type="number" min="1" value="8">
+          </div>
+        </div>
+      </div>
+
+      <div id="fortimeSettings" class="hidden">
+        <div class="field">
+          <label>LIMITE DE TEMPS (MINUTES, 0 = SANS LIMITE)</label>
+          <input id="fortimeLimit" type="number" min="0" value="20">
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="panel center">
+    <div class="timer-status" id="timerStatus">PRÊT</div>
+    <div class="clock" id="clock">20:00</div>
+    <div id="timerInfo" class="muted">AMRAP</div>
+
+    <div class="actions" style="margin-top:25px">
+      <button class="primary" id="startTimer">DÉMARRER</button>
+      <button class="secondary" id="pauseTimer">PAUSE</button>
+      <button class="secondary" id="resetTimer">RESET</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>MON WOD</h2>
+
+    <div class="field">
+      <label>NOM DE LA SÉANCE</label>
+      <input id="timerWodName" placeholder="Nom de mon WOD">
+    </div>
+
+    <div class="field">
+      <label>CONTENU DE LA SÉANCE</label>
+      <textarea id="timerWodContent" rows="7"
+        placeholder="Exemple :&#10;15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea>
+    </div>
+
+    <div class="small-note">
+      Tu peux saisir ton propre WOD ou récupérer directement
+      celui sélectionné dans le générateur.
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<footer>WOOREL GENERATOR</footer>
+</div><!-- /appShell -->
+
+<script>
+
+// =======================================
+// NAVIGATION
+// =======================================
+
+// Navigation par délégation : les onglets restent cliquables même si
+// leur contenu est reconstruit ultérieurement.
+document.addEventListener("click", event => {
+  const button = event.target.closest(".tab");
+  if (!button) return;
+
+  const targetPage = document.getElementById(button.dataset.page);
+  if (!targetPage) return;
+
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.classList.toggle("active", tab === button);
+  });
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.toggle("active", page === targetPage);
+  });
+});
+
+function openPage(page) {
+  document.querySelectorAll(".tab").forEach(b => {
+    b.classList.toggle("active", b.dataset.page === page);
+  });
+
+  document.querySelectorAll(".page").forEach(p => {
+    p.classList.toggle("active", p.id === page);
+  });
+}
+
+// =======================================
+// BIBLIOTHEQUE
+// =======================================
+
+// Données de démonstration.
+// Elles seront remplacées par les WOD extraits des PDF.
+
+// Variables globales partagées avec le script module Supabase.
+// `var` les expose sur window, contrairement à `let` dans un script classique.
+var wods = []; // Chargés depuis Supabase après connexion
+var selectedWod = null;
+
+function renderWod(wod) {
+  return `
+    <div class="wod-title">${escapeHTML(wod.name)}</div>
+    <span class="tag">${escapeHTML(wod.type)}</span>
+    ${wod.duration ? `<span class="tag">${wod.duration} MIN</span>` : ""}
+    <div style="margin-top:10px">
+      ${wod.movements.map(m => `
+        <div class="exercise">
+          <strong>${m.reps ?? ""}${m.unit ? " "+escapeHTML(m.unit) : ""}</strong>
+          ${escapeHTML(m.name)}
+          ${m.load ? " — "+escapeHTML(String(m.load)) : ""}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[c]);
+}
+
+function updateCount() {
+  const count = document.getElementById("wodCount");
+  if (count) count.textContent = wods.length;
+}
+
+function displayLibrary() {
+  // La bibliothèque reste en base Supabase, mais n'est plus affichée dans l'interface.
+  return;
+  const search = document.getElementById("searchWod").value.toLowerCase();
+  const container = document.getElementById("library");
+
+  const filtered = wods.filter(w =>
+    w.name.toLowerCase().includes(search) ||
+    w.type.toLowerCase().includes(search) ||
+    w.movements.some(m => m.name.toLowerCase().includes(search))
+  );
+
+  container.innerHTML = "";
+
+  if (!filtered.length) {
+    container.innerHTML = `<p class="muted">Aucun WOD trouvé.</p>`;
+    return;
+  }
+
+  filtered.forEach(wod => {
+    const card = document.createElement("div");
+    card.className = "wod-card";
+    card.innerHTML = `
+      ${renderWod(wod)}
+      <button class="secondary" style="width:100%;margin-top:12px">
+        CHOISIR CE WOD
+      </button>
+    `;
+
+    card.querySelector("button").addEventListener("click", () => {
+      selectWod(wod);
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function selectWod(wod) {
+  selectedWod = wod;
+
+  document.getElementById("selectedContent").innerHTML = renderWod(wod);
+  document.getElementById("selectedWod").classList.remove("hidden");
+}
+
+document.getElementById("randomButton").addEventListener("click", () => {
+  const status = document.getElementById("generationStatus");
+  if (!wods.length) {
+    status.textContent = "Aucun WOD disponible dans la base. Vérifie l'import et la connexion Supabase.";
+    return;
+  }
+
+  const wod = wods[Math.floor(Math.random() * wods.length)];
+  selectWod(wod);
+  status.textContent = "WOD existant sélectionné depuis ta base.";
+});
+
+document.getElementById("mixButton").addEventListener("click", () => {
+  const status = document.getElementById("generationStatus");
+  const groups = new Map();
+
+  wods.filter(w => Array.isArray(w.movements) && w.movements.length >= 2).forEach(w => {
+    const type = String(w.type || "LIBRE").trim().toUpperCase();
+    if (!groups.has(type)) groups.set(type, []);
+    groups.get(type).push(w);
+  });
+
+  const compatibleGroups = Array.from(groups.entries()).filter(([, items]) => items.length >= 2);
+  if (!compatibleGroups.length) {
+    status.textContent = "Pas assez de WOD compatibles pour effectuer un mixage. Il faut au moins deux WOD du même format avec des mouvements enregistrés.";
+    return;
+  }
+
+  const [type, candidates] = compatibleGroups[Math.floor(Math.random() * compatibleGroups.length)];
+  const shuffledSources = [...candidates].sort(() => Math.random() - 0.5);
+  const sources = shuffledSources.slice(0, 2);
+  const uniqueMovements = new Map();
+
+  sources.forEach(source => {
+    const shuffledMovements = [...source.movements].sort(() => Math.random() - 0.5);
+    shuffledMovements.forEach(movement => {
+      const key = String(movement.name || "").trim().toLowerCase();
+      if (key && !uniqueMovements.has(key)) uniqueMovements.set(key, { ...movement });
+    });
+  });
+
+  const movementPool = Array.from(uniqueMovements.values());
+  const mixedMovements = movementPool.sort(() => Math.random() - 0.5).slice(0, Math.min(5, movementPool.length));
+  if (mixedMovements.length < 3) {
+    status.textContent = "Le mixage n'a pas trouvé assez de mouvements différents. Relance la génération.";
+    return;
+  }
+
+  const durations = sources.map(w => Number(w.duration)).filter(n => Number.isFinite(n) && n > 0);
+  const mixedWod = {
+    id: null,
+    name: "WOD MIX — " + type,
+    type,
+    duration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
+    description: "Nouveau mixage temporaire construit à partir de deux WOD de ta base : " + sources.map(w => w.name).join(" + "),
+    movements: mixedMovements
+  };
+
+  selectWod(mixedWod);
+  status.textContent = "Nouveau WOD composé à partir de : " + sources.map(w => w.name).join(" et ") + ". Ce mixage n'est pas enregistré dans la base.";
+});
+
+// =======================================
+// TRANSFERT VERS CHRONOMETRE
+// =======================================
+
+document.getElementById("sendToTimer").addEventListener("click", () => {
+  if (!selectedWod) return;
+
+  document.getElementById("timerWodName").value = selectedWod.name;
+
+  document.getElementById("timerWodContent").value =
+    selectedWod.movements.map(m =>
+      `${m.reps ?? ""}${m.unit ? " "+m.unit : ""} ${m.name}${m.load ? " — "+m.load : ""}`
+    ).join("\n");
+
+  const type = selectedWod.type === "FOR TIME"
+    ? "FORTIME"
+    : selectedWod.type;
+
+  if (["AMRAP","EMOM","TABATA","FORTIME"].includes(type)) {
+    setTimerType(type);
+  }
+
+  if (selectedWod.duration) {
+    if (type === "AMRAP") document.getElementById("amrapDuration").value = selectedWod.duration;
+    if (type === "EMOM") document.getElementById("emomDuration").value = selectedWod.duration;
+    if (type === "FORTIME") document.getElementById("fortimeLimit").value = selectedWod.duration;
+  }
+
+  resetTimer();
+  openPage("timer");
+  updateClock();
+});
+
+// =======================================
+// SELECTION DU TYPE DE CHRONO
+// =======================================
+
+let timerType = "AMRAP";
+
+function setTimerType(type) {
+  timerType = type;
+
+  document.querySelectorAll(".type-button").forEach(b => {
+    b.classList.toggle("active", b.dataset.type === type);
+  });
+
+  ["amrap","emom","tabata","fortime"].forEach(id => {
+    document.getElementById(id+"Settings").classList.add("hidden");
+  });
+
+  document.getElementById(type.toLowerCase()+"Settings").classList.remove("hidden");
+
+  resetTimer();
+  updateClock();
+}
+
+document.querySelectorAll(".type-button").forEach(button => {
+  button.addEventListener("click", () => setTimerType(button.dataset.type));
+});
+
+
+// =======================================
+// CHRONOMETRE AVEC SIGNAUX SONORES
+// =======================================
+
+let interval = null;
+let countdownInterval = null;
+let running = false;
+let countdownActive = false;
+let countdownRemaining = 0;
+let remaining = 0;
+let elapsed = 0;
+let phase = "work";
+let cycle = 1;
+
+let audioContext = null;
+
+// =======================================
+// SYSTEME AUDIO
+// =======================================
+
+function getAudioContext() {
+  if (!audioContext) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+    if (!AudioContextClass) {
+      throw new Error("Audio non disponible sur ce navigateur.");
+    }
+
+    audioContext = new AudioContextClass();
+  }
+
+  if (audioContext.state === "suspended") {
+    audioContext.resume();
+  }
+
+  return audioContext;
+}
+
+function playTone(frequency = 880, duration = 0.35) {
+  try {
+    const audio = getAudioContext();
+    const oscillator = audio.createOscillator();
+    const gain = audio.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.value = frequency;
+
+    gain.gain.setValueAtTime(0.0001, audio.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.18, audio.currentTime + 0.025);
+    gain.gain.setValueAtTime(0.18, audio.currentTime + duration * 0.65);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
+
+    oscillator.connect(gain);
+    gain.connect(audio.destination);
+
+    oscillator.start();
+    oscillator.stop(audio.currentTime + duration);
+
+  } catch (error) {
+    console.warn("Signal sonore indisponible :", error);
+  }
+}
+
+// Timbre de préparation : deux notes simultanées
+function playStartBell() {
+  playTone(660, 0.8);
+  playTone(990, 0.8);
+}
+
+// Même tonalité pour tous les signaux de mi-temps
+function playMidpointTone() {
+  playTone(880, 0.55);
+}
+
+// Décompte sonore
+function playCountdownTone(number) {
+  const frequencies = {
+    3: 600,
+    2: 700,
+    1: 800,
+    GO: 1100
+  };
+
+  playTone(frequencies[number] || 880, number === "GO" ? 0.6 : 0.22);
+}
+
+// =======================================
+// DUREE DU CHRONOMETRE
+// =======================================
+
+function getDuration() {
+  if (timerType === "AMRAP") {
+    return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
+  }
+
+  if (timerType === "EMOM") {
+    return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
+  }
+
+  if (timerType === "FORTIME") {
+    return Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0) * 60;
+  }
+
+  return Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+}
+
+// =======================================
+// AFFICHAGE
+// =======================================
+
+function formatTime(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+
+  return String(mins).padStart(2, "0") + ":" +
+         String(secs).padStart(2, "0");
+}
+
+function updateClock() {
+  let value = remaining;
+
+  if (timerType === "FORTIME" && remaining === 0 && elapsed > 0) {
+    value = elapsed;
+  }
+
+  if (timerType === "FORTIME" && !running && elapsed === 0) {
+    value = 0;
+  }
+
+  document.getElementById("clock").textContent = formatTime(value);
+
+  let info = timerType;
+
+  if (timerType === "TABATA") {
+    info = `CYCLE ${cycle} / ${Math.max(1, Number(document.getElementById("tabataCycles").value) || 8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
+  }
+
+  if (timerType === "EMOM") {
+    const duration = Math.max(1, Number(document.getElementById("emomInterval").value) || 1);
+    const currentMinute = Math.floor(elapsed / (duration * 60)) + 1;
+    info = `EMOM — MINUTE ${currentMinute}`;
+  }
+
+  document.getElementById("timerInfo").textContent = info;
+}
+
+// =======================================
+// ARRET ET RESET
+// =======================================
+
+function stopTimer() {
+  clearInterval(interval);
+  clearInterval(countdownInterval);
+
+  interval = null;
+  countdownInterval = null;
+
+  running = false;
+  countdownActive = false;
+}
+
+function resetTimer() {
+  stopTimer();
+
+  elapsed = 0;
+  phase = "work";
+  cycle = 1;
+  countdownRemaining = 0;
+  remaining = getDuration();
+
+  document.getElementById("timerStatus").textContent = "PRÊT";
+
+  updateClock();
+}
+
+function finishTimer(message) {
+  stopTimer();
+
+  document.getElementById("timerStatus").textContent = message;
+}
+
+// =======================================
+// DECOMPTE AVANT DEPART : 10 SECONDES
+// =======================================
+
+function startPreparation() {
+  try {
+    getAudioContext();
+  } catch (error) {
+    console.warn(error);
+  }
+
+  countdownActive = true;
+  countdownRemaining = 10;
+
+  document.getElementById("timerStatus").textContent = "PRÉPARATION";
+  document.getElementById("clock").textContent = "00:10";
+  document.getElementById("timerInfo").textContent = "PRÉPARE-TOI";
+
+  // Timbre au début des 10 secondes
+  playStartBell();
+
+  countdownInterval = setInterval(() => {
+    countdownRemaining--;
+
+    if (countdownRemaining === 3) {
+      playCountdownTone(3);
+    }
+
+    if (countdownRemaining === 2) {
+      playCountdownTone(2);
+    }
+
+    if (countdownRemaining === 1) {
+      playCountdownTone(1);
+    }
+
+    if (countdownRemaining <= 0) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      countdownActive = false;
+
+      playCountdownTone("GO");
+
+      startWorkout();
+      return;
+    }
+
+    document.getElementById("clock").textContent =
+      formatTime(countdownRemaining);
+
+    document.getElementById("timerInfo").textContent =
+      "DÉPART IMMINENT";
+
+  }, 1000);
+}
+
+// =======================================
+// DEMARRAGE EFFECTIF DU WOD
+// =======================================
+
+function startWorkout() {
+  running = true;
+
+  document.getElementById("timerStatus").textContent = "EN COURS";
+
+  updateClock();
+
+  interval = setInterval(tick, 1000);
+}
+
+// =======================================
+// DETECTION DES MI-TEMPS
+// =======================================
+
+function checkMidpointSignal() {
+
+  // FOR TIME : moitié de la limite de temps
+  if (timerType === "FORTIME") {
+    const limit = getDuration();
+
+    if (limit > 0 && elapsed === Math.floor(limit / 2)) {
+      playMidpointTone();
+    }
+  }
+
+  // AMRAP : moitié du temps total
+  if (timerType === "AMRAP") {
+    const duration = getDuration();
+
+    if (elapsed === Math.floor(duration / 2)) {
+      playMidpointTone();
+    }
+  }
+
+  // EMOM : moitié de chaque intervalle de travail
+  if (timerType === "EMOM") {
+    const intervalMinutes = Math.max(
+      1,
+      Number(document.getElementById("emomInterval").value) || 1
+    );
+
+    const intervalSeconds = intervalMinutes * 60;
+    const midpoint = Math.floor(intervalSeconds / 2);
+
+    if (elapsed % intervalSeconds === midpoint) {
+      playMidpointTone();
+    }
+  }
+}
+
+// =======================================
+// TICK DU CHRONOMETRE
+// =======================================
+
+function tick() {
+  elapsed++;
+
+  // Signaux de mi-temps
+  checkMidpointSignal();
+
+  // FOR TIME
+  if (timerType === "FORTIME") {
+    const limit = getDuration();
+
+    if (limit > 0 && elapsed >= limit) {
+      remaining = 0;
+      updateClock();
+      finishTimer("TIME CAP");
+      return;
+    }
+
+    updateClock();
+    return;
+  }
+
+  // TABATA
+  if (timerType === "TABATA") {
+    remaining--;
+
+    if (remaining <= 0) {
+      const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+      const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
+      const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
+
+      if (phase === "work" && rest > 0) {
+        phase = "rest";
+        remaining = rest;
+      } else {
+        phase = "work";
+        cycle++;
+
+        if (cycle > cycles) {
+          remaining = 0;
+          updateClock();
+          finishTimer("TERMINÉ");
+          return;
+        }
+
+        remaining = work;
+      }
+    }
+
+    updateClock();
+    return;
+  }
+
+  // AMRAP ET EMOM
+  remaining--;
+
+  if (remaining <= 0) {
+    remaining = 0;
+    updateClock();
+    finishTimer("TERMINÉ");
+    return;
+  }
+
+  updateClock();
+}
+
+// =======================================
+// BOUTON DEMARRER
+// =======================================
+
+document.getElementById("startTimer").addEventListener("click", () => {
+  if (running || countdownActive) return;
+
+  // Initialisation du TABATA
+  if (timerType === "TABATA" && elapsed === 0) {
+    remaining = Math.max(
+      1,
+      Number(document.getElementById("tabataWork").value) || 20
+    );
+  }
+
+  // Initialisation du FOR TIME
+  if (timerType === "FORTIME" && elapsed === 0) {
+    remaining = 0;
+  }
+
+  if (timerType !== "FORTIME" && remaining <= 0) {
+    resetTimer();
+  }
+
+  // Première mise en route : préparation de 10 secondes
+  if (elapsed === 0) {
+    startPreparation();
+  } else {
+    // Reprise après une pause : pas de nouveau décompte
+    startWorkout();
+  }
+});
+
+// =======================================
+// BOUTON PAUSE
+// =======================================
+
+document.getElementById("pauseTimer").addEventListener("click", () => {
+  if (countdownActive) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+    countdownActive = false;
+
+    document.getElementById("timerStatus").textContent = "EN PAUSE";
+    return;
+  }
+
+  if (!running) return;
+
+  stopTimer();
+
+  document.getElementById("timerStatus").textContent = "EN PAUSE";
+});
+
+// =======================================
+// BOUTON RESET
+// =======================================
+
+document.getElementById("resetTimer").addEventListener("click", resetTimer);
+
+// Actualisation de l'affichage quand les paramètres changent.
+
+document.querySelectorAll("#timerSettings input").forEach(input => {
+  input.addEventListener("input", () => {
+    if (!running && !countdownActive && elapsed === 0) {
+      resetTimer();
+    }
+  });
+});
+// =======================================
+// IMPORT PDF - PREPARATION
+// =======================================
+
+document.getElementById("pdfFiles").addEventListener("change", event => {
+  const files = Array.from(event.target.files);
+  const container = document.getElementById("pdfList");
+
+  container.innerHTML = "";
+
+  if (!files.length) return;
+
+  files.forEach(file => {
+    const line = document.createElement("div");
+    line.style.padding = "7px 0";
+    line.textContent = "PDF sélectionné : " + file.name;
+    container.appendChild(line);
+  });
+});
+
+// =======================================
+// INITIALISATION
+// =======================================
+
+updateCount();
+displayLibrary();
+resetTimer();
+
+</script>
+
+
+<script type="module">
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// Configuration publique du projet : la clé publishable peut être utilisée côté navigateur.
+const SUPABASE_URL = "https://tfaarrfjmaaxauzrratx.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xOrQfokHftTW1czGvoCtDg_kupMXCEQ";
+const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+const authScreen = document.getElementById("authScreen");
+const appShell = document.getElementById("appShell");
+const authMessage = document.getElementById("authMessage");
+const loginButton = document.getElementById("loginButton");
+const extractButton = document.getElementById("extractExistingPdf");
+const extractStatus = document.getElementById("extractStatus");
+
+async function extractExistingPdfFromStorage() {
+  const filename = document.getElementById("existingPdfName").value.trim();
+  if (!filename) {
+    extractStatus.textContent = "Saisis le nom exact du PDF.";
+    return;
+  }
+
+  extractButton.disabled = true;
+  extractButton.textContent = "EXTRACTION EN COURS...";
+  extractStatus.textContent = "Recherche du document dans source_documents...";
+
+  let sourceDocumentId = null;
+  try {
+    const { data: documentRow, error: documentError } = await supabase
+      .from("source_documents")
+      .select("id, filename, storage_path")
+      .eq("filename", filename)
+      .limit(1)
+      .maybeSingle();
+
+    if (documentError) throw documentError;
+    if (!documentRow) {
+      throw new Error("Document introuvable dans source_documents. Vérifie la ligne et le nom du fichier.");
+    }
+    if (!documentRow.storage_path) {
+      throw new Error("Le champ storage_path est vide.");
+    }
+    sourceDocumentId = documentRow.id;
+
+    const { error: processingError } = await supabase
+      .from("source_documents")
+      .update({ extraction_status: "processing" })
+      .eq("id", sourceDocumentId);
+    if (processingError) throw processingError;
+
+    extractStatus.textContent = "Téléchargement du PDF privé depuis Storage...";
+    const { data: pdfBlob, error: downloadError } = await supabase
+      .storage
+      .from("wod-pdfs")
+      .download(documentRow.storage_path);
+    if (downloadError) throw downloadError;
+    if (!pdfBlob) throw new Error("Supabase n'a renvoyé aucun fichier.");
+
+    extractStatus.textContent = "Chargement du moteur PDF...";
+    const pdfjsLib = await import("https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+
+    const pdfBytes = new Uint8Array(await pdfBlob.arrayBuffer());
+    const pdf = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+    const pageRows = [];
+    let extractedCharacters = 0;
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      extractStatus.textContent = `Lecture du PDF : page ${pageNumber} / ${pdf.numPages}...`;
+      const page = await pdf.getPage(pageNumber);
+const content = await page.getTextContent();
+
+const layoutData = content.items
+  .filter(item => typeof item.str === "string" && item.str.trim() !== "")
+  .map(item => ({
+    text: item.str,
+    font: item.fontName || "",
+    x: item.transform?.[4] ?? 0,
+    y: item.transform?.[5] ?? 0,
+    fontSize: item.transform
+      ? Math.hypot(item.transform[0], item.transform[1])
+      : 0,
+    width: item.width ?? 0,
+    height: item.height ?? 0,
+    hasEOL: item.hasEOL ?? false
+  }));
+
+const pageText = layoutData
+  .map(item => item.text)
+  .join(" ")
+  .replace(/[ \t]+/g, " ")
+  .trim();
+
+extractedCharacters += pageText.length;
+
+pageRows.push({
+  source_document_id: sourceDocumentId,
+  page_number: pageNumber,
+  extracted_text: pageText,
+  layout_data: layoutData
+});
+
+      if (pageRows.length >= 10 || pageNumber === pdf.numPages) {
+        const { error: pageInsertError } = await supabase
+          .from("source_document_pages")
+          .upsert(pageRows.splice(0), { onConflict: "source_document_id,page_number" });
+        if (pageInsertError) throw pageInsertError;
+      }
+    }
+
+    const { error: completeError } = await supabase
+      .from("source_documents")
+      .update({ total_pages: pdf.numPages, extraction_status: "completed" })
+      .eq("id", sourceDocumentId);
+    if (completeError) throw completeError;
+
+    if (extractedCharacters === 0) {
+      extractStatus.textContent = `Extraction terminée : ${pdf.numPages} pages, mais aucun texte détecté. Ce PDF semble scanné et nécessitera un OCR.`;
+    } else {
+      extractStatus.textContent = `Extraction réussie : ${pdf.numPages} pages et ${extractedCharacters.toLocaleString("fr-FR")} caractères enregistrés dans source_document_pages. Prochaine étape : reconnaissance des WOD.`;
+    }
+  } catch (error) {
+    console.error("Erreur extraction PDF :", error);
+    if (sourceDocumentId) {
+      await supabase.from("source_documents")
+        .update({ extraction_status: "error" })
+        .eq("id", sourceDocumentId);
+    }
+    extractStatus.textContent = "Échec de l'extraction : " + (error?.message || String(error));
+  } finally {
+    extractButton.disabled = false;
+    extractButton.textContent = "EXTRAIRE CE PDF DEPUIS SUPABASE";
+  }
+}
+
+extractButton.addEventListener("click", extractExistingPdfFromStorage);
+// ==========================================
+// RECONNAISSANCE AUTOMATIQUE DES WOD
+// ==========================================
+
+
+const analyzePdfButton = document.getElementById("analyzePdfButton");
+const analysisStatus = document.getElementById("analysisStatus");
+const detectedWods = document.getElementById("detectedWods");
+
+// ==========================================
+// RECONNAISSANCE AUTOMATIQUE DES WOD - V2
+// MODE APERÇU : AUCUN ENREGISTREMENT
+// ==========================================
+
+function detectWodType(text) {
+  const value = String(text || "").toUpperCase();
+
+  if (/\bAMRAP\b/.test(value)) return "AMRAP";
+  if (/\bEMOM\b/.test(value)) return "EMOM";
+  if (/\bTABATA\b/.test(value)) return "TABATA";
+  if (/\bFOR[\s-]*TIME\b/.test(value)) return "FOR TIME";
+
+  return null;
+}
+
+function detectWodDuration(text) {
+  const value = String(text || "");
+
+  let match = value.match(/(\d{1,3})\s*(?:min|minutes)\b/i);
+  if (match) return Number(match[1]);
+
+  match = value.match(/(\d{1,2})\s*[:h]\s*(\d{2})/i);
+  if (match) return Number(match[1]) * 60 + Number(match[2]);
+
+  match = value.match(/(\d{1,2})\s*['’]\s*(\d{2})/);
+  if (match) return Number(match[1]);
+
+  return null;
+}
+
+function cleanText(value) {
+  return String(value || "")
+    .replace(/\s+/g, " ")
+    .replace(/[•●▪]/g, " ")
+    .trim();
+}
+
+function isDateOrPage(line) {
+  return (
+    /\b\d{1,2}\s+(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\s+\d{4}\b/i.test(line) ||
+    /\b(page|training|semaine)\s*\d+\b/i.test(line) ||
+    /^\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}$/.test(line)
+  );
+}
+
+function isBadTitle(line) {
+  const value = cleanText(line);
+
+  if (!value || value.length < 3 || value.length > 65) return true;
+  if (isDateOrPage(value)) return true;
+  if (detectWodType(value)) return true;
+  if (/^\d+([.,]\d+)?\s*(['’":]|min|minutes)/i.test(value)) return true;
+  if (/^(effectuer|réaliser|faire|consigne|objectif|repos|échauffement)\b/i.test(value)) return true;
+  if (/^(1|2|3|4|5|6|7|8|9|10)\s*(ère|ème|e)?\s*(série|round|tour|exercice)/i.test(value)) return true;
+  if (/^(le plus vite|le maximum|autant que possible)/i.test(value)) return true;
+  if (/^\d+$/.test(value)) return true;
+
+  return false;
+}
+
+function detectWodTitle(header, previousLines, type, pageNumber) {
+  let title = cleanText(header)
+    .replace(/\bAMRAP\b|\bEMOM\b|\bTABATA\b|\bFOR[\s-]*TIME\b/ig, " ")
+    .replace(/\bWOD\b/ig, " ")
+    .replace(/\b\d{1,3}\s*(?:min|minutes)\b/ig, " ")
+    .replace(/\b\d{1,2}\s*['’]\s*\d{2}\b/g, " ")
+    .replace(/[–—\-:]/g, " ")
+    .trim();
+
+  if (!isBadTitle(title)) {
+    return title.substring(0, 65);
+  }
+
+  for (let i = previousLines.length - 1; i >= 0; i--) {
+    const candidate = cleanText(previousLines[i]);
+
+    if (!isBadTitle(candidate)) {
+      return candidate.substring(0, 65);
+    }
+  }
+
+  return `WOD à identifier — page ${pageNumber}`;
+}
+
+function getLinesFromPage(page) {
+  const layout = page.layout_data;
+  let items = [];
+
+  if (Array.isArray(layout)) {
+    items = layout;
+  } else if (layout && Array.isArray(layout.items)) {
+    items = layout.items;
+  }
+
+  if (!items.length) {
+    return (page.extracted_text || "")
+      .split(/\n+/)
+      .map(cleanText)
+      .filter(Boolean);
+  }
+
+  const validItems = items
+    .filter(item => typeof item.text === "string" && item.text.trim())
+    .map(item => ({
+      text: item.text.trim(),
+      x: Number(item.x) || 0,
+      y: Number(item.y) || 0
+    }));
+
+  validItems.sort((a, b) => b.y - a.y || a.x - b.x);
+
+  const lines = [];
+
+  validItems.forEach(item => {
+    let line = lines.find(entry => Math.abs(entry.y - item.y) < 3);
+
+    if (!line) {
+      line = { y: item.y, items: [] };
+      lines.push(line);
+    }
+
+    line.items.push(item);
+  });
+
+  return lines
+    .sort((a, b) => b.y - a.y)
+    .map(line =>
+      cleanText(
+        line.items
+          .sort((a, b) => a.x - b.x)
+          .map(item => item.text)
+          .join(" ")
+      )
+    )
+    .filter(Boolean);
+}
+
+function isWodHeader(line) {
+  return detectWodType(line) !== null;
+}
+
+function normalizeMovementName(name) {
+  return cleanText(name)
+    .replace(/\bPull\s+u\s+ps\b/ig, "Pull ups")
+    .replace(/\bPush\s+u\s+ps\b/ig, "Push ups")
+    .replace(/\bAir\s+squat\s+s\b/ig, "Air squats")
+    .replace(/\bJump\s+s\s+quats\b/ig, "Jump squats")
+    .replace(/\bHandst\s+and\b/ig, "Handstand")
+    .replace(/\s+([,.])/g, "$1")
+    .replace(/[.:;,]+$/, "")
+    .trim();
+}
+
+function isBadMovement(name) {
+  const value = cleanText(name);
+
+  if (value.length < 3 || value.length > 75) return true;
+  if (isDateOrPage(value)) return true;
+  if (/^(min|minutes|secondes|sec|rounds?|tours?)\b/i.test(value)) return true;
+  if (/^(série|series|exercice|round)\b/i.test(value)) return true;
+  if (/^(effectuer|réaliser|faire|repos|objectif|consigne)\b/i.test(value)) return true;
+  if (/^(amrap|emom|tabata|for time)\b/i.test(value)) return true;
+  if (/^\d+\s*['’":]/.test(value)) return true;
+  if (/^\d+\s*(?:janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre)\b/i.test(value)) return true;
+  if (/^(chaque minute|le plus vite|autant que possible)\b/i.test(value)) return true;
+
+  return false;
+}
+
+function extractWodMovements(lines) {
+  const movements = [];
+
+  lines.forEach(line => {
+    let cleanedLine = cleanText(line);
+
+    if (!cleanedLine || isDateOrPage(cleanedLine)) return;
+
+    cleanedLine = cleanedLine
+      .replace(/REPOS\s*:?.*$/i, "")
+      .replace(/Effectuer.*$/i, "")
+      .replace(/Réaliser.*$/i, "")
+      .replace(/Le plus vite possible.*$/i, "")
+      .replace(/^\d+\s*(?:ère|ème|e)?\s*série\s*:?\s*/i, "")
+      .replace(/^\d+\s*(?:ème|e)?\s*round\s*:?\s*/i, "")
+      .trim();
+
+    if (!cleanedLine) return;
+
+    const segments = cleanedLine
+      .split(/\s+[–—-]\s+|\s+\+\s+/)
+      .map(cleanText)
+      .filter(Boolean);
+
+    segments.forEach(segment => {
+      const match = segment.match(/^\s*(\d{1,4})\s+(.+?)\s*$/);
+
+      if (!match) return;
+
+      const repetitions = Number(match[1]);
+      const movementName = normalizeMovementName(match[2]);
+
+      if (
+        repetitions < 1 ||
+        repetitions > 1000 ||
+        isBadMovement(movementName)
+      ) {
+        return;
+      }
+
+      movements.push({
+        movement_name: movementName,
+        repetitions,
+        position: movements.length + 1
+      });
+    });
+  });
+
+  // Suppression des doublons strictement identiques et consécutifs
+  return movements.filter((movement, index, array) => {
+    if (index === 0) return true;
+
+    const previous = array[index - 1];
+
+    return !(
+      previous.repetitions === movement.repetitions &&
+      previous.movement_name.toLowerCase() === movement.movement_name.toLowerCase()
+    );
+  }).map((movement, index) => ({
+    ...movement,
+    position: index + 1
+  }));
+}
+
+function renderDetectedWods(wods) {
+  detectedWods.innerHTML = "";
+
+  if (!wods.length) {
+    detectedWods.textContent = "Aucun WOD exploitable détecté.";
+    return;
+  }
+
+  const heading = document.createElement("p");
+  heading.textContent =
+    `${wods.length} WOD détecté(s) — aperçu uniquement, aucun enregistrement effectué.`;
+
+  detectedWods.appendChild(heading);
+
+  wods.forEach((wod, index) => {
+    const card = document.createElement("div");
+    card.className = "panel";
+    card.style.marginTop = "10px";
+
+    const title = document.createElement("h3");
+    title.textContent = `${index + 1}. ${wod.name}`;
+
+    const details = document.createElement("p");
+    details.textContent =
+      `${wod.wod_type} — page ${wod.source_page} — ` +
+      `${wod.movements.length} mouvement(s)` +
+      (wod.duration_minutes ? ` — ${wod.duration_minutes} min` : "");
+
+    const movements = document.createElement("p");
+    movements.textContent = wod.movements
+      .map(movement =>
+        `${movement.repetitions} ${movement.movement_name}`
+      )
+      .join(" / ");
+
+    card.append(title, details, movements);
+    detectedWods.appendChild(card);
+  });
+}
+
+async function analyzeSelectedPdf() {
+  analysisStatus.textContent = "Recherche du PDF dans Supabase...";
+  detectedWods.innerHTML = "";
+
+  try {
+    const filenameInput = document.getElementById("existingPdfName");
+    const filename = filenameInput?.value?.trim();
+
+    if (!filename) {
+      throw new Error("Sélectionne d'abord un PDF.");
+    }
+
+    const { data: documentRow, error: documentError } = await supabase
+      .from("source_documents")
+      .select("id, filename")
+      .eq("filename", filename)
+      .maybeSingle();
+
+    if (documentError) throw documentError;
+
+    if (!documentRow) {
+      throw new Error("PDF introuvable dans source_documents.");
+    }
+
+    analysisStatus.textContent = "Lecture des pages extraites...";
+
+    const { data: pages, error: pagesError } = await supabase
+      .from("source_document_pages")
+      .select("page_number, extracted_text, layout_data")
+      .eq("source_document_id", documentRow.id)
+      .order("page_number", { ascending: true });
+
+    if (pagesError) throw pagesError;
+
+    if (!pages || !pages.length) {
+      throw new Error("Aucune page extraite trouvée pour ce PDF.");
+    }
+
+    const allLines = [];
+
+    pages.forEach(page => {
+      const lines = getLinesFromPage(page);
+
+      lines.forEach(line => {
+        allLines.push({
+          text: line,
+          page_number: page.page_number
+        });
+      });
+    });
+
+    const blocks = [];
+    let currentBlock = null;
+    let previousLines = [];
+
+    allLines.forEach(line => {
+      if (isWodHeader(line.text)) {
+        if (currentBlock) blocks.push(currentBlock);
+
+        const type = detectWodType(line.text);
+
+        currentBlock = {
+          type,
+          header: line.text,
+          page: line.page_number,
+          previousLines: [...previousLines],
+          lines: [line.text]
+        };
+      } else if (currentBlock) {
+        currentBlock.lines.push(line.text);
+      }
+
+      previousLines.push(line.text);
+
+      if (previousLines.length > 4) {
+        previousLines.shift();
+      }
+    });
+
+    if (currentBlock) blocks.push(currentBlock);
+
+    if (!blocks.length) {
+      throw new Error(
+        "Aucun format AMRAP, EMOM, TABATA ou FOR TIME reconnu."
+      );
+    }
+
+    analysisStatus.textContent =
+      `${blocks.length} bloc(s) repéré(s). Analyse des mouvements...`;
+
+    const previewWods = [];
+    let skipped = 0;
+
+    for (const block of blocks) {
+      const name = detectWodTitle(
+        block.header,
+        block.previousLines,
+        block.type,
+        block.page
+      );
+
+      const movements = extractWodMovements(block.lines);
+
+      if (!movements.length) {
+        skipped++;
+        continue;
+      }
+
+      const rawText = block.lines.join("\n");
+
+      previewWods.push({
+        name,
+        wod_type: block.type,
+        duration_minutes: detectWodDuration(block.header),
+        source_page: block.page,
+        raw_text: rawText,
+        movements
+      });
+    }
+
+    renderDetectedWods(previewWods);
+
+    analysisStatus.textContent =
+      `Aperçu terminé : ${previewWods.length} WOD détecté(s), ` +
+      `${skipped} bloc(s) ignoré(s). ` +
+      `Aucune donnée enregistrée dans Supabase.`;
+
+  } catch (error) {
+    console.error("Erreur reconnaissance WOD :", error);
+    analysisStatus.textContent = `Erreur : ${error.message}`;
+  }
+}
+
+if (analyzePdfButton) {
+  analyzePdfButton.addEventListener("click", analyzeSelectedPdf);
+}
+function showLoggedOut(message = "") {
+  appShell.style.display = "none";
+  authScreen.style.display = "flex";
+  authMessage.textContent = message;
+}
+
+async function loadWodsFromSupabase() {
+  const { data, error } = await supabase
+  .from("wods")
+  .select("*, wod_movements(*)")
+  .order("created_at", { ascending: false });
+  
+  if (error) throw error;
+
+  wods = (data || []).map(row => ({
+    id: row.id,
+    name: row.name || "WOD sans titre",
+    type: normalizeWodType(row.wod_type),
+    duration: row.duration_minutes ? Number(row.duration_minutes) : null,
+    description: row.description || row.instructions || "",
+    movements: (row.wod_movements || []).sort((a,b) => (a.position || 0) - (b.position || 0)).map(m => ({
+      name: m.movement_name || "Mouvement",
+      reps: m.repetitions ?? null,
+      unit: m.distance != null ? `${m.distance}${m.distance_unit || "m"}` : "",
+      load: m.load != null ? `${m.load} ${m.load_unit || "kg"}` : ""
+    }))
+  }));
+
+  updateCount();
+  displayLibrary();
+  document.getElementById("selectedWod").classList.add("hidden");
+  selectedWod = null;
+}
+
+function normalizeWodType(type) {
+  const value = String(type || "LIBRE").trim().toUpperCase().replace(/[ _-]/g, "");
+  if (value === "FORTIME" || value === "FOR TIME") return "FOR TIME";
+  if (["AMRAP", "EMOM", "TABATA"].includes(value)) return value;
+  return type || "LIBRE";
+}
+
+async function showLoggedIn() {
+  authScreen.style.display = "none";
+  appShell.style.display = "block";
+  authMessage.textContent = "";
+  try {
+    await loadWodsFromSupabase();
+  } catch (error) {
+    console.error("Erreur chargement WOD :", error);
+    alert("Connexion réussie, mais impossible de charger les WOD. Vérifie les autorisations Supabase. Détail : " + error.message);
+  }
+}
+
+document.getElementById("loginForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  loginButton.disabled = true;
+  loginButton.textContent = "CONNEXION...";
+  authMessage.textContent = "";
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  loginButton.disabled = false;
+  loginButton.textContent = "SE CONNECTER";
+  if (error) {
+    authMessage.textContent = "Connexion impossible : " + error.message;
+    return;
+  }
+  if (data.session) await showLoggedIn();
+});
+
+document.getElementById("logoutButton").addEventListener("click", async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    alert("Erreur de déconnexion : " + error.message);
+    return;
+  }
+  showLoggedOut();
+});
+
+const { data: { session } } = await supabase.auth.getSession();
+if (session) {
+  await showLoggedIn();
+} else {
+  showLoggedOut();
+}
+
+</script>
+
 </body>
 </html>
