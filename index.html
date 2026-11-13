@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>Les WODS d'OREL</title>
+<title>WOD FACTORY</title>
 
 <style>
 :root {
@@ -849,6 +849,190 @@ header {
 .movement-detail-image-link{display:block;margin:14px auto;max-width:420px}
 .movement-detail-image{display:block;width:100%;max-height:300px;object-fit:contain;background:#0b1015;border-radius:10px}
 .movement-source-link{display:inline-block;margin-top:8px;font-weight:800}
+
+
+/* =========================================================
+   WOD FACTORY — DARK PERFORMANCE visual refresh
+   Restyle only: existing sections, controls and JS behavior
+   remain unchanged.
+   ========================================================= */
+:root {
+  --bg:#070a09;
+  --panel:#101512;
+  --panel2:#171f1a;
+  --card-bg:#0c110e;
+  --input-bg:#090e0b;
+  --text:#f4f7f4;
+  --muted:#9aa69d;
+  --green:#8cff00;
+  --orange:#ff9f1c;
+  --red:#ff3d35;
+  --border:#29362d;
+  --accent:#8cff00;
+}
+body {
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(112,255,0,.10), transparent 34rem),
+    radial-gradient(ellipse at 100% 40%, rgba(112,255,0,.045), transparent 32rem),
+    #070a09;
+  color:var(--text);
+  letter-spacing:.1px;
+}
+body.theme-light {
+  --bg:#eef2ee; --panel:#fff; --panel2:#e5ebe6; --card-bg:#f8faf8;
+  --input-bg:#fff; --text:#111812; --muted:#58665c; --green:#58b900;
+  --orange:#d97706; --red:#dc2626; --border:#cbd5cc; --accent:#58b900;
+  background:var(--bg);
+}
+body.theme-box {
+  --bg:#050705; --panel:#0d120e; --panel2:#151d16; --card-bg:#080d09;
+  --input-bg:#050805; --text:#f7fff7; --muted:#aab7ac; --green:#8cff00;
+  --orange:#ff9f1c; --red:#ff3d35; --border:#33432f; --accent:#8cff00;
+  background:radial-gradient(ellipse at 50% 0%,rgba(140,255,0,.10),transparent 38rem),#050705;
+}
+header {
+  position:relative;
+  max-width:1240px;
+  margin:0 auto;
+  padding:25px 220px 21px;
+  text-align:center;
+  border:0;
+  border-bottom:1px solid rgba(140,255,0,.22);
+  background:linear-gradient(180deg,rgba(255,255,255,.035),transparent);
+}
+.logo {
+  font-size:clamp(25px,3vw,36px);
+  font-weight:1000;
+  font-style:italic;
+  letter-spacing:2.5px;
+  text-transform:uppercase;
+  text-shadow:0 0 22px rgba(140,255,0,.14);
+}
+.logo span {color:var(--green);}
+.subtitle {color:#a9b5ab;letter-spacing:3px;font-size:10px;font-weight:800;}
+.tabs {
+  max-width:1120px;
+  padding:14px 18px 18px;
+  gap:9px;
+}
+.tab {
+  min-height:48px;
+  padding:13px 12px;
+  border-radius:10px;
+  background:linear-gradient(180deg,#171e19,#0d120f);
+  border:1px solid #2a382d;
+  color:#b9c4bb;
+  text-transform:uppercase;
+  letter-spacing:.55px;
+  font-size:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.045);
+  transition:transform .16s,border-color .16s,box-shadow .16s;
+}
+.tab:hover {transform:translateY(-1px);border-color:rgba(140,255,0,.55);color:#fff;}
+.tab.active {
+  color:#071000;
+  background:linear-gradient(135deg,#a5ff22,#65d900);
+  border-color:#a5ff22;
+  box-shadow:0 0 22px rgba(140,255,0,.28),0 5px 14px rgba(0,0,0,.25);
+}
+main {max-width:1120px;padding:12px 20px 55px;}
+h2 {font-size:16px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;}
+.panel {
+  background:linear-gradient(145deg,rgba(22,30,24,.97),rgba(10,15,12,.98));
+  border:1px solid #2b392e;
+  border-radius:15px;
+  padding:20px;
+  box-shadow:0 12px 30px rgba(0,0,0,.22),inset 0 1px rgba(255,255,255,.035);
+}
+.wod-card,.movement-card,.history-card {
+  background:linear-gradient(145deg,#111913,#0a0f0c);
+  border-color:#2a382d;
+  border-radius:12px;
+}
+.library-subtab,.type-button,.secondary {
+  border-radius:10px;
+  border-color:#344237;
+  background:linear-gradient(180deg,#1b241d,#121914);
+  color:#d9e1da;
+  transition:border-color .15s,filter .15s,transform .15s;
+}
+.library-subtab.active,.type-button.active {
+  background:linear-gradient(135deg,#a5ff22,#65d900);
+  color:#081000;
+  border-color:#a5ff22;
+  box-shadow:0 0 16px rgba(140,255,0,.20);
+}
+button.secondary:hover,.library-subtab:hover,.type-button:hover {border-color:var(--green);filter:brightness(1.1);}
+.primary,.generate-button {
+  background:linear-gradient(135deg,#a5ff22,#65d900);
+  color:#081000;
+  border:1px solid #a5ff22;
+  border-radius:11px;
+  font-weight:1000;
+  letter-spacing:.6px;
+  box-shadow:0 0 18px rgba(140,255,0,.18),0 6px 15px rgba(0,0,0,.25);
+}
+.primary:hover,.generate-button:hover {filter:brightness(1.12);transform:translateY(-1px);}
+input,select,textarea {
+  border-radius:9px;
+  border-color:#344237;
+  background:#080e0a;
+  color:#f4f7f4;
+}
+input:focus,select:focus,textarea:focus {border-color:var(--green);box-shadow:0 0 0 3px rgba(140,255,0,.10);}
+label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
+.tag {background:rgba(140,255,0,.12);color:var(--green);border:1px solid rgba(140,255,0,.25);border-radius:6px;}
+.exercise {background:rgba(255,255,255,.025);border-radius:8px;}
+.timer-types {gap:9px;}
+.type-button {
+  min-height:48px;
+  font-weight:900;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+}
+.timer-status {
+  color:var(--green);
+  font-weight:1000;
+  letter-spacing:2.5px;
+  text-shadow:0 0 15px rgba(140,255,0,.22);
+}
+.clock {
+  font-size:clamp(76px,14vw,142px);
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-4px;
+  font-variant-numeric:tabular-nums;
+  text-shadow:0 0 30px rgba(140,255,0,.16);
+}
+.timer-progress {height:11px;border:0;background:#202a22;}
+.timer-progress-fill {background:linear-gradient(90deg,#5bc900,#a5ff22);box-shadow:0 0 12px rgba(140,255,0,.38);}
+.status-pill.active {background:rgba(140,255,0,.10);}
+.header-controls {gap:7px;}
+.theme-btn,.install-btn,.logout-button {
+  border-radius:8px;
+  border:1px solid #344237;
+  background:#111812;
+  color:#dce5dd;
+}
+.theme-btn:hover,.install-btn:hover {border-color:var(--green);}
+.audio-wakelock-bar {border-color:#2a382d;}
+.timer-exercise-suggestions {--accent:var(--green);}
+.movement-card .movement-image-link,.movement-detail-image-link {background:#080e0a;}
+@media(max-width:760px) {
+  header {padding:60px 12px 17px;}
+  .header-controls {top:9px;right:9px;left:9px;justify-content:center;flex-wrap:wrap;}
+  .tabs {padding:11px 10px 14px;gap:6px;}
+  .tab {padding:11px 7px;font-size:10px;min-height:43px;}
+  main {padding:8px 11px 40px;}
+  .panel {padding:15px;border-radius:12px;}
+  .clock {letter-spacing:-2px;}
+}
+@media(max-width:420px) {
+  .tabs {flex-wrap:wrap;}
+  .tab {flex:1 1 30%;}
+  .timer-types {grid-template-columns:repeat(2,minmax(0,1fr));}
+}
+
 </style>
 </head>
 
@@ -856,7 +1040,7 @@ header {
 
 <section id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <h1>Les WODS d'OREL<span style="color:var(--green)">d'OREL</span></h1>
+    <h1>WOD <span style="color:var(--green)">FACTORY</span></h1>
     <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
     <form id="loginForm">
       <div class="field">
@@ -875,7 +1059,7 @@ header {
 
 <div id="appShell">
 <header>
-  <div class="logo">Les WODS<span>d'OREL</span></div>
+  <div class="logo">WOD <span>FACTORY</span></div>
   <div class="subtitle">WOD & CHRONOMÈTRE</div>
   <div class="header-controls">
     <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
