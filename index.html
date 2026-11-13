@@ -1033,6 +1033,24 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
   .timer-types {grid-template-columns:repeat(2,minmax(0,1fr));}
 }
 
+
+/* Navigation entre onglets : transition horizontale fluide, sans modifier le contenu. */
+main { overflow-x: clip; }
+.page { will-change: transform, opacity; }
+.page.page-slide-next { animation: wodPageSlideNext .34s cubic-bezier(.22,.75,.25,1) both; }
+.page.page-slide-prev { animation: wodPageSlidePrev .34s cubic-bezier(.22,.75,.25,1) both; }
+@keyframes wodPageSlideNext {
+  from { opacity: .35; transform: translateX(34px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes wodPageSlidePrev {
+  from { opacity: .35; transform: translateX(-34px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .page.page-slide-next, .page.page-slide-prev { animation: none; }
+}
+
 </style>
 </head>
 
@@ -1393,31 +1411,36 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
 // NAVIGATION
 // =======================================
 
-// Navigation par délégation : les onglets restent cliquables même si
-// leur contenu est reconstruit ultérieurement.
+// Navigation principale avec transition horizontale type slide.
+function activateMainPage(pageId) {
+  const pages = [...document.querySelectorAll(".page")];
+  const tabs = [...document.querySelectorAll(".tab")];
+  const current = pages.findIndex(p => p.classList.contains("active"));
+  const next = pages.findIndex(p => p.id === pageId);
+  if (next < 0) return;
+  const direction = current < 0 || next >= current ? "next" : "prev";
+
+  tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.page === pageId));
+  pages.forEach(p => {
+    const isTarget = p.id === pageId;
+    p.classList.remove("page-slide-next", "page-slide-prev");
+    p.classList.toggle("active", isTarget);
+    if (isTarget && current !== next) {
+      // Force le redémarrage de l'animation lors de chaque navigation.
+      void p.offsetWidth;
+      p.classList.add(direction === "next" ? "page-slide-next" : "page-slide-prev");
+    }
+  });
+}
+
 document.addEventListener("click", event => {
   const button = event.target.closest(".tab");
   if (!button) return;
-
-  const targetPage = document.getElementById(button.dataset.page);
-  if (!targetPage) return;
-
-  document.querySelectorAll(".tab").forEach(tab => {
-    tab.classList.toggle("active", tab === button);
-  });
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.toggle("active", page === targetPage);
-  });
+  activateMainPage(button.dataset.page);
 });
 
 function openPage(page) {
-  document.querySelectorAll(".tab").forEach(b => {
-    b.classList.toggle("active", b.dataset.page === page);
-  });
-
-  document.querySelectorAll(".page").forEach(p => {
-    p.classList.toggle("active", p.id === page);
-  });
+  activateMainPage(page);
 }
 
 document.querySelectorAll(".library-subtab").forEach(button => {
