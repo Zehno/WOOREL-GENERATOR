@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>LES WODs d'OREL</title>
+<title>WOOREL GENERATOR</title>
 
 <style>
 :root {
@@ -473,6 +473,69 @@ header {position:relative; padding-right:110px; padding-left:110px}
 }
 .danger-btn:hover { background: #52242a !important; }
 
+
+.consigne-box {
+  background: rgba(38, 194, 129, 0.08);
+  border-left: 3px solid var(--green);
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+.consigne-label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: var(--green);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.fs-content-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px auto 0;
+  max-width: 960px;
+  width: 100%;
+}
+.fs-consigne-box {
+  background: rgba(38, 194, 129, 0.14);
+  border: 1px solid rgba(38, 194, 129, 0.45);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: clamp(14px, 2vw, 20px);
+  line-height: 1.4;
+  max-height: 15vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  text-align: left;
+}
+.fs-consigne-title {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #6ee7b7;
+  margin-bottom: 4px;
+}
+.fs-exercises-box {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 960px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: clamp(15px, 2.2vw, 22px);
+  line-height: 1.45;
+  max-height: 22vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  text-align: left;
+}
+
 </style>
 </head>
 
@@ -480,7 +543,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <section id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <h1>LES WODs d'OREL <span style="color:var(--green)"></span></h1>
+    <h1>WOOREL <span style="color:var(--green)">GENERATOR</span></h1>
     <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
     <form id="loginForm">
       <div class="field">
@@ -499,13 +562,13 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <div id="appShell">
 <header>
-  <div class="logo">LES WODs d'OREL</span></div>
-  <div class="subtitle">SEANCE ET CHRONOMETRE</div>
+  <div class="logo">WOOREL <span>GENERATOR</span></div>
+  <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
   <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
 </header>
 
 <nav class="tabs">
-  <button class="tab active" data-page="generator">SEANCE DU JOUR</button>
+  <button class="tab active" data-page="generator">GÉNÉRATEUR DE WOD</button>
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
 </nav>
@@ -516,7 +579,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <section id="generator" class="page active">
 
-  <h2>SEANCE DU JOUR</h2>
+  <h2>GÉNÉRATEUR DE WOD</h2>
 
   <div class="panel center">
     <div class="muted">GÉNÉRATION À PARTIR DE TA BASE DE DONNÉES PRIVÉE</div>
@@ -577,9 +640,9 @@ header {position:relative; padding-right:110px; padding-left:110px}
           <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
         </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
         <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
-        <div class="field"><label for="manualWodConsigne">CONSIGNE</label><textarea id="manualWodConsigne" rows="3" placeholder="Ex. : Garder une intensité régulière, respecter les amplitudes..."></textarea></div>
         <div class="field"><label for="manualWodExercises">EXERCICES (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea></div>
         </div>
+        <div class="field"><label for="manualWodConsigne">CONSIGNE</label><textarea id="manualWodConsigne" rows="3" placeholder="Ex. : Garder une intensité régulière, respecter les amplitudes..."></textarea></div>
         <div id="multiBlockEditor" class="hidden">
           <div id="multiBlocksList"></div>
           <button class="secondary" type="button" id="addMultiBlock">+ AJOUTER UN BLOC</button>
@@ -614,6 +677,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <button class="type-button" data-type="EMOM">EMOM</button>
       <button class="type-button" data-type="TABATA">TABATA</button>
       <button class="type-button" data-type="FORTIME">FOR TIME</button>
+      <button class="type-button" data-type="MIX">MIX (2 WOD)</button>
     </div>
 
     <div id="timerSettings">
@@ -704,9 +768,9 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <input id="timerWodName" placeholder="Nom de mon WOD">
     </div>
 
-    <div class="field" id="timerConsigneBox" style="display:none">
-      <label>CONSIGNE</label>
-      <div id="timerWodConsigne" class="panel" style="margin:0;white-space:pre-wrap"></div>
+    <div class="field" id="timerConsigneBox">
+      <label for="timerWodConsigne">CONSIGNES</label>
+      <textarea id="timerWodConsigne" rows="3" placeholder="Consignes de la séance (s'affiche dans la fenêtre plein écran du chrono)..."></textarea>
     </div>
 
     <div class="field">
@@ -740,7 +804,13 @@ header {position:relative; padding-right:110px; padding-left:110px}
     <div class="fs-wod-title" id="fsWodTitle">SÉANCE</div>
     <div class="fs-clock" id="fsClock">00:10</div>
     <div class="fs-round-info" id="fsRoundInfo">PRÉPARE-TOI</div>
-    <div class="fs-exercises-box" id="fsExercisesBox"></div>
+    <div class="fs-content-grid">
+      <div class="fs-consigne-box hidden" id="fsConsigneBox">
+        <div class="fs-consigne-title">CONSIGNES</div>
+        <div id="fsConsigneText"></div>
+      </div>
+      <div class="fs-exercises-box hidden" id="fsExercisesBox"></div>
+    </div>
     <div class="fs-next-box hidden" id="fsNextBox"></div>
   </div>
 
@@ -810,13 +880,29 @@ var wods = []; // Chargés depuis Supabase après connexion
 var selectedWod = null;
 var editingWodId = null;
 
+function renderBlocksSummaryHTML(wod) {
+  const blocks = wod.timerConfig && Array.isArray(wod.timerConfig.blocks) ? wod.timerConfig.blocks : [];
+  if (!blocks.length) return "";
+  return blocks.map((b, i) => `
+    <div class="exercise">
+      <strong>BLOC ${i + 1} — ${escapeHTML(b.type)} (${escapeHTML(String(b.duration || ""))} min)</strong>
+      ${b.exercises ? `<div style="margin-top:4px;white-space:pre-wrap;color:var(--muted)">${escapeHTML(b.exercises)}</div>` : ""}
+      ${i < blocks.length - 1 && b.rest_after ? `<div style="margin-top:4px;font-size:12px;color:var(--orange)">Repos après ce bloc : ${escapeHTML(String(b.rest_after))} min</div>` : ""}
+    </div>
+  `).join("");
+}
+
 function renderWod(wod) {
+  const consigne = String(wod.consigne || "").trim();
+  const blocksHTML = renderBlocksSummaryHTML(wod);
   return `
     <div class="wod-title">${escapeHTML(wod.name)}</div>
     <span class="tag">${escapeHTML(wod.type === "MIX" ? `MULTI-BLOCS (${wod.timerConfig?.blocks?.length || 0})` : wod.type)}</span>
     ${wod.duration ? `<span class="tag">${wod.duration} MIN</span>` : ""}
+    ${consigne ? `<div class="consigne-box"><div class="consigne-label">CONSIGNES</div>${escapeHTML(consigne)}</div>` : ""}
     <div style="margin-top:10px">
-      ${wod.movements.map(m => `
+      ${blocksHTML}
+      ${(wod.movements || []).map(m => `
         <div class="exercise">
           <strong>${m.reps ?? ""}${m.unit ? " "+escapeHTML(m.unit) : ""}</strong>
           ${escapeHTML(m.name)}
@@ -853,9 +939,13 @@ function displayLibrary() {
   wods.forEach(wod => {
     const card = document.createElement("div");
     card.className = "wod-card";
+    const consigne = String(wod.consigne || "").trim();
+    const blocksHTML = renderBlocksSummaryHTML(wod);
     card.innerHTML = `<h3>${escapeHTML(wod.name)}</h3>
-      <span class="tag">${escapeHTML(wod.type)}</span>
+      <span class="tag">${escapeHTML(wod.type === "MIX" ? `MULTI-BLOCS (${wod.timerConfig?.blocks?.length || 0})` : wod.type)}</span>
       ${wod.duration ? `<span class="tag">${escapeHTML(String(wod.duration))} MIN</span>` : ""}
+      ${consigne ? `<div class="consigne-box"><div class="consigne-label">CONSIGNES</div>${escapeHTML(consigne)}</div>` : ""}
+      ${blocksHTML}
       ${(wod.movements || []).map(m => `<div class="exercise">${m.reps != null ? `<strong>${escapeHTML(String(m.reps))} </strong>` : ""}${escapeHTML(m.name || "")}</div>`).join("")}
       <div class="wod-actions">
         <button class="secondary choose-library-wod" type="button">UTILISER CE WOD</button>
@@ -1007,11 +1097,16 @@ document.getElementById("mixButton").addEventListener("click", () => {
   }
 
   const durations = sources.map(w => Number(w.duration)).filter(n => Number.isFinite(n) && n > 0);
+  const combinedConsignes = sources
+    .map(w => String(w.consigne || "").trim())
+    .filter(Boolean)
+    .join("\n—\n");
   const mixedWod = {
     id: null,
     name: "WOD MIX — " + type,
     type,
     duration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
+    consigne: combinedConsignes,
     description: "Nouveau mixage temporaire construit à partir de deux WOD de ta base : " + sources.map(w => w.name).join(" + "),
     movements: mixedMovements
   };
@@ -1028,8 +1123,7 @@ function sendWodToTimer(wod) {
   if (!wod) return;
   document.getElementById("timerWodName").value = wod.name || "WOD partagé";
   const consigne = String(wod.consigne || "").trim();
-  document.getElementById("timerWodConsigne").textContent = consigne;
-  document.getElementById("timerConsigneBox").style.display = consigne ? "block" : "none";
+  document.getElementById("timerWodConsigne").value = consigne;
   document.getElementById("timerWodContent").value = (wod.movements || []).map(m =>
     `${m.reps ?? ""}${m.unit ? " "+m.unit : ""} ${m.name || ""}${m.load ? " — "+m.load : ""}`.trim()
   ).join("\n");
@@ -1382,6 +1476,15 @@ function syncFullscreenDisplay(state) {
   document.getElementById("fsClock").textContent = state.clockText;
   document.getElementById("fsRoundInfo").textContent = state.roundLabel;
 
+  const consigneBox = document.getElementById("fsConsigneBox");
+  const consigneTextEl = document.getElementById("fsConsigneText");
+  if (state.consigneText) {
+    consigneTextEl.textContent = state.consigneText;
+    consigneBox.classList.remove("hidden");
+  } else {
+    consigneBox.classList.add("hidden");
+  }
+
   const exBox = document.getElementById("fsExercisesBox");
   if (state.exercisesText) {
     exBox.textContent = state.exercisesText;
@@ -1403,6 +1506,7 @@ function updateClock() {
   let value = remaining;
   const wodTitle = (document.getElementById("timerWodName")?.value || "").trim() || "ENTRAÎNEMENT";
   const defaultExercises = (document.getElementById("timerWodContent")?.value || "").trim();
+  const consigneText = (document.getElementById("timerWodConsigne")?.value || "").trim();
 
   let state = {
     visualPhase: "work",
@@ -1411,6 +1515,7 @@ function updateClock() {
     wodTitle,
     clockText: formatTime(value),
     roundLabel: timerType,
+    consigneText,
     exercisesText: defaultExercises,
     nextText: ""
   };
@@ -2084,6 +2189,11 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   } catch (error) {
     console.error(error); status.textContent = "Enregistrement impossible : " + (error?.message || String(error));
   } finally { button.disabled = false; button.textContent = "AJOUTER DANS LA BIBLIOTHÈQUE"; }
+});
+
+["timerWodName", "timerWodConsigne", "timerWodContent"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("input", () => updateClock());
 });
 
 // =======================================
