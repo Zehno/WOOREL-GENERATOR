@@ -357,6 +357,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <nav class="tabs">
   <button class="tab active" data-page="generator">GÉNÉRATEUR DE WOD</button>
+  <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
 </nav>
 
@@ -438,6 +439,35 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 </section>
 
+<!-- BIBLIOTHEQUE -->
+<section id="libraryPage" class="page">
+  <h2>MA BIBLIOTHÈQUE DE WOD</h2>
+  <div class="panel">
+    <h2>AJOUTER UN WOD MANUELLEMENT</h2>
+    <form id="manualWodForm">
+      <div class="field"><label for="manualWodTitle">TITRE DU WOD</label><input id="manualWodTitle" required maxlength="100" placeholder="Ex. : ENGINE BUILDER"></div>
+      <div class="field"><label for="manualWodFormat">FORMAT</label>
+        <select id="manualWodFormat"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
+      </div>
+      <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MINUTES)</label><input id="manualAmrapDuration" type="number" min="1" value="20"></div>
+      <div id="manualEmomFields" class="hidden"><div class="grid">
+        <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MINUTES)</label><input id="manualEmomDuration" type="number" min="1" value="12"></div>
+        <div class="field"><label for="manualEmomWork">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="manualEmomWork" type="number" min="1" max="59" value="40"></div>
+      </div><p class="small-note" id="manualEmomRestPreview">Repos automatique : 20 secondes par minute.</p></div>
+      <div id="manualTabataFields" class="hidden"><div class="grid">
+        <div class="field"><label for="manualTabataWork">TRAVAIL (SECONDES)</label><input id="manualTabataWork" type="number" min="1" value="20"></div>
+        <div class="field"><label for="manualTabataRest">REPOS (SECONDES)</label><input id="manualTabataRest" type="number" min="0" value="10"></div>
+        <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
+      </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
+      <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
+      <div class="field"><label for="manualWodExercises">EXERCICES (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea></div>
+      <button class="primary" id="saveManualWod" type="submit">AJOUTER DANS LA BIBLIOTHÈQUE</button>
+      <div id="manualWodStatus" class="small-note" role="status" aria-live="polite" style="margin-top:12px"></div>
+    </form>
+  </div>
+  <div class="panel"><h2>WOD ENREGISTRÉS</h2><div id="libraryList"><p class="muted">Connecte-toi pour charger ta bibliothèque.</p></div></div>
+</section>
+
 <!-- CHRONOMETRE -->
 
 <section id="timer" class="page">
@@ -468,8 +498,8 @@ header {position:relative; padding-right:110px; padding-left:110px}
             <input id="emomDuration" type="number" min="1" value="12">
           </div>
           <div class="field">
-            <label>INTERVALLE (MIN)</label>
-            <input id="emomInterval" type="number" min="1" value="1">
+            <label>TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label>
+            <input id="emomWork" type="number" min="1" max="59" value="40">
           </div>
         </div>
       </div>
@@ -618,39 +648,24 @@ function updateCount() {
 }
 
 function displayLibrary() {
-  // La bibliothèque reste en base Supabase, mais n'est plus affichée dans l'interface.
-  return;
-  const search = document.getElementById("searchWod").value.toLowerCase();
-  const container = document.getElementById("library");
-
-  const filtered = wods.filter(w =>
-    w.name.toLowerCase().includes(search) ||
-    w.type.toLowerCase().includes(search) ||
-    w.movements.some(m => m.name.toLowerCase().includes(search))
-  );
-
+  const container = document.getElementById("libraryList");
+  if (!container) return;
   container.innerHTML = "";
-
-  if (!filtered.length) {
-    container.innerHTML = `<p class="muted">Aucun WOD trouvé.</p>`;
+  if (!wods.length) {
+    container.innerHTML = '<p class="muted">Aucun WOD dans ta bibliothèque pour le moment.</p>';
     return;
   }
-
-  filtered.forEach(wod => {
+  wods.forEach(wod => {
     const card = document.createElement("div");
     card.className = "wod-card";
-    card.innerHTML = `
-      ${renderWod(wod)}
-      <button class="secondary" style="width:100%;margin-top:12px">
-        CHOISIR CE WOD
-      </button>
-    `;
-
+    card.innerHTML = `<h3>${escapeHTML(wod.name)}</h3>
+      <span class="tag">${escapeHTML(wod.type)}</span>
+      ${wod.duration ? `<span class="tag">${escapeHTML(String(wod.duration))} MIN</span>` : ""}
+      ${(wod.movements || []).map(m => `<div class="exercise">${m.reps != null ? `<strong>${escapeHTML(String(m.reps))} </strong>` : ""}${escapeHTML(m.name || "")}</div>`).join("")}
+      <button class="secondary choose-library-wod" type="button" style="width:100%;margin-top:12px">UTILISER CE WOD</button>`;
     card.querySelector("button").addEventListener("click", () => {
-      selectWod(wod);
-      window.scrollTo({top:0,behavior:"smooth"});
+      selectWod(wod); openPage("generator"); window.scrollTo({top:0,behavior:"smooth"});
     });
-
     container.appendChild(card);
   });
 }
@@ -750,6 +765,15 @@ document.getElementById("sendToTimer").addEventListener("click", () => {
     if (type === "AMRAP") document.getElementById("amrapDuration").value = selectedWod.duration;
     if (type === "EMOM") document.getElementById("emomDuration").value = selectedWod.duration;
     if (type === "FORTIME") document.getElementById("fortimeLimit").value = selectedWod.duration;
+  }
+  if (selectedWod.timerConfig) {
+    const cfg = selectedWod.timerConfig;
+    if (type === "EMOM" && cfg.work_seconds) document.getElementById("emomWork").value = cfg.work_seconds;
+    if (type === "TABATA") {
+      if (cfg.work_seconds) document.getElementById("tabataWork").value = cfg.work_seconds;
+      if (cfg.rest_seconds != null) document.getElementById("tabataRest").value = cfg.rest_seconds;
+      if (cfg.cycles) document.getElementById("tabataCycles").value = cfg.cycles;
+    }
   }
 
   resetTimer();
@@ -923,9 +947,9 @@ function updateClock() {
   }
 
   if (timerType === "EMOM") {
-    const duration = Math.max(1, Number(document.getElementById("emomInterval").value) || 1);
-    const currentMinute = Math.floor(elapsed / (duration * 60)) + 1;
-    info = `EMOM — MINUTE ${currentMinute}`;
+    const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
+    const currentMinute = Math.floor(elapsed / 60) + 1;
+    info = `EMOM — MINUTE ${currentMinute} — ${elapsed % 60 < workSeconds ? "TRAVAIL" : "REPOS"}`;
   }
 
   document.getElementById("timerInfo").textContent = info;
@@ -1062,15 +1086,9 @@ function checkMidpointSignal() {
 
   // EMOM : moitié de chaque intervalle de travail
   if (timerType === "EMOM") {
-    const intervalMinutes = Math.max(
-      1,
-      Number(document.getElementById("emomInterval").value) || 1
-    );
-
-    const intervalSeconds = intervalMinutes * 60;
-    const midpoint = Math.floor(intervalSeconds / 2);
-
-    if (elapsed % intervalSeconds === midpoint) {
+    const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
+    if (elapsed % 60 === Math.floor(workSeconds / 2) ||
+        elapsed % 60 === workSeconds + Math.floor((60 - workSeconds) / 2)) {
       playMidpointTone();
     }
   }
@@ -1232,6 +1250,81 @@ document.getElementById("pdfFiles").addEventListener("change", event => {
     line.textContent = "PDF sélectionné : " + file.name;
     container.appendChild(line);
   });
+});
+
+// =======================================
+// FORMULAIRE DE CREATION MANUELLE
+// =======================================
+const manualFormat = document.getElementById("manualWodFormat");
+const manualFormatFields = {
+  "AMRAP": document.getElementById("manualAmrapFields"),
+  "EMOM": document.getElementById("manualEmomFields"),
+  "TABATA": document.getElementById("manualTabataFields"),
+  "FOR TIME": document.getElementById("manualFortimeFields")
+};
+function updateManualFormatFields() {
+  Object.entries(manualFormatFields).forEach(([key, el]) => el.classList.toggle("hidden", key !== manualFormat.value));
+  updateManualPreviews();
+}
+function updateManualPreviews() {
+  const emomWork = Math.max(1, Math.min(59, Number(document.getElementById("manualEmomWork").value) || 40));
+  document.getElementById("manualEmomRestPreview").textContent = `Repos automatique : ${60-emomWork} secondes par minute.`;
+  const work = Math.max(1, Number(document.getElementById("manualTabataWork").value) || 20);
+  const rest = Math.max(0, Number(document.getElementById("manualTabataRest").value) || 0);
+  const cycles = Math.max(1, Number(document.getElementById("manualTabataCycles").value) || 1);
+  const total = (work + rest) * cycles - rest;
+  document.getElementById("manualTabataTotal").textContent = `Durée totale calculée : ${Math.floor(total/60)} min ${String(total%60).padStart(2,"0")} s.`;
+}
+manualFormat.addEventListener("change", updateManualFormatFields);
+["manualEmomWork","manualTabataWork","manualTabataRest","manualTabataCycles"].forEach(id => document.getElementById(id).addEventListener("input", updateManualPreviews));
+updateManualFormatFields();
+
+function parseManualExercises(raw) {
+  return raw.split(/\\r?\\n/).map(line => line.trim()).filter(Boolean).map((line, i) => {
+    const match = line.match(/^(\\d+)\\s+(.+)$/);
+    return { name: match ? match[2].trim() : line, reps: match ? Number(match[1]) : null, position: i+1 };
+  });
+}
+document.getElementById("manualWodForm").addEventListener("submit", async event => {
+  event.preventDefault();
+  const status = document.getElementById("manualWodStatus");
+  const button = document.getElementById("saveManualWod");
+  const name = document.getElementById("manualWodTitle").value.trim();
+  const type = manualFormat.value;
+  const movements = parseManualExercises(document.getElementById("manualWodExercises").value);
+  if (!name || !movements.length) { status.textContent = "Renseigne un titre et au moins un exercice."; return; }
+
+  let duration = null;
+  let timerConfig = { format: type };
+  if (type === "AMRAP") {
+    duration = Math.max(1, Number(document.getElementById("manualAmrapDuration").value) || 1);
+    timerConfig.duration_minutes = duration;
+  } else if (type === "EMOM") {
+    duration = Math.max(1, Number(document.getElementById("manualEmomDuration").value) || 1);
+    const work = Math.max(1, Math.min(59, Number(document.getElementById("manualEmomWork").value) || 40));
+    timerConfig = { format:type, duration_minutes:duration, work_seconds:work, rest_seconds:60-work, interval_seconds:60 };
+  } else if (type === "TABATA") {
+    const work = Math.max(1, Number(document.getElementById("manualTabataWork").value) || 20);
+    const rest = Math.max(0, Number(document.getElementById("manualTabataRest").value) || 0);
+    const cycles = Math.max(1, Number(document.getElementById("manualTabataCycles").value) || 1);
+    const totalSeconds = (work+rest)*cycles-rest;
+    duration = Math.ceil(totalSeconds/60);
+    timerConfig = { format:type, work_seconds:work, rest_seconds:rest, cycles, total_seconds:totalSeconds };
+  } else {
+    duration = Math.max(0, Number(document.getElementById("manualFortimeCap").value) || 0) || null;
+    timerConfig.time_cap_minutes = duration;
+  }
+
+  button.disabled = true; button.textContent = "ENREGISTREMENT...";
+  status.textContent = "Enregistrement dans Supabase...";
+  try {
+    const saved = await window.saveManualWodToSupabase({ name, type, duration, movements, timerConfig });
+    wods.unshift(saved); updateCount(); displayLibrary();
+    document.getElementById("manualWodForm").reset(); updateManualFormatFields();
+    status.textContent = "WOD ajouté à ta bibliothèque.";
+  } catch (error) {
+    console.error(error); status.textContent = "Enregistrement impossible : " + (error?.message || String(error));
+  } finally { button.disabled = false; button.textContent = "AJOUTER DANS LA BIBLIOTHÈQUE"; }
 });
 
 // =======================================
@@ -1806,6 +1899,30 @@ function showLoggedOut(message = "") {
   authMessage.textContent = message;
 }
 
+window.saveManualWodToSupabase = async function(wod) {
+  const { data: row, error } = await supabase.from("wods").insert({
+    name: wod.name,
+    wod_type: wod.type,
+    duration_minutes: wod.duration,
+    instructions: "WOOREL_TIMER_CONFIG:" + JSON.stringify(wod.timerConfig)
+  }).select("id, name, wod_type, duration_minutes, instructions").single();
+  if (error) throw error;
+
+  const rows = wod.movements.map(m => ({
+    wod_id: row.id, movement_name: m.name, repetitions: m.reps, position: m.position
+  }));
+  const { error: movementError } = await supabase.from("wod_movements").insert(rows);
+  if (movementError) {
+    await supabase.from("wods").delete().eq("id", row.id);
+    throw movementError;
+  }
+  return {
+    id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
+    duration: row.duration_minutes ? Number(row.duration_minutes) : null,
+    description: row.instructions || "", timerConfig: wod.timerConfig, movements: wod.movements
+  };
+};
+
 async function loadWodsFromSupabase() {
   const { data, error } = await supabase
   .from("wods")
@@ -1820,6 +1937,12 @@ async function loadWodsFromSupabase() {
     type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
     description: row.description || row.instructions || "",
+    timerConfig: (() => {
+      const raw = String(row.instructions || "");
+      const prefix = "WOOREL_TIMER_CONFIG:";
+      if (!raw.startsWith(prefix)) return null;
+      try { return JSON.parse(raw.slice(prefix.length)); } catch (_) { return null; }
+    })(),
     movements: (row.wod_movements || []).sort((a,b) => (a.position || 0) - (b.position || 0)).map(m => ({
       name: m.movement_name || "Mouvement",
       reps: m.repetitions ?? null,
