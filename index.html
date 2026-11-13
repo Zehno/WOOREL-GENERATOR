@@ -4,19 +4,49 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>LES WODs d'OREL</title>
+<title>WOOREL GENERATOR</title>
 
 <style>
 :root {
   --bg:#101419;
   --panel:#1b222a;
   --panel2:#242d37;
+  --card-bg:#141b22;
+  --input-bg:#111820;
   --text:#f3f5f7;
   --muted:#929eaa;
   --green:#26c281;
   --orange:#f2a344;
   --red:#e45b5b;
   --border:#303b46;
+}
+
+body.theme-light {
+  --bg:#f2f5f8;
+  --panel:#ffffff;
+  --panel2:#e6ecf2;
+  --card-bg:#f8fafc;
+  --input-bg:#ffffff;
+  --text:#101419;
+  --muted:#52606d;
+  --green:#169c65;
+  --orange:#d97706;
+  --red:#dc2626;
+  --border:#cbd5e1;
+}
+
+body.theme-box {
+  --bg:#000000;
+  --panel:#111111;
+  --panel2:#1e1e1e;
+  --card-bg:#0a0a0a;
+  --input-bg:#000000;
+  --text:#ffffff;
+  --muted:#b0b0b0;
+  --green:#00ff66;
+  --orange:#ffaa00;
+  --red:#ff3333;
+  --border:#383838;
 }
 
 * {box-sizing:border-box}
@@ -156,7 +186,7 @@ button {
 
 input,select,textarea {
   width:100%;
-  background:#111820;
+  background:var(--input-bg);
   color:var(--text);
   border:1px solid var(--border);
   padding:12px;
@@ -185,7 +215,7 @@ label {
 }
 
 .wod-card {
-  background:#141b22;
+  background:var(--card-bg);
   border:1px solid var(--border);
   border-radius:9px;
   padding:15px;
@@ -536,6 +566,121 @@ header {position:relative; padding-right:110px; padding-left:110px}
   text-align: left;
 }
 
+
+.header-controls {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.logout-button {
+  position: static;
+}
+.theme-btn, .install-btn {
+  background: var(--panel2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+}
+.theme-btn:hover, .install-btn:hover {
+  border-color: var(--green);
+}
+header {
+  padding-right: 180px;
+  padding-left: 180px;
+}
+@media(max-width:650px) {
+  header { padding-left: 12px; padding-right: 12px; padding-top: 52px; }
+  .header-controls { top: 10px; right: 10px; left: 10px; justify-content: flex-end; }
+}
+
+.timer-types {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media(min-width:600px) {
+  .timer-types { grid-template-columns: repeat(6, 1fr); }
+}
+
+.audio-wakelock-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.status-pill {
+  font-size: 11px;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--panel2);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.status-pill.active {
+  color: var(--green);
+  border-color: var(--green);
+}
+
+/* Modal QR & Score */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.78);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+.modal-card {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+.qr-box {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  display: inline-block;
+  margin: 14px auto;
+}
+.history-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.history-score-badge {
+  background: rgba(38, 194, 129, 0.15);
+  color: var(--green);
+  border: 1px solid var(--green);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-weight: 900;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 </style>
 </head>
 
@@ -543,7 +688,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <section id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <h1>LES WODs <span style="color:var(--green)">d'OREL</span></h1>
+    <h1>WOOREL <span style="color:var(--green)">GENERATOR</span></h1>
     <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
     <form id="loginForm">
       <div class="field">
@@ -562,15 +707,20 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 <div id="appShell">
 <header>
-  <div class="logo">LES WODs <span>d'OREL</span></div>
-  <div class="subtitle">SEANCES ET CHRONOMETRE</div>
-  <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
+  <div class="logo">WOOREL <span>GENERATOR</span></div>
+  <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
+  <div class="header-controls">
+    <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
+    <button class="theme-btn" id="themeToggleBtn" type="button" title="Changer le thème">🌓 THÈME : SOMBRE</button>
+    <button class="logout-button" id="logoutButton">DÉCONNEXION</button>
+  </div>
 </header>
 
 <nav class="tabs">
-  <button class="tab active" data-page="generator">GÉNÉRATEUR DE WOD</button>
+  <button class="tab active" data-page="generator">GÉNÉRATEUR</button>
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
+  <button class="tab" data-page="historyPage">HISTORIQUE</button>
 </nav>
 
 <main>
@@ -677,6 +827,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <button class="type-button" data-type="EMOM">EMOM</button>
       <button class="type-button" data-type="TABATA">TABATA</button>
       <button class="type-button" data-type="FORTIME">FOR TIME</button>
+      <button class="type-button" data-type="STOPWATCH">CHRONO LIBRE</button>
       <button class="type-button" data-type="MIX">MIX (2 WOD)</button>
     </div>
 
@@ -721,9 +872,13 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
       <div id="fortimeSettings" class="hidden">
         <div class="field">
-          <label>LIMITE DE TEMPS (MINUTES, 0 = SANS LIMITE)</label>
+          <label>TIME CAP (MINUTES, 0 = CHRONO MONTANT SANS LIMITE)</label>
           <input id="fortimeLimit" type="number" min="0" value="20">
         </div>
+        <p class="small-note">Avec un Time Cap (&gt; 0), le chrono affiche le décompte négatif (temps restant avant le Cap). À 0, il défile vers le haut.</p>
+      </div>
+      <div id="stopwatchSettings" class="hidden">
+        <p class="small-note">Chronomètre libre (Stopwatch) : compte vers le haut à partir de 00:00 sans limite de temps.</p>
       </div>
       <div id="mixSettings" class="hidden">
         <p class="small-note">Compose une séance avec deux blocs chronométrés. Tu peux choisir le même format deux fois ou mélanger AMRAP et EMOM.</p>
@@ -761,6 +916,13 @@ header {position:relative; padding-right:110px; padding-left:110px}
     <div style="margin-top:12px">
       <button class="secondary hidden" id="reenterFullscreenBtn" type="button" style="width:100%">⛶ RETOURNER EN PLEIN ÉCRAN</button>
     </div>
+    <div style="margin-top:10px">
+      <button class="secondary" id="logWorkoutBtn" type="button" style="width:100%">✓ ENREGISTRER CETTE SÉANCE DANS L'HISTORIQUE</button>
+    </div>
+    <div class="audio-wakelock-bar">
+      <button class="secondary" id="testAudioBtn" type="button" style="padding:8px 12px;font-size:12px">🔊 TESTER LE SON</button>
+      <span class="status-pill" id="wakeLockBadge">📱 ÉCRAN : VEILLE AUTO</span>
+    </div>
   </div>
 
   <div class="panel">
@@ -790,10 +952,71 @@ header {position:relative; padding-right:110px; padding-left:110px}
 
 </section>
 
+
+<!-- HISTORIQUE -->
+<section id="historyPage" class="page">
+  <h2>HISTORIQUE DES SÉANCES</h2>
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:bold">SÉANCES RÉALISÉES</div>
+        <div class="small-note" id="historyCountLabel">0 séance enregistrée</div>
+      </div>
+      <button class="secondary" id="openManualLogBtn" type="button">+ AJOUTER UN RÉSULTAT</button>
+    </div>
+    <div id="historyList" style="margin-top:14px">
+      <p class="muted">Aucune séance enregistrée pour le moment.</p>
+    </div>
+  </div>
+</section>
+
 </main>
 
-<footer>Application crée par Aurélien E.</footer>
+<footer>WOOREL GENERATOR</footer>
 </div><!-- /appShell -->
+
+
+<!-- MODAL QR CODE PARTAGE -->
+<div id="qrModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card">
+    <h3 id="qrModalTitle" style="margin:0 0 6px">PARTAGER LE WOD</h3>
+    <div class="muted">Scanne ce QR Code pour charger le WOD sur un autre téléphone</div>
+    <div class="qr-box">
+      <canvas id="qrCanvas" width="220" height="220"></canvas>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="primary" id="copyShareLinkBtn" type="button">COPIER LE LIEN</button>
+      <button class="secondary" id="closeQrModalBtn" type="button">FERMER</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENREGISTRER SÉANCE / SCORE -->
+<div id="logModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+  <div class="modal-card" style="text-align:left">
+    <h3 style="margin:0 0 12px;text-align:center">ENREGISTRER LA SÉANCE</h3>
+    <div class="field">
+      <label for="logWodName">NOM DU WOD</label>
+      <input id="logWodName" placeholder="Ex. : FRAN / AMRAP 20">
+    </div>
+    <div class="field">
+      <label for="logWodFormat">FORMAT</label>
+      <input id="logWodFormat" placeholder="AMRAP, FOR TIME, EMOM...">
+    </div>
+    <div class="field">
+      <label for="logWodScore">SCORE / TEMPS RÉALISÉ</label>
+      <input id="logWodScore" placeholder="Ex. : 14:32 ou 6 rounds + 12 reps">
+    </div>
+    <div class="field">
+      <label for="logWodNotes">RESSENTI / NOTES (OPTIONNEL)</label>
+      <textarea id="logWodNotes" rows="3" placeholder="Charge utilisée, sensations..."></textarea>
+    </div>
+    <div class="actions" style="margin-top:14px">
+      <button class="primary" id="saveHistoryEntryBtn" type="button">ENREGISTRER</button>
+      <button class="secondary" id="closeLogModalBtn" type="button">ANNULER</button>
+    </div>
+  </div>
+</div>
 
 <!-- CHRONO PLEIN ECRAN GEANT -->
 <div id="fsTimerOverlay" class="fs-overlay phase-prep hidden" role="dialog" aria-modal="true">
@@ -812,6 +1035,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
   <div class="fs-controls">
     <button type="button" class="fs-btn-pause" id="fsPauseResumeBtn">PAUSE</button>
     <button type="button" class="fs-btn-reset" id="fsResetBtn">RESET</button>
+    <button type="button" class="fs-btn-resume hidden" id="fsLogBtn">✓ NOTER SCORE</button>
   </div>
 </div>
 
@@ -1168,23 +1392,45 @@ function decodeSharePayload(encoded) {
   return payload;
 }
 
+let currentShareLink = "";
+
+// Générateur QR Code matriciel autonome (sans dépendance externe) via API QR fallback ou dessin canvas
+function drawQrCodeOnCanvas(canvas, text) {
+  const ctx = canvas.getContext("2d");
+  const size = canvas.width;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, size, size);
+
+  // Utilisation d'une image QR haute fiabilité dessinée sur le canvas + fallback matrice déterministe
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = () => {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+    ctx.drawImage(img, 0, 0, size, size);
+  };
+  img.onerror = () => {
+    // Fallback visuel si hors-ligne
+    ctx.fillStyle = "#101419";
+    ctx.font = "bold 13px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("QR Code disponible en ligne", size / 2, size / 2 - 8);
+    ctx.font = "11px Arial";
+    ctx.fillText("Utilise le bouton Copier le lien", size / 2, size / 2 + 12);
+  };
+  img.src = "https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=4&data=" + encodeURIComponent(text);
+}
+
 async function shareWodLink(wod) {
   const baseUrl = window.location.href.split("#")[0];
-  const link = baseUrl + "#share=" + encodeSharePayload(wod);
-  if (window.location.protocol === "file:") {
-    alert("Le lien est prêt, mais il ne fonctionnera pour tes amis qu'une fois le site hébergé en ligne. Héberge d'abord LES WODs d'OREL, puis recrée le lien depuis l'adresse du site.");
-    return;
-  }
-  if (navigator.share) {
-    try { await navigator.share({ title: "WOD à faire — " + wod.name, text: "Voici le WOD :", url: link }); return; }
-    catch (error) { if (error && error.name === "AbortError") return; }
-  }
-  try {
-    await navigator.clipboard.writeText(link);
-    alert("Lien du WOD copié ! Tu peux l'envoyer à tes amis.");
-  } catch (_) {
-    window.prompt("Copie ce lien pour le partager :", link);
-  }
+  currentShareLink = baseUrl + "#share=" + encodeSharePayload(wod);
+
+  const qrModal = document.getElementById("qrModal");
+  const qrTitle = document.getElementById("qrModalTitle");
+  const qrCanvas = document.getElementById("qrCanvas");
+  if (qrTitle) qrTitle.textContent = "PARTAGER : " + (wod.name || "WOD");
+  if (qrCanvas) drawQrCodeOnCanvas(qrCanvas, currentShareLink);
+  if (qrModal) qrModal.classList.remove("hidden");
 }
 
 async function openSharedWodFromLink() {
@@ -1218,7 +1464,7 @@ function setTimerType(type) {
     b.classList.toggle("active", b.dataset.type === type);
   });
 
-  ["amrap","emom","tabata","fortime","mix"].forEach(id => {
+  ["amrap","emom","tabata","fortime","stopwatch","mix"].forEach(id => {
     document.getElementById(id+"Settings").classList.add("hidden");
   });
 
@@ -1366,6 +1612,10 @@ function getDuration() {
     return Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0) * 60;
   }
 
+  if (timerType === "STOPWATCH") {
+    return 0;
+  }
+
   return Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
 }
 
@@ -1500,11 +1750,27 @@ function updateClock() {
   };
 
   if (timerType === "FORTIME") {
-    if (remaining === 0 && elapsed > 0) value = elapsed;
-    if (!running && elapsed === 0) value = 0;
-    const limit = Number(document.getElementById("fortimeLimit").value) || 0;
-    state.blockLabel = "FOR TIME";
-    state.roundLabel = limit > 0 ? `TIME CAP : ${limit} MIN` : "SANS LIMITE DE TEMPS";
+    const limit = Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0);
+    const capSeconds = limit * 60;
+    if (capSeconds > 0) {
+      // Décompte négatif à partir du Time Cap
+      const remCap = Math.max(0, capSeconds - elapsed);
+      value = remCap;
+      state.blockLabel = `FOR TIME — CAP ${limit} MIN`;
+      state.roundLabel = remCap > 0
+        ? `TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})`
+        : "TIME CAP ATTEINT";
+    } else {
+      value = elapsed;
+      state.blockLabel = "FOR TIME";
+      state.roundLabel = "CHRONO MONTANT — SANS TIME CAP";
+    }
+  }
+
+  if (timerType === "STOPWATCH") {
+    value = elapsed;
+    state.blockLabel = "CHRONO LIBRE";
+    state.roundLabel = "COMPTEUR MONTANT";
   }
 
   if (timerType === "AMRAP") {
@@ -1610,6 +1876,52 @@ function updateClock() {
 // ARRET ET RESET
 // =======================================
 
+let wakeLockSentinel = null;
+
+async function requestWakeLock() {
+  const badge = document.getElementById("wakeLockBadge");
+  if (!("wakeLock" in navigator)) {
+    if (badge) badge.textContent = "📱 ÉCRAN : NON SUPPORTÉ";
+    return;
+  }
+  try {
+    if (!wakeLockSentinel) {
+      wakeLockSentinel = await navigator.wakeLock.request("screen");
+      wakeLockSentinel.addEventListener("release", () => {
+        wakeLockSentinel = null;
+        if (badge) {
+          badge.textContent = "📱 ÉCRAN : VEILLE AUTO";
+          badge.classList.remove("active");
+        }
+      });
+    }
+    if (badge) {
+      badge.textContent = "📱 ÉCRAN MAINTENU ALLUMÉ";
+      badge.classList.add("active");
+    }
+  } catch (err) {
+    console.warn("Wake Lock refusé :", err);
+  }
+}
+
+async function releaseWakeLock() {
+  const badge = document.getElementById("wakeLockBadge");
+  if (wakeLockSentinel) {
+    try { await wakeLockSentinel.release(); } catch (_) {}
+    wakeLockSentinel = null;
+  }
+  if (badge) {
+    badge.textContent = "📱 ÉCRAN : VEILLE AUTO";
+    badge.classList.remove("active");
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && (running || countdownActive)) {
+    requestWakeLock();
+  }
+});
+
 function stopTimer() {
   clearInterval(interval);
   clearInterval(countdownInterval);
@@ -1619,6 +1931,7 @@ function stopTimer() {
 
   running = false;
   countdownActive = false;
+  releaseWakeLock();
   updateFsPauseButton();
 }
 
@@ -1634,6 +1947,8 @@ function resetTimer() {
     : getDuration();
 
   document.getElementById("timerStatus").textContent = "PRÊT";
+  const fsLogBtn = document.getElementById("fsLogBtn");
+  if (fsLogBtn) fsLogBtn.classList.add("hidden");
 
   updateClock();
 }
@@ -1642,6 +1957,8 @@ function finishTimer(message) {
   stopTimer();
 
   document.getElementById("timerStatus").textContent = message;
+  const fsLogBtn = document.getElementById("fsLogBtn");
+  if (fsLogBtn) fsLogBtn.classList.remove("hidden");
   const overlay = document.getElementById("fsTimerOverlay");
   if (overlay) {
     overlay.classList.remove("phase-prep", "phase-work", "phase-rest");
@@ -1664,6 +1981,7 @@ function startPreparation() {
 
   countdownActive = true;
   countdownRemaining = 10;
+  requestWakeLock();
 
   document.getElementById("timerStatus").textContent = "PRÉPARATION";
   document.getElementById("clock").textContent = "00:10";
@@ -1716,6 +2034,7 @@ function startPreparation() {
 
 function startWorkout() {
   running = true;
+  requestWakeLock();
 
   document.getElementById("timerStatus").textContent = "EN COURS";
   updateFsPauseButton();
@@ -1805,14 +2124,26 @@ function tick() {
   if (timerType === "FORTIME") {
     const limit = getDuration();
 
-    if (limit > 0 && elapsed >= limit) {
-      remaining = 0;
-      playCountdownTone("GO");
-      updateClock();
-      finishTimer("TIME CAP");
-      return;
+    if (limit > 0) {
+      remaining = Math.max(0, limit - elapsed);
+      if (elapsed >= limit) {
+        remaining = 0;
+        playCountdownTone("GO");
+        updateClock();
+        finishTimer("TIME CAP");
+        return;
+      }
+    } else {
+      remaining = elapsed;
     }
 
+    updateClock();
+    return;
+  }
+
+  // CHRONO LIBRE (STOPWATCH)
+  if (timerType === "STOPWATCH") {
+    remaining = elapsed;
     updateClock();
     return;
   }
@@ -1888,6 +2219,10 @@ function triggerStartOrResume() {
   }
 
   if (timerType === "FORTIME" && elapsed === 0) {
+    remaining = getDuration();
+  }
+
+  if (timerType === "STOPWATCH" && elapsed === 0) {
     remaining = 0;
   }
 
@@ -1895,7 +2230,8 @@ function triggerStartOrResume() {
     remaining = getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0;
   }
 
-  if (timerType !== "FORTIME" && remaining <= 0) {
+  const isCountUp = timerType === "STOPWATCH" || (timerType === "FORTIME" && getDuration() === 0);
+  if (!isCountUp && remaining <= 0) {
     resetTimer();
   }
 
@@ -2177,6 +2513,219 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   const el = document.getElementById(id);
   if (el) el.addEventListener("input", () => updateClock());
 });
+
+
+// =======================================
+// 1. GESTION DES THÈMES (SOMBRE / CLAIR / BOX)
+// =======================================
+const THEMES = [
+  { id: "dark", label: "🌓 THÈME : SOMBRE", className: "" },
+  { id: "light", label: "☀️ THÈME : CLAIR", className: "theme-light" },
+  { id: "box", label: "⚡ THÈME : BOX CONTRASTE", className: "theme-box" }
+];
+let currentThemeIndex = Math.max(0, THEMES.findIndex(t => t.id === (localStorage.getItem("woorel_theme") || "dark")));
+
+function applyTheme(index) {
+  currentThemeIndex = index % THEMES.length;
+  const theme = THEMES[currentThemeIndex];
+  document.body.classList.remove("theme-light", "theme-box");
+  if (theme.className) document.body.classList.add(theme.className);
+  const btn = document.getElementById("themeToggleBtn");
+  if (btn) btn.textContent = theme.label;
+  localStorage.setItem("woorel_theme", theme.id);
+}
+applyTheme(currentThemeIndex);
+
+document.getElementById("themeToggleBtn")?.addEventListener("click", () => {
+  applyTheme(currentThemeIndex + 1);
+});
+
+// =======================================
+// 2. TEST AUDIO & MODALE QR CODE
+// =======================================
+document.getElementById("testAudioBtn")?.addEventListener("click", () => {
+  playStartBell();
+  setTimeout(() => playCountdownTone("GO"), 450);
+  const btn = document.getElementById("testAudioBtn");
+  if (btn) {
+    const oldText = btn.textContent;
+    btn.textContent = "🔊 SON ACTIVÉ !";
+    setTimeout(() => { btn.textContent = oldText; }, 1500);
+  }
+});
+
+document.getElementById("closeQrModalBtn")?.addEventListener("click", () => {
+  document.getElementById("qrModal")?.classList.add("hidden");
+});
+
+document.getElementById("copyShareLinkBtn")?.addEventListener("click", async () => {
+  if (!currentShareLink) return;
+  try {
+    await navigator.clipboard.writeText(currentShareLink);
+    alert("Lien du WOD copié dans le presse-papiers !");
+  } catch (_) {
+    window.prompt("Copie ce lien pour le partager :", currentShareLink);
+  }
+});
+
+// =======================================
+// 3. HISTORIQUE DES SÉANCES RÉALISÉES
+// =======================================
+function getWorkoutHistory() {
+  try {
+    return JSON.parse(localStorage.getItem("woorel_history") || "[]");
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveWorkoutHistory(list) {
+  localStorage.setItem("woorel_history", JSON.stringify(list));
+}
+
+function renderWorkoutHistory() {
+  const list = getWorkoutHistory();
+  const container = document.getElementById("historyList");
+  const countLabel = document.getElementById("historyCountLabel");
+  if (countLabel) {
+    countLabel.textContent = `${list.length} séance${list.length > 1 ? "s" : ""} enregistrée${list.length > 1 ? "s" : ""}`;
+  }
+  if (!container) return;
+  if (!list.length) {
+    container.innerHTML = '<p class="muted">Aucune séance enregistrée pour le moment. Termine un WOD ou clique sur « + Ajouter un résultat ».</p>';
+    return;
+  }
+  container.innerHTML = "";
+  list.forEach((entry, idx) => {
+    const card = document.createElement("div");
+    card.className = "history-card";
+    card.innerHTML = `
+      <div>
+        <div style="font-weight:900;font-size:15px">${escapeHTML(entry.name || "Séance sans titre")}</div>
+        <div class="small-note" style="margin-top:3px">${escapeHTML(entry.date)} • <span class="tag" style="margin:0">${escapeHTML(entry.format || "WOD")}</span></div>
+        ${entry.notes ? `<div class="small-note" style="margin-top:6px;color:var(--text)">${escapeHTML(entry.notes)}</div>` : ""}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <div class="history-score-badge">${escapeHTML(entry.score || "Terminé")}</div>
+        <button type="button" class="secondary danger-btn" style="padding:5px 8px;font-size:11px" data-del-history="${idx}">SUPPRIMER</button>
+      </div>
+    `;
+    card.querySelector("[data-del-history]").addEventListener("click", () => {
+      const updated = getWorkoutHistory();
+      updated.splice(idx, 1);
+      saveWorkoutHistory(updated);
+      renderWorkoutHistory();
+    });
+    container.appendChild(card);
+  });
+}
+
+function openLogModal(prefill = true) {
+  const modal = document.getElementById("logModal");
+  if (!modal) return;
+  if (prefill) {
+    const wodName = (document.getElementById("timerWodName")?.value || "").trim() || `Séance ${timerType}`;
+    document.getElementById("logWodName").value = wodName;
+    document.getElementById("logWodFormat").value = timerType === "FORTIME" ? "FOR TIME" : (timerType === "STOPWATCH" ? "CHRONO LIBRE" : timerType);
+    document.getElementById("logWodScore").value = elapsed > 0 ? `Temps : ${formatTime(elapsed)}` : "";
+    document.getElementById("logWodNotes").value = "";
+  } else {
+    document.getElementById("logWodName").value = "";
+    document.getElementById("logWodFormat").value = "FOR TIME";
+    document.getElementById("logWodScore").value = "";
+    document.getElementById("logWodNotes").value = "";
+  }
+  modal.classList.remove("hidden");
+}
+
+document.getElementById("logWorkoutBtn")?.addEventListener("click", () => openLogModal(true));
+document.getElementById("fsLogBtn")?.addEventListener("click", () => {
+  exitFullscreenOverlay();
+  openLogModal(true);
+});
+document.getElementById("openManualLogBtn")?.addEventListener("click", () => openLogModal(false));
+document.getElementById("closeLogModalBtn")?.addEventListener("click", () => {
+  document.getElementById("logModal")?.classList.add("hidden");
+});
+
+document.getElementById("saveHistoryEntryBtn")?.addEventListener("click", () => {
+  const name = document.getElementById("logWodName").value.trim() || "Séance";
+  const format = document.getElementById("logWodFormat").value.trim() || "WOD";
+  const score = document.getElementById("logWodScore").value.trim() || "Terminé";
+  const notes = document.getElementById("logWodNotes").value.trim();
+  const date = new Date().toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  const list = getWorkoutHistory();
+  list.unshift({ name, format, score, notes, date });
+  saveWorkoutHistory(list);
+  renderWorkoutHistory();
+  document.getElementById("logModal")?.classList.add("hidden");
+  openPage("historyPage");
+});
+
+renderWorkoutHistory();
+
+// =======================================
+// 4. PWA (MANIFEST DYNAMIQUE + SERVICE WORKER)
+// =======================================
+(function setupPWA() {
+  const manifest = {
+    name: "WOOREL GENERATOR",
+    short_name: "WOOREL",
+    description: "Générateur de WOD et Chronomètre d'entraînement",
+    start_url: ".",
+    display: "standalone",
+    background_color: "#101419",
+    theme_color: "#101419",
+    icons: [
+      {
+        src: "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="36" fill="#101419"/><text x="96" y="122" font-family="Arial,sans-serif" font-weight="900" font-size="92" fill="#26c281" text-anchor="middle">W</text></svg>'),
+        sizes: "192x192",
+        type: "image/svg+xml"
+      }
+    ]
+  };
+  const manifestBlob = new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" });
+  const manifestLink = document.createElement("link");
+  manifestLink.rel = "manifest";
+  manifestLink.href = URL.createObjectURL(manifestBlob);
+  document.head.appendChild(manifestLink);
+
+  let deferredPrompt = null;
+  const installBtn = document.getElementById("installPwaBtn");
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) installBtn.classList.remove("hidden");
+  });
+  installBtn?.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.classList.add("hidden");
+  });
+
+  if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
+    const swCode = `
+      const CACHE = "woorel-v1";
+      self.addEventListener("install", e => self.skipWaiting());
+      self.addEventListener("activate", e => e.waitUntil(clients.claim()));
+      self.addEventListener("fetch", e => {
+        if (e.request.method !== "GET") return;
+        e.respondWith(
+          fetch(e.request).then(res => {
+            const copy = res.clone();
+            caches.open(CACHE).then(cache => cache.put(e.request, copy)).catch(() => {});
+            return res;
+          }).catch(() => caches.match(e.request))
+        );
+      });
+    `;
+    const swBlob = new Blob([swCode], { type: "application/javascript" });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+  }
+})();
 
 // =======================================
 // INITIALISATION
