@@ -1974,13 +1974,15 @@ function getCurrentTimerExerciseFragment() {
   const textarea = document.getElementById("timerWodContent");
   const value = textarea?.value || "";
   const cursor = textarea?.selectionStart ?? value.length;
-  const lineStart = value.lastIndexOf("\\n", cursor - 1) + 1;
-  const lineEndRaw = value.indexOf("\\n", cursor);
+  // Délimiter la ligne réellement éditée (et non la première ligne du WOD).
+  const lineStart = value.lastIndexOf("\n", Math.max(0, cursor - 1)) + 1;
+  const lineEndRaw = value.indexOf("\n", cursor);
   const lineEnd = lineEndRaw === -1 ? value.length : lineEndRaw;
   const line = value.slice(lineStart, lineEnd);
   const beforeCursor = value.slice(lineStart, cursor);
-  const repsMatch = beforeCursor.match(/^(\\s*\\d+(?:\\s*[x×])?\\s*)/i);
-  const prefix = beforeCursor.slice(repsMatch ? repsMatch[0].length : 0);
+  // Les chiffres de répétitions / séries au début de ligne ne font pas partie du nom.
+  const repsMatch = beforeCursor.match(/^(\s*\d+(?:\s*[x×])?\s*)/i);
+  const prefix = beforeCursor.slice(repsMatch ? repsMatch[0].length : 0).trimStart();
   return { textarea, value, cursor, lineStart, lineEnd, line, reps: repsMatch ? repsMatch[0] : "", prefix };
 }
 function renderTimerExerciseSuggestions() {
@@ -2003,6 +2005,7 @@ function chooseTimerExerciseSuggestion(id) {
   if (!movement) return;
   const state = getCurrentTimerExerciseFragment();
   if (!state.textarea) return;
+  // Remplace uniquement la ligne où se trouve le curseur ; toutes les autres lignes restent intactes.
   const replacement = state.reps + movement.name;
   const nextValue = state.value.slice(0, state.lineStart) + replacement + state.value.slice(state.lineEnd);
   state.textarea.value = nextValue;
