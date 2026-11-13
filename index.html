@@ -1034,18 +1034,18 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
 }
 
 
-/* Navigation entre onglets : transition horizontale fluide, sans modifier le contenu. */
-main { overflow-x: clip; }
+/* Navigation principale : vrai slide horizontal entre les écrans. */
+main { overflow-x: hidden; }
 .page { will-change: transform, opacity; }
-.page.page-slide-next { animation: wodPageSlideNext .34s cubic-bezier(.22,.75,.25,1) both; }
-.page.page-slide-prev { animation: wodPageSlidePrev .34s cubic-bezier(.22,.75,.25,1) both; }
+.page.page-slide-next { animation: wodPageSlideNext .48s cubic-bezier(.22,.75,.25,1) both; }
+.page.page-slide-prev { animation: wodPageSlidePrev .48s cubic-bezier(.22,.75,.25,1) both; }
 @keyframes wodPageSlideNext {
-  from { opacity: .35; transform: translateX(34px); }
-  to { opacity: 1; transform: translateX(0); }
+  0% { opacity: .25; transform: translate3d(100%,0,0); }
+  100% { opacity: 1; transform: translate3d(0,0,0); }
 }
 @keyframes wodPageSlidePrev {
-  from { opacity: .35; transform: translateX(-34px); }
-  to { opacity: 1; transform: translateX(0); }
+  0% { opacity: .25; transform: translate3d(-100%,0,0); }
+  100% { opacity: 1; transform: translate3d(0,0,0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .page.page-slide-next, .page.page-slide-prev { animation: none; }
@@ -1438,6 +1438,26 @@ document.addEventListener("click", event => {
   if (!button) return;
   activateMainPage(button.dataset.page);
 });
+
+// Sur mobile, un balayage horizontal permet aussi de passer d'un onglet à l'autre.
+let wodSwipeStartX = 0;
+let wodSwipeStartY = 0;
+document.addEventListener("touchstart", event => {
+  if (!event.touches || event.touches.length !== 1) return;
+  wodSwipeStartX = event.touches[0].clientX;
+  wodSwipeStartY = event.touches[0].clientY;
+}, {passive:true});
+document.addEventListener("touchend", event => {
+  if (!event.changedTouches || !event.changedTouches.length) return;
+  const dx = event.changedTouches[0].clientX - wodSwipeStartX;
+  const dy = event.changedTouches[0].clientY - wodSwipeStartY;
+  if (Math.abs(dx) < 75 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+  if (event.target.closest('input, textarea, select, button, a, [contenteditable="true"]')) return;
+  const pages = [...document.querySelectorAll(".page")];
+  const current = pages.findIndex(page => page.classList.contains("active"));
+  const next = current + (dx < 0 ? 1 : -1);
+  if (next >= 0 && next < pages.length) activateMainPage(pages[next].id);
+}, {passive:true});
 
 function openPage(page) {
   activateMainPage(page);
