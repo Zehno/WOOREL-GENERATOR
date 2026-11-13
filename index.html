@@ -710,6 +710,118 @@ header {
 @media(max-width:600px){.fs-clock{font-size:clamp(82px,23vw,170px)}.fs-round-info{font-size:clamp(18px,5vw,28px);padding:8px 12px}.fs-controls{gap:8px}.fs-controls button{padding:13px 8px;font-size:14px}}
 
 
+
+/* AFFICHAGE CHRONO SUR TELEPHONE EN PAYSAGE */
+@media screen and (orientation: landscape) and (max-height: 600px) {
+  .fs-overlay {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(145px, 20vw);
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+    justify-content: stretch;
+    gap: 8px 14px;
+    padding: max(7px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+             max(7px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+    overflow: hidden;
+  }
+  .fs-top {
+    grid-column: 1 / -1;
+    max-width: none;
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-width: 0;
+  }
+  .fs-badge {
+    font-size: clamp(10px, 2.2vh, 15px);
+    padding: 5px 8px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .fs-phase-pill {
+    font-size: clamp(12px, 2.8vh, 19px);
+    padding: 5px 10px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .fs-exit-btn {
+    font-size: 10px;
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
+  .fs-center {
+    grid-column: 1;
+    grid-row: 2;
+    max-width: none;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .fs-wod-title { font-size: clamp(11px, 2.3vh, 17px); margin: 0 0 2px; }
+  .fs-clock {
+    font-size: clamp(64px, 20vh, 132px);
+    line-height: .88;
+    letter-spacing: -2px;
+    margin: 2px 0 5px;
+  }
+  .fs-round-info {
+    font-size: clamp(12px, 3vh, 20px);
+    padding: 4px 10px;
+    margin-top: 2px;
+    border-radius: 8px;
+    letter-spacing: 1px;
+  }
+  .fs-progress { height: 8px; margin: 6px auto 0; }
+  .fs-exercises-box {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 30vh;
+    overflow-y: auto;
+    margin: 7px auto 0;
+    padding: 6px 9px;
+    font-size: clamp(11px, 2.8vh, 17px);
+    line-height: 1.22;
+    border-width: 1px;
+    border-radius: 8px;
+  }
+  .fs-exercise-focus { font-size: clamp(11px, 2.8vh, 17px); margin-top: 0; }
+  .fs-exercise-focus small { font-size: .65em; margin-bottom: 2px; }
+  .fs-content-grid { gap: 5px; margin-top: 5px; }
+  .fs-consigne-box { max-height: 12vh; padding: 5px 8px; font-size: 11px; }
+  .fs-consigne-title { font-size: 9px; margin-bottom: 2px; }
+  .fs-controls {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+  }
+  .fs-controls button {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: 8px 6px;
+    font-size: clamp(11px, 2.3vh, 15px);
+    border-radius: 8px;
+  }
+  .fs-skip-btn { padding: 8px 6px; }
+}
+@media screen and (orientation: landscape) and (max-height: 390px) {
+  .fs-overlay { grid-template-columns: minmax(0, 1fr) 125px; gap: 5px 8px; }
+  .fs-clock { font-size: clamp(54px, 18vh, 90px); }
+  .fs-exercises-box { max-height: 25vh; font-size: 11px; line-height: 1.15; }
+  .fs-controls button { min-height: 34px; padding: 5px; font-size: 10px; }
+  .fs-top { gap: 5px; }
+  .fs-badge,.fs-phase-pill { padding: 4px 6px; }
+  .fs-exit-btn { padding: 4px 6px; font-size: 9px; }
+}
+
 /* Bibliothèque de mouvements */
 .movement-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
 .movement-card{overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--card-bg)}
