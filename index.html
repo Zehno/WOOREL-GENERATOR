@@ -862,36 +862,6 @@ header {
   </div>
 </section>
 
-<!-- COACH WOD : générateur guidé par règles de programmation -->
-<section id="coachPage" class="page">
-  <h2>COACH WOD — GÉNÉRATEUR</h2>
-  <div class="panel">
-    <p class="muted">CONSTRUIS UN WOD À PARTIR DES MOUVEMENTS DE TA BIBLIOTHÈQUE</p>
-    <div class="grid">
-      <div class="field"><label for="coachDuration">DURÉE</label><select id="coachDuration"><option>10</option><option>15</option><option selected>20</option><option>30</option><option>45</option><option>60</option><option>70</option><option>80</option></select></div>
-      <div class="field"><label for="coachType">TYPE DE WOD</label><select id="coachType"><option value="Mixed Modality">Mixed Modality</option><option value="Gym">Gym</option><option value="Haltéro">Haltéro</option><option value="Cardio">Cardio</option></select></div>
-      <div class="field"><label for="coachLevel">RAISONNEMENT COACH</label><select id="coachLevel"><option value="L1">Level 1 — Fondamentaux</option><option value="L2" selected>Level 2 — Programmation</option><option value="L3">Level 3 — Avancé</option></select></div>
-      <div class="field"><label for="coachFormat">FORMAT</label><select id="coachFormat"><option>AMRAP</option><option>FOR TIME</option><option>EMOM</option><option>TABATA</option></select></div>
-    </div>
-    <div class="field"><label>NIVEAU SPORTIF</label><div class="inline-options"><label><input type="radio" name="coachAthleteLevel" value="Débutant" checked> Débutant</label><label><input type="radio" name="coachAthleteLevel" value="Intermédiaire"> Intermédiaire</label><label><input type="radio" name="coachAthleteLevel" value="Avancé"> Avancé</label></div></div>
-    <div class="field"><label for="coachSearch">RECHERCHER UN MOUVEMENT À EXCLURE</label><input id="coachSearch" placeholder="Filtrer la liste..."></div>
-    <div class="field"><label>MOUVEMENTS À EXCLURE</label><div id="coachExclusions" class="exclusion-list"></div><p class="small-note">Les mouvements cochés ne seront pas proposés dans le WOD généré.</p></div>
-    <button class="primary" id="generateCoachWod" type="button">⚡ GÉNÉRER MON WOD</button>
-    <div id="coachStatus" class="small-note" role="status" aria-live="polite" style="margin-top:12px"></div>
-  </div>
-  <div id="coachResult" class="panel hidden">
-    <div class="result-heading"><div><div class="muted">WOD PROPOSÉ</div><h2 id="coachResultTitle" style="margin:5px 0"></h2></div><span class="tag" id="coachResultMeta"></span></div>
-    <div id="coachMovements"></div>
-    <div class="field" style="margin-top:16px"><label for="coachAddMovement">AJOUTER UN MOUVEMENT</label><div class="inline-add"><select id="coachAddMovement"></select><button class="secondary" id="coachAddBtn" type="button">AJOUTER</button></div></div>
-    <div class="field"><label for="coachNotes">CONSIGNES</label><textarea id="coachNotes" rows="2"></textarea></div>
-    <div class="coach-explanation"><strong>RAISONNEMENT DU COACH</strong><p id="coachExplanation"></p></div>
-    <div class="actions"><button class="primary" id="coachSendTimer" type="button">ENVOYER VERS LE CHRONO →</button><button class="secondary" id="coachRegenerate" type="button">RÉGÉNÉRER</button></div>
-  </div>
-  <div class="small-note">Le coach actuel est un moteur de programmation à règles, pas une IA conversationnelle ni une certification CrossFit officielle. Il applique des principes de variété, de cohérence des modalités et d'adaptation du volume. Les propositions sont limitées aux fiches présentes dans la bibliothèque.</div>
-</section>
-
-<div id="movementDetailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="movementDetailTitle"><div class="modal-card"><button class="secondary" id="closeMovementDetail" type="button" style="float:right">FERMER ✕</button><div id="movementDetailContent"></div></div></div>
-
 <!-- CHRONOMETRE -->
 
 <section id="timer" class="page">
