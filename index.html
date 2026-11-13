@@ -329,27 +329,9 @@ label {
 .timer-demo-heading{margin:18px 0 8px;font-size:14px;font-weight:800}
 
 /* Cartographie musculaire : grand format, contraste élevé et lisibilité mobile */
-.manual-muscle-panel{margin:22px 0;padding:20px;background:#17191d;border:1px solid #41464e;border-radius:18px;color:#f4f5f7;box-shadow:0 10px 30px #0005}
-.manual-muscle-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:12px}
-.manual-muscle-kicker{font-size:11px;letter-spacing:2px;font-weight:900;color:#aeb6c2}
-.manual-muscle-top h3{font-size:clamp(18px,3vw,24px);margin:5px 0 6px;color:#fff}
-.manual-muscle-top p{font-size:13px;color:#c1c6ce;margin:0;line-height:1.45}
-.manual-muscle-live{font-size:10px;font-weight:900;letter-spacing:1px;color:#9fe4bd;border:1px solid #3b7858;background:#173324;padding:8px 10px;border-radius:20px}
-.manual-muscle-views{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.manual-muscle-view{min-width:0;background:#202226;border:1px solid #383d44;border-radius:14px;padding:12px 8px 8px;text-align:center}
-.manual-muscle-view-title{font-size:13px;font-weight:900;letter-spacing:1.5px;color:#f3f4f6;margin-bottom:4px}
-.muscle-human{display:block;width:100%;height:auto;max-height:540px;margin:auto}
-.body-outline{fill:#292b2f;stroke:#777b80;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 .body-outline path{fill:none}
-.muscle-shapes path{fill:#55595e;stroke:#17191d;stroke-width:2.5;stroke-linejoin:round;transition:fill .2s ease,filter .2s ease}
-.muscle-shapes path.is-primary{fill:#ed403c;filter:drop-shadow(0 0 3px #ed403c66)}
-.muscle-shapes path.is-secondary{fill:#f2c943;filter:drop-shadow(0 0 2px #f2c94355)}
-.manual-muscle-legend{display:flex;justify-content:center;gap:clamp(12px,4vw,32px);flex-wrap:wrap;padding:15px 4px 10px;color:#e2e5e9;font-size:12px;font-weight:800;letter-spacing:.4px}
 .manual-muscle-legend span{display:flex;align-items:center;gap:8px}
-.legend-dot{width:15px;height:15px;border-radius:50%;display:inline-block}.legend-dot.primary{background:#ed403c}.legend-dot.secondary{background:#f2c943}.legend-dot.inactive{background:#55595e}
-.manual-muscle-details{border-top:1px solid #3c4148;padding-top:12px;color:#d8dce2;font-size:12px;line-height:1.65;text-align:center}
 .manual-muscle-details strong{color:#fff}
-@media(max-width:560px){.manual-muscle-panel{padding:13px 10px}.manual-muscle-views{gap:7px}.manual-muscle-view{padding:9px 3px 5px}.manual-muscle-view-title{font-size:11px}.manual-muscle-live{font-size:9px}.manual-muscle-legend{font-size:10px;gap:10px}.legend-dot{width:12px;height:12px}}
 
 
 .small-note {
@@ -943,43 +925,6 @@ header {
         </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
         <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
         <div class="field"><label for="manualWodExercises">EXERCICES À EFFECTUER (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea><div id="manualExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note" id="manualExercisesHelp">Commence à écrire le nom d’un exercice : les mouvements correspondants s’affichent pour chaque ligne. AMRAP / FOR TIME : chaque ligne correspond à un exercice à réaliser, dans l’ordre.</p></div>
-        <section id="manualMusclePanel" class="manual-muscle-panel" aria-live="polite">
-          <div class="manual-muscle-top"><div><div class="manual-muscle-kicker">ANALYSE MUSCULAIRE DU WOD</div><h3>GROUPES MUSCULAIRES SOLLICITÉS</h3><p id="manualMuscleSummary">Ajoute des mouvements reconnus pour afficher les muscles travaillés.</p></div><span class="manual-muscle-live">MISE À JOUR AUTOMATIQUE</span></div>
-          <div class="manual-muscle-views">
-            <div class="manual-muscle-view"><div class="manual-muscle-view-title">VUE DE FACE</div>
-              <svg class="muscle-human" viewBox="0 0 300 470" role="img" aria-label="Silhouette anatomique de face avec groupes musculaires colorés">
-                <g class="body-outline"><ellipse cx="150" cy="42" rx="25" ry="34"/><path d="M130 75 L128 95 Q105 103 83 112 Q66 120 58 150 L29 245 Q24 260 37 264 L48 267 Q57 269 62 256 L91 181 L98 238 L91 318 L84 414 Q82 431 70 444 Q65 454 82 456 L104 456 Q116 453 119 438 L145 318 L150 290 L155 318 L181 438 Q184 453 196 456 L218 456 Q235 454 230 444 Q218 431 216 414 L209 318 L202 238 L209 181 L238 256 Q243 269 252 267 L263 264 Q276 260 271 245 L242 150 Q234 120 217 112 Q195 103 172 95 L170 75"/><path d="M128 95 Q150 111 172 95 M98 238 Q122 253 150 253 Q178 253 202 238 M145 318 Q150 330 155 318"/></g>
-                <g class="muscle-shapes">
-                  <path data-muscle="chest" d="M108 111 Q126 101 147 112 L147 153 Q126 166 105 148 Z M153 112 Q174 101 192 111 L195 148 Q174 166 153 153 Z"/>
-                  <path data-muscle="frontDelts" d="M84 116 Q99 105 108 112 L105 148 Q91 155 78 142 Z M192 112 Q201 105 216 116 L222 142 Q209 155 195 148 Z"/>
-                  <path data-muscle="biceps" d="M75 151 Q88 147 96 158 L84 207 Q73 214 65 203 Z M204 158 Q212 147 225 151 L235 203 Q227 214 216 207 Z"/>
-                  <path data-muscle="abs" d="M128 158 Q150 164 172 158 L169 224 Q150 236 131 224 Z"/>
-                  <path data-muscle="obliques" d="M106 157 L126 163 L128 220 L105 232 L96 197 Z M174 163 L194 157 L204 197 L195 232 L172 220 Z"/>
-                  <path data-muscle="quads" d="M104 247 Q126 253 145 247 L140 332 Q133 365 119 365 Q103 361 101 333 Z M155 247 Q174 253 196 247 L199 333 Q197 361 181 365 Q167 365 160 332 Z"/>
-                  <path data-muscle="adductors" d="M143 251 L150 257 L157 251 L154 326 L150 338 L146 326 Z"/>
-                  <path data-muscle="calvesFront" d="M101 372 Q116 368 126 379 L122 428 Q116 446 107 437 Q99 420 101 372 Z M174 379 Q184 368 199 372 Q201 420 193 437 Q184 446 178 428 Z"/>
-                </g>
-              </svg>
-            </div>
-            <div class="manual-muscle-view"><div class="manual-muscle-view-title">VUE DORSALE</div>
-              <svg class="muscle-human" viewBox="0 0 300 470" role="img" aria-label="Silhouette anatomique de dos avec groupes musculaires colorés">
-                <g class="body-outline"><ellipse cx="150" cy="42" rx="25" ry="34"/><path d="M130 75 L128 95 Q105 103 83 112 Q66 120 58 150 L29 245 Q24 260 37 264 L48 267 Q57 269 62 256 L91 181 L98 238 L91 318 L84 414 Q82 431 70 444 Q65 454 82 456 L104 456 Q116 453 119 438 L145 318 L150 290 L155 318 L181 438 Q184 453 196 456 L218 456 Q235 454 230 444 Q218 431 216 414 L209 318 L202 238 L209 181 L238 256 Q243 269 252 267 L263 264 Q276 260 271 245 L242 150 Q234 120 217 112 Q195 103 172 95 L170 75"/><path d="M128 95 Q150 111 172 95 M98 238 Q122 253 150 253 Q178 253 202 238 M145 318 Q150 330 155 318"/></g>
-                <g class="muscle-shapes">
-                  <path data-muscle="traps" d="M130 101 L150 112 L170 101 L192 115 L178 178 L150 194 L122 178 L108 115 Z"/>
-                  <path data-muscle="rearDelts" d="M84 116 Q99 105 108 115 L111 145 L91 155 L78 142 Z M192 115 Q201 105 216 116 L222 142 L209 155 L189 145 Z"/>
-                  <path data-muscle="triceps" d="M75 151 Q88 147 96 158 L84 207 Q73 214 65 203 Z M204 158 Q212 147 225 151 L235 203 Q227 214 216 207 Z"/>
-                  <path data-muscle="lats" d="M108 153 L126 176 L145 194 L139 247 Q119 248 101 229 L96 187 Z M192 153 L174 176 L155 194 L161 247 Q181 248 199 229 L204 187 Z"/>
-                  <path data-muscle="erectors" d="M144 190 L150 198 L156 190 L159 250 L150 260 L141 250 Z"/>
-                  <path data-muscle="glutes" d="M104 250 Q126 242 147 254 L146 301 Q129 319 111 304 Q99 289 104 250 Z M153 254 Q174 242 196 250 Q201 289 189 304 Q171 319 154 301 Z"/>
-                  <path data-muscle="hamstrings" d="M104 309 Q125 313 143 307 L137 389 Q130 407 117 398 Q105 382 104 309 Z M157 307 Q175 313 196 309 Q195 382 183 398 Q170 407 163 389 Z"/>
-                  <path data-muscle="calvesBack" d="M104 401 Q119 394 130 407 L124 440 Q116 451 108 441 Z M170 407 Q181 394 196 401 L192 441 Q184 451 176 440 Z"/>
-                </g>
-              </svg>
-            </div>
-          </div>
-          <div class="manual-muscle-legend"><span><i class="legend-dot primary"></i> PRINCIPAL</span><span><i class="legend-dot secondary"></i> SECONDAIRE</span><span><i class="legend-dot inactive"></i> NON CIBLÉ</span></div>
-          <div id="manualMuscleDetails" class="manual-muscle-details">Aucun mouvement reconnu pour le moment.</div>
-        </section>
         <div class="timer-demo-heading">DÉMONSTRATIONS DES EXERCICES</div>
         <div id="manualDemoPreview" class="timer-demo-list" aria-live="polite"><p class="small-note">Les démonstrations des mouvements reconnus apparaîtront ici.</p></div>
         </div>
@@ -1885,7 +1830,7 @@ function findMovementForTimerLine(line) {
   if (!target) return null;
   let best = null, bestScore = 0;
   for (const movement of list) {
-    for (const candidate of [movement.name, movement.fr].map(cleanExerciseNameForMatch)) {
+    for (const candidate of [movement.name, movement.fr, ...(movement.aliases || [])].map(cleanExerciseNameForMatch)) {
       if (candidate === target) return movement;
       const a = new Set(target.split(" ")), b = new Set(candidate.split(" "));
       const common = [...a].filter(token => b.has(token)).length;
@@ -1914,39 +1859,6 @@ const MANUAL_MUSCLE_KEYWORDS = {
  hamstrings: [/ischio|hamstring|deadlift|soulev[eé] de terre|romanian|leg curl|sprint|run|course|kettlebell swing|swing/i],
  calvesBack: [/mollet|calf|run|course|jump|box jump|double under|corde|sprint/i]
 };
-function renderManualMuscleMap(){
- const panel=document.getElementById('manualMusclePanel'); if(!panel)return;
- const lines=(document.getElementById('manualWodExercises')?.value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean);
- const found=lines.map(line=>({line,movement:findMovementForTimerLine(line)})).filter(x=>x.movement);
- const primary=new Set(),secondary=new Set(),details=[];
- found.forEach(({line,movement})=>{
-   const raw=String(movement.muscles||'');
-   const parts=raw.split(/,|;|\//).map(x=>x.trim()).filter(Boolean);
-   const text=movement.name+' '+movement.fr+' '+raw;
-   let matched=[];
-   Object.entries(MANUAL_MUSCLE_KEYWORDS).forEach(([key,patterns])=>{if(patterns.some(re=>re.test(text)))matched.push(key)});
-   // Le premier muscle indiqué dans la fiche est considéré moteur principal ; les autres restent secondaires.
-   const first=parts[0]||'';
-   const primaryKeys=matched.filter(key=>{
-     const re=MANUAL_MUSCLE_KEYWORDS[key][0]; return re.test(first);
-   });
-   if(primaryKeys.length) primaryKeys.forEach(k=>primary.add(k));
-   else if(matched.length) primary.add(matched[0]);
-   matched.filter(k=>!primary.has(k)).forEach(k=>secondary.add(k));
-   details.push(`<span><strong>${escapeHTML(movement.name)}</strong> : ${escapeHTML(raw||'groupes musculaires estimés')}</span>`);
- });
- secondary.forEach(k=>{if(primary.has(k))secondary.delete(k)});
- panel.querySelectorAll('[data-muscle]').forEach(shape=>{
-   const key=shape.dataset.muscle; shape.classList.toggle('is-primary',primary.has(key)); shape.classList.toggle('is-secondary',secondary.has(key));
- });
- const summary=document.getElementById('manualMuscleSummary'),detail=document.getElementById('manualMuscleDetails');
- if(!lines.length){summary.textContent='Ajoute des mouvements reconnus pour afficher les muscles travaillés.';detail.textContent='Aucun mouvement saisi.';return;}
- if(!found.length){summary.textContent='Aucun mouvement reconnu : choisis une suggestion de la bibliothèque pour activer la cartographie.';detail.textContent='Les exercices non reconnus ne sont pas ajoutés à la cartographie.';return;}
- summary.textContent=`${found.length} mouvement${found.length>1?'s':''} reconnu${found.length>1?'s':''} sur ${lines.length} · muscles prioritaires mis en évidence`;
- detail.innerHTML=details.join(' &nbsp; • &nbsp; ')+(found.length<lines.length?`<div style="color:#f2c943;margin-top:6px">${lines.length-found.length} exercice(s) non reconnu(s), non représenté(s).</div>`:'');
-}
-
-
 function renderManualDemoPreview(){
  const container=document.getElementById('manualDemoPreview');if(!container)return;
  const lines=(document.getElementById('manualWodExercises')?.value||'').split(/\n+/).map(x=>x.trim()).filter(Boolean);
@@ -2023,7 +1935,7 @@ function chooseExerciseSuggestion(textareaId, boxId, id) {
     updateClock();
     renderTimerDemoPreview();
   } else if (textareaId === "manualWodExercises") {
-    renderManualMuscleMap();
+   
     renderManualDemoPreview();
   }
 }
@@ -2897,8 +2809,8 @@ function attachExerciseAutocomplete(textareaId, boxId) {
 attachExerciseAutocomplete("timerWodContent", "timerExerciseSuggestions");
 attachExerciseAutocomplete("manualWodExercises", "manualExerciseSuggestions");
 const manualExerciseInput=document.getElementById('manualWodExercises');
-manualExerciseInput?.addEventListener('input',()=>{renderManualMuscleMap();renderManualDemoPreview()});
-manualExerciseInput?.addEventListener('change',()=>{renderManualMuscleMap();renderManualDemoPreview()});
+manualExerciseInput?.addEventListener('input',renderManualDemoPreview);
+manualExerciseInput?.addEventListener('change',renderManualDemoPreview);
 document.getElementById("manualDemoPreview")?.addEventListener("click",event=>{const button=event.target.closest('[data-manual-movement-id]');if(button)window.WODFactoryOpenMovementDetail?.(button.dataset.manualMovementId)});
 document.getElementById("timerDemoPreview")?.addEventListener("click", event => {
   const button = event.target.closest("[data-movement-id]");
@@ -3444,7 +3356,17 @@ if (session) {
   {id:'plyo-jump-on-fit-box',name:'Jump on Fit Box',fr:'Saut sur box',family:'PLYOMÉTRIE',equipment:'PLYOMETRIC BOX',muscles:'Quadriceps, fessiers, mollets',desc:'Saut vertical ou horizontal pour atterrir sur une box stable.',source:'https://liftmanual.com/jump-on-fit-box/'},
   {id:'erg-assault-bike-run',name:'Assault Bike Run',fr:'Assault Bike',family:'ERGOMÈTRES',equipment:'ASSAULT BIKE',muscles:'Quadriceps, fessiers, ischio-jambiers, épaules, bras',desc:'Effort cyclique sur vélo à air avec engagement simultané des bras et des jambes.',source:'https://liftmanual.com/assault-bike-run/'},
   {id:'plyo-jump-squat',name:'Jump Squat',fr:'Squat sauté',family:'PLYOMÉTRIE',equipment:'BODYWEIGHT',muscles:'Quadriceps, fessiers, mollets',desc:'Squat suivi d’une extension explosive avec saut vertical.',source:'https://liftmanual.com/jump-squat/'},
-  {id:'plyo-jump-box-over',name:'Jump Box Over',fr:'Saut latéral par-dessus box',family:'PLYOMÉTRIE',equipment:'PLYOMETRIC BOX',muscles:'Quadriceps, fessiers, mollets, gainage',desc:'Saut latéral ou passage dynamique par-dessus une box.',source:'https://liftmanual.com/jump-box-over/'}];
+  {id:'plyo-jump-box-over',name:'Jump Box Over',fr:'Saut latéral par-dessus box',family:'PLYOMÉTRIE',equipment:'PLYOMETRIC BOX',muscles:'Quadriceps, fessiers, mollets, gainage',desc:'Saut latéral ou passage dynamique par-dessus une box.',source:'https://liftmanual.com/jump-box-over/'},
+  {id:'bw-sit-up-ii',name:'Sit-Up',fr:'Sit-Up',aliases:['sit up','abmat sit up','abmat sit-up','crunch assis'],family:'POIDS DE CORPS',equipment:'BODYWEIGHT / ABMAT',muscles:'Grand droit de l’abdomen, fléchisseurs de hanche',desc:'Flexion complète du tronc depuis la position allongée jusqu’à la position assise.',source:'https://liftmanual.com/sit-up-ii/'},
+  {id:'barbell-deadlift',name:'Barbell Deadlift',fr:'Soulevé de terre barre',aliases:['deadlift','souleve de terre','soulevé de terre','barbell deadlift'],family:'PULL',equipment:'BARBELL',muscles:'Fessiers, ischio-jambiers, érecteurs du rachis, quadriceps, trapèzes',desc:'Soulevé de terre conventionnel avec barre, du sol jusqu’à l’extension complète des hanches et des genoux.',source:'https://liftmanual.com/barbell-deadlift/'},
+  {id:'bw-ring-dips',name:'Ring Dips',fr:'Dips aux anneaux',aliases:['ring dip','ring dips','dips anneaux'],family:'PUSH',equipment:'GYMNASTIC RINGS',muscles:'Triceps, pectoraux, deltoïdes antérieurs, gainage',desc:'Dips réalisés en appui sur des anneaux, avec stabilisation active du corps.',source:'https://liftmanual.com/ring-dips/'},
+  {id:'bw-elbow-dips',name:'Elbow Dips',fr:'Dips sur coudes',aliases:['elbow dip','elbow dips','forearm dips','dips avant bras'],family:'PUSH',equipment:'BODYWEIGHT / DIP STATION',muscles:'Triceps, pectoraux, deltoïdes antérieurs',desc:'Variante de dips avec appui sur les avant-bras, sollicitant principalement les triceps.',source:'https://liftmanual.com/elbow-dips/'},
+  {id:'plyo-double-under-jump-rope',name:'Double Under Jump Rope',fr:'Double Under',aliases:['double under','double unders','DU','corde double tour'],family:'PLYOMÉTRIE',equipment:'JUMP ROPE',muscles:'Mollets, soléaire, quadriceps, épaules, avant-bras',desc:'Saut à la corde avec deux passages de corde sous les pieds à chaque impulsion.',source:'https://liftmanual.com/double-under-jump-rope/'},
+  {id:'db-devils-press',name:'Dumbbell Devil’s Press',fr:'Devil’s Press haltères',aliases:["devil's press",'devils press','devil press','devil press haltères'],family:'PUSH',equipment:'DUMBBELLS',muscles:'Fessiers, ischio-jambiers, épaules, triceps, pectoraux, gainage',desc:'Enchaînement d’un burpee avec deux haltères et d’un arraché simultané des haltères au-dessus de la tête.',source:'https://liftmanual.com/dumbbell-devils-press/'},
+  {id:'bw-hanging-toes-to-bar',name:'Hanging Toes to Bar',fr:'Toes to Bar',aliases:['toes to bar','toes-to-bar','ttb','hanging toes to bar'],family:'POIDS DE CORPS',equipment:'PULL-UP BAR',muscles:'Grand droit de l’abdomen, obliques, fléchisseurs de hanche, dorsaux, avant-bras',desc:'Depuis la suspension à la barre, amener les orteils au contact de la barre avec contrôle du mouvement.',source:'https://liftmanual.com/hanging-toes-to-bar/'},
+  {id:'bw-handstand-push-up',name:'Handstand Push-Up',fr:'Handstand Push-Up strict',aliases:['handstand push up','handstand push-up','hspu','strict hspu'],family:'POIDS DE CORPS',equipment:'BODYWEIGHT / WALL',muscles:'Deltoïdes, triceps, trapèzes, gainage',desc:'Développé vertical au poids du corps en équilibre renversé, généralement avec appui des pieds au mur.',source:'https://liftmanual.com/handstand-push-up/'},
+  {id:'bw-kipping-handstand-push-up',name:'Kipping Handstand Push-Up',fr:'Kipping Handstand Push-Up',aliases:['kipping hspu','kipping handstand push up','kipping handstand push-up'],family:'POIDS DE CORPS',equipment:'BODYWEIGHT / WALL',muscles:'Deltoïdes, triceps, trapèzes, gainage',desc:'Handstand push-up utilisant une impulsion coordonnée des jambes et des hanches pour assister la poussée.',source:'https://liftmanual.com/kipping-handstand-push-up/'},
+  {id:'bw-handstand-walk',name:'Handstand Walk',fr:'Marche en équilibre sur les mains',aliases:['handstand walk','handstand walking','marche sur les mains'],family:'POIDS DE CORPS',equipment:'BODYWEIGHT',muscles:'Deltoïdes, trapèzes, triceps, gainage, poignets',desc:'Déplacement en équilibre renversé en alternant les appuis des mains.',source:'https://liftmanual.com/handstand-walk/'}];
  const $=id=>document.getElementById(id), norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  // Lift Manual héberge les visuels des exercices dans sa médiathèque WordPress.
  // Le nom du fichier image reprend le slug de la fiche source.
@@ -3452,7 +3374,7 @@ if (session) {
  function movementImageMarkup(m, detail=false){const url=movementImageUrl(m);const cls=detail?'movement-detail-image':'movement-image';const fallback=detail?'movement-image-fallback':'movement-image-fallback';return url?`<a class="${detail?'movement-detail-image-link':'movement-image-link'}" href="${m.source}" target="_blank" rel="noopener" aria-label="Ouvrir la fiche ${m.name} sur Lift Manual"><img class="${cls}" src="${url}" alt="Illustration du mouvement ${m.fr} (${m.name})" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\"${fallback}\\">Visuel non disponible — ouvrir la fiche Lift Manual</div>'"></a>`:'';}
  function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movementCategory')?.value||'';const list=movements.filter(m=>(!cat||m.family===cat)&&(!q||norm([m.name,m.fr,m.family,m.equipment,m.muscles].join(' ')).includes(q)));$('movementCount').textContent=movements.length ? `${list.length} / ${movements.length} fiches documentées` : '0 mouvement dans la bibliothèque';$('movementResults').innerHTML=list.map(m=>`<article class="movement-card" data-detail="${m.id}" tabindex="0" role="button" aria-label="Voir la fiche ${m.fr}">${movementImageMarkup(m)}<div class="movement-card-body"><h3>${m.fr} <small>(${m.name})</small></h3><span class="tag">${m.family}</span><p class="small-note">${m.equipment}</p><p class="small-note">${m.desc}</p><a class="movement-source-link" href="${m.source}" target="_blank" rel="noopener">Voir la fiche Lift Manual ↗</a></div></article>`).join('')||'<p class="muted">Aucun mouvement trouvé.</p>';}
  function openMovementDetail(id){const m=movements.find(x=>x.id===id);if(!m)return;$('movementDetailContent').innerHTML=`<h2 id="movementDetailTitle">${m.fr} — ${m.name}</h2>${movementImageMarkup(m,true)}<span class="tag">${m.family}</span><span class="tag">${m.equipment}</span><h3>Description</h3><p>${m.desc}</p><h3>Muscles sollicités</h3><p>${m.muscles}</p><h3>Consignes techniques</h3><ol>${(m.steps||[]).map(x=>`<li>${x}</li>`).join('')}</ol><h3>Bénéfices</h3><ul>${(m.benefits||[]).map(x=>`<li>${x}</li>`).join('')}</ul><h3>Variantes</h3><p>${(m.variations||[]).join(' · ')}</p><a class="movement-source-link" href="${m.source}" target="_blank" rel="noopener">Consulter la fiche originale Lift Manual ↗</a>`;$('movementDetailModal').classList.remove('hidden');}
- window.WODFactoryMovements = movements; window.WODFactoryOpenMovementDetail = openMovementDetail; renderTimerDemoPreview(); renderManualMuscleMap(); renderManualDemoPreview();
+ window.WODFactoryMovements = movements; window.WODFactoryOpenMovementDetail = openMovementDetail; renderTimerDemoPreview(); renderManualDemoPreview();
  $('movementSearch')?.addEventListener('input',renderLibrary);$('movementCategory')?.addEventListener('change',renderLibrary);$('movementResults')?.addEventListener('click',e=>{if(e.target.closest('a'))return;const card=e.target.closest('[data-detail]');if(card)openMovementDetail(card.dataset.detail)});$('movementResults')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-detail]')){e.preventDefault();openMovementDetail(e.target.closest('[data-detail]').dataset.detail)}});$('closeMovementDetail')?.addEventListener('click',()=>$('movementDetailModal').classList.add('hidden'));$('movementDetailModal')?.addEventListener('click',e=>{if(e.target===$('movementDetailModal'))$('movementDetailModal').classList.add('hidden')});renderLibrary();
 })();
 </script>
