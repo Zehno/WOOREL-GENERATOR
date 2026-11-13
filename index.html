@@ -903,7 +903,7 @@ header {
   </div>
 
   <div class="panel center">
-    <div class="timer-status" id="timerStatus">PRÊT</div>
+    <div class="timer-status" id="timerStatus">PRÊT</div>\n    <div id="totalDurationPreview" class="small-note" style="margin-top:8px;font-weight:800;color:var(--blue)">DURÉE TOTALE ESTIMÉE : 20 MIN</div>
     <div class="clock" id="clock">20:00</div>
     <div id="timerInfo" class="muted">AMRAP</div>
 
@@ -1615,7 +1615,10 @@ function getDuration() {
     return 0;
   }
 
-  return Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+  const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+  const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 0);
+  const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
+  return work * cycles + rest * Math.max(0, cycles - 1);
 }
 
 // =======================================
@@ -1722,6 +1725,7 @@ function syncFullscreenDisplay(state) {
 
   overlay.classList.remove("phase-prep", "phase-work", "phase-rest", "phase-done");
   overlay.classList.add("phase-" + state.visualPhase);
+  overlay.classList.toggle("phase-round", !!state.roundHighlight);
 
   document.getElementById("fsBlockBadge").textContent = state.blockLabel;
   document.getElementById("fsPhasePill").textContent = state.phaseLabel;
@@ -1735,6 +1739,20 @@ function syncFullscreenDisplay(state) {
   } else {
     nextBox.classList.add("hidden");
   }
+}
+
+function formatDurationLong(seconds) {
+  const total = Math.max(0, Math.floor(Number(seconds) || 0));
+  const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), sec = total % 60;
+  return h ? `${h} h ${m} min${sec ? ` ${sec} s` : ""}` : (m ? `${m} min${sec ? ` ${sec} s` : ""}` : `${sec} s`);
+}
+function updateTotalDurationPreview() {
+  const el = document.getElementById("totalDurationPreview");
+  if (!el) return;
+  const duration = getDuration();
+  el.textContent = duration > 0
+    ? `DURÉE TOTALE ESTIMÉE : ${formatDurationLong(duration)}${timerType === "FORTIME" && duration === 0 ? " (sans limite)" : ""}`
+    : `DURÉE TOTALE ESTIMÉE : ${timerType === "STOPWATCH" || (timerType === "FORTIME" && duration === 0) ? "sans limite" : "—"}`;
 }
 
 function updateClock() {
@@ -1853,6 +1871,8 @@ function updateClock() {
     }
   }
 
+  state.roundHighlight = ["EMOM", "TABATA"].includes(timerType) ||
+    (timerType === "MIX" && /MINUTE|ROUND/.test(state.roundLabel));
   state.clockText = formatTime(value);
   document.getElementById("clock").textContent = state.clockText;
   document.getElementById("timerInfo").textContent =
