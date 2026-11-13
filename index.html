@@ -463,6 +463,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <button class="type-button" data-type="EMOM">EMOM</button>
       <button class="type-button" data-type="TABATA">TABATA</button>
       <button class="type-button" data-type="FORTIME">FOR TIME</button>
+      <button class="type-button" data-type="MIX">MIX (2 WOD)</button>
     </div>
 
     <div id="timerSettings">
@@ -509,6 +510,25 @@ header {position:relative; padding-right:110px; padding-left:110px}
           <label>LIMITE DE TEMPS (MINUTES, 0 = SANS LIMITE)</label>
           <input id="fortimeLimit" type="number" min="0" value="20">
         </div>
+      </div>
+      <div id="mixSettings" class="hidden">
+        <p class="small-note">Compose une séance avec deux blocs chronométrés. Tu peux choisir le même format deux fois ou mélanger AMRAP et EMOM.</p>
+        <div class="panel" style="margin:12px 0">
+          <h3 style="margin-top:0">BLOC 1</h3>
+          <div class="field"><label for="mixType1">TYPE DE WOD</label><select id="mixType1"><option value="AMRAP">AMRAP</option><option value="EMOM">EMOM</option></select></div>
+          <div class="field"><label for="mixDuration1">DURÉE (MINUTES)</label><input id="mixDuration1" type="number" min="1" value="20"></div>
+          <div class="field hidden" id="mixWorkWrap1"><label for="mixWork1">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="mixWork1" type="number" min="1" max="59" value="40"></div>
+          <div class="field"><label for="mixExercises1">EXERCICES DU BLOC 1</label><textarea id="mixExercises1" rows="4" placeholder="15 Wall Balls&#10;12 Burpees"></textarea></div>
+        </div>
+        <div class="field"><label for="mixRest">REPOS ENTRE LES DEUX BLOCS (MINUTES)</label><input id="mixRest" type="number" min="0" step="0.5" value="5"></div>
+        <div class="panel" style="margin:12px 0">
+          <h3 style="margin-top:0">BLOC 2</h3>
+          <div class="field"><label for="mixType2">TYPE DE WOD</label><select id="mixType2"><option value="AMRAP">AMRAP</option><option value="EMOM">EMOM</option></select></div>
+          <div class="field"><label for="mixDuration2">DURÉE (MINUTES)</label><input id="mixDuration2" type="number" min="1" value="12"></div>
+          <div class="field hidden" id="mixWorkWrap2"><label for="mixWork2">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="mixWork2" type="number" min="1" max="59" value="40"></div>
+          <div class="field"><label for="mixExercises2">EXERCICES DU BLOC 2</label><textarea id="mixExercises2" rows="4" placeholder="10 Pull-ups&#10;15 Sit-ups"></textarea></div>
+        </div>
+        <p class="small-note" id="mixTotalPreview">Durée totale : 37 min (repos compris).</p>
       </div>
 
     </div>
@@ -896,7 +916,7 @@ function setTimerType(type) {
     b.classList.toggle("active", b.dataset.type === type);
   });
 
-  ["amrap","emom","tabata","fortime"].forEach(id => {
+  ["amrap","emom","tabata","fortime","mix"].forEach(id => {
     document.getElementById(id+"Settings").classList.add("hidden");
   });
 
@@ -1001,7 +1021,40 @@ function playCountdownTone(number) {
 // DUREE DU CHRONOMETRE
 // =======================================
 
+function getMixConfig() {
+  const blocks = [1,2].map(i => ({
+    type: document.getElementById("mixType"+i).value,
+    duration: Math.max(1, Number(document.getElementById("mixDuration"+i).value) || 1) * 60,
+    work: Math.max(1, Math.min(59, Number(document.getElementById("mixWork"+i).value) || 40))
+  }));
+  const rest = Math.max(0, Number(document.getElementById("mixRest").value) || 0) * 60;
+  return { blocks, rest };
+}
+function updateMixControls() {
+  [1,2].forEach(i => {
+    const type = document.getElementById("mixType"+i).value;
+    document.getElementById("mixWorkWrap"+i).classList.toggle("hidden", type !== "EMOM");
+  });
+  const cfg = getMixConfig();
+  const total = cfg.blocks[0].duration + cfg.rest + cfg.blocks[1].duration;
+  document.getElementById("mixTotalPreview").textContent =
+    `Durée totale : ${Math.floor(total/60)} min ${String(total%60).padStart(2,"0")} s (repos compris).`;
+}
+[1,2].forEach(i => {
+  ["mixType"+i,"mixDuration"+i,"mixWork"+i,"mixRest"].forEach(id => {
+    document.getElementById(id).addEventListener("input", () => {
+      updateMixControls();
+      if (timerType === "MIX" && !running && !countdownActive && elapsed === 0) resetTimer();
+    });
+  });
+});
+updateMixControls();
+
 function getDuration() {
+  if (timerType === "MIX") {
+    const cfg = getMixConfig();
+    return cfg.blocks[0].duration + cfg.rest + cfg.blocks[1].duration;
+  }
   if (timerType === "AMRAP") {
     return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
   }
@@ -1040,9 +1093,33 @@ function updateClock() {
     value = 0;
   }
 
+  if (timerType === "MIX") {
+    const cfg = getMixConfig();
+    const first = cfg.blocks[0].duration;
+    const restTime = cfg.rest;
+    if (elapsed < first) {
+      value = Math.max(0, first - elapsed);
+    } else if (elapsed < first + restTime) {
+      value = Math.max(0, first + restTime - elapsed);
+    } else {
+      value = Math.max(0, first + restTime + cfg.blocks[1].duration - elapsed);
+    }
+  }
   document.getElementById("clock").textContent = formatTime(value);
 
   let info = timerType;
+  if (timerType === "MIX") {
+    const cfg = getMixConfig();
+    if (elapsed < cfg.blocks[0].duration) {
+      const b = cfg.blocks[0];
+      info = `BLOC 1/2 — ${b.type}${b.type === "EMOM" ? ` — MINUTE ${Math.floor(elapsed/60)+1} — ${elapsed%60 < b.work ? "TRAVAIL" : "REPOS"}` : ""}`;
+    } else if (elapsed < cfg.blocks[0].duration + cfg.rest) {
+      info = "REPOS ENTRE LES DEUX WOD";
+    } else {
+      const b = cfg.blocks[1], local = elapsed - cfg.blocks[0].duration - cfg.rest;
+      info = `BLOC 2/2 — ${b.type}${b.type === "EMOM" ? ` — MINUTE ${Math.floor(local/60)+1} — ${local%60 < b.work ? "TRAVAIL" : "REPOS"}` : ""}`;
+    }
+  }
 
   if (timerType === "TABATA") {
     info = `CYCLE ${cycle} / ${Math.max(1, Number(document.getElementById("tabataCycles").value) || 8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
@@ -1205,6 +1282,24 @@ function tick() {
 
   // Signaux de mi-temps
   checkMidpointSignal();
+
+  // MIX : deux blocs successifs séparés par un repos
+  if (timerType === "MIX") {
+    const total = getDuration();
+    if (elapsed >= total) {
+      remaining = 0;
+      updateClock();
+      finishTimer("SÉANCE TERMINÉE");
+      return;
+    }
+    const cfg = getMixConfig();
+    const boundary1 = cfg.blocks[0].duration;
+    const boundary2 = boundary1 + cfg.rest;
+    if (elapsed === boundary1 || elapsed === boundary2) playCountdownTone("GO");
+    remaining = total - elapsed;
+    updateClock();
+    return;
+  }
 
   // FOR TIME
   if (timerType === "FORTIME") {
