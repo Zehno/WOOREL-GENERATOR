@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>WOD FACTORY</title>
+<title>LES WODs D'OREL</title>
 
 <style>
 :root {
@@ -1118,7 +1118,7 @@ main { overflow-x: hidden; }
         <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MINUTES)</label><input id="manualAmrapDuration" type="number" min="1" value="20"></div>
         <div id="manualEmomFields" class="hidden"><div class="grid">
           <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MINUTES)</label><input id="manualEmomDuration" type="number" min="1" value="12"></div>
-          <div class="field"><label for="manualEmomWork">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="manualEmomWork" type="number" min="1" max="59" value="40"></div>
+          <div class="field"><label for="manualEmomWork">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="manualEmomWork" type="number" min="1" max="1200" value="40"></div>
         </div><p class="small-note" id="manualEmomRestPreview">Repos automatique : 20 secondes par minute.</p></div>
         <div id="manualTabataFields" class="hidden"><div class="grid">
           <div class="field"><label for="manualTabataWork">TRAVAIL (SECONDES)</label><input id="manualTabataWork" type="number" min="1" value="20"></div>
@@ -3201,7 +3201,7 @@ renderWorkoutHistory();
 // =======================================
 (function setupPWA() {
   const manifest = {
-    name: "WOD FACTORY",
+    name: "LES WODs D'OREL",
     short_name: "WOOREL",
     description: "Création de WOD et chronomètre d'entraînement",
     start_url: ".",
