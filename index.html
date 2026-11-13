@@ -843,6 +843,27 @@ header {
 .movement-detail-image-link{display:block;margin:14px auto;max-width:420px}
 .movement-detail-image{display:block;width:100%;max-height:300px;object-fit:contain;background:#0b1015;border-radius:10px}
 .movement-source-link{display:inline-block;margin-top:8px;font-weight:800}
+
+/* Analyse musculaire et démonstrations dans CRÉER UN WOD */
+.manual-visuals{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+.manual-visual-panel{background:var(--card-bg);border:1px solid var(--border);border-radius:11px;padding:14px}
+.manual-visual-panel h3{font-size:13px;letter-spacing:.8px;margin:0 0 8px}
+.manual-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.manual-body-view{text-align:center;min-width:0;margin:0}
+.manual-body-view svg{width:100%;max-width:230px;height:auto;display:block;margin:auto}
+.manual-body-view figcaption{font-size:11px;color:var(--muted);font-weight:800;margin-top:2px}
+.muscle-shape{fill:#59636d;stroke:#aab3bc;stroke-width:1.1;transition:fill .18s}
+.muscle-shape.primary{fill:#e34e4e;stroke:#ffb0a9}.muscle-shape.secondary{fill:#ed963b;stroke:#ffd09a}.muscle-shape.tertiary{fill:#4d91d8;stroke:#a8d0ff}
+.muscle-legend{display:flex;flex-wrap:wrap;gap:7px 12px;margin-top:10px;font-size:11px;color:var(--muted)}
+.muscle-legend span{display:inline-flex;align-items:center;gap:5px}.muscle-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.manual-muscle-list{font-size:12px;line-height:1.7;margin-top:9px;color:var(--text)}
+.manual-demo-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;margin-top:10px}
+.manual-demo-card{border:1px solid var(--border);border-radius:9px;background:var(--panel);overflow:hidden}
+.manual-demo-card button{width:100%;height:100%;padding:8px;background:transparent;color:var(--text);border:0;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.manual-demo-card img{width:100%;height:110px;object-fit:contain;background:#fff;border-radius:6px}
+.manual-demo-card strong{font-size:12px}.manual-demo-card small{color:var(--muted);font-size:10px}
+@media(min-width:650px){.manual-visuals{grid-template-columns:1fr 1fr}}
+@media(max-width:380px){.manual-body-grid{gap:0}.manual-body-view svg{max-width:175px}}
 </style>
 </head>
 
@@ -850,7 +871,7 @@ header {
 
 <section id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <h1>Les WODS d'OREL<span style="color:var(--green)"></span></h1>
+    <h1>Les WODS d'OREL<span style="color:var(--green)">d'OREL</span></h1>
     <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
     <form id="loginForm">
       <div class="field">
@@ -918,7 +939,12 @@ header {
           <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
         </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
         <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
-        <div class="field"><label for="manualWodExercises">EXERCICES À EFFECTUER (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea><div id="manualExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note" id="manualExercisesHelp">Commence à écrire le nom d’un exercice : les mouvements correspondants s’affichent pour chaque ligne. AMRAP / FOR TIME : chaque ligne correspond à un exercice à réaliser, dans l’ordre.</p></div>
+        <div class="field"><label for="manualWodExercises">EXERCICES À EFFECTUER (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea><div id="manualExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note" id="manualExercisesHelp">Commence à écrire le nom d’un exercice : les mouvements correspondants s’affichent pour chaque ligne. AMRAP / FOR TIME : chaque ligne correspond à un exercice à réaliser, dans l’ordre.</p>
+          <div class="manual-visuals">
+            <section class="manual-visual-panel"><h3>ANALYSE MUSCULAIRE DU WOD</h3><p class="small-note">Les couleurs indiquent le niveau de sollicitation estimé à partir des mouvements reconnus.</p><div id="manualMuscleMap"><p class="small-note">Ajoute des exercices reconnus pour afficher les muscles sollicités.</p></div></section>
+            <section class="manual-visual-panel"><h3>DÉMONSTRATIONS DES EXERCICES</h3><p class="small-note">Comme dans le chronomètre : sélectionne une démonstration pour ouvrir la fiche du mouvement.</p><div id="manualDemoPreview" class="manual-demo-list" aria-live="polite"><p class="small-note">Les démonstrations apparaîtront ici.</p></div></section>
+          </div>
+        </div>
         </div>
         <div class="field"><label for="manualWodConsigne">CONSIGNE</label><textarea id="manualWodConsigne" rows="3" placeholder="Ex. : Garder une intensité régulière, respecter les amplitudes..."></textarea></div>
         <div id="multiBlockEditor" class="hidden">
@@ -1854,6 +1880,65 @@ function renderTimerDemoPreview() {
     </button></article>`;
   }).join("");
 }
+// Cartographie musculaire et démonstrations propres au formulaire CRÉER UN WOD.
+const MANUAL_MUSCLE_ZONES = {
+  front: ["deltoids","pectorals","biceps","forearms","abs","obliques","quads","adductors","calves"],
+  back: ["traps","rearDelts","triceps","lats","erectors","glutes","hamstrings","calvesBack"]
+};
+const MUSCLE_LABELS = {deltoids:"Deltoïdes",pectorals:"Pectoraux",biceps:"Biceps",forearms:"Avant-bras",abs:"Abdominaux",obliques:"Obliques",quads:"Quadriceps",adductors:"Adducteurs",calves:"Mollets",traps:"Trapèzes",rearDelts:"Deltoïdes postérieurs",triceps:"Triceps",lats:"Grand dorsal",erectors:"Érecteurs du rachis",glutes:"Fessiers",hamstrings:"Ischio-jambiers",calvesBack:"Mollets"};
+function manualMusclePriority(movement) {
+  const t = cleanExerciseNameForMatch([movement.name,movement.fr,movement.muscles,movement.family].join(" "));
+  const p = new Set(), s = new Set(), q = new Set();
+  const add=(set,...ids)=>ids.forEach(id=>set.add(id));
+  if(/squat|wall ball|lunge|thruster|step up|leg press/.test(t)){add(p,"quads");add(s,"glutes","adductors");add(q,"abs","erectors","calves");}
+  if(/deadlift|romanian|good morning|clean|snatch|swing/.test(t)){add(p,"glutes","hamstrings");add(s,"erectors","traps");add(q,"quads","abs","lats","forearms");}
+  if(/shoulder press|overhead press|strict press|push press/.test(t)){add(p,"deltoids","triceps");add(s,"abs");add(q,"obliques","pectorals");}
+  else if(/bench press|push up|dip|burpee|handstand|jerk|thruster/.test(t)){add(p,"pectorals","triceps","deltoids");add(s,"abs");add(q,"obliques");}
+  if(/pull up|chin up|row|rowing|pulldown|muscle up|toes to bar|clean|snatch/.test(t)){add(p,"lats","biceps");add(s,"traps","rearDelts","forearms");add(q,"abs","erectors");}
+  if(/plank|sit up|toes to bar|knee raise|crunch|hollow|v up/.test(t)){add(p,"abs");add(s,"obliques");add(q,"deltoids","quads");}
+  if(/run|running|bike|cycling|assault bike|box jump|jump rope|double under|burpee|sled/.test(t)){add(p,"quads","glutes","calves");add(s,"hamstrings");add(q,"abs");}
+  if(/farmer|carry|hold|dead hang/.test(t)){add(p,"forearms");add(s,"traps","abs");add(q,"glutes");}
+  // Les descriptions musculaires de la fiche complètent les règles de mouvement.
+  const m=cleanExerciseNameForMatch(movement.muscles||"");
+  const aliases={pectorals:/pector|chest/,deltoids:/deltoid|shoulder/,triceps:/tricep/,biceps:/bicep/,lats:/latissimus|latissimus dorsi|lats/,traps:/trapez/,abs:/abdom|rectus abdominis/,obliques:/oblique/,glutes:/glute/,quads:/quadricep/,hamstrings:/hamstring/,erectors:/erector|lower back/,calves:/calf|calves|gastrocnemius/,forearms:/forearm/};
+  Object.entries(aliases).forEach(([id,re])=>{if(re.test(m)&&!p.has(id)&&!s.has(id))q.add(id)});
+  q.forEach(id=>{if(p.has(id)||s.has(id))q.delete(id)});s.forEach(id=>{if(p.has(id))s.delete(id)});
+  return {p,s,q};
+}
+function manualMuscleSvg(view, priorities) {
+  const zones = view === "front" ? [
+    ["deltoids",55,43,15,17],["deltoids",125,43,15,17],["pectorals",72,65,17,14],["pectorals",108,65,17,14],
+    ["biceps",48,77,8,20],["biceps",132,77,8,20],["forearms",42,111,7,22],["forearms",138,111,7,22],
+    ["abs",90,91,13,29],["obliques",67,99,8,19],["obliques",113,99,8,19],
+    ["quads",72,153,12,35],["quads",108,153,12,35],["adductors",87,157,7,28],["adductors",93,157,7,28],
+    ["calves",72,207,8,22],["calves",108,207,8,22]
+  ] : [
+    ["traps",90,52,20,20],["rearDelts",55,45,14,15],["rearDelts",125,45,14,15],
+    ["triceps",48,77,8,21],["triceps",132,77,8,21],["forearms",42,111,7,22],["forearms",138,111,7,22],
+    ["lats",68,82,13,30],["lats",112,82,13,30],["erectors",90,91,7,30],
+    ["glutes",76,132,14,17],["glutes",104,132,14,17],["hamstrings",73,164,11,30],["hamstrings",107,164,11,30],
+    ["calvesBack",72,207,8,22],["calvesBack",108,207,8,22]
+  ];
+  const shapes=zones.map(([id,x,y,rx,ry])=>{const cls=priorities.p.has(id)?"primary":priorities.s.has(id)?"secondary":priorities.q.has(id)?"tertiary":"";return `<ellipse class="muscle-shape ${cls}" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/>`}).join("");
+  return `<svg viewBox="0 0 180 245" role="img" aria-label="Cartographie musculaire ${view==='front'?'vue de face':'vue dorsale'}"><g fill="#78838e" stroke="#b7c0c9" stroke-width="1.4"><circle cx="90" cy="20" r="13"/><path d="M78 34 Q60 32 48 43 L39 91 Q36 103 45 111 L55 115 L61 92 L65 124 L60 143 L66 180 L77 180 L82 143 L98 143 L103 180 L114 180 L120 143 L115 124 L119 92 L125 115 L135 111 Q144 103 141 91 L132 43 Q120 32 102 34 Z"/><path d="M78 177 L64 181 L61 222 Q61 232 69 232 L78 231 L86 183 Z M102 177 L116 181 L119 222 Q119 232 111 232 L102 231 L94 183 Z"/></g>${shapes}</svg>`;
+}
+function renderManualMuscleMap() {
+  const host=document.getElementById("manualMuscleMap"); if(!host)return;
+  const lines=(document.getElementById("manualWodExercises")?.value||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const found=lines.map(line=>({line,movement:findMovementForTimerLine(line)})).filter(x=>x.movement);
+  if(!found.length){host.innerHTML='<p class="small-note">Aucun mouvement reconnu pour le moment. Choisis un mouvement dans les suggestions pour afficher son analyse.</p>';return;}
+  const all={p:new Set(),s:new Set(),q:new Set()};found.forEach(({movement})=>{const pr=manualMusclePriority(movement);Object.keys(all).forEach(k=>pr[k].forEach(id=>all[k].add(id)))});
+  const names=key=>[...all[key]].map(id=>MUSCLE_LABELS[id]);
+  host.innerHTML=`<div class="manual-body-grid"><figure class="manual-body-view">${manualMuscleSvg("front",all)}<figcaption>VUE DE FACE</figcaption></figure><figure class="manual-body-view">${manualMuscleSvg("back",all)}<figcaption>VUE DORSALE</figcaption></figure></div><div class="muscle-legend"><span><i class="muscle-dot" style="background:#e34e4e"></i>Principal</span><span><i class="muscle-dot" style="background:#ed963b"></i>Secondaire important</span><span><i class="muscle-dot" style="background:#4d91d8"></i>Secondaire / stabilisateur</span><span><i class="muscle-dot" style="background:#59636d"></i>Non ciblé</span></div><div class="manual-muscle-list"><b>Principaux :</b> ${names("p").join(", ")||"—"}<br><b>Secondaires :</b> ${[...names("s"),...names("q")].join(", ")||"—"}<br><span class="small-note">${found.length} mouvement(s) reconnu(s) sur ${lines.length}. Analyse indicative : technique, amplitude, charge et variantes peuvent modifier la sollicitation.</span></div>`;
+}
+function renderManualDemoPreview() {
+  const container=document.getElementById("manualDemoPreview"); if(!container)return;
+  const lines=(document.getElementById("manualWodExercises")?.value||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  if(!lines.length){container.innerHTML='<p class="small-note">Ajoute les exercices pour afficher leurs démonstrations.</p>';return;}
+  container.innerHTML=lines.map(line=>{const m=findMovementForTimerLine(line);if(!m)return `<article class="manual-demo-card"><button type="button" disabled><strong>${escapeHTML(line)}</strong><small>Aucune démonstration trouvée dans la bibliothèque.</small></button></article>`;let imageUrl="";try{const slug=new URL(m.source).pathname.split("/").filter(Boolean).pop().replace(/-\d+$/,"");imageUrl="https://liftmanual.com/wp-content/uploads/2023/04/"+slug+".webp";}catch(_){}return `<article class="manual-demo-card"><button type="button" data-manual-movement-id="${escapeHTML(m.id)}">${imageUrl?`<img src="${imageUrl}" alt="Démonstration ${escapeHTML(m.name)}" loading="lazy" onerror="this.style.display='none'">`:""}<strong>${escapeHTML(line)}</strong><small>${escapeHTML(m.name)} · Ouvrir la fiche ↗</small></button></article>`}).join("");
+}
+function updateManualExerciseVisuals(){renderManualDemoPreview();renderManualMuscleMap();}
+
 function getCurrentExerciseFragment(textareaId) {
   const textarea = document.getElementById(textareaId);
   const value = textarea?.value || "";
@@ -1895,6 +1980,8 @@ function chooseExerciseSuggestion(textareaId, boxId, id) {
   if (textareaId === "timerWodContent") {
     updateClock();
     renderTimerDemoPreview();
+  } else if (textareaId === "manualWodExercises") {
+    updateManualExerciseVisuals();
   }
 }
 function renderTimerExerciseSuggestions() {
@@ -2766,6 +2853,11 @@ function attachExerciseAutocomplete(textareaId, boxId) {
 }
 attachExerciseAutocomplete("timerWodContent", "timerExerciseSuggestions");
 attachExerciseAutocomplete("manualWodExercises", "manualExerciseSuggestions");
+document.getElementById("manualWodExercises")?.addEventListener("input", updateManualExerciseVisuals);
+document.getElementById("manualDemoPreview")?.addEventListener("click", event => {
+  const button=event.target.closest("[data-manual-movement-id]");
+  if(button) window.WODFactoryOpenMovementDetail?.(button.dataset.manualMovementId);
+});
 document.getElementById("timerDemoPreview")?.addEventListener("click", event => {
   const button = event.target.closest("[data-movement-id]");
   if (button) window.WODFactoryOpenMovementDetail?.(button.dataset.movementId);
@@ -3317,7 +3409,7 @@ if (session) {
  function movementImageMarkup(m, detail=false){const url=movementImageUrl(m);const cls=detail?'movement-detail-image':'movement-image';const fallback=detail?'movement-image-fallback':'movement-image-fallback';return url?`<a class="${detail?'movement-detail-image-link':'movement-image-link'}" href="${m.source}" target="_blank" rel="noopener" aria-label="Ouvrir la fiche ${m.name} sur Lift Manual"><img class="${cls}" src="${url}" alt="Illustration du mouvement ${m.fr} (${m.name})" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\"${fallback}\\">Visuel non disponible — ouvrir la fiche Lift Manual</div>'"></a>`:'';}
  function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movementCategory')?.value||'';const list=movements.filter(m=>(!cat||m.family===cat)&&(!q||norm([m.name,m.fr,m.family,m.equipment,m.muscles].join(' ')).includes(q)));$('movementCount').textContent=movements.length ? `${list.length} / ${movements.length} fiches documentées` : '0 mouvement dans la bibliothèque';$('movementResults').innerHTML=list.map(m=>`<article class="movement-card" data-detail="${m.id}" tabindex="0" role="button" aria-label="Voir la fiche ${m.fr}">${movementImageMarkup(m)}<div class="movement-card-body"><h3>${m.fr} <small>(${m.name})</small></h3><span class="tag">${m.family}</span><p class="small-note">${m.equipment}</p><p class="small-note">${m.desc}</p><a class="movement-source-link" href="${m.source}" target="_blank" rel="noopener">Voir la fiche Lift Manual ↗</a></div></article>`).join('')||'<p class="muted">Aucun mouvement trouvé.</p>';}
  function openMovementDetail(id){const m=movements.find(x=>x.id===id);if(!m)return;$('movementDetailContent').innerHTML=`<h2 id="movementDetailTitle">${m.fr} — ${m.name}</h2>${movementImageMarkup(m,true)}<span class="tag">${m.family}</span><span class="tag">${m.equipment}</span><h3>Description</h3><p>${m.desc}</p><h3>Muscles sollicités</h3><p>${m.muscles}</p><h3>Consignes techniques</h3><ol>${(m.steps||[]).map(x=>`<li>${x}</li>`).join('')}</ol><h3>Bénéfices</h3><ul>${(m.benefits||[]).map(x=>`<li>${x}</li>`).join('')}</ul><h3>Variantes</h3><p>${(m.variations||[]).join(' · ')}</p><a class="movement-source-link" href="${m.source}" target="_blank" rel="noopener">Consulter la fiche originale Lift Manual ↗</a>`;$('movementDetailModal').classList.remove('hidden');}
- window.WODFactoryMovements = movements; window.WODFactoryOpenMovementDetail = openMovementDetail; renderTimerDemoPreview();
+ window.WODFactoryMovements = movements; window.WODFactoryOpenMovementDetail = openMovementDetail; renderTimerDemoPreview(); updateManualExerciseVisuals();
  $('movementSearch')?.addEventListener('input',renderLibrary);$('movementCategory')?.addEventListener('change',renderLibrary);$('movementResults')?.addEventListener('click',e=>{if(e.target.closest('a'))return;const card=e.target.closest('[data-detail]');if(card)openMovementDetail(card.dataset.detail)});$('movementResults')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-detail]')){e.preventDefault();openMovementDetail(e.target.closest('[data-detail]').dataset.detail)}});$('closeMovementDetail')?.addEventListener('click',()=>$('movementDetailModal').classList.add('hidden'));$('movementDetailModal')?.addEventListener('click',e=>{if(e.target===$('movementDetailModal'))$('movementDetailModal').classList.add('hidden')});renderLibrary();
 })();
 </script>
