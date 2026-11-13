@@ -958,10 +958,10 @@ header {
   <div id="movementLibraryPanel" class="library-panel">
     <div class="panel">
       <h2>BIBLIOTHÈQUE DE MOUVEMENTS</h2>
-      <p class="small-note">Mouvements DUMBBELL et BARBELL classés par famille PUSH / PULL / LEGS, avec des onglets dédiés KETTLEBELL, « HALTÉROPHILIE - CLEAN » et « HALTÉROPHILIE - SNATCH ». Chaque fiche indique le matériel et renvoie vers sa source Lift Manual.</p>
+      <p class="small-note">Mouvements DUMBBELL et BARBELL classés par famille PUSH / PULL / LEGS, avec des onglets dédiés KETTLEBELL, « HALTÉROPHILIE - CLEAN » et « HALTÉROPHILIE - SNATCH ». Chaque fiche indique le matériel et renvoie vers sa source Lift Manual. Les mouvements au poids du corps et le Wall Ball disposent aussi de leurs propres catégories.</p>
       <div class="grid">
         <div class="field"><label for="movementSearch">RECHERCHER</label><input id="movementSearch" placeholder="Nom français ou anglais..."></div>
-        <div class="field"><label for="movementCategory">CATÉGORIE</label><select id="movementCategory"><option value="">Toutes</option><option>PUSH</option><option>PULL</option><option>LEGS</option><option>KETTLEBELL</option><option>HALTÉROPHILIE - CLEAN</option><option>HALTÉROPHILIE - SNATCH</option></select></div>
+        <div class="field"><label for="movementCategory">CATÉGORIE</label><select id="movementCategory"><option value="">Toutes</option><option>PUSH</option><option>PULL</option><option>LEGS</option><option>KETTLEBELL</option><option>HALTÉROPHILIE - CLEAN</option><option>HALTÉROPHILIE - SNATCH</option><option>POIDS DE CORPS</option><option>MED BALL</option></select></div>
       </div>
       <div class="small-note" id="movementCount"></div>
       <div id="movementResults" class="movement-grid"></div>
@@ -3341,8 +3341,13 @@ if (session) {
   {id:'kbs-sumo-deadlift',name:'Kettlebells Sumo Deadlift',fr:'Soulevé de terre sumo kettlebells',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Fessiers, ischio-jambiers, quadriceps, adducteurs',desc:'Soulevé de terre en position sumo avec kettlebell(s).',source:'https://liftmanual.com/kettlebells-sumo-deadlift/'},
   {id:'kb-bent-over-alt-twist-row',name:'KB Bent Over Alt Twist Row',fr:'Rowing alterné avec rotation kettlebell',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Grand dorsal, rhomboïdes, trapèzes, biceps, gainage',desc:'Rowing alterné buste penché avec rotation contrôlée du tronc.',source:'https://liftmanual.com/kettlebell-bent-over-alternate-twist-row/'},
   {id:'kb-rear-delt-row',name:'Kettlebell Rear Delt Row',fr:'Rowing kettlebell deltoïdes postérieurs',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Deltoïdes postérieurs, trapèzes, rhomboïdes',desc:'Tirage kettlebell ciblant l’arrière des épaules et le haut du dos.',source:'https://liftmanual.com/kettlebell-rear-delt-row/'},
-  {id:'kb-one-arm-thruster',name:'Kettlebell One Arm Thruster',fr:'Thruster kettlebell à un bras',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Quadriceps, fessiers, épaules, triceps, gainage',desc:'Squat suivi d’un développé au-dessus de la tête avec une kettlebell à un bras.',source:'https://liftmanual.com/kettlebell-one-arm-thruster/'}
- ];
+  {id:'kb-one-arm-thruster',name:'Kettlebell One Arm Thruster',fr:'Thruster kettlebell à un bras',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Quadriceps, fessiers, épaules, triceps, gainage',desc:'Squat suivi d’un développé au-dessus de la tête avec une kettlebell à un bras.',source:'https://liftmanual.com/kettlebell-one-arm-thruster/'},
+   {id:'bw-push-up',name:'Push Up',fr:'Pompe',family:'POIDS DE CORPS',equipment:'BODYWEIGHT',muscles:'Pectoraux, triceps, deltoïdes antérieurs, gainage',desc:'Poussée horizontale au poids du corps, en position de planche.',source:'https://liftmanual.com/push-up/'},
+  {id:'bw-wall-walks',name:'Wall Walks',fr:'Wall Walk',family:'POIDS DE CORPS',equipment:'BODYWEIGHT + WALL',muscles:'Épaules, triceps, sangle abdominale',desc:'Progression contrôlée en inversion avec appui des pieds contre un mur.',source:'https://liftmanual.com/wall-walks/'},
+  {id:'bw-muscle-up',name:'Muscle-Up',fr:'Muscle-Up',family:'POIDS DE CORPS',equipment:'PULL-UP BAR',muscles:'Dos, pectoraux, épaules, biceps, triceps',desc:'Transition combinant une traction et un passage au-dessus de la barre jusqu’au support.',source:'https://liftmanual.com/muscle-up/'},
+  {id:'mb-wall-ball',name:'Wall Ball',fr:'Wall Ball',family:'MED BALL',equipment:'MEDICINE BALL + WALL TARGET',muscles:'Quadriceps, fessiers, épaules, triceps, gainage',desc:'Enchaînement squat et lancer de med-ball vers une cible murale.',source:'https://liftmanual.com/wall-ball/'},
+  {id:'bw-walking-lunge',name:'Walking Lunge',fr:'Fentes marchées',family:'POIDS DE CORPS',equipment:'BODYWEIGHT',muscles:'Quadriceps, fessiers, ischio-jambiers, gainage',desc:'Fentes alternées en avançant, au poids du corps.',source:'https://liftmanual.com/walking-lunge/'},
+  {id:'bw-pull-up',name:'Pull-Up',fr:'Traction',family:'POIDS DE CORPS',equipment:'PULL-UP BAR',muscles:'Grand dorsal, biceps, trapèzes, avant-bras',desc:'Traction verticale suspendue à une barre fixe.',source:'https://liftmanual.com/pull-up/'},];
  const $=id=>document.getElementById(id), norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  // Lift Manual héberge les visuels des exercices dans sa médiathèque WordPress.
  // Le nom du fichier image reprend le slug de la fiche source.
