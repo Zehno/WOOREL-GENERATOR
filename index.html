@@ -848,13 +848,13 @@ header {
 .manual-visuals{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
 .manual-visual-panel{background:var(--card-bg);border:1px solid var(--border);border-radius:11px;padding:14px}
 .manual-visual-panel h3{font-size:13px;letter-spacing:.8px;margin:0 0 8px}
-.manual-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.manual-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:end;background:#1d1d1d;border-radius:9px;padding:12px 6px 8px}
 .manual-body-view{text-align:center;min-width:0;margin:0}
-.manual-body-view svg{width:100%;max-width:230px;height:auto;display:block;margin:auto}
-.manual-body-view figcaption{font-size:11px;color:var(--muted);font-weight:800;margin-top:2px}
-.muscle-shape{fill:#59636d;stroke:#aab3bc;stroke-width:1.1;transition:fill .18s}
-.muscle-shape.primary{fill:#e34e4e;stroke:#ffb0a9}.muscle-shape.secondary{fill:#ed963b;stroke:#ffd09a}.muscle-shape.tertiary{fill:#4d91d8;stroke:#a8d0ff}
-.muscle-legend{display:flex;flex-wrap:wrap;gap:7px 12px;margin-top:10px;font-size:11px;color:var(--muted)}
+.manual-body-view svg{width:100%;max-width:260px;height:auto;display:block;margin:auto;max-height:460px}
+.manual-body-view figcaption{font-size:11px;color:var(--muted);font-weight:800;margin-top:5px}.muscle-dot{width:13px;height:13px;border-radius:50%;display:inline-block}
+.muscle-shape{fill:#555;stroke:#242424;stroke-width:1.6;stroke-linejoin:round;transition:fill .18s}
+.muscle-shape.primary{fill:#d83d38;stroke:#252525}.muscle-shape.secondary{fill:#f0c84b;stroke:#252525}.muscle-shape.tertiary{fill:#555;stroke:#252525}
+.muscle-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:12px;font-size:12px;color:var(--muted)}
 .muscle-legend span{display:inline-flex;align-items:center;gap:5px}.muscle-dot{width:9px;height:9px;border-radius:50%;display:inline-block}
 .manual-muscle-list{font-size:12px;line-height:1.7;margin-top:9px;color:var(--text)}
 .manual-demo-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;margin-top:10px}
@@ -1906,21 +1906,42 @@ function manualMusclePriority(movement) {
   return {p,s,q};
 }
 function manualMuscleSvg(view, priorities) {
-  const zones = view === "front" ? [
-    ["deltoids",55,43,15,17],["deltoids",125,43,15,17],["pectorals",72,65,17,14],["pectorals",108,65,17,14],
-    ["biceps",48,77,8,20],["biceps",132,77,8,20],["forearms",42,111,7,22],["forearms",138,111,7,22],
-    ["abs",90,91,13,29],["obliques",67,99,8,19],["obliques",113,99,8,19],
-    ["quads",72,153,12,35],["quads",108,153,12,35],["adductors",87,157,7,28],["adductors",93,157,7,28],
-    ["calves",72,207,8,22],["calves",108,207,8,22]
-  ] : [
-    ["traps",90,52,20,20],["rearDelts",55,45,14,15],["rearDelts",125,45,14,15],
-    ["triceps",48,77,8,21],["triceps",132,77,8,21],["forearms",42,111,7,22],["forearms",138,111,7,22],
-    ["lats",68,82,13,30],["lats",112,82,13,30],["erectors",90,91,7,30],
-    ["glutes",76,132,14,17],["glutes",104,132,14,17],["hamstrings",73,164,11,30],["hamstrings",107,164,11,30],
-    ["calvesBack",72,207,8,22],["calvesBack",108,207,8,22]
-  ];
-  const shapes=zones.map(([id,x,y,rx,ry])=>{const cls=priorities.p.has(id)?"primary":priorities.s.has(id)?"secondary":priorities.q.has(id)?"tertiary":"";return `<ellipse class="muscle-shape ${cls}" cx="${x}" cy="${y}" rx="${rx}" ry="${ry}"/>`}).join("");
-  return `<svg viewBox="0 0 180 245" role="img" aria-label="Cartographie musculaire ${view==='front'?'vue de face':'vue dorsale'}"><g fill="#78838e" stroke="#b7c0c9" stroke-width="1.4"><circle cx="90" cy="20" r="13"/><path d="M78 34 Q60 32 48 43 L39 91 Q36 103 45 111 L55 115 L61 92 L65 124 L60 143 L66 180 L77 180 L82 143 L98 143 L103 180 L114 180 L120 143 L115 124 L119 92 L125 115 L135 111 Q144 103 141 91 L132 43 Q120 32 102 34 Z"/><path d="M78 177 L64 181 L61 222 Q61 232 69 232 L78 231 L86 183 Z M102 177 L116 181 L119 222 Q119 232 111 232 L102 231 L94 183 Z"/></g>${shapes}</svg>`;
+  // Silhouette anatomique vectorielle : chaque groupe musculaire est indépendant
+  // afin de pouvoir appliquer la priorité calculée pour le WOD.
+  const front = {
+    deltoids: ['M67 91 Q77 77 94 83 L89 108 Q77 112 67 102 Z','M146 91 Q136 77 119 83 L124 108 Q136 112 146 102 Z'],
+    pectorals: ['M91 105 Q105 97 118 105 L117 132 Q104 139 91 130 Z','M121 105 Q135 97 149 105 L149 130 Q136 139 122 132 Z'],
+    biceps: ['M67 112 Q78 111 84 122 L77 153 Q69 160 61 150 Z','M146 112 Q135 111 129 122 L136 153 Q144 160 152 150 Z'],
+    forearms: ['M59 158 Q68 163 76 155 L64 205 Q57 216 49 208 Z','M154 158 Q145 163 137 155 L149 205 Q156 216 164 208 Z'],
+    abs: ['M96 137 Q105 134 117 138 L117 190 Q107 199 96 190 Z','M122 138 Q134 134 144 137 L144 190 Q133 199 122 190 Z'],
+    obliques: ['M88 139 L95 141 L94 185 Q86 190 80 181 Z','M151 139 L145 141 L146 185 Q154 190 160 181 Z'],
+    quads: ['M91 214 Q105 205 116 215 L112 290 Q105 305 94 291 Q87 259 91 214 Z','M124 215 Q136 205 150 214 Q154 259 147 291 Q136 305 128 290 Z'],
+    adductors: ['M116 216 L121 216 L120 280 Q114 274 111 250 Z','M122 216 L127 216 L132 250 Q129 274 123 280 Z'],
+    calves: ['M94 315 Q105 308 112 318 L108 376 Q102 389 96 377 Q91 345 94 315 Z','M129 318 Q136 308 147 315 Q150 345 145 377 Q139 389 133 376 Z']
+  };
+  const back = {
+    traps: ['M105 86 L120 91 L120 145 Q109 137 102 120 Z','M121 91 L136 86 L139 120 Q132 137 121 145 Z'],
+    rearDelts: ['M67 91 Q78 79 94 85 L88 108 Q76 112 67 102 Z','M146 91 Q135 79 119 85 L125 108 Q137 112 146 102 Z'],
+    triceps: ['M67 112 Q78 111 84 122 L77 153 Q69 160 61 150 Z','M146 112 Q135 111 129 122 L136 153 Q144 160 152 150 Z'],
+    forearms: ['M59 158 Q68 163 76 155 L64 205 Q57 216 49 208 Z','M154 158 Q145 163 137 155 L149 205 Q156 216 164 208 Z'],
+    lats: ['M91 120 Q101 129 116 143 L111 194 Q99 201 87 181 Z','M149 120 Q139 129 124 143 L129 194 Q141 201 153 181 Z'],
+    erectors: ['M116 143 L120 146 L120 205 L113 194 Z','M121 146 L125 143 L128 194 L121 205 Z'],
+    glutes: ['M91 207 Q105 199 119 210 L117 243 Q105 254 91 242 Q84 225 91 207 Z','M122 210 Q136 199 150 207 Q157 225 150 242 Q136 254 124 243 Z'],
+    hamstrings: ['M91 251 Q104 248 116 255 L112 305 Q105 315 96 306 Q89 282 91 251 Z','M125 255 Q137 248 150 251 Q152 282 145 306 Q136 315 129 305 Z'],
+    calvesBack: ['M94 319 Q104 311 112 320 L108 376 Q102 389 96 377 Q91 345 94 319 Z','M129 320 Q137 311 147 319 Q150 345 145 377 Q139 389 133 376 Z']
+  };
+  const groups = view === 'front' ? front : back;
+  const muscleParts = Object.entries(groups).map(([id, paths]) => {
+    const cls = priorities.p.has(id) ? 'primary' : (priorities.s.has(id) || priorities.q.has(id)) ? 'secondary' : '';
+    return paths.map(d => `<path class="muscle-shape ${cls}" d="${d}"/>`).join('');
+  }).join('');
+  const outline = `
+    <g class="body-outline" fill="#292929" stroke="#777" stroke-width="2.1" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M105 53 L104 72 Q91 77 78 82 Q65 87 59 105 L43 155 Q37 174 29 192 L18 219 Q16 226 24 229 L38 233 Q45 235 48 226 L65 184 L82 139 L89 132 L87 188 Q84 205 87 218 L83 294 Q79 325 82 351 L79 401 Q77 419 69 437 Q65 444 73 447 L91 448 Q98 446 98 438 L105 409 L112 352 L120 291 L128 352 L135 409 L142 438 Q142 446 149 448 L167 447 Q175 444 171 437 Q163 419 161 401 L158 351 Q161 325 157 294 L153 218 Q156 205 153 188 L151 132 L158 139 L175 184 L192 226 Q195 235 202 233 L216 229 Q224 226 222 219 L211 192 Q203 174 197 155 L181 105 Q175 87 162 82 Q149 77 136 72 L135 53 Z"/>
+      <ellipse cx="120" cy="32" rx="19" ry="25"/>
+      <path d="M105 53 Q112 61 120 61 Q128 61 135 53 L136 72 Q128 81 120 81 Q112 81 104 72 Z"/>
+    </g>`;
+  return `<svg viewBox="0 0 240 465" role="img" aria-label="Silhouette musculaire ${view === 'front' ? 'de face' : 'de dos'}">${outline}<g>${muscleParts}</g><path class="body-detail" d="M105 73 Q120 83 135 73 M88 132 Q102 145 120 145 Q138 145 152 132 M87 205 Q103 216 120 216 Q137 216 153 205 M120 145 L120 205" fill="none" stroke="#777" stroke-width="1.4" opacity=".7"/></svg>`;
 }
 function renderManualMuscleMap() {
   const host=document.getElementById("manualMuscleMap"); if(!host)return;
@@ -1929,7 +1950,7 @@ function renderManualMuscleMap() {
   if(!found.length){host.innerHTML='<p class="small-note">Aucun mouvement reconnu pour le moment. Choisis un mouvement dans les suggestions pour afficher son analyse.</p>';return;}
   const all={p:new Set(),s:new Set(),q:new Set()};found.forEach(({movement})=>{const pr=manualMusclePriority(movement);Object.keys(all).forEach(k=>pr[k].forEach(id=>all[k].add(id)))});
   const names=key=>[...all[key]].map(id=>MUSCLE_LABELS[id]);
-  host.innerHTML=`<div class="manual-body-grid"><figure class="manual-body-view">${manualMuscleSvg("front",all)}<figcaption>VUE DE FACE</figcaption></figure><figure class="manual-body-view">${manualMuscleSvg("back",all)}<figcaption>VUE DORSALE</figcaption></figure></div><div class="muscle-legend"><span><i class="muscle-dot" style="background:#e34e4e"></i>Principal</span><span><i class="muscle-dot" style="background:#ed963b"></i>Secondaire important</span><span><i class="muscle-dot" style="background:#4d91d8"></i>Secondaire / stabilisateur</span><span><i class="muscle-dot" style="background:#59636d"></i>Non ciblé</span></div><div class="manual-muscle-list"><b>Principaux :</b> ${names("p").join(", ")||"—"}<br><b>Secondaires :</b> ${[...names("s"),...names("q")].join(", ")||"—"}<br><span class="small-note">${found.length} mouvement(s) reconnu(s) sur ${lines.length}. Analyse indicative : technique, amplitude, charge et variantes peuvent modifier la sollicitation.</span></div>`;
+  host.innerHTML=`<div class="manual-body-grid"><figure class="manual-body-view">${manualMuscleSvg("front",all)}<figcaption>VUE DE FACE</figcaption></figure><figure class="manual-body-view">${manualMuscleSvg("back",all)}<figcaption>VUE DORSALE</figcaption></figure></div><div class="muscle-legend"><span><i class="muscle-dot" style="background:#d83d38"></i>Muscles principaux</span><span><i class="muscle-dot" style="background:#f0c84b"></i>Muscles secondaires</span><span><i class="muscle-dot" style="background:#555"></i>Muscles non ciblés</span></div><div class="manual-muscle-list"><b>Principaux :</b> ${names("p").join(", ")||"—"}<br><b>Secondaires :</b> ${[...names("s"),...names("q")].join(", ")||"—"}<br><span class="small-note">${found.length} mouvement(s) reconnu(s) sur ${lines.length}. Analyse indicative : technique, amplitude, charge et variantes peuvent modifier la sollicitation.</span></div>`;
 }
 function renderManualDemoPreview() {
   const container=document.getElementById("manualDemoPreview"); if(!container)return;
@@ -3240,6 +3261,8 @@ async function showLoggedIn() {
   try {
     await loadWodsFromSupabase();
     await openSharedWodFromLink();
+    // À chaque ouverture de session, afficher directement le chronomètre.
+    openPage("timer");
   } catch (error) {
     console.error("Erreur chargement WOD :", error);
     alert("Connexion réussie, mais impossible de charger les WOD. Vérifie les autorisations Supabase. Détail : " + error.message);
