@@ -418,6 +418,11 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <h2>AJOUTER UN WOD MANUELLEMENT</h2>
       <form id="manualWodForm">
         <div class="field"><label for="manualWodTitle">TITRE DU WOD</label><input id="manualWodTitle" required maxlength="100" placeholder="Ex. : ENGINE BUILDER"></div>
+        <div class="field">
+          <label><input type="checkbox" id="manualMultiBlock"> CRÉER UNE SÉANCE AVEC PLUSIEURS BLOCS</label>
+          <p class="small-note">Ajoute autant de blocs que nécessaire, avec un format et un temps de repos entre chaque bloc.</p>
+        </div>
+        <div id="singleWodFields">
         <div class="field"><label for="manualWodFormat">FORMAT</label>
           <select id="manualWodFormat"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
         </div>
@@ -434,6 +439,12 @@ header {position:relative; padding-right:110px; padding-left:110px}
         <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
         <div class="field"><label for="manualWodConsigne">CONSIGNE</label><textarea id="manualWodConsigne" rows="3" placeholder="Ex. : Garder une intensité régulière, respecter les amplitudes..."></textarea></div>
         <div class="field"><label for="manualWodExercises">EXERCICES (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea></div>
+        </div>
+        <div id="multiBlockEditor" class="hidden">
+          <div id="multiBlocksList"></div>
+          <button class="secondary" type="button" id="addMultiBlock">+ AJOUTER UN BLOC</button>
+          <p class="small-note" id="multiBlocksTotal">Durée totale estimée : 0 min.</p>
+        </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="primary" id="saveManualWod" type="submit">AJOUTER DANS LA BIBLIOTHÈQUE</button><button class="secondary hidden" id="cancelEditWod" type="button">ANNULER LA MODIFICATION</button></div>
         <div id="manualWodStatus" class="small-note" role="status" aria-live="polite" style="margin-top:12px"></div>
       </form>
@@ -640,7 +651,7 @@ var editingWodId = null;
 function renderWod(wod) {
   return `
     <div class="wod-title">${escapeHTML(wod.name)}</div>
-    <span class="tag">${escapeHTML(wod.type)}</span>
+    <span class="tag">${escapeHTML(wod.type === "MIX" ? `MULTI-BLOCS (${wod.timerConfig?.blocks?.length || 0})` : wod.type)}</span>
     ${wod.duration ? `<span class="tag">${wod.duration} MIN</span>` : ""}
     <div style="margin-top:10px">
       ${wod.movements.map(m => `
@@ -706,6 +717,13 @@ function displayLibrary() {
 function beginEditWod(wod) {
   editingWodId = wod.id;
   document.getElementById("manualWodTitle").value = wod.name || "";
+  const isMulti = !!(wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length);
+  document.getElementById("manualMultiBlock").checked = isMulti;
+  document.getElementById("singleWodFields").classList.toggle("hidden", isMulti);
+  document.getElementById("multiBlockEditor").classList.toggle("hidden", !isMulti);
+  if (isMulti) {
+    renderMultiBlocks(wod.timerConfig.blocks);
+  }
   const format = String(wod.type || "AMRAP").toUpperCase();
   manualFormat.value = ["AMRAP", "EMOM", "TABATA", "FOR TIME"].includes(format) ? format : "AMRAP";
   const cfg = wod.timerConfig || {};
@@ -736,6 +754,10 @@ function beginEditWod(wod) {
 function resetManualWodEditor() {
   editingWodId = null;
   document.getElementById("manualWodForm").reset();
+  document.getElementById("manualMultiBlock").checked = false;
+  document.getElementById("singleWodFields").classList.remove("hidden");
+  document.getElementById("multiBlockEditor").classList.add("hidden");
+  renderMultiBlocks([]);
   updateManualFormatFields();
   document.getElementById("saveManualWod").textContent = "AJOUTER DANS LA BIBLIOTHÈQUE";
   document.getElementById("cancelEditWod").classList.add("hidden");
@@ -830,6 +852,14 @@ function sendWodToTimer(wod) {
   ).join("\n");
 
   const type = wod.type === "FOR TIME" ? "FORTIME" : wod.type;
+  if (wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length) {
+    sequenceBlocks = wod.timerConfig.blocks.map(b => ({...b}));
+    setTimerType("MIX");
+    document.getElementById("timerWodContent").value = sequenceBlocks.map((b,i) =>
+      `BLOC ${i+1} — ${b.type}\\n${b.exercises || ""}`).join("\\n\\n");
+    resetTimer(); openPage("timer"); updateClock(); return;
+  }
+  sequenceBlocks = [];
   if (["AMRAP","EMOM","TABATA","FORTIME"].includes(type)) setTimerType(type);
   if (wod.duration) {
     if (type === "AMRAP") document.getElementById("amrapDuration").value = wod.duration;
@@ -851,7 +881,7 @@ function sendWodToTimer(wod) {
 }
 
 function encodeSharePayload(wod) {
-  const payload = { v: 1, name: wod.name, type: wod.type, duration: wod.duration ?? null, consigne: wod.consigne || "", timerConfig: wod.timerConfig || null, movements: (wod.movements || []).map(m => ({ name: m.name, reps: m.reps ?? null, unit: m.unit || "", load: m.load || "" })) };
+  const payload = { v: 1, name: wod.name, type: wod.type, duration: wod.duration ?? null, consigne: wod.consigne || "", timerConfig: wod.timerConfig || null, blocks: (wod.timerConfig && wod.timerConfig.blocks) || null, movements: (wod.movements || []).map(m => ({ name: m.name, reps: m.reps ?? null, unit: m.unit || "", load: m.load || "" })) };
   const bytes = new TextEncoder().encode(JSON.stringify(payload));
   let binary = ""; bytes.forEach(byte => binary += String.fromCharCode(byte));
   return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -1021,40 +1051,37 @@ function playCountdownTone(number) {
 // DUREE DU CHRONOMETRE
 // =======================================
 
-function getMixConfig() {
-  const blocks = [1,2].map(i => ({
-    type: document.getElementById("mixType"+i).value,
-    duration: Math.max(1, Number(document.getElementById("mixDuration"+i).value) || 1) * 60,
-    work: Math.max(1, Math.min(59, Number(document.getElementById("mixWork"+i).value) || 40))
-  }));
-  const rest = Math.max(0, Number(document.getElementById("mixRest").value) || 0) * 60;
-  return { blocks, rest };
+let sequenceBlocks = [];
+function blockDurationSeconds(block) {
+  const type = block.type;
+  if (type === "TABATA") return Math.max(1, block.work || 20) * Math.max(1, block.cycles || 8) +
+    Math.max(0, block.rest || 10) * (Math.max(1, block.cycles || 8) - 1);
+  if (type === "FORTIME") return Math.max(1, block.duration || 1) * 60;
+  return Math.max(1, block.duration || 1) * 60;
+}
+function getSequenceTimeline() {
+  let cursor = 0;
+  return sequenceBlocks.map((b, index) => {
+    const start = cursor;
+    const duration = blockDurationSeconds(b);
+    cursor += duration;
+    const end = cursor;
+    const rest = index < sequenceBlocks.length - 1 ? Math.max(0, Number(b.rest_after) || 0) * 60 : 0;
+    cursor += rest;
+    return { ...b, index, start, end, restStart:end, restEnd:cursor, duration, rest };
+  });
+}
+function getSequenceDuration() {
+  const timeline = getSequenceTimeline();
+  return timeline.length ? timeline[timeline.length-1].restEnd : 0;
 }
 function updateMixControls() {
-  [1,2].forEach(i => {
-    const type = document.getElementById("mixType"+i).value;
-    document.getElementById("mixWorkWrap"+i).classList.toggle("hidden", type !== "EMOM");
-  });
-  const cfg = getMixConfig();
-  const total = cfg.blocks[0].duration + cfg.rest + cfg.blocks[1].duration;
-  document.getElementById("mixTotalPreview").textContent =
-    `Durée totale : ${Math.floor(total/60)} min ${String(total%60).padStart(2,"0")} s (repos compris).`;
+  const preview = document.getElementById("mixTotalPreview");
+  if (preview) preview.textContent = "La séance multi-blocs est configurée depuis l'onglet Bibliothèque.";
 }
-[1,2].forEach(i => {
-  ["mixType"+i,"mixDuration"+i,"mixWork"+i,"mixRest"].forEach(id => {
-    document.getElementById(id).addEventListener("input", () => {
-      updateMixControls();
-      if (timerType === "MIX" && !running && !countdownActive && elapsed === 0) resetTimer();
-    });
-  });
-});
-updateMixControls();
 
 function getDuration() {
-  if (timerType === "MIX") {
-    const cfg = getMixConfig();
-    return cfg.blocks[0].duration + cfg.rest + cfg.blocks[1].duration;
-  }
+  if (timerType === "MIX") return getSequenceDuration();
   if (timerType === "AMRAP") {
     return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
   }
@@ -1094,32 +1121,32 @@ function updateClock() {
   }
 
   if (timerType === "MIX") {
-    const cfg = getMixConfig();
-    const first = cfg.blocks[0].duration;
-    const restTime = cfg.rest;
-    if (elapsed < first) {
-      value = Math.max(0, first - elapsed);
-    } else if (elapsed < first + restTime) {
-      value = Math.max(0, first + restTime - elapsed);
-    } else {
-      value = Math.max(0, first + restTime + cfg.blocks[1].duration - elapsed);
+    const timeline = getSequenceTimeline();
+    const current = timeline.find(b => elapsed < b.end || (b.rest && elapsed < b.restEnd));
+    if (current) {
+      if (elapsed >= current.end && current.rest) {
+        value = current.restEnd - elapsed;
+        document.getElementById("timerInfo").textContent = `REPOS APRÈS BLOC ${current.index+1}`;
+      } else {
+        const local = elapsed - current.start;
+        value = Math.max(0, current.duration - local);
+        let phaseLabel = current.type;
+        if (current.type === "EMOM") phaseLabel += ` — MINUTE ${Math.floor(local/60)+1} — ${local%60 < current.work ? "TRAVAIL" : "REPOS"}`;
+        if (current.type === "TABATA") {
+          const cycleLength = current.work + current.rest;
+          const cycleNo = Math.min(current.cycles, Math.floor(local / cycleLength)+1);
+          const inCycle = local - (cycleNo-1)*cycleLength;
+          phaseLabel += ` — CYCLE ${cycleNo}/${current.cycles} — ${inCycle < current.work ? "TRAVAIL" : "REPOS"}`;
+        }
+        document.getElementById("timerInfo").textContent = `BLOC ${current.index+1}/${timeline.length} — ${phaseLabel}`;
+      }
     }
   }
   document.getElementById("clock").textContent = formatTime(value);
 
-  let info = timerType;
-  if (timerType === "MIX") {
-    const cfg = getMixConfig();
-    if (elapsed < cfg.blocks[0].duration) {
-      const b = cfg.blocks[0];
-      info = `BLOC 1/2 — ${b.type}${b.type === "EMOM" ? ` — MINUTE ${Math.floor(elapsed/60)+1} — ${elapsed%60 < b.work ? "TRAVAIL" : "REPOS"}` : ""}`;
-    } else if (elapsed < cfg.blocks[0].duration + cfg.rest) {
-      info = "REPOS ENTRE LES DEUX WOD";
-    } else {
-      const b = cfg.blocks[1], local = elapsed - cfg.blocks[0].duration - cfg.rest;
-      info = `BLOC 2/2 — ${b.type}${b.type === "EMOM" ? ` — MINUTE ${Math.floor(local/60)+1} — ${local%60 < b.work ? "TRAVAIL" : "REPOS"}` : ""}`;
-    }
-  }
+  let info = timerType === "MIX"
+    ? document.getElementById("timerInfo").textContent
+    : timerType;
 
   if (timerType === "TABATA") {
     info = `CYCLE ${cycle} / ${Math.max(1, Number(document.getElementById("tabataCycles").value) || 8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
@@ -1283,22 +1310,26 @@ function tick() {
   // Signaux de mi-temps
   checkMidpointSignal();
 
-  // MIX : deux blocs successifs séparés par un repos
+  // MIX : enchaînement illimité de blocs et de repos
   if (timerType === "MIX") {
     const total = getDuration();
     if (elapsed >= total) {
-      remaining = 0;
-      updateClock();
-      finishTimer("SÉANCE TERMINÉE");
-      return;
+      remaining = 0; updateClock(); finishTimer("SÉANCE TERMINÉE"); return;
     }
-    const cfg = getMixConfig();
-    const boundary1 = cfg.blocks[0].duration;
-    const boundary2 = boundary1 + cfg.rest;
-    if (elapsed === boundary1 || elapsed === boundary2) playCountdownTone("GO");
-    remaining = total - elapsed;
-    updateClock();
-    return;
+    const timeline = getSequenceTimeline();
+    if (timeline.some(b => elapsed === b.start || elapsed === b.restStart || elapsed === b.restEnd)) playCountdownTone("GO");
+    const current = timeline.find(b => elapsed < b.end || (b.rest && elapsed < b.restEnd));
+    if (current) {
+      const local = elapsed - current.start;
+      if (current.type === "TABATA" && local > 0) {
+        const prev = local - 1;
+        const prevPhase = (prev % (current.work + current.rest)) < current.work ? "work" : "rest";
+        const nowPhase = (local % (current.work + current.rest)) < current.work ? "work" : "rest";
+        if (prevPhase !== nowPhase) playCountdownTone("GO");
+      }
+      if (current.type === "EMOM" && local > 0 && local % 60 === current.work) playCountdownTone("GO");
+    }
+    remaining = total - elapsed; updateClock(); return;
   }
 
   // FOR TIME
@@ -1496,19 +1527,104 @@ if (clearLibraryButton) {
   });
 }
 
+
+let multiBlockDraft = [];
+function renderMultiBlocks(existing = multiBlockDraft) {
+  multiBlockDraft = (existing || []).map(b => ({...b}));
+  const host = document.getElementById("multiBlocksList");
+  if (!host) return;
+  host.innerHTML = "";
+  multiBlockDraft.forEach((block, index) => {
+    const card = document.createElement("div");
+    card.className = "panel";
+    card.style.margin = "12px 0";
+    card.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <h3>BLOC ${index+1}</h3>
+        <button type="button" class="secondary" data-remove-block="${index}">SUPPRIMER</button>
+      </div>
+      <div class="field"><label>FORMAT</label><select data-block-field="type" data-index="${index}">
+        ${["AMRAP","EMOM","TABATA","FORTIME"].map(t=>`<option ${block.type===t?"selected":""}>${t}</option>`).join("")}
+      </select></div>
+      <div class="grid">
+        <div class="field"><label>DURÉE / TIME CAP (MINUTES)</label><input type="number" min="1" data-block-field="duration" data-index="${index}" value="${block.duration ?? (block.type==="TABATA"?4:12)}"></div>
+        <div class="field ${block.type==="EMOM"?"":"hidden"}" data-emom-wrap="${index}"><label>TRAVAIL PAR MINUTE (SEC)</label><input type="number" min="1" max="59" data-block-field="work" data-index="${index}" value="${block.work ?? 40}"></div>
+        <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-wrap="${index}"><label>TRAVAIL (SEC)</label><input type="number" min="1" data-block-field="work" data-index="${index}" value="${block.work ?? 20}"></div>
+        <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-rest-wrap="${index}"><label>REPOS (SEC)</label><input type="number" min="0" data-block-field="rest" data-index="${index}" value="${block.rest ?? 10}"></div>
+        <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-cycles-wrap="${index}"><label>CYCLES</label><input type="number" min="1" data-block-field="cycles" data-index="${index}" value="${block.cycles ?? 8}"></div>
+      </div>
+      <div class="field"><label>EXERCICES (UN PAR LIGNE)</label><textarea rows="4" data-block-field="exercises" data-index="${index}" placeholder="15 Wall Balls&#10;12 Burpees">${(block.exercises||"").replace(/</g,"&lt;")}</textarea></div>
+      <div class="field"><label>REPOS APRÈS CE BLOC (MINUTES)</label><input type="number" min="0" step="0.5" data-block-field="rest_after" data-index="${index}" value="${block.rest_after ?? 0}" ${index===multiBlockDraft.length-1?"disabled":""}></div>`;
+    host.appendChild(card);
+  });
+  host.querySelectorAll("[data-block-field]").forEach(el => {
+    el.addEventListener("input", () => {
+      const i=Number(el.dataset.index), key=el.dataset.blockField;
+      multiBlockDraft[i][key] = key==="type" || key==="exercises" ? el.value : Number(el.value);
+      if (key==="type") renderMultiBlocks(multiBlockDraft);
+      updateMultiBlockTotal();
+    });
+  });
+  host.querySelectorAll("[data-remove-block]").forEach(btn => btn.addEventListener("click", () => {
+    multiBlockDraft.splice(Number(btn.dataset.removeBlock),1); renderMultiBlocks(multiBlockDraft);
+  }));
+  updateMultiBlockTotal();
+}
+function updateMultiBlockTotal() {
+  const blocks = collectMultiBlocks(false);
+  const seconds = blocks.reduce((sum,b,i)=>sum+blockDurationSeconds(b)+(i<blocks.length-1?(Number(b.rest_after)||0)*60:0),0);
+  const el=document.getElementById("multiBlocksTotal");
+  if(el) el.textContent=`Durée totale estimée : ${Math.floor(seconds/60)} min ${String(seconds%60).padStart(2,"0")} s (repos compris).`;
+}
+function getSequenceDurationFromBlocks(blocks) {
+  return blocks.reduce((sum,b,i)=>sum+blockDurationSeconds(b)+(i<blocks.length-1?(Number(b.rest_after)||0)*60:0),0);
+}
+function collectMultiBlocks(readDOM=true) {
+  if (!readDOM) return multiBlockDraft;
+  const blocks=[];
+  document.querySelectorAll("#multiBlocksList .panel").forEach((card,i)=>{
+    const get=k=>card.querySelector(`[data-block-field="${k}"]`)?.value;
+    const type=get("type")||"AMRAP";
+    blocks.push({type,duration:Number(get("duration"))||1,work:Number(get("work"))||(type==="TABATA"?20:40),
+      rest:Number(get("rest"))||10,cycles:Number(get("cycles"))||8,exercises:get("exercises")||"",
+      rest_after:Number(get("rest_after"))||0});
+  });
+  return blocks;
+}
+document.getElementById("manualMultiBlock").addEventListener("change", e => {
+  const multi=e.target.checked;
+  document.getElementById("singleWodFields").classList.toggle("hidden",multi);
+  document.getElementById("multiBlockEditor").classList.toggle("hidden",!multi);
+  if(multi && !multiBlockDraft.length) renderMultiBlocks([{type:"AMRAP",duration:20,exercises:"",rest_after:5},{type:"EMOM",duration:12,work:40,exercises:"",rest_after:0}]);
+});
+document.getElementById("addMultiBlock").addEventListener("click",()=>{
+  multiBlockDraft.push({type:"AMRAP",duration:10,work:40,rest:10,cycles:8,exercises:"",rest_after:0});
+  renderMultiBlocks(multiBlockDraft);
+});
+renderMultiBlocks([]);
+
 document.getElementById("manualWodForm").addEventListener("submit", async event => {
   event.preventDefault();
   const status = document.getElementById("manualWodStatus");
   const button = document.getElementById("saveManualWod");
   const name = document.getElementById("manualWodTitle").value.trim();
-  const type = manualFormat.value;
-  const movements = parseManualExercises(document.getElementById("manualWodExercises").value);
+  const multiMode = document.getElementById("manualMultiBlock").checked;
+  const type = multiMode ? "MIX" : manualFormat.value;
+  const movements = multiMode ? [] : parseManualExercises(document.getElementById("manualWodExercises").value);
   const consigne = document.getElementById("manualWodConsigne").value.trim();
-  if (!name || !movements.length) { status.textContent = "Renseigne un titre et au moins un exercice."; return; }
+  let blocks = multiMode ? collectMultiBlocks() : [];
+  if (!name || (multiMode ? (!blocks.length || blocks.some(b => !String(b.exercises||"").trim())) : !movements.length)) {
+    status.textContent = multiMode ? "Ajoute au moins un bloc et renseigne les exercices de chaque bloc." : "Renseigne un titre et au moins un exercice.";
+    return;
+  }
 
   let duration = null;
   let timerConfig = { format: type };
-  if (type === "AMRAP") {
+  if (multiMode) {
+    blocks = blocks.map((b,i)=>({...b, duration:Math.max(1,Number(b.duration)||1), rest_after:i===blocks.length-1?0:Math.max(0,Number(b.rest_after)||0)}));
+    timerConfig = { format:"MIX", blocks };
+    duration = Math.ceil(getSequenceDurationFromBlocks(blocks)/60);
+  } else if (type === "AMRAP") {
     duration = Math.max(1, Number(document.getElementById("manualAmrapDuration").value) || 1);
     timerConfig.duration_minutes = duration;
   } else if (type === "EMOM") {
@@ -1607,10 +1723,12 @@ window.saveManualWodToSupabase = async function(wod) {
   const rows = wod.movements.map(m => ({
     wod_id: row.id, movement_name: m.name, repetitions: m.reps, position: m.position
   }));
-  const { error: movementError } = await supabase.from("wod_movements").insert(rows);
-  if (movementError) {
-    await supabase.from("wods").delete().eq("id", row.id);
-    throw movementError;
+  if (rows.length) {
+    const { error: movementError } = await supabase.from("wod_movements").insert(rows);
+    if (movementError) {
+      await supabase.from("wods").delete().eq("id", row.id);
+      throw movementError;
+    }
   }
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
@@ -1633,8 +1751,10 @@ window.updateManualWodInSupabase = async function(id, wod) {
   const rows = wod.movements.map(m => ({
     wod_id: id, movement_name: m.name, repetitions: m.reps, position: m.position
   }));
-  const { error: insertError } = await supabase.from("wod_movements").insert(rows);
-  if (insertError) throw insertError;
+  if (rows.length) {
+    const { error: insertError } = await supabase.from("wod_movements").insert(rows);
+    if (insertError) throw insertError;
+  }
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
