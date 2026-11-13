@@ -700,25 +700,19 @@ header {
 @media(max-width:600px){.fs-clock{font-size:clamp(82px,23vw,170px)}.fs-round-info{font-size:clamp(18px,5vw,28px);padding:8px 12px}.fs-controls{gap:8px}.fs-controls button{padding:13px 8px;font-size:14px}}
 
 
-/* Bibliothèque de mouvements */
-.movement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
-.movement-card{background:var(--card-bg);border:1px solid var(--border);border-radius:11px;overflow:hidden;cursor:pointer;transition:.15s}
-.movement-card:hover{border-color:var(--green);transform:translateY(-2px)}
-.movement-card img{width:100%;height:155px;object-fit:contain;background:#f8fafc;display:block}
-.movement-card-body{padding:12px}
-.movement-card h3{font-size:15px;margin:0 0 8px}
-.movement-tags{display:flex;flex-wrap:wrap;gap:5px}
-.movement-tag{font-size:10px;padding:4px 7px;border-radius:5px;background:var(--panel2);color:var(--muted)}
-.movement-stats{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:12px}
-.movement-detail-card{max-width:760px;max-height:90vh;overflow:auto;text-align:left}
-.movement-detail-card img{width:100%;max-height:300px;object-fit:contain;background:#f8fafc;border-radius:8px}
-.movement-detail-card h2{margin:14px 0}
-.movement-detail-card ol,.movement-detail-card ul{padding-left:22px;line-height:1.55}
-.movement-detail-card li{margin:5px 0}
-.movement-close{width:100%;margin-bottom:12px}
-.movement-source{display:inline-block;margin:10px 0;color:var(--green);font-weight:bold}
-@media(max-width:600px){.movement-grid{grid-template-columns:1fr 1fr}.movement-card img{height:120px}.tabs{flex-wrap:wrap}.tab{min-width:29%}}
-@media(max-width:390px){.movement-grid{grid-template-columns:1fr}}
+/* Bibliothèque de mouvements et coach WOD */
+.movement-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:14px}
+.movement-card{overflow:hidden;border:1px solid var(--border);border-radius:10px;background:var(--card-bg)}
+.movement-card img{width:100%;height:135px;object-fit:cover;background:var(--panel2)}
+.movement-card-body{padding:12px}.movement-card h3{font-size:14px;margin:0 0 7px}
+.tag{display:inline-block;background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:5px 9px;font-size:11px}
+.inline-options{display:flex;gap:16px;flex-wrap:wrap}.inline-options label{display:flex;align-items:center;gap:6px}
+.exclusion-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;max-height:220px;overflow:auto;padding:10px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px}
+.exclusion-list label{display:flex;gap:8px;align-items:center;font-size:13px}
+.result-heading,.inline-add{display:flex;align-items:center;justify-content:space-between;gap:10px}.inline-add select{flex:1}
+.coach-move{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid var(--border)}
+.coach-move small{display:block;color:var(--muted);margin-top:3px}.coach-explanation{background:var(--card-bg);border-left:3px solid var(--green);padding:13px;border-radius:7px;margin:15px 0}.coach-explanation p{margin:7px 0 0;line-height:1.5}
+@media(max-width:520px){.coach-move{grid-template-columns:1fr auto}.coach-move .move-category{grid-column:1/-1}.result-heading{align-items:flex-start;flex-direction:column}}
 
 </style>
 </head>
@@ -757,10 +751,10 @@ header {
 
 <nav class="tabs">
   <button class="tab active" data-page="generator">GÉNÉRATEUR</button>
-  <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE</button>
+  <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE WOD</button>
+  <button class="tab" data-page="coachPage">COACH WOD</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
   <button class="tab" data-page="historyPage">HISTORIQUE</button>
-  <button class="tab" data-page="movementLibraryPage">MOUVEMENTS</button>
 </nav>
 
 <main>
@@ -805,6 +799,7 @@ header {
   <div class="library-subtabs" role="tablist" aria-label="Bibliothèque">
     <button class="library-subtab active" type="button" data-library-panel="createWodPanel">CRÉER UN WOD</button>
     <button class="library-subtab" type="button" data-library-panel="savedWodsPanel">WOD ENREGISTRÉS</button>
+    <button class="library-subtab" type="button" data-library-panel="movementLibraryPanel">MOUVEMENTS</button>
   </div>
   <div id="createWodPanel" class="library-panel active">
     <div class="panel">
@@ -843,6 +838,18 @@ header {
       </form>
     </div>
   </div>
+  <div id="movementLibraryPanel" class="library-panel">
+    <div class="panel">
+      <h2>BIBLIOTHÈQUE DE MOUVEMENTS</h2>
+      <p class="small-note">Fiches initiales documentées depuis Lift Manual. La bibliothèque pourra être enrichie avec les mouvements que tu sélectionnes.</p>
+      <div class="grid">
+        <div class="field"><label for="movementSearch">RECHERCHER</label><input id="movementSearch" placeholder="Nom français ou anglais..."></div>
+        <div class="field"><label for="movementCategory">FAMILLE</label><select id="movementCategory"><option value="">Toutes</option><option>HALTÉROPHILIE</option><option>GYM</option><option>CARDIO</option></select></div>
+      </div>
+      <div class="small-note" id="movementCount"></div>
+      <div id="movementResults" class="movement-grid"></div>
+    </div>
+  </div>
   <div id="savedWodsPanel" class="library-panel">
     <div class="panel">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
@@ -854,6 +861,36 @@ header {
     </div>
   </div>
 </section>
+
+<!-- COACH WOD : générateur guidé par règles de programmation -->
+<section id="coachPage" class="page">
+  <h2>COACH WOD — GÉNÉRATEUR</h2>
+  <div class="panel">
+    <p class="muted">CONSTRUIS UN WOD À PARTIR DES MOUVEMENTS DE TA BIBLIOTHÈQUE</p>
+    <div class="grid">
+      <div class="field"><label for="coachDuration">DURÉE</label><select id="coachDuration"><option>10</option><option>15</option><option selected>20</option><option>30</option><option>45</option><option>60</option><option>70</option><option>80</option></select></div>
+      <div class="field"><label for="coachType">TYPE DE WOD</label><select id="coachType"><option value="Mixed Modality">Mixed Modality</option><option value="Gym">Gym</option><option value="Haltéro">Haltéro</option><option value="Cardio">Cardio</option></select></div>
+      <div class="field"><label for="coachLevel">RAISONNEMENT COACH</label><select id="coachLevel"><option value="L1">Level 1 — Fondamentaux</option><option value="L2" selected>Level 2 — Programmation</option><option value="L3">Level 3 — Avancé</option></select></div>
+      <div class="field"><label for="coachFormat">FORMAT</label><select id="coachFormat"><option>AMRAP</option><option>FOR TIME</option><option>EMOM</option><option>TABATA</option></select></div>
+    </div>
+    <div class="field"><label>NIVEAU SPORTIF</label><div class="inline-options"><label><input type="radio" name="coachAthleteLevel" value="Débutant" checked> Débutant</label><label><input type="radio" name="coachAthleteLevel" value="Intermédiaire"> Intermédiaire</label><label><input type="radio" name="coachAthleteLevel" value="Avancé"> Avancé</label></div></div>
+    <div class="field"><label for="coachSearch">RECHERCHER UN MOUVEMENT À EXCLURE</label><input id="coachSearch" placeholder="Filtrer la liste..."></div>
+    <div class="field"><label>MOUVEMENTS À EXCLURE</label><div id="coachExclusions" class="exclusion-list"></div><p class="small-note">Les mouvements cochés ne seront pas proposés dans le WOD généré.</p></div>
+    <button class="primary" id="generateCoachWod" type="button">⚡ GÉNÉRER MON WOD</button>
+    <div id="coachStatus" class="small-note" role="status" aria-live="polite" style="margin-top:12px"></div>
+  </div>
+  <div id="coachResult" class="panel hidden">
+    <div class="result-heading"><div><div class="muted">WOD PROPOSÉ</div><h2 id="coachResultTitle" style="margin:5px 0"></h2></div><span class="tag" id="coachResultMeta"></span></div>
+    <div id="coachMovements"></div>
+    <div class="field" style="margin-top:16px"><label for="coachAddMovement">AJOUTER UN MOUVEMENT</label><div class="inline-add"><select id="coachAddMovement"></select><button class="secondary" id="coachAddBtn" type="button">AJOUTER</button></div></div>
+    <div class="field"><label for="coachNotes">CONSIGNES</label><textarea id="coachNotes" rows="2"></textarea></div>
+    <div class="coach-explanation"><strong>RAISONNEMENT DU COACH</strong><p id="coachExplanation"></p></div>
+    <div class="actions"><button class="primary" id="coachSendTimer" type="button">ENVOYER VERS LE CHRONO →</button><button class="secondary" id="coachRegenerate" type="button">RÉGÉNÉRER</button></div>
+  </div>
+  <div class="small-note">Le coach actuel est un moteur de programmation à règles, pas une IA conversationnelle ni une certification CrossFit officielle. Il applique des principes de variété, de cohérence des modalités et d'adaptation du volume. Les propositions sont limitées aux fiches présentes dans la bibliothèque.</div>
+</section>
+
+<div id="movementDetailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="movementDetailTitle"><div class="modal-card"><button class="secondary" id="closeMovementDetail" type="button" style="float:right">FERMER ✕</button><div id="movementDetailContent"></div></div></div>
 
 <!-- CHRONOMETRE -->
 
@@ -999,33 +1036,6 @@ header {
 
 </section>
 
-
-
-
-<!-- BIBLIOTHEQUE DE MOUVEMENTS -->
-<section id="movementLibraryPage" class="page">
-  <h2>BIBLIOTHÈQUE DE MOUVEMENTS</h2>
-  <div class="panel">
-    <div class="movement-intro">
-      <strong>Base de mouvements – Lift Manual</strong>
-      <p class="muted">Recherche les mouvements, filtre par famille et ouvre une fiche pour consulter les consignes, les muscles sollicités, le matériel et les variantes.</p>
-      <div class="movement-stats"><span id="movementCount">4 mouvements documentés</span><span>Source : Lift Manual</span></div>
-    </div>
-    <div class="field"><label for="movementSearch">RECHERCHER UN MOUVEMENT</label><input id="movementSearch" type="search" placeholder="Ex. : Snatch, squat, pull-up..."></div>
-    <div class="grid movement-filters">
-      <div class="field"><label for="movementCategory">FAMILLE</label><select id="movementCategory"><option value="">Toutes les familles</option><option>HALTÉROPHILIE</option><option>GYM</option><option>HALTÈRES</option><option>MUSCULATION</option><option>CARDIO</option></select></div>
-      <div class="field"><label for="movementEquipment">MATÉRIEL</label><select id="movementEquipment"><option value="">Tout matériel</option><option>Barre olympique</option><option>Poids du corps / machine</option></select></div>
-    </div>
-    <div id="movementResults" class="movement-grid" aria-live="polite"></div>
-    <p class="small-note" style="margin-top:14px">Les fiches ci-dessous sont documentées à partir des pages Lift Manual consultées. Les images restent hébergées sur le site source et chaque fiche comporte un lien d'attribution. Cette première intégration est un lot initial, pas encore l'import exhaustif du catalogue.</p>
-  </div>
-  <div id="movementDetail" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="movementDetailTitle">
-    <div class="modal-card movement-detail-card">
-      <button class="secondary movement-close" id="closeMovementDetail" type="button">FERMER ✕</button>
-      <div id="movementDetailContent"></div>
-    </div>
-  </div>
-</section>
 
 <!-- HISTORIQUE -->
 <section id="historyPage" class="page">
@@ -3074,80 +3084,52 @@ if (session) {
 
 
 <script>
-/* Bibliothèque initiale de mouvements documentés depuis Lift Manual.
-   Images distantes : elles restent servies par leur site d'origine et sont attribuées. */
 (() => {
  const movements = [
-  {
-   id:"snatch",name:"Barbell Snatch",fr:"Arraché",category:"HALTÉROPHILIE",equipment:"Barre olympique",
-   muscles:["Dos","Fessiers","Ischio-jambiers","Épaules","Quadriceps","Trapèzes","Triceps","Gainage"],
-   description:"Mouvement olympique explosif : la barre passe du sol à une position verrouillée au-dessus de la tête en un seul mouvement, avec réception en squat profond.",
-   instructions:["Placer la barre au sol, pieds largeur de hanches et barre au-dessus du milieu du pied.","Prendre une prise large d'arraché, bras tendus.","Garder le dos plat, la poitrine haute et les épaules au-dessus de la barre.","Décoller la barre en contrôlant le premier tirage et la garder près du corps.","À hauteur des genoux, accélérer par une triple extension des hanches, genoux et chevilles.","Passer rapidement sous la barre et la réceptionner bras verrouillés en squat profond.","Se relever en gardant la barre au-dessus de la tête puis la reposer avec contrôle."],
-   benefits:["Développe la puissance explosive globale.","Travaille coordination, force et mobilité.","Sollicite fortement la chaîne postérieure."],
-   variations:["Power Snatch","Hang Snatch","Muscle Snatch","Snatch Deadlift","Snatch Balance","Kettlebell Snatch","Dumbbell One-Arm Snatch"],
-   image:"https://liftmanual.com/wp-content/uploads/2023/04/barbell-snatch.jpg",source:"https://liftmanual.com/barbell-snatch/"
-  },
-  {
-   id:"front-squat",name:"Barbell Front Squat",fr:"Squat avant",category:"HALTÉROPHILIE",equipment:"Barre olympique",
-   muscles:["Fessiers","Quadriceps","Adducteurs","Haut du dos","Gainage"],
-   description:"Squat avec barre en position avant sur les épaules. Le buste reste plus vertical et le mouvement demande une bonne mobilité des poignets, épaules et du haut du dos.",
-   instructions:["Placer la barre sur les supports à hauteur du haut de la poitrine.","Installer la barre sur l'avant des épaules, en prise clean ou bras croisés.","Garder les coudes hauts et le tronc gainé.","Déverrouiller la barre et placer les pieds environ largeur d'épaules.","Descendre en pliant simultanément hanches et genoux, buste vertical.","Descendre au moins jusqu'à ce que le pli de hanche passe sous le haut du genou.","Pousser dans tout le pied pour remonter sans laisser tomber les coudes."],
-   benefits:["Renforce particulièrement les quadriceps.","Développe le gainage et le haut du dos.","Transfert direct vers le clean et les positions front rack."],
-   variations:["Goblet Squat","Kettlebell Goblet Squat","Zercher Squat","Overhead Squat","Pause Front Squat","Tempo Front Squat"],
-   image:"https://liftmanual.com/wp-content/uploads/2023/04/barbell-front-squat.jpg",source:"https://liftmanual.com/barbell-front-squat/"
-  },
-  {
-   id:"clean-jerk",name:"Barbell Clean and Jerk",fr:"Épaulé-jeté",category:"HALTÉROPHILIE",equipment:"Barre olympique",
-   muscles:["Dos","Fessiers","Quadriceps","Épaules","Triceps","Ischio-jambiers","Gainage"],
-   description:"Mouvement olympique en deux phases : épaulé de la barre jusqu'aux épaules, puis jeté jusqu'au verrouillage au-dessus de la tête.",
-   instructions:["Placer les pieds largeur de hanches, barre au-dessus du milieu du pied.","Saisir la barre environ largeur d'épaules, dos plat et poitrine haute.","Effectuer le premier tirage en gardant la barre proche du corps.","Accélérer par une triple extension puis passer sous la barre pour la recevoir en front rack.","Se relever complètement de l'épaulé.","Pour le jeté, effectuer une flexion courte et verticale puis pousser puissamment avec les jambes.","Passer sous la barre en position fendue ou puissance, bras verrouillés.","Récupérer les pieds alignés puis ramener la barre au sol avec contrôle."],
-   benefits:["Développe puissance et force globale.","Améliore coordination et mobilité.","Travaille la chaîne postérieure et le verrouillage au-dessus de la tête."],
-   variations:["Power Clean and Power Jerk","Hang Clean and Jerk","Block Clean and Jerk","Split Jerk","Power Jerk","Dumbbell Power Clean and Jerk"],
-   image:"https://liftmanual.com/wp-content/uploads/2023/04/barbell-clean-and-jerk.jpg",source:"https://liftmanual.com/barbell-clean-and-jerk/"
-  },
-  {
-   id:"assisted-pull-up",name:"Assisted Pull Up",fr:"Traction assistée",category:"GYM",equipment:"Poids du corps / machine",
-   muscles:["Grand dorsal","Biceps","Brachial","Trapèzes","Rhomboïdes","Avant-bras"],
-   description:"Traction réalisée avec une machine à contrepoids qui compense une partie du poids du corps afin de faciliter l'apprentissage du mouvement.",
-   instructions:["Régler le contrepoids : plus il est élevé, plus l'assistance est importante.","Saisir les poignées en pronation.","Placer les genoux ou les pieds sur le support prévu.","Tirer en abaissant les coudes jusqu'à amener le menton au-dessus de la barre.","Contracter le dos en position haute.","Redescendre en contrôlant la phase excentrique pendant deux à trois secondes.","Réduire progressivement l'assistance à mesure que la force augmente."],
-   benefits:["Permet de progresser vers les tractions strictes.","Assistance réglable selon le niveau.","Développe la force de tirage."],
-   variations:["Pull-Up strict","Band-Assisted Pull-Up","Negative Pull-Up","Lat Pulldown","Ring Pull-Up"],
-   image:"https://liftmanual.com/wp-content/uploads/2023/04/assisted-pull-up.jpg",source:"https://liftmanual.com/assisted-pull-up/"
-  }
+  {id:'snatch',name:'Barbell Snatch',fr:'Arraché',cat:'Haltéro',family:'HALTÉROPHILIE',equipment:'Barre olympique',muscles:'Dos, fessiers, ischio-jambiers, épaules, quadriceps',image:'https://liftmanual.com/wp-content/uploads/2023/04/barbell-snatch.jpg',source:'https://liftmanual.com/barbell-snatch/',desc:'Mouvement olympique explosif, de la barre au sol au verrouillage au-dessus de la tête en un mouvement.',steps:['Installer les pieds largeur de hanches et la barre au-dessus du milieu du pied.','Saisir largement la barre, garder le dos plat et la poitrine haute.','Décoller la barre en la gardant proche du corps.','Accélérer par une triple extension des hanches, genoux et chevilles.','Passer rapidement sous la barre et la réceptionner bras verrouillés en squat profond.','Se relever en gardant la barre au-dessus de la tête.'],benefits:['Développe la puissance explosive globale.','Améliore coordination, force et mobilité.','Sollicite fortement la chaîne postérieure.'],variations:['Power Snatch','Hang Snatch','Muscle Snatch','Snatch Balance','Kettlebell Snatch']},
+  {id:'front-squat',name:'Barbell Front Squat',fr:'Squat avant',cat:'Haltéro',family:'HALTÉROPHILIE',equipment:'Barre olympique',muscles:'Quadriceps, fessiers, adducteurs, haut du dos, gainage',image:'https://liftmanual.com/wp-content/uploads/2023/04/barbell-front-squat.jpg',source:'https://liftmanual.com/barbell-front-squat/',desc:'Squat avec barre en position avant, buste vertical et coudes hauts.',steps:['Placer la barre sur les supports à hauteur du haut de la poitrine.','Installer la barre sur l’avant des épaules en position front rack.','Garder les coudes hauts et le tronc gainé.','Descendre en pliant simultanément hanches et genoux, buste vertical.','Pousser dans tout le pied pour remonter sans laisser tomber les coudes.'],benefits:['Renforce particulièrement les quadriceps.','Développe le gainage et le haut du dos.','Transfert direct vers le clean et les positions front rack.'],variations:['Goblet Squat','Zercher Squat','Overhead Squat','Pause Front Squat','Tempo Front Squat']},
+  {id:'clean-jerk',name:'Barbell Clean and Jerk',fr:'Épaulé-jeté',cat:'Haltéro',family:'HALTÉROPHILIE',equipment:'Barre olympique',muscles:'Dos, fessiers, quadriceps, épaules, triceps, gainage',image:'https://liftmanual.com/wp-content/uploads/2023/04/barbell-clean-and-jerk.jpg',source:'https://liftmanual.com/barbell-clean-and-jerk/',desc:'Mouvement olympique en deux phases : épaulé jusqu’aux épaules puis jeté au-dessus de la tête.',steps:['Placer les pieds largeur de hanches, barre au-dessus du milieu du pied.','Saisir la barre environ largeur d’épaules, dos plat et poitrine haute.','Effectuer le premier tirage en gardant la barre proche du corps.','Accélérer par une triple extension puis passer sous la barre pour la recevoir en front rack.','Se relever complètement de l’épaulé.','Effectuer une flexion courte et verticale puis pousser puissamment avec les jambes.','Passer sous la barre, bras verrouillés, puis récupérer les pieds alignés.'],benefits:['Développe puissance et force globale.','Améliore coordination et mobilité.','Travaille la chaîne postérieure et le verrouillage au-dessus de la tête.'],variations:['Power Clean and Power Jerk','Hang Clean and Jerk','Split Jerk','Power Jerk','Dumbbell Clean and Jerk']},
+  {id:'assisted-pull-up',name:'Assisted Pull Up',fr:'Traction assistée',cat:'Gym',family:'GYM',equipment:'Poids du corps / machine',muscles:'Grand dorsal, biceps, trapèzes, rhomboïdes, avant-bras',image:'https://liftmanual.com/wp-content/uploads/2023/04/assisted-pull-up.jpg',source:'https://liftmanual.com/assisted-pull-up/',desc:'Traction avec assistance réglable pour développer la force de tirage et progresser vers les tractions strictes.',steps:['Régler le contrepoids : plus il est élevé, plus l’assistance est importante.','Saisir les poignées en pronation.','Placer les genoux ou les pieds sur le support prévu.','Tirer en abaissant les coudes jusqu’à amener le menton au-dessus de la barre.','Redescendre en contrôlant la phase excentrique.','Réduire progressivement l’assistance à mesure que la force augmente.'],benefits:['Permet de progresser vers les tractions strictes.','Assistance réglable selon le niveau.','Développe la force de tirage.'],variations:['Pull-Up strict','Band-Assisted Pull-Up','Negative Pull-Up','Lat Pulldown','Ring Pull-Up']}
  ];
- const $=id=>document.getElementById(id);
- const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
- function render(){
-  const q=norm($("movementSearch")?.value),cat=$("movementCategory")?.value||"",eq=$("movementEquipment")?.value||"";
-  const filtered=movements.filter(m=>(!cat||m.category===cat)&&(!eq||m.equipment===eq)&&(!q||norm([m.name,m.fr,m.category,m.equipment,...m.muscles].join(" ")).includes(q)));
-  $("movementCount").textContent=filtered.length+" / "+movements.length+" fiches documentées";
-  $("movementResults").innerHTML=filtered.length?filtered.map(m=>`<article class="movement-card" tabindex="0" role="button" data-movement="${m.id}">
-   <img src="${m.image}" alt="Illustration ${m.name}" loading="lazy" onerror="this.style.display='none'">
-   <div class="movement-card-body"><h3>${m.fr} <span style="color:var(--muted);font-weight:400">(${m.name})</span></h3><div class="movement-tags"><span class="movement-tag">${m.category}</span><span class="movement-tag">${m.equipment}</span></div></div>
-  </article>`).join(""):'<p class="muted">Aucun mouvement ne correspond à ta recherche.</p>';
+ const $=id=>document.getElementById(id), norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ let current=[]; let currentCfg={}; let excluded=new Set();
+ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movementCategory')?.value||'';const list=movements.filter(m=>(!cat||m.family===cat)&&(!q||norm([m.name,m.fr,m.family,m.equipment,m.muscles].join(' ')).includes(q)));$('movementCount').textContent=`${list.length} / ${movements.length} fiches documentées`;$('movementResults').innerHTML=list.map(m=>`<article class="movement-card" data-detail="${m.id}" tabindex="0" role="button" aria-label="Voir la fiche ${m.fr}"><img src="${m.image}" alt="${m.fr}" loading="lazy" onerror="this.style.display='none'"><div class="movement-card-body"><h3>${m.fr} <small>(${m.name})</small></h3><span class="tag">${m.family}</span><p class="small-note">${m.equipment}</p><p class="small-note">${m.desc}</p><a href="${m.source}" target="_blank" rel="noopener">Fiche Lift Manual ↗</a></div></article>`).join('')||'<p class="muted">Aucun mouvement trouvé.</p>';}
+ function openMovementDetail(id){const m=movements.find(x=>x.id===id);if(!m)return;$('movementDetailContent').innerHTML=`<img src="${m.image}" alt="${m.fr}" style="width:100%;max-height:230px;object-fit:contain;border-radius:8px"><h2 id="movementDetailTitle">${m.fr} — ${m.name}</h2><span class="tag">${m.family}</span><span class="tag">${m.equipment}</span><h3>Description</h3><p>${m.desc}</p><h3>Muscles sollicités</h3><p>${m.muscles}</p><h3>Consignes techniques</h3><ol>${(m.steps||[]).map(x=>`<li>${x}</li>`).join('')}</ol><h3>Bénéfices</h3><ul>${(m.benefits||[]).map(x=>`<li>${x}</li>`).join('')}</ul><h3>Variantes</h3><p>${(m.variations||[]).join(' · ')}</p><p class="small-note">Image et fiche source : Lift Manual.</p><a href="${m.source}" target="_blank" rel="noopener">Consulter la fiche originale Lift Manual ↗</a>`;$('movementDetailModal').classList.remove('hidden');}
+ function renderExclusions(){const q=norm($('coachSearch').value);$('coachExclusions').innerHTML=movements.filter(m=>!q||norm(m.fr+' '+m.name).includes(q)).map(m=>`<label><input type="checkbox" data-exclude="${m.id}" ${excluded.has(m.id)?'checked':''}> ${m.fr} <span class="small-note">(${m.cat})</span></label>`).join('');}
+ function available(){return movements.filter(m=>!excluded.has(m.id));}
+ function categoryPool(type){const a=available();if(type==='Mixed Modality')return a;if(type==='Gym'||type==='Haltéro'||type==='Cardio')return a.filter(m=>m.cat===type);return a;}
+ function renderAddOptions(){const used=new Set(current.map(x=>x.id));$('coachAddMovement').innerHTML=available().filter(m=>!used.has(m.id)).map(m=>`<option value="${m.id}">${m.fr} — ${m.cat}</option>`).join('');$('coachAddBtn').disabled=!$('coachAddMovement').options.length;}
+ function renderCurrent(){ $('coachMovements').innerHTML=current.map((m,i)=>`<div class="coach-move"><div><strong>${i+1}. ${m.fr}</strong><small>${m.name} · ${m.equipment}</small></div><span class="tag move-category">${m.cat}</span><button class="secondary" type="button" data-remove="${m.id}" aria-label="Supprimer ${m.fr}">✕</button></div>`).join('');renderAddOptions(); }
+ function chooseWod(){const type=$('coachType').value,level=$('coachLevel').value,duration=Number($('coachDuration').value),format=$('coachFormat').value,athlete=document.querySelector('[name="coachAthleteLevel"]:checked').value;let pool=categoryPool(type);
+  if(!pool.length){$('coachStatus').textContent=type==='Cardio'?'Aucun mouvement Cardio n’est encore présent dans ta bibliothèque. Ajoute des mouvements Cardio pour générer ce type.':'Tous les mouvements de cette famille sont exclus.';$('coachResult').classList.add('hidden');return;}
+  if(type==='Mixed Modality'&&pool.length<2){$('coachStatus').textContent='Il faut au moins deux mouvements disponibles pour un Mixed Modality.';return;}
+  // Les 3 niveaux règlent le nombre de mouvements et le degré de complexité autorisé.
+  let count=level==='L1'?Math.min(2,pool.length):level==='L2'?Math.min(3,pool.length):Math.min(4,pool.length);
+  if(athlete==='Débutant')count=Math.min(count,2);
+  if(type==='Mixed Modality'&&pool.length>=2)count=Math.max(2,count);
+  const ranked=pool.slice().sort((a,b)=>{const usedA=current.some(x=>x.id===a.id)?1:0,usedB=current.some(x=>x.id===b.id)?1:0;return usedA-usedB;});
+  // Mélange contrôlé pour éviter un ordre fixe, puis sélection diversifiée par famille.
+  for(let i=ranked.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ranked[i],ranked[j]]=[ranked[j],ranked[i]];}
+  const chosen=[];for(const m of ranked){if(chosen.length>=count)break;if(type==='Mixed Modality'&&chosen.some(x=>x.cat===m.cat)&&ranked.some(x=>x.cat!==m.cat)&&chosen.length<count-1)continue;chosen.push(m);}for(const m of ranked){if(chosen.length>=count)break;if(!chosen.includes(m))chosen.push(m);}
+  current=chosen;currentCfg={type,level,duration,format,athlete};$('coachResultTitle').textContent=`${duration} MIN — ${type.toUpperCase()}`;$('coachResultMeta').textContent=`${format} · ${level} · ${athlete}`;
+  const reps=athlete==='Débutant'?['6','8','10']:athlete==='Avancé'?['12','15','18']:['8','10','12'];
+  current=current.map((m,i)=>({...m,reps:reps[i%reps.length]}));
+  $('coachNotes').value= level==='L1'?'Priorité à la qualité technique et à une intensité maîtrisée.':level==='L2'?'Maintenir un rythme régulier et répartir l’effort sur l’ensemble du WOD.':'Adapter l’allure pour conserver une exécution propre malgré la densité de travail.';
+  const familyCount=new Set(current.map(m=>m.cat)).size;
+  let reason= level==='L1'?'Approche fondamentaux : volume limité, mouvements simples à maîtriser et priorité à la qualité d’exécution.':level==='L2'?'Approche programmation : combinaison des mouvements, répartition des sollicitations et variété du stimulus.':'Approche avancée : densité et complexité accrues, tout en surveillant la fatigue et la qualité technique.';
+  reason+=` Le choix ${type} utilise ${familyCount} famille(s) de mouvements et respecte la durée demandée (${duration} min), le niveau sportif (${athlete}) et les exclusions.`;
+  if(type==='Mixed Modality'&&familyCount<2)reason+=' La bibliothèque actuelle ne contient pas encore assez de familles différentes pour un vrai mélange Gym/Haltéro/Cardio.';
+  if(type==='Cardio')reason+=' La catégorie Cardio est encore vide : cette génération sera possible dès que tu auras ajouté des fiches Cardio.';
+  $('coachExplanation').textContent=reason;$('coachResult').classList.remove('hidden');$('coachStatus').textContent='WOD généré à partir des mouvements disponibles dans ta bibliothèque.';renderCurrent();
  }
- function openDetail(id){
-  const m=movements.find(x=>x.id===id);if(!m)return;
-  $("movementDetailContent").innerHTML=`<img src="${m.image}" alt="Illustration ${m.name}" onerror="this.style.display='none'">
-   <h2 id="movementDetailTitle">${m.fr} – ${m.name}</h2>
-   <div class="movement-tags"><span class="movement-tag">${m.category}</span><span class="movement-tag">${m.equipment}</span></div>
-   <h3>Description</h3><p>${m.description}</p>
-   <h3>Muscles sollicités</h3><p>${m.muscles.join(" · ")}</p>
-   <h3>Consignes techniques</h3><ol>${m.instructions.map(x=>`<li>${x}</li>`).join("")}</ol>
-   <h3>Bénéfices indiqués par la source</h3><ul>${m.benefits.map(x=>`<li>${x}</li>`).join("")}</ul>
-   <h3>Variantes et alternatives</h3><p>${m.variations.join(" · ")}</p>
-   <a class="movement-source" href="${m.source}" target="_blank" rel="noopener noreferrer">Consulter la fiche originale Lift Manual ↗</a>
-   <p class="small-note">Illustration hébergée par Lift Manual. Source et attribution : Lift Manual.</p>`;
-  $("movementDetail").classList.remove("hidden");
- }
- $("movementSearch")?.addEventListener("input",render);
- $("movementCategory")?.addEventListener("change",render);
- $("movementEquipment")?.addEventListener("change",render);
- $("movementResults")?.addEventListener("click",e=>{const card=e.target.closest("[data-movement]");if(card)openDetail(card.dataset.movement)});
- $("movementResults")?.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){const card=e.target.closest("[data-movement]");if(card){e.preventDefault();openDetail(card.dataset.movement)}}});
- $("closeMovementDetail")?.addEventListener("click",()=>$("movementDetail").classList.add("hidden"));
- $("movementDetail")?.addEventListener("click",e=>{if(e.target===$("movementDetail"))$("movementDetail").classList.add("hidden")});
- render();
+ $('movementSearch')?.addEventListener('input',renderLibrary);$('movementCategory')?.addEventListener('change',renderLibrary);$('movementResults')?.addEventListener('click',e=>{const card=e.target.closest('[data-detail]');if(card)openMovementDetail(card.dataset.detail)});$('movementResults')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-detail]')){e.preventDefault();openMovementDetail(e.target.closest('[data-detail]').dataset.detail)}});$('closeMovementDetail')?.addEventListener('click',()=>$('movementDetailModal').classList.add('hidden'));$('movementDetailModal')?.addEventListener('click',e=>{if(e.target===$('movementDetailModal'))$('movementDetailModal').classList.add('hidden')});renderLibrary();renderExclusions();
+ $('coachSearch')?.addEventListener('input',renderExclusions);
+ $('coachExclusions')?.addEventListener('change',e=>{const id=e.target.dataset.exclude;if(!id)return;e.target.checked?excluded.add(id):excluded.delete(id);});
+ $('generateCoachWod')?.addEventListener('click',chooseWod);$('coachRegenerate')?.addEventListener('click',chooseWod);
+ $('coachMovements')?.addEventListener('click',e=>{const id=e.target.dataset.remove;if(id){current=current.filter(m=>m.id!==id);renderCurrent();}});
+ $('coachAddBtn')?.addEventListener('click',()=>{const m=available().find(x=>x.id===$('coachAddMovement').value);if(m){current.push({...m,reps:'10'});renderCurrent();}});
+ $('coachSendTimer')?.addEventListener('click',()=>{if(!current.length){alert('Ajoute au moins un mouvement.');return;}const duration=currentCfg.duration;const format=currentCfg.format;const movementsForTimer=current.map(m=>({name:m.fr,reps:m.reps,unit:'reps'}));const wod={name:`WOD OREL — ${currentCfg.type}`,type:format==='FOR TIME'?'FOR TIME':format,duration,movements:movementsForTimer,consigne:$('coachNotes').value,timerConfig:format==='EMOM'?{work_seconds:40}:format==='TABATA'?{work_seconds:20,rest_seconds:10,cycles:8}:null};if(format==='TABATA')wod.duration=null;window.sendWodToTimer(wod);});
+ // Expose current generator WOD bridge for timer integration.
 })();
 </script>
 
