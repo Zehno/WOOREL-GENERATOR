@@ -333,6 +333,146 @@ header {position:relative; padding-right:110px; padding-left:110px}
   .timer-types {grid-template-columns:repeat(2,1fr)}
   .tab {font-size:11px;padding:14px 5px}
 }
+
+/* FULLSCREEN GIANT TIMER OVERLAY */
+.fs-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 20px 32px;
+  background: #101419;
+  color: #f3f5f7;
+  transition: background-color 0.35s ease;
+  user-select: none;
+}
+.fs-overlay.hidden { display: none !important; }
+.fs-overlay.phase-prep { background: #1c2430; }
+.fs-overlay.phase-work { background: #0f3827; }
+.fs-overlay.phase-rest { background: #4a2a0b; }
+.fs-overlay.phase-done { background: #1f2937; }
+
+.fs-top {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.fs-badge {
+  font-size: clamp(16px, 2.5vw, 26px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.fs-phase-pill {
+  font-size: clamp(18px, 3vw, 32px);
+  font-weight: 900;
+  letter-spacing: 3px;
+  padding: 10px 24px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+.phase-prep .fs-phase-pill { background: #3b82f6; color: #fff; }
+.phase-work .fs-phase-pill { background: #26c281; color: #101419; }
+.phase-rest .fs-phase-pill { background: #f2a344; color: #101419; }
+.phase-done .fs-phase-pill { background: #e45b5b; color: #fff; }
+
+.fs-exit-btn {
+  background: rgba(0, 0, 0, 0.45);
+  color: #f3f5f7;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.fs-exit-btn:hover { background: rgba(255, 255, 255, 0.15); }
+
+.fs-center {
+  text-align: center;
+  width: 100%;
+  max-width: 1300px;
+  margin: auto;
+}
+.fs-wod-title {
+  font-size: clamp(18px, 2.8vw, 32px);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.fs-clock {
+  font-size: clamp(110px, 26vw, 310px);
+  font-weight: 900;
+  line-height: 0.95;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -4px;
+  margin: 10px 0;
+  text-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+.fs-round-info {
+  font-size: clamp(22px, 4vw, 44px);
+  font-weight: 900;
+  letter-spacing: 2px;
+  margin-top: 8px;
+}
+.fs-exercises-box {
+  margin: 16px auto 0;
+  max-width: 900px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 14px 20px;
+  font-size: clamp(15px, 2.2vw, 22px);
+  line-height: 1.45;
+  max-height: 22vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+.fs-next-box {
+  margin-top: 14px;
+  font-size: clamp(14px, 2vw, 20px);
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.28);
+  display: inline-block;
+  padding: 8px 18px;
+  border-radius: 8px;
+}
+.fs-controls {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 600px;
+}
+.fs-controls button {
+  flex: 1;
+  padding: 18px 20px;
+  font-size: 18px;
+  font-weight: 900;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 0;
+}
+.fs-btn-pause { background: #f2a344; color: #101419; }
+.fs-btn-resume { background: #26c281; color: #101419; }
+.fs-btn-reset { background: rgba(255, 255, 255, 0.16); color: #fff; border: 1px solid rgba(255,255,255,0.25) !important; }
+.danger-btn {
+  background: #3a1c20 !important;
+  color: #ff8a8a !important;
+  border-color: #6b2b32 !important;
+}
+.danger-btn:hover { background: #52242a !important; }
+
 </style>
 </head>
 
@@ -474,7 +614,6 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <button class="type-button" data-type="EMOM">EMOM</button>
       <button class="type-button" data-type="TABATA">TABATA</button>
       <button class="type-button" data-type="FORTIME">FOR TIME</button>
-      <button class="type-button" data-type="MIX">MIX</button>
     </div>
 
     <div id="timerSettings">
@@ -589,6 +728,29 @@ header {position:relative; padding-right:110px; padding-left:110px}
 <footer>WOOREL GENERATOR</footer>
 </div><!-- /appShell -->
 
+<!-- CHRONO PLEIN ECRAN GEANT -->
+<div id="fsTimerOverlay" class="fs-overlay phase-prep hidden" role="dialog" aria-modal="true">
+  <div class="fs-top">
+    <div class="fs-badge" id="fsBlockBadge">BLOC 1 / 1</div>
+    <div class="fs-phase-pill" id="fsPhasePill">PRÉPARATION</div>
+    <button type="button" class="fs-exit-btn" id="fsExitBtn">✕ QUITTER LE PLEIN ÉCRAN</button>
+  </div>
+
+  <div class="fs-center">
+    <div class="fs-wod-title" id="fsWodTitle">SÉANCE</div>
+    <div class="fs-clock" id="fsClock">00:10</div>
+    <div class="fs-round-info" id="fsRoundInfo">PRÉPARE-TOI</div>
+    <div class="fs-exercises-box" id="fsExercisesBox"></div>
+    <div class="fs-next-box hidden" id="fsNextBox"></div>
+  </div>
+
+  <div class="fs-controls">
+    <button type="button" class="fs-btn-pause" id="fsPauseResumeBtn">PAUSE</button>
+    <button type="button" class="fs-btn-reset" id="fsResetBtn">RESET</button>
+  </div>
+</div>
+
+
 <script>
 
 // =======================================
@@ -699,6 +861,7 @@ function displayLibrary() {
         <button class="secondary choose-library-wod" type="button">UTILISER CE WOD</button>
         <button class="secondary edit-library-wod" type="button">MODIFIER ✎</button>
         <button class="secondary share-library-wod" type="button">PARTAGER ↗</button>
+        <button class="secondary danger-btn delete-library-wod" type="button">SUPPRIMER 🗑</button>
       </div>`;
     card.querySelector(".choose-library-wod").addEventListener("click", () => {
       selectWod(wod); openPage("generator"); window.scrollTo({top:0,behavior:"smooth"});
@@ -709,6 +872,26 @@ function displayLibrary() {
     card.querySelector(".share-library-wod").addEventListener("click", async () => {
       try { await shareWodLink(wod); }
       catch (error) { alert("Impossible de créer le lien : " + (error?.message || error)); }
+    });
+    card.querySelector(".delete-library-wod").addEventListener("click", async () => {
+      const confirmed = window.confirm(`Supprimer définitivement « ${wod.name} » ?`);
+      if (!confirmed) return;
+      const statusEl = document.getElementById("libraryStatus");
+      try {
+        if (statusEl) statusEl.textContent = "Suppression en cours...";
+        await window.deleteWodFromSupabase(wod.id);
+        wods = wods.filter(item => String(item.id) !== String(wod.id));
+        if (selectedWod && String(selectedWod.id) === String(wod.id)) {
+          selectedWod = null;
+          document.getElementById("selectedWod").classList.add("hidden");
+        }
+        updateCount();
+        displayLibrary();
+        if (statusEl) statusEl.textContent = `WOD « ${wod.name} » supprimé.`;
+      } catch (error) {
+        console.error(error);
+        if (statusEl) statusEl.textContent = "Suppression impossible : " + (error?.message || String(error));
+      }
     });
     container.appendChild(card);
   });
@@ -856,7 +1039,7 @@ function sendWodToTimer(wod) {
     sequenceBlocks = wod.timerConfig.blocks.map(b => ({...b}));
     setTimerType("MIX");
     document.getElementById("timerWodContent").value = sequenceBlocks.map((b,i) =>
-      `BLOC ${i+1} — ${b.type}\\n${b.exercises || ""}`).join("\\n\\n");
+      `BLOC ${i+1} — ${b.type}\n${b.exercises || ""}`).join("\n\n");
     resetTimer(); openPage("timer"); updateClock(); return;
   }
   sequenceBlocks = [];
@@ -1098,67 +1281,247 @@ function getDuration() {
 }
 
 // =======================================
-// AFFICHAGE
+// PLEIN ECRAN & AFFICHAGE GEANT
 // =======================================
 
+let fsOverlayActive = false;
+
+function enterFullscreenOverlay() {
+  const overlay = document.getElementById("fsTimerOverlay");
+  if (!overlay) return;
+  fsOverlayActive = true;
+  overlay.classList.remove("hidden");
+  updateFsPauseButton();
+  const docEl = document.documentElement;
+  if (docEl.requestFullscreen && !document.fullscreenElement) {
+    docEl.requestFullscreen().catch(() => {});
+  }
+}
+
+function exitFullscreenOverlay() {
+  const overlay = document.getElementById("fsTimerOverlay");
+  if (overlay) overlay.classList.add("hidden");
+  fsOverlayActive = false;
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+document.addEventListener("fullscreenchange", () => {
+  // Si l'utilisateur quitte via Échap, on synchronise l'overlay ou on laisse l'overlay fermé proprement
+  if (!document.fullscreenElement && fsOverlayActive) {
+    // On garde l'overlay accessible ou on peut le fermer sur clic du bouton dédiée ;
+    // si Échap est pressé, on revient au site proprement.
+    exitFullscreenOverlay();
+  }
+});
+
+function updateFsPauseButton() {
+  const btn = document.getElementById("fsPauseResumeBtn");
+  if (!btn) return;
+  if (running || countdownActive) {
+    btn.textContent = "PAUSE";
+    btn.className = "fs-btn-pause";
+  } else {
+    btn.textContent = "REPRENDRE";
+    btn.className = "fs-btn-resume";
+  }
+}
+
+function getEffectiveMixBlocks() {
+  if (sequenceBlocks && sequenceBlocks.length) return sequenceBlocks;
+  // Fallback depuis les champs manuels MIX (2 WOD) de l'onglet Chronomètre
+  const t1 = document.getElementById("mixType1")?.value || "AMRAP";
+  const d1 = Math.max(1, Number(document.getElementById("mixDuration1")?.value) || 20);
+  const w1 = Math.max(1, Math.min(59, Number(document.getElementById("mixWork1")?.value) || 40));
+  const e1 = document.getElementById("mixExercises1")?.value || "";
+  const rest = Math.max(0, Number(document.getElementById("mixRest")?.value) || 0);
+  const t2 = document.getElementById("mixType2")?.value || "AMRAP";
+  const d2 = Math.max(1, Number(document.getElementById("mixDuration2")?.value) || 12);
+  const w2 = Math.max(1, Math.min(59, Number(document.getElementById("mixWork2")?.value) || 40));
+  const e2 = document.getElementById("mixExercises2")?.value || "";
+  return [
+    { type: t1, duration: d1, work: w1, exercises: e1, rest_after: rest },
+    { type: t2, duration: d2, work: w2, exercises: e2, rest_after: 0 }
+  ];
+}
+
+function getActiveSequenceTimeline() {
+  const blocks = getEffectiveMixBlocks();
+  let cursor = 0;
+  return blocks.map((b, index) => {
+    const start = cursor;
+    const duration = blockDurationSeconds(b);
+    cursor += duration;
+    const end = cursor;
+    const rest = index < blocks.length - 1 ? Math.max(0, Number(b.rest_after) || 0) * 60 : 0;
+    cursor += rest;
+    return { ...b, index, start, end, restStart: end, restEnd: cursor, duration, rest };
+  });
+}
+
 function formatTime(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
+  const safe = Math.max(0, Math.floor(seconds));
+  const mins = Math.floor(safe / 60);
+  const secs = safe % 60;
 
   return String(mins).padStart(2, "0") + ":" +
          String(secs).padStart(2, "0");
 }
 
+function syncFullscreenDisplay(state) {
+  const overlay = document.getElementById("fsTimerOverlay");
+  if (!overlay) return;
+
+  overlay.classList.remove("phase-prep", "phase-work", "phase-rest", "phase-done");
+  overlay.classList.add("phase-" + state.visualPhase);
+
+  document.getElementById("fsBlockBadge").textContent = state.blockLabel;
+  document.getElementById("fsPhasePill").textContent = state.phaseLabel;
+  document.getElementById("fsWodTitle").textContent = state.wodTitle;
+  document.getElementById("fsClock").textContent = state.clockText;
+  document.getElementById("fsRoundInfo").textContent = state.roundLabel;
+
+  const exBox = document.getElementById("fsExercisesBox");
+  if (state.exercisesText) {
+    exBox.textContent = state.exercisesText;
+    exBox.classList.remove("hidden");
+  } else {
+    exBox.classList.add("hidden");
+  }
+
+  const nextBox = document.getElementById("fsNextBox");
+  if (state.nextText) {
+    nextBox.textContent = state.nextText;
+    nextBox.classList.remove("hidden");
+  } else {
+    nextBox.classList.add("hidden");
+  }
+}
+
 function updateClock() {
   let value = remaining;
+  const wodTitle = (document.getElementById("timerWodName")?.value || "").trim() || "ENTRAÎNEMENT";
+  const defaultExercises = (document.getElementById("timerWodContent")?.value || "").trim();
 
-  if (timerType === "FORTIME" && remaining === 0 && elapsed > 0) {
-    value = elapsed;
+  let state = {
+    visualPhase: "work",
+    blockLabel: timerType,
+    phaseLabel: "TRAVAIL",
+    wodTitle,
+    clockText: formatTime(value),
+    roundLabel: timerType,
+    exercisesText: defaultExercises,
+    nextText: ""
+  };
+
+  if (timerType === "FORTIME") {
+    if (remaining === 0 && elapsed > 0) value = elapsed;
+    if (!running && elapsed === 0) value = 0;
+    const limit = Number(document.getElementById("fortimeLimit").value) || 0;
+    state.blockLabel = "FOR TIME";
+    state.roundLabel = limit > 0 ? `TIME CAP : ${limit} MIN` : "SANS LIMITE DE TEMPS";
   }
 
-  if (timerType === "FORTIME" && !running && elapsed === 0) {
-    value = 0;
+  if (timerType === "AMRAP") {
+    const dur = Math.max(1, Number(document.getElementById("amrapDuration").value) || 20);
+    state.blockLabel = `AMRAP — ${dur} MIN`;
+    state.roundLabel = "MAX DE ROUNDS";
   }
-
-  if (timerType === "MIX") {
-    const timeline = getSequenceTimeline();
-    const current = timeline.find(b => elapsed < b.end || (b.rest && elapsed < b.restEnd));
-    if (current) {
-      if (elapsed >= current.end && current.rest) {
-        value = current.restEnd - elapsed;
-        document.getElementById("timerInfo").textContent = `REPOS APRÈS BLOC ${current.index+1}`;
-      } else {
-        const local = elapsed - current.start;
-        value = Math.max(0, current.duration - local);
-        let phaseLabel = current.type;
-        if (current.type === "EMOM") phaseLabel += ` — MINUTE ${Math.floor(local/60)+1} — ${local%60 < current.work ? "TRAVAIL" : "REPOS"}`;
-        if (current.type === "TABATA") {
-          const cycleLength = current.work + current.rest;
-          const cycleNo = Math.min(current.cycles, Math.floor(local / cycleLength)+1);
-          const inCycle = local - (cycleNo-1)*cycleLength;
-          phaseLabel += ` — CYCLE ${cycleNo}/${current.cycles} — ${inCycle < current.work ? "TRAVAIL" : "REPOS"}`;
-        }
-        document.getElementById("timerInfo").textContent = `BLOC ${current.index+1}/${timeline.length} — ${phaseLabel}`;
-      }
-    }
-  }
-  document.getElementById("clock").textContent = formatTime(value);
-
-  let info = timerType === "MIX"
-    ? document.getElementById("timerInfo").textContent
-    : timerType;
 
   if (timerType === "TABATA") {
-    info = `CYCLE ${cycle} / ${Math.max(1, Number(document.getElementById("tabataCycles").value) || 8)} — ${phase === "work" ? "TRAVAIL" : "REPOS"}`;
+    const totalCycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
+    const isWork = phase === "work";
+    state.visualPhase = isWork ? "work" : "rest";
+    state.phaseLabel = isWork ? "TRAVAIL" : "REPOS";
+    state.blockLabel = "TABATA";
+    state.roundLabel = `ROUND ${Math.min(cycle, totalCycles)} / ${totalCycles}`;
   }
 
   if (timerType === "EMOM") {
+    const totalMins = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
-    const currentMinute = Math.floor(elapsed / 60) + 1;
-    info = `EMOM — MINUTE ${currentMinute} — ${elapsed % 60 < workSeconds ? "TRAVAIL" : "REPOS"}`;
+    const currentMinute = Math.min(totalMins, Math.floor(elapsed / 60) + 1);
+    const isWork = (elapsed % 60) < workSeconds;
+    state.visualPhase = isWork ? "work" : "rest";
+    state.phaseLabel = isWork ? "TRAVAIL" : "REPOS";
+    state.blockLabel = "EMOM";
+    state.roundLabel = `ROUND / MINUTE ${currentMinute} / ${totalMins}`;
   }
 
-  document.getElementById("timerInfo").textContent = info;
+  if (timerType === "MIX") {
+    const timeline = getActiveSequenceTimeline();
+    const current = timeline.find(b => elapsed < b.end || (b.rest && elapsed < b.restEnd));
+    if (current) {
+      const nextBlock = timeline[current.index + 1] || null;
+      if (elapsed >= current.end && current.rest) {
+        value = current.restEnd - elapsed;
+        state.visualPhase = "rest";
+        state.phaseLabel = "REPOS INTER-BLOCS";
+        state.blockLabel = `REPOS APRÈS BLOC ${current.index + 1} / ${timeline.length}`;
+        state.roundLabel = `REPOS (${Math.round(current.rest / 60 * 10) / 10} MIN)`;
+        state.exercisesText = nextBlock
+          ? `PROCHAIN BLOC (${nextBlock.index + 1}/${timeline.length} — ${nextBlock.type}) :
+${nextBlock.exercises || ""}`
+          : "DERNIER REPOS";
+        state.nextText = nextBlock
+          ? `À SUIVRE : BLOC ${nextBlock.index + 1} (${nextBlock.type} — ${nextBlock.duration / 60} min)`
+          : "";
+      } else {
+        const local = elapsed - current.start;
+        value = Math.max(0, current.duration - local);
+        state.blockLabel = `BLOC ${current.index + 1} / ${timeline.length} — ${current.type}`;
+        state.exercisesText = (current.exercises || "").trim() || defaultExercises;
+
+        let roundInfo = current.type;
+        let isWork = true;
+        if (current.type === "EMOM") {
+          const totalMins = Math.max(1, Math.round(current.duration / 60));
+          const minNo = Math.min(totalMins, Math.floor(local / 60) + 1);
+          isWork = (local % 60) < current.work;
+          roundInfo = `MINUTE ${minNo} / ${totalMins}`;
+        } else if (current.type === "TABATA") {
+          const cycleLength = current.work + current.rest;
+          const cycleNo = Math.min(current.cycles, Math.floor(local / cycleLength) + 1);
+          const inCycle = local - (cycleNo - 1) * cycleLength;
+          isWork = inCycle < current.work;
+          roundInfo = `ROUND ${cycleNo} / ${current.cycles}`;
+        } else if (current.type === "AMRAP") {
+          roundInfo = `AMRAP — ${Math.round(current.duration / 60)} MIN`;
+        } else if (current.type === "FORTIME") {
+          roundInfo = `FOR TIME — CAP ${Math.round(current.duration / 60)} MIN`;
+        }
+
+        state.visualPhase = isWork ? "work" : "rest";
+        state.phaseLabel = isWork ? "TRAVAIL" : "REPOS";
+        state.roundLabel = roundInfo;
+
+        if (current.rest > 0 && nextBlock) {
+          state.nextText = `ENSUITE : ${Math.round(current.rest / 60 * 10) / 10} min repos → BLOC ${nextBlock.index + 1} (${nextBlock.type})`;
+        } else if (nextBlock) {
+          state.nextText = `ENSUITE : BLOC ${nextBlock.index + 1} (${nextBlock.type})`;
+        } else {
+          state.nextText = "DERNIER BLOC DE LA SÉANCE";
+        }
+      }
+    }
+  }
+
+  state.clockText = formatTime(value);
+  document.getElementById("clock").textContent = state.clockText;
+  document.getElementById("timerInfo").textContent =
+    timerType === "MIX"
+      ? `${state.blockLabel} — ${state.roundLabel} (${state.phaseLabel})`
+      : `${state.roundLabel} — ${state.phaseLabel}`;
+
+  if (countdownActive) {
+    state.visualPhase = "prep";
+    state.phaseLabel = "PRÉPARATION";
+    state.clockText = formatTime(countdownRemaining);
+    state.roundLabel = "PRÉPARE-TOI — DÉPART DANS 10s";
+  }
+
+  syncFullscreenDisplay(state);
 }
 
 // =======================================
@@ -1174,6 +1537,7 @@ function stopTimer() {
 
   running = false;
   countdownActive = false;
+  updateFsPauseButton();
 }
 
 function resetTimer() {
@@ -1183,7 +1547,9 @@ function resetTimer() {
   phase = "work";
   cycle = 1;
   countdownRemaining = 0;
-  remaining = getDuration();
+  remaining = timerType === "MIX"
+    ? (getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0)
+    : getDuration();
 
   document.getElementById("timerStatus").textContent = "PRÊT";
 
@@ -1194,6 +1560,13 @@ function finishTimer(message) {
   stopTimer();
 
   document.getElementById("timerStatus").textContent = message;
+  const overlay = document.getElementById("fsTimerOverlay");
+  if (overlay) {
+    overlay.classList.remove("phase-prep", "phase-work", "phase-rest");
+    overlay.classList.add("phase-done");
+    document.getElementById("fsPhasePill").textContent = message;
+    document.getElementById("fsRoundInfo").textContent = "BRAVO ! SÉANCE TERMINÉE";
+  }
 }
 
 // =======================================
@@ -1213,6 +1586,8 @@ function startPreparation() {
   document.getElementById("timerStatus").textContent = "PRÉPARATION";
   document.getElementById("clock").textContent = "00:10";
   document.getElementById("timerInfo").textContent = "PRÉPARE-TOI";
+  updateClock();
+  updateFsPauseButton();
 
   // Timbre au début des 10 secondes
   playStartBell();
@@ -1249,6 +1624,7 @@ function startPreparation() {
     document.getElementById("timerInfo").textContent =
       "DÉPART IMMINENT";
 
+    updateClock();
   }, 1000);
 }
 
@@ -1260,6 +1636,7 @@ function startWorkout() {
   running = true;
 
   document.getElementById("timerStatus").textContent = "EN COURS";
+  updateFsPauseButton();
 
   updateClock();
 
@@ -1312,14 +1689,20 @@ function tick() {
 
   // MIX : enchaînement illimité de blocs et de repos
   if (timerType === "MIX") {
-    const total = getDuration();
+    const timeline = getActiveSequenceTimeline();
+    const total = timeline.length ? timeline[timeline.length - 1].restEnd : 0;
     if (elapsed >= total) {
-      remaining = 0; updateClock(); finishTimer("SÉANCE TERMINÉE"); return;
+      remaining = 0;
+      playCountdownTone("GO");
+      updateClock();
+      finishTimer("SÉANCE TERMINÉE");
+      return;
     }
-    const timeline = getSequenceTimeline();
-    if (timeline.some(b => elapsed === b.start || elapsed === b.restStart || elapsed === b.restEnd)) playCountdownTone("GO");
+    if (timeline.some(b => elapsed === b.start || (b.rest > 0 && elapsed === b.restStart) || elapsed === b.restEnd)) {
+      playCountdownTone("GO");
+    }
     const current = timeline.find(b => elapsed < b.end || (b.rest && elapsed < b.restEnd));
-    if (current) {
+    if (current && elapsed < current.end) {
       const local = elapsed - current.start;
       if (current.type === "TABATA" && local > 0) {
         const prev = local - 1;
@@ -1327,9 +1710,13 @@ function tick() {
         const nowPhase = (local % (current.work + current.rest)) < current.work ? "work" : "rest";
         if (prevPhase !== nowPhase) playCountdownTone("GO");
       }
-      if (current.type === "EMOM" && local > 0 && local % 60 === current.work) playCountdownTone("GO");
+      if (current.type === "EMOM" && local > 0 && (local % 60 === current.work || local % 60 === 0)) {
+        playCountdownTone("GO");
+      }
     }
-    remaining = total - elapsed; updateClock(); return;
+    remaining = total - elapsed;
+    updateClock();
+    return;
   }
 
   // FOR TIME
@@ -1338,6 +1725,7 @@ function tick() {
 
     if (limit > 0 && elapsed >= limit) {
       remaining = 0;
+      playCountdownTone("GO");
       updateClock();
       finishTimer("TIME CAP");
       return;
@@ -1359,18 +1747,21 @@ function tick() {
       if (phase === "work" && rest > 0) {
         phase = "rest";
         remaining = rest;
+        playCountdownTone("GO");
       } else {
         phase = "work";
         cycle++;
 
         if (cycle > cycles) {
           remaining = 0;
+          playCountdownTone("GO");
           updateClock();
           finishTimer("TERMINÉ");
           return;
         }
 
         remaining = work;
+        playCountdownTone("GO");
       }
     }
 
@@ -1378,11 +1769,20 @@ function tick() {
     return;
   }
 
+  // EMOM : bip au passage travail <-> repos chaque minute
+  if (timerType === "EMOM") {
+    const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
+    if (elapsed % 60 === workSeconds || (elapsed % 60 === 0 && remaining > 1)) {
+      playCountdownTone("GO");
+    }
+  }
+
   // AMRAP ET EMOM
   remaining--;
 
   if (remaining <= 0) {
     remaining = 0;
+    playCountdownTone("GO");
     updateClock();
     finishTimer("TERMINÉ");
     return;
@@ -1392,13 +1792,12 @@ function tick() {
 }
 
 // =======================================
-// BOUTON DEMARRER
+// BOUTONS DEMARRER / PAUSE / RESET / PLEIN ECRAN
 // =======================================
 
-document.getElementById("startTimer").addEventListener("click", () => {
+function triggerStartOrResume() {
   if (running || countdownActive) return;
 
-  // Initialisation du TABATA
   if (timerType === "TABATA" && elapsed === 0) {
     remaining = Math.max(
       1,
@@ -1406,35 +1805,36 @@ document.getElementById("startTimer").addEventListener("click", () => {
     );
   }
 
-  // Initialisation du FOR TIME
   if (timerType === "FORTIME" && elapsed === 0) {
     remaining = 0;
+  }
+
+  if (timerType === "MIX" && elapsed === 0) {
+    remaining = getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0;
   }
 
   if (timerType !== "FORTIME" && remaining <= 0) {
     resetTimer();
   }
 
-  // Première mise en route : préparation de 10 secondes
+  enterFullscreenOverlay();
+
   if (elapsed === 0) {
     startPreparation();
   } else {
-    // Reprise après une pause : pas de nouveau décompte
     startWorkout();
   }
-});
+}
 
-// =======================================
-// BOUTON PAUSE
-// =======================================
-
-document.getElementById("pauseTimer").addEventListener("click", () => {
+function triggerPause() {
   if (countdownActive) {
     clearInterval(countdownInterval);
     countdownInterval = null;
     countdownActive = false;
 
     document.getElementById("timerStatus").textContent = "EN PAUSE";
+    document.getElementById("fsPhasePill").textContent = "EN PAUSE";
+    updateFsPauseButton();
     return;
   }
 
@@ -1443,17 +1843,38 @@ document.getElementById("pauseTimer").addEventListener("click", () => {
   stopTimer();
 
   document.getElementById("timerStatus").textContent = "EN PAUSE";
+  document.getElementById("fsPhasePill").textContent = "EN PAUSE";
+  updateFsPauseButton();
+}
+
+document.getElementById("startTimer").addEventListener("click", triggerStartOrResume);
+document.getElementById("pauseTimer").addEventListener("click", triggerPause);
+document.getElementById("resetTimer").addEventListener("click", resetTimer);
+
+document.getElementById("fsPauseResumeBtn").addEventListener("click", () => {
+  if (running || countdownActive) {
+    triggerPause();
+  } else {
+    triggerStartOrResume();
+  }
 });
 
-// =======================================
-// BOUTON RESET
-// =======================================
+document.getElementById("fsResetBtn").addEventListener("click", () => {
+  resetTimer();
+  document.getElementById("fsPhasePill").textContent = "PRÊT";
+  updateFsPauseButton();
+});
 
-document.getElementById("resetTimer").addEventListener("click", resetTimer);
+document.getElementById("fsExitBtn").addEventListener("click", () => {
+  exitFullscreenOverlay();
+});
 
 // Actualisation de l'affichage quand les paramètres changent.
 
-document.querySelectorAll("#timerSettings input").forEach(input => {
+document.querySelectorAll("#timerSettings input, #timerSettings select").forEach(input => {
+  input.addEventListener("change", () => {
+    if (!running && !countdownActive && elapsed === 0) resetTimer();
+  });
   input.addEventListener("input", () => {
     if (!running && !countdownActive && elapsed === 0) {
       resetTimer();
@@ -1695,6 +2116,20 @@ function showLoggedOut(message = "") {
   authScreen.style.display = "flex";
   authMessage.textContent = message;
 }
+
+window.deleteWodFromSupabase = async function(id) {
+  const { error: movementsError } = await supabase
+    .from("wod_movements")
+    .delete()
+    .eq("wod_id", id);
+  if (movementsError) throw movementsError;
+
+  const { error: wodError } = await supabase
+    .from("wods")
+    .delete()
+    .eq("id", id);
+  if (wodError) throw wodError;
+};
 
 window.clearAllWodsFromSupabase = async function() {
   // Les mouvements sont supprimés d'abord pour respecter la relation wod_id.
