@@ -529,6 +529,28 @@ header {position:relative; padding-right:110px; padding-left:110px}
   margin-bottom: 4px;
   text-transform: uppercase;
 }
+
+/* ENCADRÉ CONSIGNES ROUGE */
+.consigne-box-red {
+  background: rgba(228, 91, 91, 0.08);
+  border-left: 3px solid var(--red);
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-size: 13px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  color: var(--text);
+}
+.consigne-label-red {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: var(--red);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
 .fs-content-grid {
   display: flex;
   flex-direction: column;
@@ -692,8 +714,10 @@ header {
 .timer-progress-fill {height:100%;width:0%;background:#60a5fa;transition:width .25s linear}
 .fs-progress {width:min(100%,1100px);height:18px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);border-radius:99px;overflow:hidden;margin:12px auto 0}
 .fs-progress-fill {height:100%;width:0%;background:#60a5fa;transition:width .25s linear}
-.fs-exercise-focus {font-size:clamp(18px,3vw,32px);font-weight:900;margin-top:18px;color:#fff}
-.fs-exercise-focus small {display:block;font-size:.48em;letter-spacing:2px;color:#cbd5e1;margin-bottom:6px}
+.fs-exercise-focus {font-size:clamp(16px,2.4vw,26px);font-weight:900;margin-top:14px;color:#fff;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.14);border-radius:12px;padding:12px 18px;max-height:22vh;overflow-y:auto;text-align:left;}
+.fs-exercise-item {padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.08);}
+.fs-exercise-item:last-child {border-bottom:0;}
+.fs-exercise-item.highlight {color:var(--green);font-weight:900;}
 .fs-overlay.phase-work .fs-phase-pill{box-shadow:0 0 28px rgba(228,91,91,.28)}
 .fs-overlay.phase-rest .fs-phase-pill{box-shadow:0 0 28px rgba(38,194,129,.25)}
 .fs-skip-btn {background:#60a5fa;color:#101419;border:0;border-radius:10px;padding:12px 16px;font-weight:900;cursor:pointer}
@@ -860,6 +884,36 @@ header {
     </div>
   </div>
 </section>
+
+<!-- COACH WOD : générateur guidé par règles de programmation -->
+<section id="coachPage" class="page">
+  <h2>COACH WOD — GÉNÉRATEUR</h2>
+  <div class="panel">
+    <p class="muted">CONSTRUIS UN WOD À PARTIR DES MOUVEMENTS DE TA BIBLIOTHÈQUE</p>
+    <div class="grid">
+      <div class="field"><label for="coachDuration">DURÉE</label><select id="coachDuration"><option>10</option><option>15</option><option selected>20</option><option>30</option><option>45</option><option>60</option><option>70</option><option>80</option></select></div>
+      <div class="field"><label for="coachType">TYPE DE WOD</label><select id="coachType"><option value="Mixed Modality">Mixed Modality</option><option value="Gym">Gym</option><option value="Haltéro">Haltéro</option><option value="Cardio">Cardio</option></select></div>
+      <div class="field"><label for="coachLevel">RAISONNEMENT COACH</label><select id="coachLevel"><option value="L1">Level 1 — Fondamentaux</option><option value="L2" selected>Level 2 — Programmation</option><option value="L3">Level 3 — Avancé</option></select></div>
+      <div class="field"><label for="coachFormat">FORMAT</label><select id="coachFormat"><option>AMRAP</option><option>FOR TIME</option><option>EMOM</option><option>TABATA</option></select></div>
+    </div>
+    <div class="field"><label>NIVEAU SPORTIF</label><div class="inline-options"><label><input type="radio" name="coachAthleteLevel" value="Débutant" checked> Débutant</label><label><input type="radio" name="coachAthleteLevel" value="Intermédiaire"> Intermédiaire</label><label><input type="radio" name="coachAthleteLevel" value="Avancé"> Avancé</label></div></div>
+    <div class="field"><label for="coachSearch">RECHERCHER UN MOUVEMENT À EXCLURE</label><input id="coachSearch" placeholder="Filtrer la liste..."></div>
+    <div class="field"><label>MOUVEMENTS À EXCLURE</label><div id="coachExclusions" class="exclusion-list"></div><p class="small-note">Les mouvements cochés ne seront pas proposés dans le WOD généré.</p></div>
+    <button class="primary" id="generateCoachWod" type="button">⚡ GÉNÉRER MON WOD</button>
+    <div id="coachStatus" class="small-note" role="status" aria-live="polite" style="margin-top:12px"></div>
+  </div>
+  <div id="coachResult" class="panel hidden">
+    <div class="result-heading"><div><div class="muted">WOD PROPOSÉ</div><h2 id="coachResultTitle" style="margin:5px 0"></h2></div><span class="tag" id="coachResultMeta"></span></div>
+    <div id="coachMovements"></div>
+    <div class="field" style="margin-top:16px"><label for="coachAddMovement">AJOUTER UN MOUVEMENT</label><div class="inline-add"><select id="coachAddMovement"></select><button class="secondary" id="coachAddBtn" type="button">AJOUTER</button></div></div>
+    <div class="field"><label for="coachNotes">CONSIGNES</label><textarea id="coachNotes" rows="2"></textarea></div>
+    <div class="coach-explanation"><strong>RAISONNEMENT DU COACH</strong><p id="coachExplanation"></p></div>
+    <div class="actions"><button class="primary" id="coachSendTimer" type="button">ENVOYER VERS LE CHRONO →</button><button class="secondary" id="coachRegenerate" type="button">RÉGÉNÉRER</button></div>
+  </div>
+  <div class="small-note">Le coach actuel est un moteur de programmation à règles, pas une IA conversationnelle ni une certification CrossFit officielle. Il applique des principes de variété, de cohérence des modalités et d'adaptation du volume. Les propositions sont limitées aux fiches présentes dans la bibliothèque.</div>
+</section>
+
+<div id="movementDetailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="movementDetailTitle"><div class="modal-card"><button class="secondary" id="closeMovementDetail" type="button" style="float:right">FERMER ✕</button><div id="movementDetailContent"></div></div></div>
 
 <!-- CHRONOMETRE -->
 
@@ -1083,7 +1137,10 @@ header {
     <div class="fs-clock" id="fsClock">00:10</div>
     <div class="fs-round-info" id="fsRoundInfo">PRÉPARE-TOI</div>
     <div class="fs-progress"><div class="fs-progress-fill" id="fsProgressFill"></div></div>
-    <div class="fs-exercise-focus" id="fsExerciseFocus"><small>EXERCICE EN COURS</small>PRÉPARE-TOI</div>
+    <div class="fs-exercise-focus" id="fsExerciseFocus">
+      <div style="font-size:11px;font-weight:900;letter-spacing:2px;color:#929eaa;margin-bottom:6px;text-transform:uppercase">EXERCICES DE LA SÉANCE</div>
+      <div id="fsExercisesListContainer"></div>
+    </div>
     <div class="fs-next-box hidden" id="fsNextBox"></div>
   </div>
 
@@ -1146,12 +1203,7 @@ function openLibraryPanel(panelId) {
 // BIBLIOTHEQUE
 // =======================================
 
-// Données de démonstration.
-// Elles seront remplacées par les WOD extraits des PDF.
-
-// Variables globales partagées avec le script module Supabase.
-// `var` les expose sur window, contrairement à `let` dans un script classique.
-var wods = []; // Chargés depuis Supabase après connexion
+var wods = [];
 var selectedWod = null;
 var editingWodId = null;
 
@@ -1318,7 +1370,6 @@ document.getElementById("cancelEditWod").addEventListener("click", () => {
 
 function selectWod(wod) {
   selectedWod = wod;
-
   document.getElementById("selectedContent").innerHTML = renderWod(wod);
   document.getElementById("selectedWod").classList.remove("hidden");
 }
@@ -1329,7 +1380,6 @@ document.getElementById("randomButton").addEventListener("click", () => {
     status.textContent = "Aucun WOD disponible dans la base. Vérifie l'import et la connexion Supabase.";
     return;
   }
-
   const wod = wods[Math.floor(Math.random() * wods.length)];
   selectWod(wod);
   status.textContent = "WOD existant sélectionné depuis ta base.";
@@ -1450,14 +1500,12 @@ function decodeSharePayload(encoded) {
 
 let currentShareLink = "";
 
-// Générateur QR Code matriciel autonome (sans dépendance externe) via API QR fallback ou dessin canvas
 function drawQrCodeOnCanvas(canvas, text) {
   const ctx = canvas.getContext("2d");
   const size = canvas.width;
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, size, size);
 
-  // Utilisation d'une image QR haute fiabilité dessinée sur le canvas + fallback matrice déterministe
   const img = new Image();
   img.crossOrigin = "anonymous";
   img.onload = () => {
@@ -1466,7 +1514,6 @@ function drawQrCodeOnCanvas(canvas, text) {
     ctx.drawImage(img, 0, 0, size, size);
   };
   img.onerror = () => {
-    // Fallback visuel si hors-ligne
     ctx.fillStyle = "#101419";
     ctx.font = "bold 13px Arial";
     ctx.textAlign = "center";
@@ -1551,25 +1598,13 @@ let cycle = 1;
 
 let audioContext = null;
 
-// =======================================
-// SYSTEME AUDIO
-// =======================================
-
 function getAudioContext() {
   if (!audioContext) {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-
-    if (!AudioContextClass) {
-      throw new Error("Audio non disponible sur ce navigateur.");
-    }
-
+    if (!AudioContextClass) throw new Error("Audio non disponible sur ce navigateur.");
     audioContext = new AudioContextClass();
   }
-
-  if (audioContext.state === "suspended") {
-    audioContext.resume();
-  }
-
+  if (audioContext.state === "suspended") audioContext.resume();
   return audioContext;
 }
 
@@ -1592,42 +1627,29 @@ function playTone(frequency = 880, duration = 0.35) {
 
     oscillator.start();
     oscillator.stop(audio.currentTime + duration);
-
   } catch (error) {
     console.warn("Signal sonore indisponible :", error);
   }
 }
 
-// Timbre de préparation : deux notes simultanées
 function playStartBell() {
   playTone(660, 0.8);
   playTone(990, 0.8);
 }
 
-// Même tonalité pour tous les signaux de mi-temps
 function playMidpointTone() {
   playTone(880, 0.55);
 }
+
 function playTransitionSound(kind) {
   if (kind === "rest") { playTone(520, .18); setTimeout(() => playTone(420, .22), 130); }
   else { playTone(920, .16); setTimeout(() => playTone(1180, .28), 140); }
 }
 
-// Décompte sonore
 function playCountdownTone(number) {
-  const frequencies = {
-    3: 600,
-    2: 700,
-    1: 800,
-    GO: 1100
-  };
-
+  const frequencies = { 3: 600, 2: 700, 1: 800, GO: 1100 };
   playTone(frequencies[number] || 880, number === "GO" ? 0.6 : 0.22);
 }
-
-// =======================================
-// DUREE DU CHRONOMETRE
-// =======================================
 
 let sequenceBlocks = [];
 function blockDurationSeconds(block) {
@@ -1637,6 +1659,7 @@ function blockDurationSeconds(block) {
   if (type === "FORTIME") return Math.max(1, block.duration || 1) * 60;
   return Math.max(1, block.duration || 1) * 60;
 }
+
 function getSequenceTimeline() {
   let cursor = 0;
   return sequenceBlocks.map((b, index) => {
@@ -1649,42 +1672,24 @@ function getSequenceTimeline() {
     return { ...b, index, start, end, restStart:end, restEnd:cursor, duration, rest };
   });
 }
+
 function getSequenceDuration() {
   const timeline = getSequenceTimeline();
   return timeline.length ? timeline[timeline.length-1].restEnd : 0;
 }
-function updateMixControls() {
-  const preview = document.getElementById("mixTotalPreview");
-  if (preview) preview.textContent = "La séance multi-blocs est configurée depuis l'onglet Bibliothèque.";
-}
 
 function getDuration() {
   if (timerType === "MIX") return getSequenceDuration();
-  if (timerType === "AMRAP") {
-    return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
-  }
-
-  if (timerType === "EMOM") {
-    return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
-  }
-
-  if (timerType === "FORTIME") {
-    return Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0) * 60;
-  }
-
-  if (timerType === "STOPWATCH") {
-    return 0;
-  }
+  if (timerType === "AMRAP") return Math.max(1, Number(document.getElementById("amrapDuration").value) || 20) * 60;
+  if (timerType === "EMOM") return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
+  if (timerType === "FORTIME") return Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0) * 60;
+  if (timerType === "STOPWATCH") return 0;
 
   const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
   const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
   const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
   return work * cycles + rest * Math.max(0, cycles - 1);
 }
-
-// =======================================
-// PLEIN ECRAN & AFFICHAGE GEANT
-// =======================================
 
 let fsOverlayActive = false;
 
@@ -1712,10 +1717,7 @@ function exitFullscreenOverlay() {
 }
 
 document.addEventListener("fullscreenchange", () => {
-  // Si l'utilisateur quitte via Échap, on synchronise l'overlay ou on laisse l'overlay fermé proprement
   if (!document.fullscreenElement && fsOverlayActive) {
-    // On garde l'overlay accessible ou on peut le fermer sur clic du bouton dédiée ;
-    // si Échap est pressé, on revient au site proprement.
     exitFullscreenOverlay();
   }
 });
@@ -1734,7 +1736,6 @@ function updateFsPauseButton() {
 
 function getEffectiveMixBlocks() {
   if (sequenceBlocks && sequenceBlocks.length) return sequenceBlocks;
-  // Fallback depuis les champs manuels MIX (2 WOD) de l'onglet Chronomètre
   const t1 = document.getElementById("mixType1")?.value || "AMRAP";
   const d1 = Math.max(1, Number(document.getElementById("mixDuration1")?.value) || 20);
   const w1 = Math.max(1, Math.min(59, Number(document.getElementById("mixWork1")?.value) || 40));
@@ -1768,9 +1769,7 @@ function formatTime(seconds) {
   const safe = Math.max(0, Math.floor(seconds));
   const mins = Math.floor(safe / 60);
   const secs = safe % 60;
-
-  return String(mins).padStart(2, "0") + ":" +
-         String(secs).padStart(2, "0");
+  return String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
 }
 
 function updateReenterFullscreenButton() {
@@ -1783,17 +1782,39 @@ function updateReenterFullscreenButton() {
 function getPreparationDuration() {
   return Math.max(0, Math.min(60, Number(document.getElementById("prepDuration")?.value) || 0));
 }
+
 function getExerciseLines() {
   const raw = document.getElementById("timerWodContent")?.value || "";
-  return raw.split(/\n+/).map(x => x.trim()).filter(Boolean);
+  return raw.split(/\r?\n+/).map(x => x.trim()).filter(Boolean);
 }
-function getExerciseFocus(roundText = "") {
+
+function renderFullscreenExercisesList(roundText = "") {
   const lines = getExerciseLines();
-  if (!lines.length) return {current:"", next:""};
+  const container = document.getElementById("fsExercisesListContainer");
+  if (!container) return;
+
+  if (!lines.length) {
+    container.innerHTML = '<div style="color:var(--muted);font-style:italic">Aucun exercice saisi</div>';
+    return;
+  }
+
+  // Détermine l'exercice actif selon le round/minute en cours pour le mettre en valeur (compteur multiple d'exercices)
+  let activeIndex = 0;
   const match = String(roundText).match(/(?:ROUND|MINUTE)\s+(\d+)/i);
-  const idx = match ? (Number(match[1])-1) % lines.length : 0;
-  return {current:lines[idx], next:lines[(idx+1)%lines.length]};
+  if (match) {
+    activeIndex = (Number(match[1]) - 1) % lines.length;
+  } else if (timerType === "AMRAP" || timerType === "FORTIME") {
+    // Rotation cyclique simple basée sur le temps écoulé (ex: toutes les 30s ou changement d'exercice)
+    activeIndex = Math.floor(elapsed / 45) % lines.length;
+  }
+
+  container.innerHTML = lines.map((line, idx) => `
+    <div class="fs-exercise-item ${idx === activeIndex ? 'highlight' : ''}">
+      ${idx === activeIndex ? '➔ ' : '• '} ${escapeHTML(line)}
+    </div>
+  `).join("");
 }
+
 function updateProgress(elapsedSeconds, totalSeconds) {
   const pct = totalSeconds > 0 ? Math.max(0, Math.min(100, elapsedSeconds / totalSeconds * 100)) : 0;
   const label = `${Math.round(pct)} % de la séance`;
@@ -1804,10 +1825,12 @@ function updateProgress(elapsedSeconds, totalSeconds) {
   const text = document.getElementById("timerProgressLabel");
   if (text) text.textContent = label;
 }
+
 function updateSkipButtons() {
   const show = timerType === "MIX" && getActiveSequenceTimeline().length > 1 && (running || countdownActive || elapsed > 0);
   ["skipBlockBtn","fsSkipBlockBtn"].forEach(id => document.getElementById(id)?.classList.toggle("hidden", !show));
 }
+
 function skipToNextBlock() {
   if (timerType !== "MIX") return;
   const timeline = getActiveSequenceTimeline();
@@ -1831,9 +1854,9 @@ function syncFullscreenDisplay(state) {
   document.getElementById("fsPhasePill").textContent = state.phaseLabel;
   document.getElementById("fsClock").textContent = state.clockText;
   document.getElementById("fsRoundInfo").textContent = state.roundLabel;
-  const focus = getExerciseFocus(state.roundLabel);
-  const focusEl = document.getElementById("fsExerciseFocus");
-  if (focusEl) focusEl.innerHTML = `<small>EXERCICE EN COURS</small>${escapeHTML(focus.current || "SÉANCE EN COURS")}${focus.next ? `<small style="margin-top:12px">PROCHAIN EXERCICE</small><span style="font-size:.72em;color:#cbd5e1">${escapeHTML(focus.next)}</span>` : ""}`;
+
+  renderFullscreenExercisesList(state.roundLabel);
+
   updateProgress(elapsed, timerType === "MIX" ? getSequenceDuration() : getDuration());
   updateSkipButtons();
 
@@ -1861,13 +1884,10 @@ function updateClock() {
     const limit = Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0);
     const capSeconds = limit * 60;
     if (capSeconds > 0) {
-      // Décompte négatif à partir du Time Cap
       const remCap = Math.max(0, capSeconds - elapsed);
       value = remCap;
       state.blockLabel = `FOR TIME — CAP ${limit} MIN`;
-      state.roundLabel = remCap > 0
-        ? `TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})`
-        : "TIME CAP ATTEINT";
+      state.roundLabel = remCap > 0 ? `TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})` : "TIME CAP ATTEINT";
     } else {
       value = elapsed;
       state.blockLabel = "FOR TIME";
@@ -1918,15 +1938,11 @@ function updateClock() {
         state.phaseLabel = "REPOS INTER-BLOCS";
         state.blockLabel = `REPOS APRÈS BLOC ${current.index + 1} / ${timeline.length}`;
         state.roundLabel = `REPOS (${Math.round(current.rest / 60 * 10) / 10} MIN)`;
-
-        state.nextText = nextBlock
-          ? `À SUIVRE : BLOC ${nextBlock.index + 1} (${nextBlock.type} — ${nextBlock.duration / 60} min)`
-          : "";
+        state.nextText = nextBlock ? `À SUIVRE : BLOC ${nextBlock.index + 1} (${nextBlock.type} — ${nextBlock.duration / 60} min)` : "";
       } else {
         const local = elapsed - current.start;
         value = Math.max(0, current.duration - local);
         state.blockLabel = `BLOC ${current.index + 1} / ${timeline.length} — ${current.type}`;
-
 
         let roundInfo = current.type;
         let isWork = true;
@@ -1982,10 +1998,6 @@ function updateClock() {
   updateReenterFullscreenButton();
 }
 
-// =======================================
-// ARRET ET RESET
-// =======================================
-
 let wakeLockSentinel = null;
 
 async function requestWakeLock() {
@@ -2014,58 +2026,35 @@ async function requestWakeLock() {
   }
 }
 
-async function releaseWakeLock() {
-  const badge = document.getElementById("wakeLockBadge");
-  if (wakeLockSentinel) {
-    try { await wakeLockSentinel.release(); } catch (_) {}
-    wakeLockSentinel = null;
-  }
-  if (badge) {
-    badge.textContent = "📱 ÉCRAN : VEILLE AUTO";
-    badge.classList.remove("active");
-  }
-}
-
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && (running || countdownActive)) {
-    requestWakeLock();
-  }
-});
-
 function stopTimer() {
   clearInterval(interval);
   clearInterval(countdownInterval);
-
   interval = null;
   countdownInterval = null;
-
   running = false;
   countdownActive = false;
-  releaseWakeLock();
+  if (wakeLockSentinel) {
+    wakeLockSentinel.release().catch(() => {});
+    wakeLockSentinel = null;
+  }
   updateFsPauseButton();
 }
 
 function resetTimer() {
   stopTimer();
-
   elapsed = 0;
   phase = "work";
   cycle = 1;
   countdownRemaining = 0;
-  remaining = timerType === "MIX"
-    ? (getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0)
-    : getDuration();
-
+  remaining = timerType === "MIX" ? (getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0) : getDuration();
   document.getElementById("timerStatus").textContent = "PRÊT";
   const fsLogBtn = document.getElementById("fsLogBtn");
   if (fsLogBtn) fsLogBtn.classList.add("hidden");
-
   updateClock();
 }
 
 function finishTimer(message) {
   stopTimer();
-
   document.getElementById("timerStatus").textContent = message;
   const fsLogBtn = document.getElementById("fsLogBtn");
   if (fsLogBtn) fsLogBtn.classList.remove("hidden");
@@ -2078,17 +2067,8 @@ function finishTimer(message) {
   }
 }
 
-// =======================================
-// DECOMPTE AVANT DEPART : 10 SECONDES
-// =======================================
-
 function startPreparation() {
-  try {
-    getAudioContext();
-  } catch (error) {
-    console.warn(error);
-  }
-
+  try { getAudioContext(); } catch (e) {}
   const prepSeconds = getPreparationDuration();
   if (prepSeconds <= 0) { startWorkout(); return; }
   countdownActive = true;
@@ -2100,108 +2080,55 @@ function startPreparation() {
   document.getElementById("timerInfo").textContent = "PRÉPARE-TOI";
   updateClock();
   updateFsPauseButton();
-
-  // Timbre au début des 10 secondes
   playStartBell();
 
   countdownInterval = setInterval(() => {
     countdownRemaining--;
-
-    if (countdownRemaining === 3) {
-      playCountdownTone(3);
-    }
-
-    if (countdownRemaining === 2) {
-      playCountdownTone(2);
-    }
-
-    if (countdownRemaining === 1) {
-      playCountdownTone(1);
-    }
-
+    if (countdownRemaining === 3) playCountdownTone(3);
+    if (countdownRemaining === 2) playCountdownTone(2);
+    if (countdownRemaining === 1) playCountdownTone(1);
     if (countdownRemaining <= 0) {
       clearInterval(countdownInterval);
       countdownInterval = null;
       countdownActive = false;
-
       playCountdownTone("GO");
-
       startWorkout();
       return;
     }
-
-    document.getElementById("clock").textContent =
-      formatTime(countdownRemaining);
-
-    document.getElementById("timerInfo").textContent =
-      `DÉPART IMMINENT — ${countdownRemaining}s`;
-
+    document.getElementById("clock").textContent = formatTime(countdownRemaining);
+    document.getElementById("timerInfo").textContent = `DÉPART IMMINENT — ${countdownRemaining}s`;
     updateClock();
   }, 1000);
 }
 
-// =======================================
-// DEMARRAGE EFFECTIF DU WOD
-// =======================================
-
 function startWorkout() {
   running = true;
   requestWakeLock();
-
   document.getElementById("timerStatus").textContent = "EN COURS";
   updateFsPauseButton();
-
   updateClock();
-
   interval = setInterval(tick, 1000);
 }
 
-// =======================================
-// DETECTION DES MI-TEMPS
-// =======================================
-
 function checkMidpointSignal() {
-
-  // FOR TIME : moitié de la limite de temps
   if (timerType === "FORTIME") {
     const limit = getDuration();
-
-    if (limit > 0 && elapsed === Math.floor(limit / 2)) {
-      playMidpointTone();
-    }
+    if (limit > 0 && elapsed === Math.floor(limit / 2)) playMidpointTone();
   }
-
-  // AMRAP : moitié du temps total
   if (timerType === "AMRAP") {
     const duration = getDuration();
-
-    if (elapsed === Math.floor(duration / 2)) {
-      playMidpointTone();
-    }
+    if (elapsed === Math.floor(duration / 2)) playMidpointTone();
   }
-
-  // EMOM : moitié de chaque intervalle de travail
   if (timerType === "EMOM") {
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
-    if (elapsed % 60 === Math.floor(workSeconds / 2) ||
-        elapsed % 60 === workSeconds + Math.floor((60 - workSeconds) / 2)) {
-      playMidpointTone();
-    }
+    if (elapsed % 60 === Math.floor(workSeconds / 2) || elapsed % 60 === workSeconds + Math.floor((60 - workSeconds) / 2)) playMidpointTone();
   }
-
 }
-
-// =======================================
-// TICK DU CHRONOMETRE
-// =======================================
 
 function tick() {
   elapsed++;
-
-  // Signaux de mi-temps
   checkMidpointSignal();
 
-  // MIX : enchaînement illimité de blocs et de repos
   if (timerType === "MIX") {
     const timeline = getActiveSequenceTimeline();
     const total = timeline.length ? timeline[timeline.length - 1].restEnd : 0;
@@ -2233,10 +2160,8 @@ function tick() {
     return;
   }
 
-  // FOR TIME
   if (timerType === "FORTIME") {
     const limit = getDuration();
-
     if (limit > 0) {
       remaining = Math.max(0, limit - elapsed);
       if (elapsed >= limit) {
@@ -2249,22 +2174,18 @@ function tick() {
     } else {
       remaining = elapsed;
     }
-
     updateClock();
     return;
   }
 
-  // CHRONO LIBRE (STOPWATCH)
   if (timerType === "STOPWATCH") {
     remaining = elapsed;
     updateClock();
     return;
   }
 
-  // TABATA
   if (timerType === "TABATA") {
     remaining--;
-
     if (remaining <= 0) {
       const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
       const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
@@ -2277,7 +2198,6 @@ function tick() {
       } else {
         phase = "work";
         cycle++;
-
         if (cycle > cycles) {
           remaining = 0;
           playCountdownTone("GO");
@@ -2285,17 +2205,14 @@ function tick() {
           finishTimer("TERMINÉ");
           return;
         }
-
         remaining = work;
         playTransitionSound("work");
       }
     }
-
     updateClock();
     return;
   }
 
-  // EMOM : bip au passage travail <-> repos chaque minute
   if (timerType === "EMOM") {
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
     if (elapsed % 60 === workSeconds || (elapsed % 60 === 0 && remaining > 1)) {
@@ -2303,9 +2220,7 @@ function tick() {
     }
   }
 
-  // AMRAP ET EMOM
   remaining--;
-
   if (remaining <= 0) {
     remaining = 0;
     playCountdownTone("GO");
@@ -2317,44 +2232,18 @@ function tick() {
   updateClock();
 }
 
-// =======================================
-// BOUTONS DEMARRER / PAUSE / RESET / PLEIN ECRAN
-// =======================================
-
 function triggerStartOrResume() {
   if (running || countdownActive) return;
-
-  if (timerType === "TABATA" && elapsed === 0) {
-    remaining = Math.max(
-      1,
-      Number(document.getElementById("tabataWork").value) || 20
-    );
-  }
-
-  if (timerType === "FORTIME" && elapsed === 0) {
-    remaining = getDuration();
-  }
-
-  if (timerType === "STOPWATCH" && elapsed === 0) {
-    remaining = 0;
-  }
-
-  if (timerType === "MIX" && elapsed === 0) {
-    remaining = getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0;
-  }
+  if (timerType === "TABATA" && elapsed === 0) remaining = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
+  if (timerType === "FORTIME" && elapsed === 0) remaining = getDuration();
+  if (timerType === "STOPWATCH" && elapsed === 0) remaining = 0;
+  if (timerType === "MIX" && elapsed === 0) remaining = getActiveSequenceTimeline().slice(-1)[0]?.restEnd || 0;
 
   const isCountUp = timerType === "STOPWATCH" || (timerType === "FORTIME" && getDuration() === 0);
-  if (!isCountUp && remaining <= 0) {
-    resetTimer();
-  }
+  if (!isCountUp && remaining <= 0) resetTimer();
 
   enterFullscreenOverlay();
-
-  if (elapsed === 0) {
-    startPreparation();
-  } else {
-    startWorkout();
-  }
+  if (elapsed === 0) startPreparation(); else startWorkout();
 }
 
 function triggerPause() {
@@ -2362,17 +2251,13 @@ function triggerPause() {
     clearInterval(countdownInterval);
     countdownInterval = null;
     countdownActive = false;
-
     document.getElementById("timerStatus").textContent = "EN PAUSE";
     document.getElementById("fsPhasePill").textContent = "EN PAUSE";
     updateFsPauseButton();
     return;
   }
-
   if (!running) return;
-
   stopTimer();
-
   document.getElementById("timerStatus").textContent = "EN PAUSE";
   document.getElementById("fsPhasePill").textContent = "EN PAUSE";
   updateFsPauseButton();
@@ -2383,11 +2268,7 @@ document.getElementById("pauseTimer").addEventListener("click", triggerPause);
 document.getElementById("resetTimer").addEventListener("click", resetTimer);
 
 document.getElementById("fsPauseResumeBtn").addEventListener("click", () => {
-  if (running || countdownActive) {
-    triggerPause();
-  } else {
-    triggerStartOrResume();
-  }
+  if (running || countdownActive) triggerPause(); else triggerStartOrResume();
 });
 
 document.getElementById("fsResetBtn").addEventListener("click", () => {
@@ -2396,39 +2277,12 @@ document.getElementById("fsResetBtn").addEventListener("click", () => {
   updateFsPauseButton();
 });
 
-document.getElementById("fsExitBtn").addEventListener("click", () => {
-  exitFullscreenOverlay();
-});
-
-document.getElementById("reenterFullscreenBtn").addEventListener("click", () => {
-  enterFullscreenOverlay();
-  updateClock();
-});
+document.getElementById("fsExitBtn").addEventListener("click", exitFullscreenOverlay);
+document.getElementById("reenterFullscreenBtn").addEventListener("click", () => { enterFullscreenOverlay(); updateClock(); });
 document.getElementById("tvModeBtn")?.addEventListener("click", () => { enterFullscreenOverlay(); updateClock(); });
 document.getElementById("skipBlockBtn")?.addEventListener("click", skipToNextBlock);
 document.getElementById("fsSkipBlockBtn")?.addEventListener("click", skipToNextBlock);
 
-// Actualisation de l'affichage quand les paramètres changent.
-
-document.querySelectorAll("#timerSettings input, #timerSettings select").forEach(input => {
-  input.addEventListener("change", () => {
-    if (!running && !countdownActive && elapsed === 0) resetTimer();
-  });
-  input.addEventListener("input", () => {
-    if (!running && !countdownActive && elapsed === 0) {
-      resetTimer();
-    }
-  });
-});
-// =======================================
-// IMPORT PDF - PREPARATION
-// =======================================
-
-// Les contrôles d’administration PDF ont été retirés de cette interface.
-
-// =======================================
-// FORMULAIRE DE CREATION MANUELLE
-// =======================================
 const manualFormat = document.getElementById("manualWodFormat");
 const manualFormatFields = {
   "AMRAP": document.getElementById("manualAmrapFields"),
@@ -2459,6 +2313,7 @@ function parseManualExercises(raw) {
     return { name: match ? match[2].trim() : line, reps: match ? Number(match[1]) : null, position: i+1 };
   });
 }
+
 const clearLibraryButton = document.getElementById("clearLibraryButton");
 if (clearLibraryButton) {
   clearLibraryButton.addEventListener("click", async () => {
@@ -2486,7 +2341,6 @@ if (clearLibraryButton) {
     }
   });
 }
-
 
 let multiBlockDraft = [];
 function renderMultiBlocks(existing = multiBlockDraft) {
@@ -2630,10 +2484,6 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   if (el) el.addEventListener("input", () => updateClock());
 });
 
-
-// =======================================
-// 1. GESTION DES THÈMES (SOMBRE / CLAIR / BOX)
-// =======================================
 const THEMES = [
   { id: "dark", label: "🌓 THÈME : SOMBRE", className: "" },
   { id: "light", label: "☀️ THÈME : CLAIR", className: "theme-light" },
@@ -2656,9 +2506,6 @@ document.getElementById("themeToggleBtn")?.addEventListener("click", () => {
   applyTheme(currentThemeIndex + 1);
 });
 
-// =======================================
-// 2. TEST AUDIO & MODALE QR CODE
-// =======================================
 document.getElementById("testAudioBtn")?.addEventListener("click", () => {
   playStartBell();
   setTimeout(() => playCountdownTone("GO"), 450);
@@ -2684,15 +2531,8 @@ document.getElementById("copyShareLinkBtn")?.addEventListener("click", async () 
   }
 });
 
-// =======================================
-// 3. HISTORIQUE DES SÉANCES RÉALISÉES
-// =======================================
 function getWorkoutHistory() {
-  try {
-    return JSON.parse(localStorage.getItem("woorel_history") || "[]");
-  } catch (_) {
-    return [];
-  }
+  try { return JSON.parse(localStorage.getItem("woorel_history") || "[]"); } catch (_) { return []; }
 }
 
 function saveWorkoutHistory(list) {
@@ -2703,9 +2543,7 @@ function renderWorkoutHistory() {
   const list = getWorkoutHistory();
   const container = document.getElementById("historyList");
   const countLabel = document.getElementById("historyCountLabel");
-  if (countLabel) {
-    countLabel.textContent = `${list.length} séance${list.length > 1 ? "s" : ""} enregistrée${list.length > 1 ? "s" : ""}`;
-  }
+  if (countLabel) countLabel.textContent = `${list.length} séance${list.length > 1 ? "s" : ""} enregistrée${list.length > 1 ? "s" : ""}`;
   if (!container) return;
   if (!list.length) {
     container.innerHTML = '<p class="muted">Aucune séance enregistrée pour le moment. Termine un WOD ou clique sur « + Ajouter un résultat ».</p>';
@@ -2781,9 +2619,6 @@ document.getElementById("saveHistoryEntryBtn")?.addEventListener("click", () => 
 
 renderWorkoutHistory();
 
-// =======================================
-// 4. PWA (MANIFEST DYNAMIQUE + SERVICE WORKER)
-// =======================================
 (function setupPWA() {
   const manifest = {
     name: "WOOREL GENERATOR",
@@ -2843,10 +2678,6 @@ renderWorkoutHistory();
   }
 })();
 
-// =======================================
-// INITIALISATION
-// =======================================
-
 updateCount();
 displayLibrary();
 resetTimer();
@@ -2857,7 +2688,6 @@ resetTimer();
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// Configuration publique du projet : la clé publishable peut être utilisée côté navigateur.
 const SUPABASE_URL = "https://tfaarrfjmaaxauzrratx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xOrQfokHftTW1czGvoCtDg_kupMXCEQ";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
@@ -2866,7 +2696,6 @@ const authScreen = document.getElementById("authScreen");
 const appShell = document.getElementById("appShell");
 const authMessage = document.getElementById("authMessage");
 const loginButton = document.getElementById("loginButton");
-// Les fonctions d’import PDF et de reconnaissance ont été retirées.
 
 function showLoggedOut(message = "") {
   appShell.style.display = "none";
@@ -2875,31 +2704,16 @@ function showLoggedOut(message = "") {
 }
 
 window.deleteWodFromSupabase = async function(id) {
-  const { error: movementsError } = await supabase
-    .from("wod_movements")
-    .delete()
-    .eq("wod_id", id);
+  const { error: movementsError } = await supabase.from("wod_movements").delete().eq("wod_id", id);
   if (movementsError) throw movementsError;
-
-  const { error: wodError } = await supabase
-    .from("wods")
-    .delete()
-    .eq("id", id);
+  const { error: wodError } = await supabase.from("wods").delete().eq("id", id);
   if (wodError) throw wodError;
 };
 
 window.clearAllWodsFromSupabase = async function() {
-  // Les mouvements sont supprimés d'abord pour respecter la relation wod_id.
-  const { error: movementsError } = await supabase
-    .from("wod_movements")
-    .delete()
-    .not("wod_id", "is", null);
+  const { error: movementsError } = await supabase.from("wod_movements").delete().not("wod_id", "is", null);
   if (movementsError) throw movementsError;
-
-  const { error: wodsError } = await supabase
-    .from("wods")
-    .delete()
-    .not("id", "is", null);
+  const { error: wodsError } = await supabase.from("wods").delete().not("id", "is", null);
   if (wodsError) throw wodsError;
 };
 
@@ -3086,12 +2900,10 @@ if (session) {
  function chooseWod(){const type=$('coachType').value,level=$('coachLevel').value,duration=Number($('coachDuration').value),format=$('coachFormat').value,athlete=document.querySelector('[name="coachAthleteLevel"]:checked').value;let pool=categoryPool(type);
   if(!pool.length){$('coachStatus').textContent=type==='Cardio'?'Aucun mouvement Cardio n’est encore présent dans ta bibliothèque. Ajoute des mouvements Cardio pour générer ce type.':'Tous les mouvements de cette famille sont exclus.';$('coachResult').classList.add('hidden');return;}
   if(type==='Mixed Modality'&&pool.length<2){$('coachStatus').textContent='Il faut au moins deux mouvements disponibles pour un Mixed Modality.';return;}
-  // Les 3 niveaux règlent le nombre de mouvements et le degré de complexité autorisé.
   let count=level==='L1'?Math.min(2,pool.length):level==='L2'?Math.min(3,pool.length):Math.min(4,pool.length);
   if(athlete==='Débutant')count=Math.min(count,2);
   if(type==='Mixed Modality'&&pool.length>=2)count=Math.max(2,count);
   const ranked=pool.slice().sort((a,b)=>{const usedA=current.some(x=>x.id===a.id)?1:0,usedB=current.some(x=>x.id===b.id)?1:0;return usedA-usedB;});
-  // Mélange contrôlé pour éviter un ordre fixe, puis sélection diversifiée par famille.
   for(let i=ranked.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ranked[i],ranked[j]]=[ranked[j],ranked[i]];}
   const chosen=[];for(const m of ranked){if(chosen.length>=count)break;if(type==='Mixed Modality'&&chosen.some(x=>x.cat===m.cat)&&ranked.some(x=>x.cat!==m.cat)&&chosen.length<count-1)continue;chosen.push(m);}for(const m of ranked){if(chosen.length>=count)break;if(!chosen.includes(m))chosen.push(m);}
   current=chosen;currentCfg={type,level,duration,format,athlete};$('coachResultTitle').textContent=`${duration} MIN — ${type.toUpperCase()}`;$('coachResultMeta').textContent=`${format} · ${level} · ${athlete}`;
@@ -3101,8 +2913,6 @@ if (session) {
   const familyCount=new Set(current.map(m=>m.cat)).size;
   let reason= level==='L1'?'Approche fondamentaux : volume limité, mouvements simples à maîtriser et priorité à la qualité d’exécution.':level==='L2'?'Approche programmation : combinaison des mouvements, répartition des sollicitations et variété du stimulus.':'Approche avancée : densité et complexité accrues, tout en surveillant la fatigue et la qualité technique.';
   reason+=` Le choix ${type} utilise ${familyCount} famille(s) de mouvements et respecte la durée demandée (${duration} min), le niveau sportif (${athlete}) et les exclusions.`;
-  if(type==='Mixed Modality'&&familyCount<2)reason+=' La bibliothèque actuelle ne contient pas encore assez de familles différentes pour un vrai mélange Gym/Haltéro/Cardio.';
-  if(type==='Cardio')reason+=' La catégorie Cardio est encore vide : cette génération sera possible dès que tu auras ajouté des fiches Cardio.';
   $('coachExplanation').textContent=reason;$('coachResult').classList.remove('hidden');$('coachStatus').textContent='WOD généré à partir des mouvements disponibles dans ta bibliothèque.';renderCurrent();
  }
  $('movementSearch')?.addEventListener('input',renderLibrary);$('movementCategory')?.addEventListener('change',renderLibrary);$('movementResults')?.addEventListener('click',e=>{const card=e.target.closest('[data-detail]');if(card)openMovementDetail(card.dataset.detail)});$('movementResults')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-detail]')){e.preventDefault();openMovementDetail(e.target.closest('[data-detail]').dataset.detail)}});$('closeMovementDetail')?.addEventListener('click',()=>$('movementDetailModal').classList.add('hidden'));$('movementDetailModal')?.addEventListener('click',e=>{if(e.target===$('movementDetailModal'))$('movementDetailModal').classList.add('hidden')});renderLibrary();renderExclusions();
