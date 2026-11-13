@@ -758,6 +758,9 @@ header {position:relative; padding-right:110px; padding-left:110px}
       <button class="secondary" id="pauseTimer">PAUSE</button>
       <button class="secondary" id="resetTimer">RESET</button>
     </div>
+    <div style="margin-top:12px">
+      <button class="secondary hidden" id="reenterFullscreenBtn" type="button" style="width:100%">⛶ RETOURNER EN PLEIN ÉCRAN</button>
+    </div>
   </div>
 
   <div class="panel">
@@ -801,16 +804,8 @@ header {position:relative; padding-right:110px; padding-left:110px}
   </div>
 
   <div class="fs-center">
-    <div class="fs-wod-title" id="fsWodTitle">SÉANCE</div>
     <div class="fs-clock" id="fsClock">00:10</div>
     <div class="fs-round-info" id="fsRoundInfo">PRÉPARE-TOI</div>
-    <div class="fs-content-grid">
-      <div class="fs-consigne-box hidden" id="fsConsigneBox">
-        <div class="fs-consigne-title">CONSIGNES</div>
-        <div id="fsConsigneText"></div>
-      </div>
-      <div class="fs-exercises-box hidden" id="fsExercisesBox"></div>
-    </div>
     <div class="fs-next-box hidden" id="fsNextBox"></div>
   </div>
 
@@ -1386,6 +1381,7 @@ function enterFullscreenOverlay() {
   fsOverlayActive = true;
   overlay.classList.remove("hidden");
   updateFsPauseButton();
+  updateReenterFullscreenButton();
   const docEl = document.documentElement;
   if (docEl.requestFullscreen && !document.fullscreenElement) {
     docEl.requestFullscreen().catch(() => {});
@@ -1396,6 +1392,7 @@ function exitFullscreenOverlay() {
   const overlay = document.getElementById("fsTimerOverlay");
   if (overlay) overlay.classList.add("hidden");
   fsOverlayActive = false;
+  updateReenterFullscreenButton();
   if (document.fullscreenElement && document.exitFullscreen) {
     document.exitFullscreen().catch(() => {});
   }
@@ -1463,6 +1460,13 @@ function formatTime(seconds) {
          String(secs).padStart(2, "0");
 }
 
+function updateReenterFullscreenButton() {
+  const btn = document.getElementById("reenterFullscreenBtn");
+  if (!btn) return;
+  const timerHasStarted = running || countdownActive || elapsed > 0;
+  btn.classList.toggle("hidden", !timerHasStarted || fsOverlayActive);
+}
+
 function syncFullscreenDisplay(state) {
   const overlay = document.getElementById("fsTimerOverlay");
   if (!overlay) return;
@@ -1472,26 +1476,8 @@ function syncFullscreenDisplay(state) {
 
   document.getElementById("fsBlockBadge").textContent = state.blockLabel;
   document.getElementById("fsPhasePill").textContent = state.phaseLabel;
-  document.getElementById("fsWodTitle").textContent = state.wodTitle;
   document.getElementById("fsClock").textContent = state.clockText;
   document.getElementById("fsRoundInfo").textContent = state.roundLabel;
-
-  const consigneBox = document.getElementById("fsConsigneBox");
-  const consigneTextEl = document.getElementById("fsConsigneText");
-  if (state.consigneText) {
-    consigneTextEl.textContent = state.consigneText;
-    consigneBox.classList.remove("hidden");
-  } else {
-    consigneBox.classList.add("hidden");
-  }
-
-  const exBox = document.getElementById("fsExercisesBox");
-  if (state.exercisesText) {
-    exBox.textContent = state.exercisesText;
-    exBox.classList.remove("hidden");
-  } else {
-    exBox.classList.add("hidden");
-  }
 
   const nextBox = document.getElementById("fsNextBox");
   if (state.nextText) {
@@ -1504,19 +1490,12 @@ function syncFullscreenDisplay(state) {
 
 function updateClock() {
   let value = remaining;
-  const wodTitle = (document.getElementById("timerWodName")?.value || "").trim() || "ENTRAÎNEMENT";
-  const defaultExercises = (document.getElementById("timerWodContent")?.value || "").trim();
-  const consigneText = (document.getElementById("timerWodConsigne")?.value || "").trim();
-
   let state = {
     visualPhase: "work",
     blockLabel: timerType,
     phaseLabel: "TRAVAIL",
-    wodTitle,
     clockText: formatTime(value),
     roundLabel: timerType,
-    consigneText,
-    exercisesText: defaultExercises,
     nextText: ""
   };
 
@@ -1565,10 +1544,7 @@ function updateClock() {
         state.phaseLabel = "REPOS INTER-BLOCS";
         state.blockLabel = `REPOS APRÈS BLOC ${current.index + 1} / ${timeline.length}`;
         state.roundLabel = `REPOS (${Math.round(current.rest / 60 * 10) / 10} MIN)`;
-        state.exercisesText = nextBlock
-          ? `PROCHAIN BLOC (${nextBlock.index + 1}/${timeline.length} — ${nextBlock.type}) :
-${nextBlock.exercises || ""}`
-          : "DERNIER REPOS";
+
         state.nextText = nextBlock
           ? `À SUIVRE : BLOC ${nextBlock.index + 1} (${nextBlock.type} — ${nextBlock.duration / 60} min)`
           : "";
@@ -1576,7 +1552,7 @@ ${nextBlock.exercises || ""}`
         const local = elapsed - current.start;
         value = Math.max(0, current.duration - local);
         state.blockLabel = `BLOC ${current.index + 1} / ${timeline.length} — ${current.type}`;
-        state.exercisesText = (current.exercises || "").trim() || defaultExercises;
+
 
         let roundInfo = current.type;
         let isWork = true;
@@ -1627,6 +1603,7 @@ ${nextBlock.exercises || ""}`
   }
 
   syncFullscreenDisplay(state);
+  updateReenterFullscreenButton();
 }
 
 // =======================================
@@ -1972,6 +1949,11 @@ document.getElementById("fsResetBtn").addEventListener("click", () => {
 
 document.getElementById("fsExitBtn").addEventListener("click", () => {
   exitFullscreenOverlay();
+});
+
+document.getElementById("reenterFullscreenBtn").addEventListener("click", () => {
+  enterFullscreenOverlay();
+  updateClock();
 });
 
 // Actualisation de l'affichage quand les paramètres changent.
