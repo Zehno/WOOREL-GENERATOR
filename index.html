@@ -1025,10 +1025,42 @@ header {
 
       <div id="fortimeSettings" class="hidden">
         <div class="field">
-          <label>TIME CAP (MINUTES, 0 = CHRONO MONTANT SANS LIMITE)</label>
+          <label>FORMAT FOR TIME</label>
+          <select id="fortimeMode">
+            <option value="continuous">ROUND CHRONOMÉTRÉ — SANS PAUSE</option>
+            <option value="classic">21 / 15 / 9 CLASSIQUE</option>
+            <option value="variations">VARIATIONS DE RÉPÉTITIONS</option>
+            <option value="rounds">RÉPÉTITIONS — ROUNDS AVEC REPOS</option>
+          </select>
+        </div>
+        <div id="ftClassicFields" class="field hidden">
+          <label>SÉRIES DE RÉPÉTITIONS</label>
+          <p class="small-note">Format classique : 21 répétitions, puis 15, puis 9. Valide chaque série avec le bouton ROUND TERMINÉ.</p>
+        </div>
+        <div id="ftVariationFields" class="field hidden">
+          <label>RÉPÉTITIONS PAR ROUND (SÉPARÉES PAR DES VIRGULES)</label>
+          <input id="ftVariations" value="10, 20, 30, 40" placeholder="Ex. : 10, 20, 30, 40">
+          <p class="small-note">Chaque valeur correspond à un round. Valide le round terminé pour passer au suivant.</p>
+        </div>
+        <div id="ftRoundsFields" class="grid hidden">
+          <div class="field"><label>NOMBRE DE ROUNDS</label><input id="ftRoundCount" type="number" min="1" value="5"></div>
+          <div class="field"><label>RÉPÉTITIONS PAR ROUND</label><input id="ftRoundReps" type="number" min="1" value="15"></div>
+          <div class="field"><label>REPOS ENTRE ROUNDS (SECONDES)</label><input id="ftRoundRest" type="number" min="0" value="60"></div>
+        </div>
+        <div class="panel" style="margin:12px 0">
+          <h3 style="margin-top:0">MOUVEMENT INTERMÉDIAIRE (OPTIONNEL)</h3>
+          <div class="field"><label>MOUVEMENT / CONSIGNE</label><input id="ftInterMovement" placeholder="Ex. : 5 Burpees / 10 Wall Balls"></div>
+          <div class="grid">
+            <div class="field"><label>DÉCLENCHEMENT</label><select id="ftInterTrigger"><option value="time">À INTERVALLE DE TEMPS</option><option value="rest">PENDANT CHAQUE PAUSE</option></select></div>
+            <div class="field" id="ftInterIntervalWrap"><label>INTERVALLE (MINUTES)</label><input id="ftInterInterval" type="number" min="0.1" step="0.1" value="2"></div>
+          </div>
+          <p class="small-note">Le mouvement est affiché à l'écran et signalé par un bip. Le déclenchement pendant les pauses l'affiche à chaque repos entre rounds.</p>
+        </div>
+        <div class="field">
+          <label>TIME CAP (MINUTES, 0 = SANS LIMITE)</label>
           <input id="fortimeLimit" type="number" min="0" value="20">
         </div>
-        <p class="small-note">Avec un Time Cap (&gt; 0), le chrono affiche le décompte négatif (temps restant avant le Cap). À 0, il défile vers le haut.</p>
+        <p class="small-note">Le temps écoulé inclut les phases de repos. En format continu, aucun arrêt automatique entre les rounds.</p>
       </div>
       <div id="stopwatchSettings" class="hidden">
         <p class="small-note">Chronomètre libre (Stopwatch) : compte vers le haut à partir de 00:00 sans limite de temps.</p>
@@ -1068,6 +1100,7 @@ header {
       <button class="secondary" id="pauseTimer">PAUSE</button>
       <button class="secondary" id="resetTimer">RESET</button>
       <button class="secondary hidden" id="skipBlockBtn" type="button">PASSER AU BLOC SUIVANT →</button>
+      <button class="primary hidden" id="ftRoundDoneBtn" type="button">ROUND TERMINÉ →</button>
     </div>
     <div style="margin-top:10px"><button class="secondary" id="tvModeBtn" type="button" style="width:100%">⛶ MODE ÉCRAN TV</button></div>
     <div style="margin-top:12px">
@@ -2009,20 +2042,28 @@ function updateClock() {
   };
 
   if (timerType === "FORTIME") {
-    const limit = Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0);
-    const capSeconds = limit * 60;
-    if (capSeconds > 0) {
-      // Décompte négatif à partir du Time Cap
-      const remCap = Math.max(0, capSeconds - elapsed);
-      value = remCap;
-      state.blockLabel = `FOR TIME — CAP ${limit} MIN`;
-      state.roundLabel = remCap > 0
-        ? `TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})`
-        : "TIME CAP ATTEINT";
-    } else {
-      value = elapsed;
-      state.blockLabel = "FOR TIME";
-      state.roundLabel = "CHRONO MONTANT — SANS TIME CAP";
+    const limit=Math.max(0,Number(document.getElementById("fortimeLimit").value)||0);
+    const capSeconds=limit*60;
+    const mode=getFtMode();
+    const rounds=getFtRounds();
+    if(phase==="rest" && ftRestRemaining>0){
+      value=ftRestRemaining;state.visualPhase="rest";state.phaseLabel="REPOS";state.blockLabel="FOR TIME — RÉCUPÉRATION";
+      state.roundLabel=`ROUND ${ftRoundIndex+1} / ${rounds.length}`;
+      const movement=document.getElementById("ftInterTrigger")?.value==="rest"?document.getElementById("ftInterMovement")?.value.trim():"";
+      state.nextText=movement?`MOUVEMENT INTERMÉDIAIRE : ${movement}`:"Prépare le round suivant";
+    }else if(mode!=="continuous"){
+      value=capSeconds>0?Math.max(0,capSeconds-elapsed):elapsed;
+      state.blockLabel=mode==="classic"?"FOR TIME — 21 / 15 / 9":mode==="variations"?"FOR TIME — VARIATIONS":"FOR TIME — ROUNDS";
+      state.roundLabel=`ROUND ${Math.min(ftRoundIndex+1,rounds.length)} / ${rounds.length} — ${rounds[ftRoundIndex]||0} RÉPÉTITIONS`;
+      const movement=document.getElementById("ftInterMovement")?.value.trim()||"";
+      const trigger=document.getElementById("ftInterTrigger")?.value;
+      state.nextText=movement&&trigger==="time"?(elapsed<ftInterCueUntil?`À FAIRE MAINTENANT : ${movement}`:`MOUVEMENT INTERMÉDIAIRE À INTERVALLE : ${movement}`):"Valide le round avec ROUND TERMINÉ";
+    }else{
+      value=capSeconds>0?Math.max(0,capSeconds-elapsed):elapsed;
+      state.blockLabel=`FOR TIME${capSeconds>0?` — CAP ${limit} MIN`:""}`;
+      state.roundLabel=capSeconds>0?`TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})`:"ROUND CHRONOMÉTRÉ — SANS PAUSE";
+      const movement=document.getElementById("ftInterMovement")?.value.trim()||"";
+      if(movement&&document.getElementById("ftInterTrigger")?.value==="time")state.nextText=`MOUVEMENT INTERMÉDIAIRE : ${movement}`;
     }
   }
 
@@ -2116,9 +2157,9 @@ function updateClock() {
   state.clockText = formatTime(value);
   document.getElementById("clock").textContent = state.clockText;
   const infoEl = document.getElementById("timerInfo");
-  infoEl.textContent = timerType === "MIX"
+  infoEl.textContent = (timerType === "MIX"
       ? `${state.blockLabel} — ${state.roundLabel} (${state.phaseLabel})`
-      : `${state.roundLabel} — ${state.phaseLabel}`;
+      : `${state.roundLabel} — ${state.phaseLabel}`) + (state.nextText ? `\n${state.nextText}` : "");
   infoEl.style.color = /ROUND|MINUTE|CYCLE/i.test(state.roundLabel) ? "#60a5fa" : "";
   infoEl.style.fontWeight = /ROUND|MINUTE|CYCLE/i.test(state.roundLabel) ? "900" : "";
 
@@ -2198,6 +2239,7 @@ function stopTimer() {
 
 function resetTimer() {
   stopTimer();
+  ftRoundIndex=0; ftRestRemaining=0; ftInterLastTrigger=0; ftInterCueUntil=0; phase="work";
 
   elapsed = 0;
   phase = "work";
@@ -2218,6 +2260,7 @@ function finishTimer(message) {
   stopTimer();
 
   document.getElementById("timerStatus").textContent = message;
+  document.getElementById("ftRoundDoneBtn")?.classList.add("hidden");
   const fsLogBtn = document.getElementById("fsLogBtn");
   if (fsLogBtn) fsLogBtn.classList.remove("hidden");
   const overlay = document.getElementById("fsTimerOverlay");
@@ -2301,6 +2344,7 @@ function startWorkout() {
 
   document.getElementById("timerStatus").textContent = "EN COURS";
   updateFsPauseButton();
+  updateFtModeFields();
 
   updateClock();
 
@@ -2345,6 +2389,43 @@ function checkMidpointSignal() {
 // TICK DU CHRONOMETRE
 // =======================================
 
+let ftRoundIndex = 0;
+let ftRestRemaining = 0;
+let ftInterLastTrigger = 0;
+let ftInterCueUntil = 0;
+function getFtMode(){ return document.getElementById("fortimeMode")?.value || "continuous"; }
+function getFtRounds(){
+  const mode=getFtMode();
+  if(mode==="classic") return [21,15,9];
+  if(mode==="variations") return (document.getElementById("ftVariations")?.value||"").split(/[;,\s]+/).map(Number).filter(n=>Number.isFinite(n)&&n>0);
+  if(mode==="rounds") return Array.from({length:Math.max(1,Math.min(100,Number(document.getElementById("ftRoundCount")?.value)||5))},()=>Math.max(1,Number(document.getElementById("ftRoundReps")?.value)||15));
+  return [];
+}
+function updateFtModeFields(){
+  const mode=getFtMode();
+  document.getElementById("ftClassicFields")?.classList.toggle("hidden",mode!=="classic");
+  document.getElementById("ftVariationFields")?.classList.toggle("hidden",mode!=="variations");
+  document.getElementById("ftRoundsFields")?.classList.toggle("hidden",mode!=="rounds");
+  document.getElementById("ftInterIntervalWrap")?.classList.toggle("hidden",document.getElementById("ftInterTrigger")?.value!=="time");
+  const done=document.getElementById("ftRoundDoneBtn");
+  if(done) done.classList.toggle("hidden",!(timerType==="FORTIME" && mode!=="continuous" && running && phase!=="rest"));
+}
+function completeFtRound(){
+  if(timerType!=="FORTIME" || getFtMode()==="continuous" || phase==="rest" || !running)return;
+  const rounds=getFtRounds();
+  if(!rounds.length){alert("Renseigne au moins une série de répétitions.");return;}
+  if(ftRoundIndex>=rounds.length-1){playCountdownTone("GO");finishTimer("FOR TIME TERMINÉ");return;}
+  const rest=getFtMode()==="rounds"?Math.max(0,Number(document.getElementById("ftRoundRest")?.value)||0):0;
+  ftRoundIndex++;
+  if(rest>0){phase="rest";ftRestRemaining=rest;playTransitionSound("rest");
+    if(document.getElementById("ftInterTrigger")?.value==="rest" && document.getElementById("ftInterMovement")?.value.trim()) playTone(1040,.4);
+  }else{phase="work";playTransitionSound("work");}
+  updateFtModeFields(); updateClock();
+}
+document.getElementById("fortimeMode")?.addEventListener("change",()=>{updateFtModeFields();resetTimer();});
+document.getElementById("ftInterTrigger")?.addEventListener("change",updateFtModeFields);
+document.getElementById("ftRoundDoneBtn")?.addEventListener("click",completeFtRound);
+
 function tick() {
   elapsed++;
 
@@ -2383,25 +2464,21 @@ function tick() {
     return;
   }
 
-  // FOR TIME
+  // FOR TIME — formats continus et rounds validés manuellement
   if (timerType === "FORTIME") {
-    const limit = getDuration();
-
-    if (limit > 0) {
-      remaining = Math.max(0, limit - elapsed);
-      if (elapsed >= limit) {
-        remaining = 0;
-        playCountdownTone("GO");
-        updateClock();
-        finishTimer("TIME CAP");
-        return;
-      }
-    } else {
-      remaining = elapsed;
+    const limit=getDuration();
+    if(limit>0 && elapsed>=limit){remaining=0;playCountdownTone("GO");updateClock();finishTimer("TIME CAP");return;}
+    if(phase==="rest" && ftRestRemaining>0){
+      ftRestRemaining--;
+      if(ftRestRemaining<=0){phase="work";playTransitionSound("work");}
     }
-
-    updateClock();
-    return;
+    const inter=document.getElementById("ftInterMovement")?.value.trim()||"";
+    if(inter && document.getElementById("ftInterTrigger")?.value==="time"){
+      const intervalSeconds=Math.max(6,Math.round((Number(document.getElementById("ftInterInterval")?.value)||2)*60));
+      if(elapsed>0 && elapsed%intervalSeconds===0 && elapsed!==ftInterLastTrigger){ftInterLastTrigger=elapsed;ftInterCueUntil=elapsed+6;playTone(1040,.4);}
+    }
+    remaining=limit>0?Math.max(0,limit-elapsed):elapsed;
+    updateClock();updateFtModeFields();return;
   }
 
   // CHRONO LIBRE (STOPWATCH)
@@ -2919,6 +2996,7 @@ function renderWorkoutHistory() {
       updated.splice(idx, 1);
       saveWorkoutHistory(updated);
       renderWorkoutHistory();
+updateFtModeFields();
     });
     container.appendChild(card);
   });
