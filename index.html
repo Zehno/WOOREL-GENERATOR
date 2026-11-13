@@ -711,6 +711,17 @@ header {
 
 
 
+
+/* Autocomplétion des mouvements dans Mon WOD */
+.timer-exercise-suggestions{margin-top:6px;background:var(--panel2);border:1px solid var(--accent,#e34b4b);border-radius:9px;overflow:hidden;box-shadow:0 8px 22px #0005}
+.timer-exercise-suggestions[hidden]{display:none}
+.timer-exercise-suggestion{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px 12px;border:0;border-bottom:1px solid var(--border);background:transparent;color:var(--text);text-align:left;cursor:pointer;font:inherit}
+.timer-exercise-suggestion:last-child{border-bottom:0}
+.timer-exercise-suggestion:hover,.timer-exercise-suggestion:focus{background:var(--card-bg);outline:none}
+.timer-exercise-suggestion strong{font-size:13px}
+.timer-exercise-suggestion small{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.timer-exercise-suggestion .suggestion-tag{font-size:10px;color:var(--muted);white-space:nowrap}
+
 /* AFFICHAGE CHRONO SUR TELEPHONE EN PAYSAGE */
 @media screen and (orientation: landscape) and (max-height: 600px) {
   .fs-overlay {
@@ -1115,6 +1126,7 @@ header {
       <label>CONTENU DE LA SÉANCE</label>
       <textarea id="timerWodContent" rows="7"
         placeholder="Exemple :&#10;15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea>
+      <div id="timerExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Exercices de la bibliothèque" hidden></div>
       <div class="timer-demo-heading">DÉMONSTRATIONS DES EXERCICES</div>
       <div id="timerDemoPreview" class="timer-demo-list" aria-live="polite">
         <p class="small-note">Les démonstrations correspondantes apparaîtront ici.</p>
@@ -1957,6 +1969,49 @@ function renderTimerDemoPreview() {
       <strong>${escapeHTML(line)}</strong><span class="demo-original">${escapeHTML(movement.name)} · Voir la démonstration ↗</span>
     </button></article>`;
   }).join("");
+}
+function getCurrentTimerExerciseFragment() {
+  const textarea = document.getElementById("timerWodContent");
+  const value = textarea?.value || "";
+  const cursor = textarea?.selectionStart ?? value.length;
+  const lineStart = value.lastIndexOf("\\n", cursor - 1) + 1;
+  const lineEndRaw = value.indexOf("\\n", cursor);
+  const lineEnd = lineEndRaw === -1 ? value.length : lineEndRaw;
+  const line = value.slice(lineStart, lineEnd);
+  const beforeCursor = value.slice(lineStart, cursor);
+  const repsMatch = beforeCursor.match(/^(\\s*\\d+(?:\\s*[x×])?\\s*)/i);
+  const prefix = beforeCursor.slice(repsMatch ? repsMatch[0].length : 0);
+  return { textarea, value, cursor, lineStart, lineEnd, line, reps: repsMatch ? repsMatch[0] : "", prefix };
+}
+function renderTimerExerciseSuggestions() {
+  const box = document.getElementById("timerExerciseSuggestions");
+  if (!box) return;
+  const {prefix} = getCurrentTimerExerciseFragment();
+  const query = cleanExerciseNameForMatch(prefix);
+  if (query.length < 2) { box.hidden = true; box.innerHTML = ""; return; }
+  const list = window.WODFactoryMovements || [];
+  const matches = list.filter(m => [m.name, m.fr].some(name => cleanExerciseNameForMatch(name).startsWith(query))).slice(0, 8);
+  if (!matches.length) { box.hidden = true; box.innerHTML = ""; return; }
+  box.innerHTML = matches.map(m => `<button type="button" class="timer-exercise-suggestion" role="option" data-suggestion-id="${escapeHTML(m.id)}">
+    <span><strong>${escapeHTML(m.name)}</strong><small>${escapeHTML(m.fr || m.equipment || "")}</small></span>
+    <span class="suggestion-tag">${escapeHTML(m.equipment || "")}</span>
+  </button>`).join("");
+  box.hidden = false;
+}
+function chooseTimerExerciseSuggestion(id) {
+  const movement = (window.WODFactoryMovements || []).find(m => String(m.id) === String(id));
+  if (!movement) return;
+  const state = getCurrentTimerExerciseFragment();
+  if (!state.textarea) return;
+  const replacement = state.reps + movement.name;
+  const nextValue = state.value.slice(0, state.lineStart) + replacement + state.value.slice(state.lineEnd);
+  state.textarea.value = nextValue;
+  const nextCursor = state.lineStart + replacement.length;
+  state.textarea.focus();
+  state.textarea.setSelectionRange(nextCursor, nextCursor);
+  document.getElementById("timerExerciseSuggestions").hidden = true;
+  updateClock();
+  renderTimerDemoPreview();
 }
 function getExerciseFocus(roundText = "") {
   const lines = getExerciseLines();
@@ -2805,9 +2860,17 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   const el = document.getElementById(id);
   if (el) el.addEventListener("input", () => {
     updateClock();
-    if (id === "timerWodContent") renderTimerDemoPreview();
+    if (id === "timerWodContent") {
+      renderTimerDemoPreview();
+      renderTimerExerciseSuggestions();
+    }
   });
 });
+document.getElementById("timerExerciseSuggestions")?.addEventListener("click", event => {
+  const button = event.target.closest("[data-suggestion-id]");
+  if (button) chooseTimerExerciseSuggestion(button.dataset.suggestionId);
+});
+document.getElementById("timerWodContent")?.addEventListener("click", renderTimerExerciseSuggestions);
 document.getElementById("timerDemoPreview")?.addEventListener("click", event => {
   const button = event.target.closest("[data-movement-id]");
   if (button) window.WODFactoryOpenMovementDetail?.(button.dataset.movementId);
