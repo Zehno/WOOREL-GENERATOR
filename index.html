@@ -381,8 +381,8 @@ header {position:relative; padding-right:110px; padding-left:110px}
 }
 .fs-overlay.hidden { display: none !important; }
 .fs-overlay.phase-prep { background: #1c2430; }
-.fs-overlay.phase-work { background: #0f3827; }
-.fs-overlay.phase-rest { background: #4a2a0b; }
+.fs-overlay.phase-work { background: #4a2025; }
+.fs-overlay.phase-rest { background: #123d2d; }
 .fs-overlay.phase-done { background: #1f2937; }
 
 .fs-top {
@@ -412,8 +412,8 @@ header {position:relative; padding-right:110px; padding-left:110px}
   text-transform: uppercase;
 }
 .phase-prep .fs-phase-pill { background: #3b82f6; color: #fff; }
-.phase-work .fs-phase-pill { background: #26c281; color: #101419; }
-.phase-rest .fs-phase-pill { background: #f2a344; color: #101419; }
+.phase-work .fs-phase-pill { background: #e45b5b; color: #fff; }
+.phase-rest .fs-phase-pill { background: #26c281; color: #101419; }
 .phase-done .fs-phase-pill { background: #e45b5b; color: #fff; }
 
 .fs-exit-btn {
@@ -451,6 +451,12 @@ header {position:relative; padding-right:110px; padding-left:110px}
   text-shadow: 0 8px 30px rgba(0,0,0,0.45);
 }
 .fs-round-info {
+  display:inline-block;
+  color:#60a5fa;
+  background:rgba(96,165,250,.14);
+  border:2px solid rgba(96,165,250,.72);
+  border-radius:14px;
+  padding:10px 24px;
   font-size: clamp(22px, 4vw, 44px);
   font-weight: 900;
   letter-spacing: 2px;
@@ -681,6 +687,18 @@ header {
   white-space: nowrap;
 }
 
+
+.timer-progress {height:13px;background:var(--panel2);border:1px solid var(--border);border-radius:99px;overflow:hidden;margin:16px 0 8px}
+.timer-progress-fill {height:100%;width:0%;background:#60a5fa;transition:width .25s linear}
+.fs-progress {width:min(100%,1100px);height:18px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);border-radius:99px;overflow:hidden;margin:12px auto 0}
+.fs-progress-fill {height:100%;width:0%;background:#60a5fa;transition:width .25s linear}
+.fs-exercise-focus {font-size:clamp(18px,3vw,32px);font-weight:900;margin-top:18px;color:#fff}
+.fs-exercise-focus small {display:block;font-size:.48em;letter-spacing:2px;color:#cbd5e1;margin-bottom:6px}
+.fs-overlay.phase-work .fs-phase-pill{box-shadow:0 0 28px rgba(228,91,91,.28)}
+.fs-overlay.phase-rest .fs-phase-pill{box-shadow:0 0 28px rgba(38,194,129,.25)}
+.fs-skip-btn {background:#60a5fa;color:#101419;border:0;border-radius:10px;padding:12px 16px;font-weight:900;cursor:pointer}
+@media(max-width:600px){.fs-clock{font-size:clamp(82px,23vw,170px)}.fs-round-info{font-size:clamp(18px,5vw,28px);padding:8px 12px}.fs-controls{gap:8px}.fs-controls button{padding:13px 8px;font-size:14px}}
+
 </style>
 </head>
 
@@ -831,6 +849,10 @@ header {
     </div>
 
     <div id="timerSettings">
+      <div class="field" style="max-width:260px">
+        <label for="prepDuration">DÉCOMPTE DE PRÉPARATION (SECONDES)</label>
+        <input id="prepDuration" type="number" min="0" max="60" value="10">
+      </div>
 
       <div id="amrapSettings">
         <div class="field">
@@ -903,15 +925,19 @@ header {
   </div>
 
   <div class="panel center">
-    <div class="timer-status" id="timerStatus">PRÊT</div>\n    <div id="totalDurationPreview" class="small-note" style="margin-top:8px;font-weight:800;color:var(--blue)">DURÉE TOTALE ESTIMÉE : 20 MIN</div>
+    <div class="timer-status" id="timerStatus">PRÊT</div>
     <div class="clock" id="clock">20:00</div>
     <div id="timerInfo" class="muted">AMRAP</div>
+    <div class="timer-progress" aria-label="Progression de la séance"><div class="timer-progress-fill" id="timerProgressFill"></div></div>
+    <div class="small-note" id="timerProgressLabel">0 % de la séance</div>
 
     <div class="actions" style="margin-top:25px">
       <button class="primary" id="startTimer">DÉMARRER</button>
       <button class="secondary" id="pauseTimer">PAUSE</button>
       <button class="secondary" id="resetTimer">RESET</button>
+      <button class="secondary hidden" id="skipBlockBtn" type="button">PASSER AU BLOC SUIVANT →</button>
     </div>
+    <div style="margin-top:10px"><button class="secondary" id="tvModeBtn" type="button" style="width:100%">⛶ MODE ÉCRAN TV</button></div>
     <div style="margin-top:12px">
       <button class="secondary hidden" id="reenterFullscreenBtn" type="button" style="width:100%">⛶ RETOURNER EN PLEIN ÉCRAN</button>
     </div>
@@ -1028,12 +1054,15 @@ header {
   <div class="fs-center">
     <div class="fs-clock" id="fsClock">00:10</div>
     <div class="fs-round-info" id="fsRoundInfo">PRÉPARE-TOI</div>
+    <div class="fs-progress"><div class="fs-progress-fill" id="fsProgressFill"></div></div>
+    <div class="fs-exercise-focus" id="fsExerciseFocus"><small>EXERCICE EN COURS</small>PRÉPARE-TOI</div>
     <div class="fs-next-box hidden" id="fsNextBox"></div>
   </div>
 
   <div class="fs-controls">
     <button type="button" class="fs-btn-pause" id="fsPauseResumeBtn">PAUSE</button>
     <button type="button" class="fs-btn-reset" id="fsResetBtn">RESET</button>
+    <button type="button" class="fs-skip-btn hidden" id="fsSkipBlockBtn">BLOC SUIVANT →</button>
     <button type="button" class="fs-btn-resume hidden" id="fsLogBtn">✓ NOTER SCORE</button>
   </div>
 </div>
@@ -1551,6 +1580,10 @@ function playStartBell() {
 function playMidpointTone() {
   playTone(880, 0.55);
 }
+function playTransitionSound(kind) {
+  if (kind === "rest") { playTone(520, .18); setTimeout(() => playTone(420, .22), 130); }
+  else { playTone(920, .16); setTimeout(() => playTone(1180, .28), 140); }
+}
 
 // Décompte sonore
 function playCountdownTone(number) {
@@ -1616,7 +1649,7 @@ function getDuration() {
   }
 
   const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
-  const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 0);
+  const rest = Math.max(0, Number(document.getElementById("tabataRest").value) || 10);
   const cycles = Math.max(1, Number(document.getElementById("tabataCycles").value) || 8);
   return work * cycles + rest * Math.max(0, cycles - 1);
 }
@@ -1719,18 +1752,62 @@ function updateReenterFullscreenButton() {
   btn.classList.toggle("hidden", !timerHasStarted || fsOverlayActive);
 }
 
+function getPreparationDuration() {
+  return Math.max(0, Math.min(60, Number(document.getElementById("prepDuration")?.value) || 0));
+}
+function getExerciseLines() {
+  const raw = document.getElementById("timerWodContent")?.value || "";
+  return raw.split(/\n+/).map(x => x.trim()).filter(Boolean);
+}
+function getExerciseFocus(roundText = "") {
+  const lines = getExerciseLines();
+  if (!lines.length) return {current:"", next:""};
+  const match = String(roundText).match(/(?:ROUND|MINUTE)\s+(\d+)/i);
+  const idx = match ? (Number(match[1])-1) % lines.length : 0;
+  return {current:lines[idx], next:lines[(idx+1)%lines.length]};
+}
+function updateProgress(elapsedSeconds, totalSeconds) {
+  const pct = totalSeconds > 0 ? Math.max(0, Math.min(100, elapsedSeconds / totalSeconds * 100)) : 0;
+  const label = `${Math.round(pct)} % de la séance`;
+  const fill = document.getElementById("timerProgressFill");
+  const fsFill = document.getElementById("fsProgressFill");
+  if (fill) fill.style.width = pct + "%";
+  if (fsFill) fsFill.style.width = pct + "%";
+  const text = document.getElementById("timerProgressLabel");
+  if (text) text.textContent = label;
+}
+function updateSkipButtons() {
+  const show = timerType === "MIX" && getActiveSequenceTimeline().length > 1 && (running || countdownActive || elapsed > 0);
+  ["skipBlockBtn","fsSkipBlockBtn"].forEach(id => document.getElementById(id)?.classList.toggle("hidden", !show));
+}
+function skipToNextBlock() {
+  if (timerType !== "MIX") return;
+  const timeline = getActiveSequenceTimeline();
+  const next = timeline.find(b => b.start > elapsed);
+  if (!next) { finishTimer("SÉANCE TERMINÉE"); return; }
+  elapsed = next.start;
+  remaining = Math.max(0, (timeline[timeline.length-1]?.restEnd || 0) - elapsed);
+  phase = "work";
+  playTransitionSound("work");
+  updateClock();
+}
+
 function syncFullscreenDisplay(state) {
   const overlay = document.getElementById("fsTimerOverlay");
   if (!overlay) return;
 
   overlay.classList.remove("phase-prep", "phase-work", "phase-rest", "phase-done");
   overlay.classList.add("phase-" + state.visualPhase);
-  overlay.classList.toggle("phase-round", !!state.roundHighlight);
 
   document.getElementById("fsBlockBadge").textContent = state.blockLabel;
   document.getElementById("fsPhasePill").textContent = state.phaseLabel;
   document.getElementById("fsClock").textContent = state.clockText;
   document.getElementById("fsRoundInfo").textContent = state.roundLabel;
+  const focus = getExerciseFocus(state.roundLabel);
+  const focusEl = document.getElementById("fsExerciseFocus");
+  if (focusEl) focusEl.innerHTML = `<small>EXERCICE EN COURS</small>${escapeHTML(focus.current || "SÉANCE EN COURS")}${focus.next ? `<small style="margin-top:12px">PROCHAIN EXERCICE</small><span style="font-size:.72em;color:#cbd5e1">${escapeHTML(focus.next)}</span>` : ""}`;
+  updateProgress(elapsed, timerType === "MIX" ? getSequenceDuration() : getDuration());
+  updateSkipButtons();
 
   const nextBox = document.getElementById("fsNextBox");
   if (state.nextText) {
@@ -1739,20 +1816,6 @@ function syncFullscreenDisplay(state) {
   } else {
     nextBox.classList.add("hidden");
   }
-}
-
-function formatDurationLong(seconds) {
-  const total = Math.max(0, Math.floor(Number(seconds) || 0));
-  const h = Math.floor(total / 3600), m = Math.floor((total % 3600) / 60), sec = total % 60;
-  return h ? `${h} h ${m} min${sec ? ` ${sec} s` : ""}` : (m ? `${m} min${sec ? ` ${sec} s` : ""}` : `${sec} s`);
-}
-function updateTotalDurationPreview() {
-  const el = document.getElementById("totalDurationPreview");
-  if (!el) return;
-  const duration = getDuration();
-  el.textContent = duration > 0
-    ? `DURÉE TOTALE ESTIMÉE : ${formatDurationLong(duration)}${timerType === "FORTIME" && duration === 0 ? " (sans limite)" : ""}`
-    : `DURÉE TOTALE ESTIMÉE : ${timerType === "STOPWATCH" || (timerType === "FORTIME" && duration === 0) ? "sans limite" : "—"}`;
 }
 
 function updateClock() {
@@ -1871,20 +1934,20 @@ function updateClock() {
     }
   }
 
-  state.roundHighlight = ["EMOM", "TABATA"].includes(timerType) ||
-    (timerType === "MIX" && /MINUTE|ROUND/.test(state.roundLabel));
   state.clockText = formatTime(value);
   document.getElementById("clock").textContent = state.clockText;
-  document.getElementById("timerInfo").textContent =
-    timerType === "MIX"
+  const infoEl = document.getElementById("timerInfo");
+  infoEl.textContent = timerType === "MIX"
       ? `${state.blockLabel} — ${state.roundLabel} (${state.phaseLabel})`
       : `${state.roundLabel} — ${state.phaseLabel}`;
+  infoEl.style.color = /ROUND|MINUTE|CYCLE/i.test(state.roundLabel) ? "#60a5fa" : "";
+  infoEl.style.fontWeight = /ROUND|MINUTE|CYCLE/i.test(state.roundLabel) ? "900" : "";
 
   if (countdownActive) {
     state.visualPhase = "prep";
     state.phaseLabel = "PRÉPARATION";
     state.clockText = formatTime(countdownRemaining);
-    state.roundLabel = "PRÉPARE-TOI — DÉPART DANS 10s";
+    state.roundLabel = `PRÉPARE-TOI — DÉPART DANS ${countdownRemaining}s`;
   }
 
   syncFullscreenDisplay(state);
@@ -1998,8 +2061,10 @@ function startPreparation() {
     console.warn(error);
   }
 
+  const prepSeconds = getPreparationDuration();
+  if (prepSeconds <= 0) { startWorkout(); return; }
   countdownActive = true;
-  countdownRemaining = 10;
+  countdownRemaining = prepSeconds;
   requestWakeLock();
 
   document.getElementById("timerStatus").textContent = "PRÉPARATION";
@@ -2041,7 +2106,7 @@ function startPreparation() {
       formatTime(countdownRemaining);
 
     document.getElementById("timerInfo").textContent =
-      "DÉPART IMMINENT";
+      `DÉPART IMMINENT — ${countdownRemaining}s`;
 
     updateClock();
   }, 1000);
@@ -2128,10 +2193,10 @@ function tick() {
         const prev = local - 1;
         const prevPhase = (prev % (current.work + current.rest)) < current.work ? "work" : "rest";
         const nowPhase = (local % (current.work + current.rest)) < current.work ? "work" : "rest";
-        if (prevPhase !== nowPhase) playCountdownTone("GO");
+        if (prevPhase !== nowPhase) playTransitionSound(nowPhase);
       }
       if (current.type === "EMOM" && local > 0 && (local % 60 === current.work || local % 60 === 0)) {
-        playCountdownTone("GO");
+        playTransitionSound(local % 60 === 0 ? "work" : "rest");
       }
     }
     remaining = total - elapsed;
@@ -2179,7 +2244,7 @@ function tick() {
       if (phase === "work" && rest > 0) {
         phase = "rest";
         remaining = rest;
-        playCountdownTone("GO");
+        playTransitionSound("rest");
       } else {
         phase = "work";
         cycle++;
@@ -2193,7 +2258,7 @@ function tick() {
         }
 
         remaining = work;
-        playCountdownTone("GO");
+        playTransitionSound("work");
       }
     }
 
@@ -2205,7 +2270,7 @@ function tick() {
   if (timerType === "EMOM") {
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
     if (elapsed % 60 === workSeconds || (elapsed % 60 === 0 && remaining > 1)) {
-      playCountdownTone("GO");
+      playTransitionSound(elapsed % 60 === 0 ? "work" : "rest");
     }
   }
 
@@ -2310,6 +2375,9 @@ document.getElementById("reenterFullscreenBtn").addEventListener("click", () => 
   enterFullscreenOverlay();
   updateClock();
 });
+document.getElementById("tvModeBtn")?.addEventListener("click", () => { enterFullscreenOverlay(); updateClock(); });
+document.getElementById("skipBlockBtn")?.addEventListener("click", skipToNextBlock);
+document.getElementById("fsSkipBlockBtn")?.addEventListener("click", skipToNextBlock);
 
 // Actualisation de l'affichage quand les paramètres changent.
 
