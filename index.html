@@ -870,7 +870,7 @@ header {
 <div id="appShell">
 <header>
   <div class="logo">Les WODS<span>d'OREL</span></div>
-  <div class="subtitle">WORKOUT GENERATOR & TIMER</div>
+  <div class="subtitle">WOD & CHRONOMÈTRE</div>
   <div class="header-controls">
     <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
     <button class="theme-btn" id="themeToggleBtn" type="button" title="Changer le thème">🌓 THÈME : SOMBRE</button>
@@ -879,47 +879,12 @@ header {
 </header>
 
 <nav class="tabs">
-  <button class="tab active" data-page="generator">GÉNÉRATEUR</button>
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE WOD</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
   <button class="tab" data-page="historyPage">HISTORIQUE</button>
 </nav>
 
 <main>
-
-<!-- GENERATEUR -->
-
-<section id="generator" class="page active">
-
-  <h2>GÉNÉRATEUR DE WOD</h2>
-
-  <div class="panel center">
-    <div class="muted">GÉNÉRATION À PARTIR DE TA BASE DE DONNÉES PRIVÉE</div>
-
-    <button class="generate-button" id="randomButton">
-      <span style="font-size:30px">↻</span><br>
-      WOD ALÉATOIRE
-    </button>
-    <div class="muted">Sélectionne un WOD existant dans ta base.</div>
-
-    <button class="primary" id="mixButton" type="button" style="margin-top:18px">
-      CRÉER UN WOD PAR MIXAGE
-    </button>
-    <div class="muted" style="margin-top:9px">Combine des WOD compatibles pour créer une nouvelle séance.</div>
-    <div id="generationStatus" class="small-note" role="status" style="margin-top:14px"></div>
-  </div>
-
-  <div id="selectedWod" class="panel hidden">
-    <div class="muted">WOD GÉNÉRÉ</div>
-    <div id="selectedContent"></div>
-    <button class="primary" id="sendToTimer">
-      ENVOYER VERS LE CHRONO →
-    </button>
-  </div>
-
-
-
-</section>
 
 <!-- BIBLIOTHEQUE -->
 <section id="libraryPage" class="page">
@@ -953,7 +918,7 @@ header {
           <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
         </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
         <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
-        <div class="field"><label for="manualWodExercises">EXERCICES À EFFECTUER (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea><p class="small-note" id="manualExercisesHelp">AMRAP / FOR TIME : chaque ligne correspond à un exercice à réaliser, dans l’ordre.</p></div>
+        <div class="field"><label for="manualWodExercises">EXERCICES À EFFECTUER (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea><div id="manualExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note" id="manualExercisesHelp">Commence à écrire le nom d’un exercice : les mouvements correspondants s’affichent pour chaque ligne. AMRAP / FOR TIME : chaque ligne correspond à un exercice à réaliser, dans l’ordre.</p></div>
         </div>
         <div class="field"><label for="manualWodConsigne">CONSIGNE</label><textarea id="manualWodConsigne" rows="3" placeholder="Ex. : Garder une intensité régulière, respecter les amplitudes..."></textarea></div>
         <div id="multiBlockEditor" class="hidden">
@@ -1134,8 +1099,7 @@ header {
     </div>
 
     <div class="small-note">
-      Tu peux saisir ton propre WOD ou récupérer directement
-      celui sélectionné dans le générateur.
+      Tu peux saisir ton propre WOD ou sélectionner un WOD enregistré depuis la bibliothèque.
     </div>
   </div>
 
@@ -1287,7 +1251,6 @@ function openLibraryPanel(panelId) {
 // Variables globales partagées avec le script module Supabase.
 // `var` les expose sur window, contrairement à `let` dans un script classique.
 var wods = []; // Chargés depuis Supabase après connexion
-var selectedWod = null;
 var editingWodId = null;
 
 function renderBlocksSummaryHTML(wod) {
@@ -1364,7 +1327,7 @@ function displayLibrary() {
         <button class="secondary danger-btn delete-library-wod" type="button">SUPPRIMER 🗑</button>
       </div>`;
     card.querySelector(".choose-library-wod").addEventListener("click", () => {
-      selectWod(wod); openPage("generator"); window.scrollTo({top:0,behavior:"smooth"});
+      sendWodToTimer(wod); window.scrollTo({top:0,behavior:"smooth"});
     });
     card.querySelector(".edit-library-wod").addEventListener("click", () => {
       beginEditWod(wod);
@@ -1381,10 +1344,6 @@ function displayLibrary() {
         if (statusEl) statusEl.textContent = "Suppression en cours...";
         await window.deleteWodFromSupabase(wod.id);
         wods = wods.filter(item => String(item.id) !== String(wod.id));
-        if (selectedWod && String(selectedWod.id) === String(wod.id)) {
-          selectedWod = null;
-          document.getElementById("selectedWod").classList.add("hidden");
-        }
         updateCount();
         displayLibrary();
         if (statusEl) statusEl.textContent = `WOD « ${wod.name} » supprimé.`;
@@ -1449,80 +1408,6 @@ function resetManualWodEditor() {
 document.getElementById("cancelEditWod").addEventListener("click", () => {
   resetManualWodEditor();
   document.getElementById("manualWodStatus").textContent = "Modification annulée.";
-});
-
-function selectWod(wod) {
-  selectedWod = wod;
-
-  document.getElementById("selectedContent").innerHTML = renderWod(wod);
-  document.getElementById("selectedWod").classList.remove("hidden");
-}
-
-document.getElementById("randomButton").addEventListener("click", () => {
-  const status = document.getElementById("generationStatus");
-  if (!wods.length) {
-    status.textContent = "Aucun WOD disponible dans la base. Vérifie l'import et la connexion Supabase.";
-    return;
-  }
-
-  const wod = wods[Math.floor(Math.random() * wods.length)];
-  selectWod(wod);
-  status.textContent = "WOD existant sélectionné depuis ta base.";
-});
-
-document.getElementById("mixButton").addEventListener("click", () => {
-  const status = document.getElementById("generationStatus");
-  const groups = new Map();
-
-  wods.filter(w => Array.isArray(w.movements) && w.movements.length >= 2).forEach(w => {
-    const type = String(w.type || "LIBRE").trim().toUpperCase();
-    if (!groups.has(type)) groups.set(type, []);
-    groups.get(type).push(w);
-  });
-
-  const compatibleGroups = Array.from(groups.entries()).filter(([, items]) => items.length >= 2);
-  if (!compatibleGroups.length) {
-    status.textContent = "Pas assez de WOD compatibles pour effectuer un mixage. Il faut au moins deux WOD du même format avec des mouvements enregistrés.";
-    return;
-  }
-
-  const [type, candidates] = compatibleGroups[Math.floor(Math.random() * compatibleGroups.length)];
-  const shuffledSources = [...candidates].sort(() => Math.random() - 0.5);
-  const sources = shuffledSources.slice(0, 2);
-  const uniqueMovements = new Map();
-
-  sources.forEach(source => {
-    const shuffledMovements = [...source.movements].sort(() => Math.random() - 0.5);
-    shuffledMovements.forEach(movement => {
-      const key = String(movement.name || "").trim().toLowerCase();
-      if (key && !uniqueMovements.has(key)) uniqueMovements.set(key, { ...movement });
-    });
-  });
-
-  const movementPool = Array.from(uniqueMovements.values());
-  const mixedMovements = movementPool.sort(() => Math.random() - 0.5).slice(0, Math.min(5, movementPool.length));
-  if (mixedMovements.length < 3) {
-    status.textContent = "Le mixage n'a pas trouvé assez de mouvements différents. Relance la génération.";
-    return;
-  }
-
-  const durations = sources.map(w => Number(w.duration)).filter(n => Number.isFinite(n) && n > 0);
-  const combinedConsignes = sources
-    .map(w => String(w.consigne || "").trim())
-    .filter(Boolean)
-    .join("\n—\n");
-  const mixedWod = {
-    id: null,
-    name: "WOD MIX — " + type,
-    type,
-    duration: durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null,
-    consigne: combinedConsignes,
-    description: "Nouveau mixage temporaire construit à partir de deux WOD de ta base : " + sources.map(w => w.name).join(" + "),
-    movements: mixedMovements
-  };
-
-  selectWod(mixedWod);
-  status.textContent = "Nouveau WOD composé à partir de : " + sources.map(w => w.name).join(" et ") + ". Ce mixage n'est pas enregistré dans la base.";
 });
 
 // =======================================
@@ -1642,7 +1527,6 @@ async function openSharedWodFromLink() {
   }
 }
 
-document.getElementById("sendToTimer").addEventListener("click", () => sendWodToTimer(selectedWod));
 
 // =======================================
 // SELECTION DU TYPE DE CHRONO
@@ -1970,51 +1854,51 @@ function renderTimerDemoPreview() {
     </button></article>`;
   }).join("");
 }
-function getCurrentTimerExerciseFragment() {
-  const textarea = document.getElementById("timerWodContent");
+function getCurrentExerciseFragment(textareaId) {
+  const textarea = document.getElementById(textareaId);
   const value = textarea?.value || "";
   const cursor = textarea?.selectionStart ?? value.length;
-  // Délimiter la ligne réellement éditée (et non la première ligne du WOD).
   const lineStart = value.lastIndexOf("\n", Math.max(0, cursor - 1)) + 1;
   const lineEndRaw = value.indexOf("\n", cursor);
   const lineEnd = lineEndRaw === -1 ? value.length : lineEndRaw;
   const line = value.slice(lineStart, lineEnd);
   const beforeCursor = value.slice(lineStart, cursor);
-  // Les chiffres de répétitions / séries au début de ligne ne font pas partie du nom.
   const repsMatch = beforeCursor.match(/^(\s*\d+(?:\s*[x×])?\s*)/i);
   const prefix = beforeCursor.slice(repsMatch ? repsMatch[0].length : 0).trimStart();
   return { textarea, value, cursor, lineStart, lineEnd, line, reps: repsMatch ? repsMatch[0] : "", prefix };
 }
-function renderTimerExerciseSuggestions() {
-  const box = document.getElementById("timerExerciseSuggestions");
+function renderExerciseSuggestions(textareaId, boxId) {
+  const box = document.getElementById(boxId);
   if (!box) return;
-  const {prefix} = getCurrentTimerExerciseFragment();
+  const {prefix} = getCurrentExerciseFragment(textareaId);
   const query = cleanExerciseNameForMatch(prefix);
   if (query.length < 2) { box.hidden = true; box.innerHTML = ""; return; }
   const list = window.WODFactoryMovements || [];
   const matches = list.filter(m => [m.name, m.fr].some(name => cleanExerciseNameForMatch(name).startsWith(query))).slice(0, 8);
   if (!matches.length) { box.hidden = true; box.innerHTML = ""; return; }
-  box.innerHTML = matches.map(m => `<button type="button" class="timer-exercise-suggestion" role="option" data-suggestion-id="${escapeHTML(m.id)}">
-    <span><strong>${escapeHTML(m.name)}</strong><small>${escapeHTML(m.fr || m.equipment || "")}</small></span>
-    <span class="suggestion-tag">${escapeHTML(m.equipment || "")}</span>
-  </button>`).join("");
+  box.innerHTML = matches.map(m => `<button type="button" class="timer-exercise-suggestion" role="option" data-suggestion-id="${escapeHTML(m.id)}"><span><strong>${escapeHTML(m.name)}</strong><small>${escapeHTML(m.fr || m.equipment || "")}</small></span><span class="suggestion-tag">${escapeHTML(m.equipment || "")}</span></button>`).join("");
   box.hidden = false;
 }
-function chooseTimerExerciseSuggestion(id) {
+function chooseExerciseSuggestion(textareaId, boxId, id) {
   const movement = (window.WODFactoryMovements || []).find(m => String(m.id) === String(id));
   if (!movement) return;
-  const state = getCurrentTimerExerciseFragment();
+  const state = getCurrentExerciseFragment(textareaId);
   if (!state.textarea) return;
-  // Remplace uniquement la ligne où se trouve le curseur ; toutes les autres lignes restent intactes.
   const replacement = state.reps + movement.name;
   const nextValue = state.value.slice(0, state.lineStart) + replacement + state.value.slice(state.lineEnd);
   state.textarea.value = nextValue;
   const nextCursor = state.lineStart + replacement.length;
   state.textarea.focus();
   state.textarea.setSelectionRange(nextCursor, nextCursor);
-  document.getElementById("timerExerciseSuggestions").hidden = true;
-  updateClock();
-  renderTimerDemoPreview();
+  const box = document.getElementById(boxId);
+  if (box) box.hidden = true;
+  if (textareaId === "timerWodContent") {
+    updateClock();
+    renderTimerDemoPreview();
+  }
+}
+function renderTimerExerciseSuggestions() {
+  renderExerciseSuggestions("timerWodContent", "timerExerciseSuggestions");
 }
 function getExerciseFocus(roundText = "") {
   const lines = getExerciseLines();
@@ -2707,8 +2591,6 @@ if (clearLibraryButton) {
     try {
       await window.clearAllWodsFromSupabase();
       wods = [];
-      selectedWod = null;
-      document.getElementById("selectedWod").classList.add("hidden");
       updateCount();
       displayLibrary();
       document.getElementById("libraryStatus").textContent = "Bibliothèque vidée : tous les WOD enregistrés ont été supprimés.";
@@ -2869,11 +2751,21 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
     }
   });
 });
-document.getElementById("timerExerciseSuggestions")?.addEventListener("click", event => {
-  const button = event.target.closest("[data-suggestion-id]");
-  if (button) chooseTimerExerciseSuggestion(button.dataset.suggestionId);
-});
-document.getElementById("timerWodContent")?.addEventListener("click", renderTimerExerciseSuggestions);
+function attachExerciseAutocomplete(textareaId, boxId) {
+  const textarea = document.getElementById(textareaId);
+  const box = document.getElementById(boxId);
+  if (!textarea || !box) return;
+  const render = () => renderExerciseSuggestions(textareaId, boxId);
+  textarea.addEventListener("input", render);
+  textarea.addEventListener("click", render);
+  textarea.addEventListener("keyup", render);
+  box.addEventListener("click", event => {
+    const button = event.target.closest("[data-suggestion-id]");
+    if (button) chooseExerciseSuggestion(textareaId, boxId, button.dataset.suggestionId);
+  });
+}
+attachExerciseAutocomplete("timerWodContent", "timerExerciseSuggestions");
+attachExerciseAutocomplete("manualWodExercises", "manualExerciseSuggestions");
 document.getElementById("timerDemoPreview")?.addEventListener("click", event => {
   const button = event.target.closest("[data-movement-id]");
   if (button) window.WODFactoryOpenMovementDetail?.(button.dataset.movementId);
@@ -3035,9 +2927,9 @@ renderWorkoutHistory();
 // =======================================
 (function setupPWA() {
   const manifest = {
-    name: "WOOREL GENERATOR",
+    name: "WOD FACTORY",
     short_name: "WOOREL",
-    description: "Générateur de WOD et Chronomètre d'entraînement",
+    description: "Création de WOD et chronomètre d'entraînement",
     start_url: ".",
     display: "standalone",
     background_color: "#101419",
@@ -3240,8 +3132,6 @@ async function loadWodsFromSupabase() {
 
   updateCount();
   displayLibrary();
-  document.getElementById("selectedWod").classList.add("hidden");
-  selectedWod = null;
 }
 
 function normalizeWodType(type) {
