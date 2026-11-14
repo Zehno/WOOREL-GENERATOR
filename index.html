@@ -1204,13 +1204,156 @@ main { overflow-x: hidden; }
               <option value="30">30 sec</option>
               <option value="45">45 sec</option>
               <option value="60" selected>1 min</option>
-              ${Array.from({length:45}, (_, i) => `<option value="${75 + i * 15}">${Math.floor((75 + i * 15) / 60)} min ${String((75 + i * 15) % 60).padStart(2, "0")} sec</option>`).join("")}
+              <option value="75">1 min 15 sec</option>
+              <option value="90">1 min 30 sec</option>
+              <option value="105">1 min 45 sec</option>
+              <option value="120">2 min</option>
+              <option value="135">2 min 15 sec</option>
+              <option value="150">2 min 30 sec</option>
+              <option value="165">2 min 45 sec</option>
+              <option value="180">3 min</option>
+              <option value="195">3 min 15 sec</option>
+              <option value="210">3 min 30 sec</option>
+              <option value="225">3 min 45 sec</option>
+              <option value="240">4 min</option>
+              <option value="255">4 min 15 sec</option>
+              <option value="270">4 min 30 sec</option>
+              <option value="285">4 min 45 sec</option>
+              <option value="300">5 min</option>
+              <option value="315">5 min 15 sec</option>
+              <option value="330">5 min 30 sec</option>
+              <option value="345">5 min 45 sec</option>
+              <option value="360">6 min</option>
+              <option value="375">6 min 15 sec</option>
+              <option value="390">6 min 30 sec</option>
+              <option value="405">6 min 45 sec</option>
+              <option value="420">7 min</option>
+              <option value="435">7 min 15 sec</option>
+              <option value="450">7 min 30 sec</option>
+              <option value="465">7 min 45 sec</option>
+              <option value="480">8 min</option>
+              <option value="495">8 min 15 sec</option>
+              <option value="510">8 min 30 sec</option>
+              <option value="525">8 min 45 sec</option>
+              <option value="540">9 min</option>
+              <option value="555">9 min 15 sec</option>
+              <option value="570">9 min 30 sec</option>
+              <option value="585">9 min 45 sec</option>
+              <option value="600">10 min</option>
+              <option value="615">10 min 15 sec</option>
+              <option value="630">10 min 30 sec</option>
+              <option value="645">10 min 45 sec</option>
+              <option value="660">11 min</option>
+              <option value="675">11 min 15 sec</option>
+              <option value="690">11 min 30 sec</option>
+              <option value="705">11 min 45 sec</option>
+              <option value="720">12 min</option>
             </select>
           </div>
           <div class="field">
             <label for="emomDuration">DURÉE TOTALE — MULTIPLICATEUR</label>
             <select id="emomDuration">
-              ${Array.from({length:101}, (_, i) => `<option value="${i + 1}" ${i === 11 ? "selected" : ""}>x${i + 1}</option>`).join("")}
+              <option value="1">x1</option>
+              <option value="2">x2</option>
+              <option value="3">x3</option>
+              <option value="4">x4</option>
+              <option value="5">x5</option>
+              <option value="6">x6</option>
+              <option value="7">x7</option>
+              <option value="8">x8</option>
+              <option value="9">x9</option>
+              <option value="10">x10</option>
+              <option value="11">x11</option>
+              <option value="12" selected>x12</option>
+              <option value="13">x13</option>
+              <option value="14">x14</option>
+              <option value="15">x15</option>
+              <option value="16">x16</option>
+              <option value="17">x17</option>
+              <option value="18">x18</option>
+              <option value="19">x19</option>
+              <option value="20">x20</option>
+              <option value="21">x21</option>
+              <option value="22">x22</option>
+              <option value="23">x23</option>
+              <option value="24">x24</option>
+              <option value="25">x25</option>
+              <option value="26">x26</option>
+              <option value="27">x27</option>
+              <option value="28">x28</option>
+              <option value="29">x29</option>
+              <option value="30">x30</option>
+              <option value="31">x31</option>
+              <option value="32">x32</option>
+              <option value="33">x33</option>
+              <option value="34">x34</option>
+              <option value="35">x35</option>
+              <option value="36">x36</option>
+              <option value="37">x37</option>
+              <option value="38">x38</option>
+              <option value="39">x39</option>
+              <option value="40">x40</option>
+              <option value="41">x41</option>
+              <option value="42">x42</option>
+              <option value="43">x43</option>
+              <option value="44">x44</option>
+              <option value="45">x45</option>
+              <option value="46">x46</option>
+              <option value="47">x47</option>
+              <option value="48">x48</option>
+              <option value="49">x49</option>
+              <option value="50">x50</option>
+              <option value="51">x51</option>
+              <option value="52">x52</option>
+              <option value="53">x53</option>
+              <option value="54">x54</option>
+              <option value="55">x55</option>
+              <option value="56">x56</option>
+              <option value="57">x57</option>
+              <option value="58">x58</option>
+              <option value="59">x59</option>
+              <option value="60">x60</option>
+              <option value="61">x61</option>
+              <option value="62">x62</option>
+              <option value="63">x63</option>
+              <option value="64">x64</option>
+              <option value="65">x65</option>
+              <option value="66">x66</option>
+              <option value="67">x67</option>
+              <option value="68">x68</option>
+              <option value="69">x69</option>
+              <option value="70">x70</option>
+              <option value="71">x71</option>
+              <option value="72">x72</option>
+              <option value="73">x73</option>
+              <option value="74">x74</option>
+              <option value="75">x75</option>
+              <option value="76">x76</option>
+              <option value="77">x77</option>
+              <option value="78">x78</option>
+              <option value="79">x79</option>
+              <option value="80">x80</option>
+              <option value="81">x81</option>
+              <option value="82">x82</option>
+              <option value="83">x83</option>
+              <option value="84">x84</option>
+              <option value="85">x85</option>
+              <option value="86">x86</option>
+              <option value="87">x87</option>
+              <option value="88">x88</option>
+              <option value="89">x89</option>
+              <option value="90">x90</option>
+              <option value="91">x91</option>
+              <option value="92">x92</option>
+              <option value="93">x93</option>
+              <option value="94">x94</option>
+              <option value="95">x95</option>
+              <option value="96">x96</option>
+              <option value="97">x97</option>
+              <option value="98">x98</option>
+              <option value="99">x99</option>
+              <option value="100">x100</option>
+              <option value="101">x101</option>
             </select>
           </div>
           <p class="small-note" id="emomComputedPreview">1 min × 12 = 12 min au total (12 rounds). Aucun repos entre les rounds.</p>
@@ -2521,6 +2664,8 @@ function startPreparation() {
     updateClock();
   }, 1000);
 }
+
+// Les options EMOM sont définies directement dans le HTML pour garantir leur affichage.
 
 function updateEmomComputedPreview() {
   const multiplier = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
