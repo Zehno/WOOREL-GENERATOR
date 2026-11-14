@@ -1125,7 +1125,19 @@ main { overflow-x: hidden; }
           <div class="field"><label for="manualTabataRest">REPOS (SECONDES)</label><input id="manualTabataRest" type="number" min="0" value="10"></div>
           <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
         </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
-        <div id="manualFortimeFields" class="field hidden"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
+        <div id="manualFortimeFields" class="hidden">
+          <div class="field"><label for="manualFortimeFormat">FORMAT FOR TIME</label><select id="manualFortimeFormat"><option value="simple">FOR TIME SIMPLE</option><option value="rft">ROUNDS CHRONOMÉTRÉ (RFT)</option><option value="rft-rest">RFT AVEC RÉCUPÉRATION</option><option value="intermediate">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</option></select></div>
+          <div class="field" id="manualFortimeCapField"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
+          <div class="grid hidden" id="manualFortimeRftFields">
+            <div class="field"><label for="manualFortimeRounds">NOMBRE DE ROUNDS</label><input id="manualFortimeRounds" type="number" min="1" value="5"></div>
+            <div class="field" id="manualFortimeRestField"><label for="manualFortimeRest">REPOS APRÈS CHAQUE ROUND (SECONDES)</label><input id="manualFortimeRest" type="number" min="0" value="60"></div>
+          </div>
+          <div class="panel hidden" id="manualFortimeIntermediateFields" style="margin:12px 0">
+            <div class="field"><label for="manualFortimeTriggerInterval">DÉCLENCHEMENT TOUTES LES (MINUTES)</label><input id="manualFortimeTriggerInterval" type="number" min="1" step="1" value="5"></div>
+            <div class="field"><label for="manualFortimeIntermediateMoves">MOUVEMENT(S) INTERMÉDIAIRE(S)</label><textarea id="manualFortimeIntermediateMoves" rows="3" placeholder="20 Burpees&#10;30 Wall Balls"></textarea><p class="small-note">Ces mouvements se déclenchent toutes les X minutes, en complément du corps de séance.</p></div>
+          </div>
+          <p class="small-note" id="manualFortimeFormatHelp">FOR TIME SIMPLE : termine le WOD le plus vite possible. Mets le Time Cap à 0 pour un chrono sans limite.</p>
+        </div>
         <div class="field"><label for="manualWodExercises">EXERCICES À EFFECTUER (UN EXERCICE PAR LIGNE)</label><textarea id="manualWodExercises" rows="7" required placeholder="15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea><div id="manualExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note" id="manualExercisesHelp">Commence à écrire le nom d’un exercice : les mouvements correspondants s’affichent pour chaque ligne. AMRAP / FOR TIME : chaque ligne correspond à un exercice à réaliser, dans l’ordre.</p></div>
         <div class="timer-demo-heading">DÉMONSTRATIONS DES EXERCICES</div>
         <div id="manualDemoPreview" class="timer-demo-list" aria-live="polite"><p class="small-note">Les démonstrations des mouvements reconnus apparaîtront ici.</p></div>
@@ -1776,6 +1788,11 @@ function beginEditWod(wod) {
     document.getElementById("manualTabataCycles").value = cfg.cycles ?? 8;
   } else {
     document.getElementById("manualFortimeCap").value = cfg.time_cap_minutes ?? wod.duration ?? 0;
+    document.getElementById("manualFortimeFormat").value = cfg.format || "simple";
+    document.getElementById("manualFortimeRounds").value = cfg.rounds ?? 5;
+    document.getElementById("manualFortimeRest").value = cfg.rest_seconds ?? 60;
+    document.getElementById("manualFortimeTriggerInterval").value = cfg.trigger_interval_minutes ?? 5;
+    document.getElementById("manualFortimeIntermediateMoves").value = cfg.intermediate_moves || "";
   }
   document.getElementById("manualWodConsigne").value = wod.consigne || "";
   document.getElementById("manualWodExercises").value = (wod.movements || []).map(m => `${m.reps != null ? m.reps + " " : ""}${m.name || ""}`.trim()).join("\n");
@@ -1843,6 +1860,15 @@ function sendWodToTimer(wod) {
       if (cfg.work_seconds) document.getElementById("tabataWork").value = cfg.work_seconds;
       if (cfg.rest_seconds != null) document.getElementById("tabataRest").value = cfg.rest_seconds;
       if (cfg.cycles) document.getElementById("tabataCycles").value = cfg.cycles;
+    }
+    if (type === "FORTIME") {
+      document.getElementById("fortimeFormat").value = cfg.format || "simple";
+      if (cfg.time_cap_minutes != null) document.getElementById("fortimeLimit").value = cfg.time_cap_minutes;
+      if (cfg.rounds != null) document.getElementById("fortimeRounds").value = cfg.rounds;
+      if (cfg.rest_seconds != null) document.getElementById("fortimeRest").value = cfg.rest_seconds;
+      if (cfg.trigger_interval_minutes != null) document.getElementById("fortimeTriggerInterval").value = cfg.trigger_interval_minutes;
+      if (cfg.intermediate_moves) document.getElementById("fortimeIntermediateMoves").value = cfg.intermediate_moves;
+      updateFortimeFormatFields();
     }
   }
   resetTimer();
@@ -3134,7 +3160,16 @@ const manualFormatFields = {
 };
 function updateManualFormatFields() {
   Object.entries(manualFormatFields).forEach(([key, el]) => el.classList.toggle("hidden", key !== manualFormat.value));
+  updateManualFortimeFields();
   updateManualPreviews();
+}
+function updateManualFortimeFields() {
+  const fmt = document.getElementById("manualFortimeFormat")?.value || "simple";
+  document.getElementById("manualFortimeRftFields")?.classList.toggle("hidden", !(fmt === "rft" || fmt === "rft-rest"));
+  document.getElementById("manualFortimeIntermediateFields")?.classList.toggle("hidden", fmt !== "intermediate");
+  document.getElementById("manualFortimeRestField")?.classList.toggle("hidden", fmt !== "rft-rest");
+  const help = document.getElementById("manualFortimeFormatHelp");
+  if (help) help.textContent = fmt === "simple" ? "FOR TIME SIMPLE : termine le WOD le plus vite possible. Mets le Time Cap à 0 pour un chrono sans limite." : fmt === "rft" ? "RFT : valide chaque round avec le bouton ROUND TERMINÉ. Le chrono continue de tourner." : fmt === "rft-rest" ? "RFT avec récupération : chaque validation déclenche le repos choisi." : "Les mouvements intermédiaires se déclenchent toutes les X minutes pendant le WOD.";
 }
 function updateManualPreviews() {
   const emomWork = Math.max(1, Math.min(59, Number(document.getElementById("manualEmomWork").value) || 40));
@@ -3156,6 +3191,7 @@ manualFormat.addEventListener("change", () => {
   updateManualFormatFields();
   updateManualExerciseHelp();
 });
+document.getElementById("manualFortimeFormat").addEventListener("change", updateManualFortimeFields);
 ["manualEmomWork","manualTabataWork","manualTabataRest","manualTabataCycles"].forEach(id => document.getElementById(id).addEventListener("input", updateManualPreviews));
 updateManualFormatFields();
 updateManualExerciseHelp();
@@ -3305,7 +3341,16 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
     timerConfig = { format:type, work_seconds:work, rest_seconds:rest, cycles, total_seconds:totalSeconds };
   } else {
     duration = Math.max(0, Number(document.getElementById("manualFortimeCap").value) || 0) || null;
-    timerConfig.time_cap_minutes = duration;
+    const fortimeFormat = document.getElementById("manualFortimeFormat").value || "simple";
+    timerConfig = { format: fortimeFormat, time_cap_minutes: duration };
+    if (fortimeFormat === "rft" || fortimeFormat === "rft-rest") {
+      timerConfig.rounds = Math.max(1, Number(document.getElementById("manualFortimeRounds").value) || 1);
+      timerConfig.rest_seconds = fortimeFormat === "rft-rest" ? Math.max(0, Number(document.getElementById("manualFortimeRest").value) || 0) : 0;
+    }
+    if (fortimeFormat === "intermediate") {
+      timerConfig.trigger_interval_minutes = Math.max(1, Number(document.getElementById("manualFortimeTriggerInterval").value) || 5);
+      timerConfig.intermediate_moves = document.getElementById("manualFortimeIntermediateMoves").value.trim();
+    }
   }
 
   button.disabled = true; button.textContent = "ENREGISTREMENT...";
