@@ -1284,33 +1284,11 @@ main { overflow-x: hidden; }
     </div>
   </div>
 
-  <div class="panel">
-    <h2>MON WOD</h2>
-
-    <div class="field">
-      <label>NOM DE LA SÉANCE</label>
-      <input id="timerWodName" placeholder="Nom de mon WOD">
-    </div>
-
-    <div class="field" id="timerConsigneBox">
-      <label for="timerWodConsigne">CONSIGNES</label>
-      <textarea id="timerWodConsigne" rows="3" placeholder="Consignes de la séance (s'affiche dans la fenêtre plein écran du chrono)..."></textarea>
-    </div>
-
-    <div class="field">
-      <label>CONTENU DE LA SÉANCE</label>
-      <textarea id="timerWodContent" rows="7"
-        placeholder="Exemple :&#10;15 Wall Balls&#10;12 Burpees&#10;10 Pull-ups"></textarea>
-      <div id="timerExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Exercices de la bibliothèque" hidden></div>
-      <div class="timer-demo-heading">DÉMONSTRATIONS DES EXERCICES</div>
-      <div id="timerDemoPreview" class="timer-demo-list" aria-live="polite">
-        <p class="small-note">Les démonstrations correspondantes apparaîtront ici.</p>
-      </div>
-    </div>
-
-    <div class="small-note">
-      Tu peux saisir ton propre WOD ou sélectionner un WOD enregistré depuis la bibliothèque.
-    </div>
+  <!-- Champs internes conservés pour transférer un WOD de la bibliothèque vers le plein écran et l'historique. -->
+  <div hidden aria-hidden="true">
+    <input id="timerWodName" value="">
+    <textarea id="timerWodConsigne"></textarea>
+    <textarea id="timerWodContent"></textarea>
   </div>
 
 </section>
@@ -1839,8 +1817,9 @@ function playTone(frequency = 880, duration = 0.35) {
     oscillator.frequency.value = frequency;
 
     gain.gain.setValueAtTime(0.0001, audio.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.18, audio.currentTime + 0.025);
-    gain.gain.setValueAtTime(0.18, audio.currentTime + duration * 0.65);
+    // Niveau nettement renforcé pour rester audible avec une musique en fond.
+    gain.gain.exponentialRampToValueAtTime(0.55, audio.currentTime + 0.025);
+    gain.gain.setValueAtTime(0.55, audio.currentTime + duration * 0.65);
     gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
 
     oscillator.connect(gain);
@@ -2568,6 +2547,12 @@ function checkMidpointSignal() {
   }
 }
 
+// Alerte distincte « 10 secondes » pour la fin de chaque minute EMOM.
+function playEmomTenSecondsWarning() {
+  playTone(1320, 0.32);
+  setTimeout(() => playTone(1580, 0.32), 180);
+}
+
 // =======================================
 // TICK DU CHRONOMETRE
 // =======================================
@@ -2672,9 +2657,12 @@ function tick() {
     return;
   }
 
-  // EMOM : bip au passage travail <-> repos chaque minute
+  // EMOM : annonce spécifique 10 secondes avant la fin de chaque minute commencée.
   if (timerType === "EMOM") {
     const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
+    if (elapsed % 60 === 50 && elapsed < getDuration()) {
+      playEmomTenSecondsWarning();
+    }
     if (elapsed % 60 === workSeconds || (elapsed % 60 === 0 && remaining > 1)) {
       playTransitionSound(elapsed % 60 === 0 ? "work" : "rest");
     }
