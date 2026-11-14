@@ -1178,6 +1178,10 @@ main { overflow-x: hidden; }
         <button class="secondary" id="clearLibraryButton" type="button">VIDER LA BIBLIOTHÈQUE</button>
       </div>
       <div id="libraryStatus" class="small-note" role="status" aria-live="polite" style="margin-top:10px"></div>
+      <div class="field" style="margin:14px 0 10px;max-width:520px">
+        <label for="libraryWodSearch">RECHERCHER UN WOD PAR SON NOM</label>
+        <input id="libraryWodSearch" type="search" placeholder="Écris le début du nom du WOD..." autocomplete="off" aria-label="Rechercher un WOD par le début de son nom">
+      </div>
       <div class="wod-category-filters" id="wodCategoryFilters" aria-label="Filtrer les WOD par catégorie">
         <button type="button" class="wod-category-filter active" data-category-filter="ALL">TOUS</button>
         <button type="button" class="wod-category-filter" data-category-filter="HYROX">HYROX</button>
@@ -1726,6 +1730,11 @@ const WOD_CATEGORIES = ["HYROX", "WOD HEROES", "WOD GIRL", "WOD"];
 let activeWodCategoryFilter = "ALL";
 function getWodCategory(wod) { return WOD_CATEGORIES.includes(wod?.category) ? wod.category : "WOD"; }
 function setupWodCategoryFilters() {
+  const search = document.getElementById("libraryWodSearch");
+  if (search && search.dataset.bound !== "true") {
+    search.dataset.bound = "true";
+    search.addEventListener("input", () => displayLibrary());
+  }
   const filters = document.getElementById("wodCategoryFilters");
   if (!filters || filters.dataset.bound === "true") return;
   filters.dataset.bound = "true";
@@ -1760,8 +1769,19 @@ function displayLibrary() {
   if (!container) return;
   container.innerHTML = "";
   if (!wods.length) { container.innerHTML = '<p class="muted">Aucun WOD dans ta bibliothèque pour le moment.</p>'; return; }
-  const visibleWods = (activeWodCategoryFilter === "ALL" ? wods : wods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter)).slice().sort((a, b) => activeWodCategoryFilter === "WOD HEROES" ? String(a.name || "").localeCompare(String(b.name || ""), "en", { sensitivity: "base" }) : 0);
-  if (!visibleWods.length) { container.innerHTML = `<p class="muted">Aucun WOD dans la catégorie ${escapeHTML(activeWodCategoryFilter)}.</p>`; return; }
+  const searchInput = document.getElementById("libraryWodSearch");
+  const searchTerm = String(searchInput?.value || "").trim().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("fr");
+  let visibleWods = activeWodCategoryFilter === "ALL" ? wods.slice() : wods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
+  if (searchTerm) {
+    visibleWods = visibleWods.filter(wod => String(wod.name || "").normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLocaleLowerCase("fr").startsWith(searchTerm));
+  }
+  visibleWods.sort((a, b) => activeWodCategoryFilter === "WOD HEROES" ? String(a.name || "").localeCompare(String(b.name || ""), "en", { sensitivity: "base" }) : 0);
+  if (!visibleWods.length) {
+    container.innerHTML = searchTerm
+      ? `<p class="muted">Aucun WOD ne commence par « ${escapeHTML(String(searchInput.value).trim())} » dans cette sélection.</p>`
+      : `<p class="muted">Aucun WOD dans la catégorie ${escapeHTML(activeWodCategoryFilter)}.</p>`;
+    return;
+  }
   visibleWods.forEach(wod => {
     const card = document.createElement("div");
     card.className = "wod-card";
