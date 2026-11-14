@@ -123,6 +123,12 @@ main {
 .library-panel.active {display:block}
 .wod-actions {display:flex;gap:9px;margin-top:12px}
 .wod-actions button {flex:1}
+ .wod-category-filters{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 10px}
+ .wod-category-filter{flex:1 1 auto;min-width:90px;padding:11px 12px;border:1px solid var(--border);border-radius:9px;background:var(--panel2);color:var(--muted);font-weight:900;font-size:11px;letter-spacing:.4px;cursor:pointer}
+ .wod-category-filter.active{background:linear-gradient(135deg,#a5ff22,#65d900);color:#081000;border-color:#a5ff22}
+ .wod-category-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:8px 0 12px}
+ .wod-category-row label{margin:0;min-width:72px}
+ .wod-category-select{max-width:220px;padding:8px 10px;font-size:12px;font-weight:800}
 @media(max-width:520px){.library-subtabs{flex-direction:column}.wod-actions{flex-direction:column}}
 
 h2 {
@@ -1172,6 +1178,13 @@ main { overflow-x: hidden; }
         <button class="secondary" id="clearLibraryButton" type="button">VIDER LA BIBLIOTHÈQUE</button>
       </div>
       <div id="libraryStatus" class="small-note" role="status" aria-live="polite" style="margin-top:10px"></div>
+      <div class="wod-category-filters" id="wodCategoryFilters" aria-label="Filtrer les WOD par catégorie">
+        <button type="button" class="wod-category-filter active" data-category-filter="ALL">TOUS</button>
+        <button type="button" class="wod-category-filter" data-category-filter="HYROX">HYROX</button>
+        <button type="button" class="wod-category-filter" data-category-filter="WOD HEROES">WOD HEROES</button>
+        <button type="button" class="wod-category-filter" data-category-filter="WOD GIRL">WOD GIRL</button>
+        <button type="button" class="wod-category-filter" data-category-filter="WOD">WOD</button>
+      </div>
       <div id="libraryList"><p class="muted">Connecte-toi pour charger ta bibliothèque.</p></div>
     </div>
   </div>
@@ -1709,22 +1722,61 @@ function updateCount() {
   if (count) count.textContent = wods.length;
 }
 
+const WOD_CATEGORIES = ["HYROX", "WOD HEROES", "WOD GIRL", "WOD"];
+let activeWodCategoryFilter = "ALL";
+function getWodCategory(wod) { return WOD_CATEGORIES.includes(wod?.category) ? wod.category : "WOD"; }
+function setupWodCategoryFilters() {
+  const filters = document.getElementById("wodCategoryFilters");
+  if (!filters || filters.dataset.bound === "true") return;
+  filters.dataset.bound = "true";
+  filters.addEventListener("click", event => {
+    const button = event.target.closest("[data-category-filter]");
+    if (!button) return;
+    activeWodCategoryFilter = button.dataset.categoryFilter || "ALL";
+    filters.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === activeWodCategoryFilter));
+    displayLibrary();
+  });
+}
+async function changeWodCategory(wod, category, select) {
+  const status = document.getElementById("libraryStatus");
+  if (!WOD_CATEGORIES.includes(category)) return;
+  const previous = getWodCategory(wod);
+  select.disabled = true;
+  if (status) status.textContent = "Enregistrement de la catégorie...";
+  try {
+    await window.updateWodCategoryInSupabase(wod.id, category);
+    wod.category = category;
+    if (status) status.textContent = `Catégorie de « ${wod.name} » mise à jour : ${category}.`;
+    displayLibrary();
+  } catch (error) {
+    console.error(error); select.value = previous;
+    if (status) status.textContent = "Impossible d'enregistrer la catégorie : " + (error?.message || String(error));
+    select.disabled = false;
+  }
+}
 function displayLibrary() {
+  setupWodCategoryFilters();
   const container = document.getElementById("libraryList");
   if (!container) return;
   container.innerHTML = "";
-  if (!wods.length) {
-    container.innerHTML = '<p class="muted">Aucun WOD dans ta bibliothèque pour le moment.</p>';
-    return;
-  }
-  wods.forEach(wod => {
+  if (!wods.length) { container.innerHTML = '<p class="muted">Aucun WOD dans ta bibliothèque pour le moment.</p>'; return; }
+  const visibleWods = activeWodCategoryFilter === "ALL" ? wods : wods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
+  if (!visibleWods.length) { container.innerHTML = `<p class="muted">Aucun WOD dans la catégorie ${escapeHTML(activeWodCategoryFilter)}.</p>`; return; }
+  visibleWods.forEach(wod => {
     const card = document.createElement("div");
     card.className = "wod-card";
     const consigne = String(wod.consigne || "").trim();
     const blocksHTML = renderBlocksSummaryHTML(wod);
+    const category = getWodCategory(wod);
     card.innerHTML = `<h3>${escapeHTML(wod.name)}</h3>
       <span class="tag">${escapeHTML(wod.type === "MIX" ? `MULTI-BLOCS (${wod.timerConfig?.blocks?.length || 0})` : wod.type)}</span>
+      <span class="tag">${escapeHTML(category)}</span>
       ${wod.duration ? `<span class="tag">${escapeHTML(String(wod.duration))} MIN</span>` : ""}
+      <div class="wod-category-row"><label for="wod-category-${escapeHTML(String(wod.id))}">CATÉGORIE</label>
+        <select class="wod-category-select" id="wod-category-${escapeHTML(String(wod.id))}" aria-label="Catégorie du WOD ${escapeHTML(wod.name)}">
+          ${WOD_CATEGORIES.map(item => `<option value="${item}" ${item === category ? "selected" : ""}>${item}</option>`).join("")}
+        </select>
+      </div>
       ${consigne ? `<div class="consigne-box"><div class="consigne-label">CONSIGNES</div>${escapeHTML(consigne)}</div>` : ""}
       ${blocksHTML}
       ${(wod.movements || []).map(m => `<div class="exercise">${m.reps != null ? `<strong>${escapeHTML(String(m.reps))} </strong>` : ""}${escapeHTML(m.name || "")}</div>`).join("")}
@@ -1734,15 +1786,11 @@ function displayLibrary() {
         <button class="secondary share-library-wod" type="button">PARTAGER ↗</button>
         <button class="secondary danger-btn delete-library-wod" type="button">SUPPRIMER 🗑</button>
       </div>`;
-    card.querySelector(".choose-library-wod").addEventListener("click", () => {
-      sendWodToTimer(wod); window.scrollTo({top:0,behavior:"smooth"});
-    });
-    card.querySelector(".edit-library-wod").addEventListener("click", () => {
-      beginEditWod(wod);
-    });
+    card.querySelector(".wod-category-select").addEventListener("change", event => changeWodCategory(wod, event.target.value, event.target));
+    card.querySelector(".choose-library-wod").addEventListener("click", () => { sendWodToTimer(wod); window.scrollTo({top:0,behavior:"smooth"}); });
+    card.querySelector(".edit-library-wod").addEventListener("click", () => beginEditWod(wod));
     card.querySelector(".share-library-wod").addEventListener("click", async () => {
-      try { await shareWodLink(wod); }
-      catch (error) { alert("Impossible de créer le lien : " + (error?.message || error)); }
+      try { await shareWodLink(wod); } catch (error) { alert("Impossible de créer le lien : " + (error?.message || error)); }
     });
     card.querySelector(".delete-library-wod").addEventListener("click", async () => {
       const confirmed = window.confirm(`Supprimer définitivement « ${wod.name} » ?`);
@@ -1752,8 +1800,7 @@ function displayLibrary() {
         if (statusEl) statusEl.textContent = "Suppression en cours...";
         await window.deleteWodFromSupabase(wod.id);
         wods = wods.filter(item => String(item.id) !== String(wod.id));
-        updateCount();
-        displayLibrary();
+        updateCount(); displayLibrary();
         if (statusEl) statusEl.textContent = `WOD « ${wod.name} » supprimé.`;
       } catch (error) {
         console.error(error);
@@ -3356,7 +3403,7 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   button.disabled = true; button.textContent = "ENREGISTREMENT...";
   status.textContent = "Enregistrement dans Supabase...";
   try {
-    const wodData = { name, type, duration, movements, timerConfig, consigne };
+    const wodData = { name, type, duration, movements, timerConfig, consigne, category: editingWodId !== null ? getWodCategory(wods.find(item => String(item.id) === String(editingWodId))) : "WOD" };
     if (editingWodId !== null) {
       const updated = await window.updateManualWodInSupabase(editingWodId, wodData);
       const index = wods.findIndex(item => String(item.id) === String(editingWodId));
@@ -3687,7 +3734,7 @@ window.saveManualWodToSupabase = async function(wod) {
     name: wod.name,
     wod_type: wod.type,
     duration_minutes: wod.duration,
-    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "" })
+    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD" })
   }).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
 
@@ -3704,8 +3751,24 @@ window.saveManualWodToSupabase = async function(wod) {
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    description: row.instructions || "", consigne: wod.consigne || "", timerConfig: wod.timerConfig, movements: wod.movements
+    description: row.instructions || "", consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", timerConfig: wod.timerConfig, movements: wod.movements
   };
+};
+
+window.updateWodCategoryInSupabase = async function(id, category) {
+  if (!WOD_CATEGORIES.includes(category)) throw new Error("Catégorie invalide.");
+  const { data: current, error: readError } = await supabase.from("wods").select("instructions").eq("id", id).single();
+  if (readError) throw readError;
+  const raw = String(current.instructions || "");
+  let metadata = {};
+  if (raw.startsWith("WOOREL_WOD_DATA:")) {
+    try { metadata = JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)) || {}; } catch (_) {}
+  } else if (raw.startsWith("WOOREL_TIMER_CONFIG:")) {
+    try { metadata.timerConfig = JSON.parse(raw.slice("WOOREL_TIMER_CONFIG:".length)); } catch (_) {}
+  }
+  metadata.category = category;
+  const { error: updateError } = await supabase.from("wods").update({ instructions: "WOOREL_WOD_DATA:" + JSON.stringify(metadata) }).eq("id", id);
+  if (updateError) throw updateError;
 };
 
 window.updateManualWodInSupabase = async function(id, wod) {
@@ -3713,7 +3776,7 @@ window.updateManualWodInSupabase = async function(id, wod) {
     name: wod.name,
     wod_type: wod.type,
     duration_minutes: wod.duration,
-    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "" })
+    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD" })
   }).eq("id", id).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
 
@@ -3729,7 +3792,7 @@ window.updateManualWodInSupabase = async function(id, wod) {
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    description: row.instructions || "", consigne: wod.consigne || "", timerConfig: wod.timerConfig,
+    description: row.instructions || "", consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", timerConfig: wod.timerConfig,
     movements: wod.movements
   };
 };
@@ -3752,6 +3815,13 @@ async function loadWodsFromSupabase() {
       const raw = String(row.instructions || "");
       if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).consigne || ""; } catch (_) {} }
       return "";
+    })(),
+    category: (() => {
+      const raw = String(row.instructions || "");
+      if (raw.startsWith("WOOREL_WOD_DATA:")) {
+        try { const category = JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).category; return WOD_CATEGORIES.includes(category) ? category : "WOD"; } catch (_) {}
+      }
+      return "WOD";
     })(),
     timerConfig: (() => {
       const raw = String(row.instructions || "");
