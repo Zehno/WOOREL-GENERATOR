@@ -1535,9 +1535,9 @@ main { overflow-x: hidden; }
   <div class="garmin-panel">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
       <div><h3 style="margin-bottom:4px">GARMIN CONNECT</h3><div class="garmin-note">Import de tes activités et de tes données de récupération.</div></div>
-      <div class="garmin-actions"><button type="button" class="secondary" id="garminTestBtn">TESTER LA CONNEXION</button><button type="button" class="primary" id="garminSyncBtn">↻ SYNCHRONISER</button></div>
+      <div class="garmin-actions"><button type="button" class="secondary" id="garminTestBtn">VÉRIFIER LA SESSION</button><button type="button" class="primary" id="garminSyncBtn">↻ SYNCHRONISER</button></div>
     </div>
-    <div id="garminSyncMessage" class="garmin-note" role="status" aria-live="polite" style="margin-top:12px">Le module d'interface est prêt. Le service sécurisé Cloudflare reste à raccorder.</div>
+    <div id="garminSyncMessage" class="garmin-note" role="status" aria-live="polite" style="margin-top:12px">Connexion sécurisée via Supabase. Connecte-toi à WOD FACTORY puis lance une synchronisation.</div>
     <div class="garmin-progress" style="margin-top:12px"><span id="garminSyncProgress"></span></div>
   </div>
 
@@ -1555,12 +1555,10 @@ main { overflow-x: hidden; }
 
   <div class="garmin-panel"><h3>DERNIÈRES ACTIVITÉS</h3><div class="garmin-table-wrap"><table class="garmin-table"><thead><tr><th>Date</th><th>Activité</th><th>Durée</th><th>Distance</th><th>FC moy.</th><th>FC max.</th></tr></thead><tbody id="garminActivityRows"><tr><td colspan="6"><div class="garmin-empty">Aucune activité Garmin importée pour le moment.</div></td></tr></tbody></table></div></div>
 
-  <div class="garmin-panel"><h3>RÉGLAGES DE CONNEXION</h3>
-    <div class="field"><label for="garminWorkerUrl">URL DU SERVICE CLOUDFLARE (WORKER)</label><input id="garminWorkerUrl" type="url" placeholder="https://ton-worker.ton-compte.workers.dev" autocomplete="url"></div>
-    <div class="garmin-actions"><button type="button" class="secondary" id="garminSaveUrlBtn">ENREGISTRER L'URL</button><span id="garminUrlStatus" class="garmin-note">Cette URL n'est pas une clé secrète.</span></div>
-    <p class="garmin-note" style="margin-top:12px"><strong>Sécurité :</strong> ne saisis jamais ta clé Garmin Personal API ici. Elle devra être enregistrée dans les secrets du Worker Cloudflare, côté serveur. La clé ne doit apparaître ni dans ce fichier HTML, ni dans GitHub, ni dans le navigateur.</p>
+  <div class="garmin-panel"><h3>CONNEXION SÉCURISÉE</h3>
+    <p class="garmin-note">WOD FACTORY transmet la demande à la fonction sécurisée <strong>garmin-sync</strong> de Supabase. La clé Garmin Personal API reste uniquement dans les secrets de cette fonction : elle ne doit jamais être ajoutée au HTML, à GitHub ou au navigateur.</p>
+    <p class="garmin-note">La vérification de session contrôle ton accès à Supabase. Le test réel de l'accès Garmin est effectué au lancement de la synchronisation.</p>
   </div>
-  <div class="garmin-panel"><h3>ORDRE DE DÉPLOIEMENT</h3><ol class="garmin-note" style="padding-left:20px;line-height:1.8"><li>Configurer le Worker sécurisé et les secrets Garmin.</li><li>Créer les tables de stockage Garmin dans Supabase.</li><li>Activer la synchronisation des activités.</li><li>Ajouter les données quotidiennes : HRV, sommeil, stress et FC au repos.</li><li>Construire les analyses de charge et le rapprochement avec ton planning WOD.</li></ol></div>
 </section>
 
 <!-- HISTORIQUE -->
@@ -3751,59 +3749,9 @@ renderWorkoutHistory();
 
 
 // =======================================
-// GARMIN — INTERFACE ET CONTRAT WORKER
-// La clé Garmin reste exclusivement dans les secrets Cloudflare.
-// Routes attendues côté Worker : GET /garmin/status, GET /garmin/dashboard, POST /garmin/sync.
+// GARMIN — connexion à la fonction Supabase Edge
+// La clé Garmin reste exclusivement dans les secrets Supabase.
 // =======================================
-(function initGarminDashboard(){
-  const $g = id => document.getElementById(id);
-  const urlInput = $g('garminWorkerUrl');
-  if (!urlInput) return;
-  const savedUrl = localStorage.getItem('wodfactory_garmin_worker_url') || '';
-  urlInput.value = savedUrl;
-  const cleanBase = () => (urlInput.value || '').trim().replace(/\/+$/, '');
-  const setMessage = (msg, kind='wait') => {
-    const el=$g('garminSyncMessage'); if(el) el.textContent=msg;
-    const badge=$g('garminConnectionBadge'); if(badge){badge.className='garmin-status '+kind;badge.textContent=kind==='ok'?'CONNECTÉ':kind==='error'?'ERREUR DE CONNEXION':'À CONFIGURER';}
-  };
-  const setBusy = busy => { const b=$g('garminSyncBtn'); if(b){b.disabled=busy;b.textContent=busy?'SYNCHRONISATION…':'↻ SYNCHRONISER';} const p=$g('garminSyncProgress'); if(p)p.style.width=busy?'35%':'0%'; };
-  const formatDuration = seconds => { if(seconds==null)return '—'; const m=Math.round(Number(seconds)/60); return m>=60?`${Math.floor(m/60)} h ${String(m%60).padStart(2,'0')}`:`${m} min`; };
-  function renderDashboard(data={}){
-    const set=(id,v)=>{const e=$g(id);if(e)e.textContent=(v===null||v===undefined||v==='')?'—':v;};
-    set('garminActivityCount',data.activity_count ?? data.activityCount);
-    set('garminWeeklyTime',data.weekly_duration_seconds!=null?formatDuration(data.weekly_duration_seconds):data.weekly_time);
-    set('garminRestingHr',data.resting_hr!=null?`${data.resting_hr} bpm`:'—');
-    set('garminHrv',data.hrv_ms!=null?`${data.hrv_ms} ms`:'—');
-    const rows=$g('garminActivityRows');
-    if(rows && Array.isArray(data.activities) && data.activities.length){
-      rows.innerHTML=data.activities.slice(0,20).map(a=>`<tr><td>${String(a.date||a.start_time||'—')}</td><td>${String(a.name||a.type||'Activité')}</td><td>${formatDuration(a.duration_seconds)}</td><td>${a.distance_km!=null?Number(a.distance_km).toFixed(2)+' km':'—'}</td><td>${a.avg_hr!=null?a.avg_hr+' bpm':'—'}</td><td>${a.max_hr!=null?a.max_hr+' bpm':'—'}</td></tr>`).join('');
-    }
-  }
-  async function request(path, options={}){
-    const base=cleanBase(); if(!base) throw new Error('Renseigne d’abord l’URL du Worker Cloudflare.');
-    const response=await fetch(base+path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
-    const body=await response.json().catch(()=>({}));
-    if(!response.ok) throw new Error(body.message||`Erreur HTTP ${response.status}`);
-    return body;
-  }
-  $g('garminSaveUrlBtn')?.addEventListener('click',()=>{
-    const value=cleanBase();
-    if(value && !/^https:\/\//i.test(value)){ $g('garminUrlStatus').textContent='L’URL doit commencer par https://'; return; }
-    localStorage.setItem('wodfactory_garmin_worker_url',value);
-    $g('garminUrlStatus').textContent=value?'URL enregistrée sur cet appareil.':'URL effacée.';
-    setMessage(value?'URL enregistrée. Le Worker doit encore être configuré.':'Aucune URL de Worker configurée.');
-  });
-  $g('garminTestBtn')?.addEventListener('click',async()=>{
-    try{setMessage('Vérification du service Cloudflare…');const d=await request('/garmin/status');setMessage(d.connected?'Connexion Garmin active.':'Worker joignable, mais Garmin n’est pas encore connecté.',d.connected?'ok':'wait');}
-    catch(e){setMessage(e.message,'error');}
-  });
-  $g('garminSyncBtn')?.addEventListener('click',async()=>{
-    try{setBusy(true);setMessage('Demande de synchronisation envoyée…');const d=await request('/garmin/sync',{method:'POST',body:JSON.stringify({mode:'incremental'})});if(d.dashboard)renderDashboard(d.dashboard);else if(d.activities)renderDashboard(d);$g('garminSyncProgress').style.width='100%';setMessage(d.message||'Synchronisation terminée.','ok');}
-    catch(e){setMessage(e.message,'error');}
-    finally{setBusy(false);}
-  });
-  if(savedUrl){request('/garmin/dashboard').then(renderDashboard).then(()=>setMessage('Données du tableau de bord chargées.','ok')).catch(()=>setMessage('Worker non configuré ou données Garmin indisponibles.'))}
-})();
 
 // =======================================
 // INITIALISATION
@@ -3823,6 +3771,132 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = "https://tfaarrfjmaaxauzrratx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xOrQfokHftTW1czGvoCtDg_kupMXCEQ";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+// Tableau de bord Garmin : lecture des tables protégées par RLS.
+const garminEl = id => document.getElementById(id);
+const garminMessage = (message, kind = "wait") => {
+  const node = garminEl("garminSyncMessage");
+  if (node) node.textContent = message;
+  const badge = garminEl("garminConnectionBadge");
+  if (badge) {
+    badge.className = "garmin-status " + kind;
+    badge.textContent = kind === "ok" ? "CONNECTÉ À SUPABASE" : kind === "error" ? "ERREUR DE CONNEXION" : "EN ATTENTE";
+  }
+};
+const garminDuration = seconds => {
+  if (seconds == null || !Number.isFinite(Number(seconds))) return "—";
+  const minutes = Math.round(Number(seconds) / 60);
+  return minutes >= 60 ? `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")}` : `${minutes} min`;
+};
+function setGarminBusy(busy) {
+  const button = garminEl("garminSyncBtn");
+  if (button) { button.disabled = busy; button.textContent = busy ? "SYNCHRONISATION…" : "↻ SYNCHRONISER"; }
+  const progress = garminEl("garminSyncProgress");
+  if (progress) progress.style.width = busy ? "35%" : "0%";
+}
+async function loadGarminDashboard() {
+  const { data: activities, error: activityError, count } = await supabase
+    .from("garmin_activities")
+    .select("garmin_activity_id, activity_name, activity_type, started_at, duration_seconds, distance_meters, average_hr, max_hr", { count: "exact" })
+    .order("started_at", { ascending: false })
+    .limit(100);
+  if (activityError) throw activityError;
+
+  const { data: metrics, error: metricsError } = await supabase
+    .from("garmin_daily_metrics")
+    .select("metric_date, resting_hr, hrv_ms, sleep_seconds, sleep_score, stress_average, body_battery")
+    .order("metric_date", { ascending: false })
+    .limit(30);
+  if (metricsError) throw metricsError;
+
+  const since = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const weeklySeconds = (activities || []).reduce((sum, a) => {
+    const date = a.started_at ? new Date(a.started_at).getTime() : 0;
+    return sum + (date >= since ? Number(a.duration_seconds || 0) : 0);
+  }, 0);
+  const setText = (id, value) => { const el = garminEl(id); if (el) el.textContent = value == null || value === "" ? "—" : String(value); };
+  setText("garminActivityCount", count ?? (activities || []).length);
+  setText("garminWeeklyTime", weeklySeconds ? garminDuration(weeklySeconds) : "—");
+  setText("garminRestingHr", metrics?.[0]?.resting_hr != null ? `${metrics[0].resting_hr} bpm` : "—");
+  setText("garminHrv", metrics?.[0]?.hrv_ms != null ? `${metrics[0].hrv_ms} ms` : "—");
+
+  const rows = garminEl("garminActivityRows");
+  if (rows) {
+    rows.replaceChildren();
+    if (!activities?.length) {
+      const tr = document.createElement("tr");
+      const td = document.createElement("td"); td.colSpan = 6;
+      td.innerHTML = '<div class="garmin-empty">Aucune activité Garmin importée pour le moment.</div>';
+      tr.appendChild(td); rows.appendChild(tr);
+    } else {
+      activities.slice(0, 20).forEach(a => {
+        const tr = document.createElement("tr");
+        const date = a.started_at ? new Date(a.started_at).toLocaleDateString("fr-FR") : "—";
+        const distance = a.distance_meters != null ? `${(Number(a.distance_meters) / 1000).toFixed(2)} km` : "—";
+        [date, a.activity_name || a.activity_type || "Activité", garminDuration(a.duration_seconds), distance,
+          a.average_hr != null ? `${a.average_hr} bpm` : "—", a.max_hr != null ? `${a.max_hr} bpm` : "—"]
+          .forEach(value => { const td = document.createElement("td"); td.textContent = String(value); tr.appendChild(td); });
+        rows.appendChild(tr);
+      });
+    }
+  }
+  const recovery = garminEl("garminRecoveryChart");
+  if (recovery) {
+    const latest = metrics?.[0];
+    recovery.textContent = latest
+      ? `Dernière journée (${latest.metric_date}) — Sommeil : ${latest.sleep_seconds != null ? garminDuration(latest.sleep_seconds) : "—"} ; stress moyen : ${latest.stress_average ?? "—"} ; Body Battery : ${latest.body_battery ?? "—"}.`
+      : "Aucune donnée quotidienne de récupération importée pour le moment.";
+  }
+}
+function garminErrorMessage(error) {
+  return error?.message || error?.details || String(error || "Erreur inconnue");
+}
+
+// Ce bouton vérifie uniquement la session Supabase, pas encore l'accès Garmin.
+garminEl("garminTestBtn")?.addEventListener("click", async () => {
+  try {
+    garminMessage("Vérification de ta session Supabase…");
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    if (!data.session) throw new Error("Session absente. Déconnecte-toi puis reconnecte-toi à WOD FACTORY.");
+    garminMessage("Session Supabase valide. L'accès Garmin sera vérifié pendant la synchronisation.", "ok");
+    await loadGarminDashboard();
+  } catch (error) {
+    garminMessage(garminErrorMessage(error), "error");
+  }
+});
+
+garminEl("garminSyncBtn")?.addEventListener("click", async () => {
+  try {
+    setGarminBusy(true);
+    garminMessage("Synchronisation Garmin en cours… Ne ferme pas cette page.");
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    if (!sessionData.session) throw new Error("Tu dois être connecté à WOD FACTORY pour synchroniser Garmin.");
+
+    // Le contrat de la fonction garmin-sync est un POST avec { days } (1 à 28).
+    const { data, error } = await supabase.functions.invoke("garmin-sync", { body: { days: 28 } });
+    if (error) {
+      let detail = error.message || "La fonction garmin-sync a refusé la demande.";
+      try {
+        const response = error.context;
+        if (response && typeof response.json === "function") {
+          const body = await response.clone().json();
+          detail = body.error || body.message || body.details || detail;
+        }
+      } catch (_) {}
+      throw new Error(detail);
+    }
+    await loadGarminDashboard();
+    const summary = data?.message || data?.status || "Import terminé ; tableau de bord actualisé depuis Supabase.";
+    const progress = garminEl("garminSyncProgress"); if (progress) progress.style.width = "100%";
+    garminMessage(summary, "ok");
+  } catch (error) {
+    garminMessage("Échec de synchronisation : " + garminErrorMessage(error), "error");
+  } finally {
+    setGarminBusy(false);
+  }
+});
 
 const authScreen = document.getElementById("authScreen");
 const appShell = document.getElementById("appShell");
@@ -4345,6 +4419,10 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
 const { data: { session } } = await supabase.auth.getSession();
 if (session) {
   await showLoggedIn();
+  loadGarminDashboard().catch(error => {
+    // Les tables peuvent être vides avant le premier import ; afficher l'erreur seulement dans le statut.
+    garminMessage("Session active. Données Garmin non chargées : " + garminErrorMessage(error), "wait");
+  });
 } else {
   showLoggedOut();
 }
