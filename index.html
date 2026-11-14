@@ -1379,10 +1379,28 @@ main { overflow-x: hidden; }
 
       <div id="fortimeSettings" class="hidden">
         <div class="field">
-          <label>TIME CAP (MINUTES, 0 = CHRONO MONTANT SANS LIMITE)</label>
+          <label for="fortimeFormat">FORMAT FOR TIME</label>
+          <select id="fortimeFormat">
+            <option value="simple">FOR TIME SIMPLE</option>
+            <option value="rft">ROUNDS CHRONOMÉTRÉ (RFT)</option>
+            <option value="rft-rest">RFT AVEC RÉCUPÉRATION</option>
+            <option value="intermediate">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</option>
+          </select>
+        </div>
+        <div class="field" id="fortimeCapField">
+          <label>TIME CAP (MINUTES, 0 = SANS TIME CAP)</label>
           <input id="fortimeLimit" type="number" min="0" value="20">
         </div>
-        <p class="small-note">Avec un Time Cap (&gt; 0), le chrono affiche le décompte négatif (temps restant avant le Cap). À 0, il défile vers le haut.</p>
+        <div class="grid hidden" id="fortimeRftFields">
+          <div class="field"><label for="fortimeRounds">NOMBRE DE ROUNDS</label><input id="fortimeRounds" type="number" min="1" value="5"></div>
+          <div class="field"><label for="fortimeRest">REPOS APRÈS CHAQUE ROUND (SECONDES)</label><input id="fortimeRest" type="number" min="0" value="60"></div>
+        </div>
+        <div class="panel hidden" id="fortimeIntermediateFields" style="margin:12px 0">
+          <div class="field"><label for="fortimeTriggerInterval">DÉCLENCHEMENT TOUTES LES (MINUTES)</label><input id="fortimeTriggerInterval" type="number" min="1" step="1" value="5"></div>
+          <div class="field"><label for="fortimeIntermediateMoves">MOUVEMENT(S) INTERMÉDIAIRE(S) — EN DEHORS DU CORPS DE SÉANCE</label><textarea id="fortimeIntermediateMoves" rows="3" placeholder="20 Burpees
+30 Wall Balls"></textarea><p class="small-note">Ces mouvements s'affichent à chaque déclenchement. Le chronomètre principal continue de tourner pendant leur réalisation.</p></div>
+        </div>
+        <p class="small-note" id="fortimeFormatHelp">FOR TIME SIMPLE : termine le WOD le plus vite possible. Mets le Time Cap à 0 pour un chrono sans limite.</p>
       </div>
       <div id="stopwatchSettings" class="hidden">
         <p class="small-note">Chronomètre libre (Stopwatch) : compte vers le haut à partir de 00:00 sans limite de temps.</p>
@@ -1417,6 +1435,16 @@ main { overflow-x: hidden; }
     <div class="timer-progress" aria-label="Progression de la séance"><div class="timer-progress-fill" id="timerProgressFill"></div></div>
     <div class="small-note" id="timerProgressLabel">0 % de la séance</div>
 
+    <div id="amrapRoundCounter" class="actions" style="margin-top:14px;justify-content:center">
+      <button class="primary" type="button" id="amrapAddRoundBtn">+1 TOUR</button>
+      <span class="status-pill" id="amrapRoundCount">TOURS : 0</span>
+    </div>
+    <div id="fortimeRoundCounter" class="actions hidden" style="margin-top:14px;justify-content:center">
+      <button class="primary" type="button" id="fortimeCompleteRoundBtn">ROUND TERMINÉ</button>
+      <span class="status-pill" id="fortimeRoundCount">ROUND : 0 / 5</span>
+    </div>
+    <div id="fortimeEventNotice" class="small-note hidden" role="status" aria-live="assertive" style="margin-top:12px;font-weight:900"></div>
+    <button type="button" class="secondary hidden" id="fortimeIntermediateDoneBtn">MOUVEMENTS INTERMÉDIAIRES TERMINÉS</button>
     <div class="actions" style="margin-top:25px">
       <button class="primary" id="startTimer">DÉMARRER</button>
       <button class="secondary" id="pauseTimer">PAUSE</button>
@@ -1527,6 +1555,9 @@ main { overflow-x: hidden; }
   </div>
 
   <div class="fs-controls">
+    <button type="button" class="fs-btn-resume hidden" id="fsAmrapAddRoundBtn">+1 TOUR — 0</button>
+    <button type="button" class="fs-btn-resume hidden" id="fsFortimeCompleteRoundBtn">ROUND TERMINÉ</button>
+    <button type="button" class="fs-btn-resume hidden" id="fsFortimeIntermediateDoneBtn">MOUVEMENTS TERMINÉS</button>
     <button type="button" class="fs-btn-pause" id="fsPauseResumeBtn">PAUSE</button>
     <button type="button" class="fs-btn-reset" id="fsResetBtn">RESET</button>
     <button type="button" class="fs-skip-btn hidden" id="fsSkipBlockBtn">BLOC SUIVANT →</button>
@@ -1913,6 +1944,7 @@ function setTimerType(type) {
   document.getElementById(type.toLowerCase()+"Settings").classList.remove("hidden");
 
   resetTimer();
+  updateFortimeRoundCounter();
   updateClock();
 }
 
@@ -1932,6 +1964,12 @@ let countdownActive = false;
 let countdownRemaining = 0;
 let remaining = 0;
 let elapsed = 0;
+let amrapRounds = 0;
+let fortimeRoundsDone = 0;
+let fortimeRestUntil = 0;
+let fortimeIntermediateUntil = 0;
+let fortimeIntermediateActive = false;
+let fortimeLastTrigger = 0;
 let phase = "work";
 let cycle = 1;
 
@@ -2361,11 +2399,19 @@ function syncFullscreenDisplay(state) {
   document.getElementById("fsPhasePill").textContent = state.phaseLabel;
   document.getElementById("fsClock").textContent = state.clockText;
   document.getElementById("fsRoundInfo").textContent = state.roundLabel;
+  const fsRoundBtn = document.getElementById("fsAmrapAddRoundBtn");
+  if (fsRoundBtn) {
+    fsRoundBtn.classList.toggle("hidden", timerType !== "AMRAP");
+    fsRoundBtn.textContent = `+1 TOUR — ${amrapRounds}`;
+  }
+  updateFortimeRoundCounter();
   const focusEl = document.getElementById("fsExerciseFocus");
   const workoutLines = getExerciseLines();
-  if (focusEl) focusEl.textContent = workoutLines.length
-    ? workoutLines.join("\n")
-    : "AUCUN EXERCICE RENSEIGNÉ";
+  const intermediateNow = timerType === "FORTIME" && (document.getElementById("fortimeFormat")?.value === "intermediate") && fortimeIntermediateActive;
+  const intermediateText = document.getElementById("fortimeIntermediateMoves")?.value.trim();
+  if (focusEl) focusEl.textContent = intermediateNow
+    ? `MOUVEMENT(S) INTERMÉDIAIRE(S)\n${intermediateText || "À CONFIGURER"}`
+    : (workoutLines.length ? workoutLines.join("\n") : "AUCUN EXERCICE RENSEIGNÉ");
   updateProgress(elapsed, timerType === "MIX" ? getSequenceDuration() : getDuration());
   updateSkipButtons();
 
@@ -2385,19 +2431,25 @@ function updateClock() {
   if (timerType === "FORTIME") {
     const limit = Math.max(0, Number(document.getElementById("fortimeLimit").value) || 0);
     const capSeconds = limit * 60;
-    if (capSeconds > 0) {
-      // Décompte négatif à partir du Time Cap
-      const remCap = Math.max(0, capSeconds - elapsed);
-      value = remCap;
-      state.blockLabel = `FOR TIME — CAP ${limit} MIN`;
-      state.roundLabel = remCap > 0
-        ? `TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})`
-        : "TIME CAP ATTEINT";
+    const fmt = document.getElementById("fortimeFormat")?.value || "simple";
+    value = capSeconds > 0 ? Math.max(0, capSeconds - elapsed) : elapsed;
+    state.blockLabel = ({simple:"FOR TIME SIMPLE",rft:"RFT", "rft-rest":"RFT AVEC RÉCUPÉRATION", intermediate:"FOR TIME — MOUVEMENT INTERMÉDIAIRE"})[fmt] || "FOR TIME";
+    if (fmt === "rft" || fmt === "rft-rest") {
+      const total = Math.max(1, Number(document.getElementById("fortimeRounds").value) || 5);
+      state.roundLabel = `ROUNDS : ${fortimeRoundsDone} / ${total}`;
+      if (fmt === "rft-rest" && elapsed < fortimeRestUntil) {
+        state.visualPhase = "rest";
+        state.phaseLabel = "RÉCUPÉRATION — CHRONO CONTINU";
+        state.nextText = `REPOS : ${formatTime(fortimeRestUntil - elapsed)}`;
+      }
+    } else if (fmt === "intermediate" && fortimeIntermediateActive) {
+      state.visualPhase = "rest";
+      state.phaseLabel = "MOUVEMENT INTERMÉDIAIRE — CHRONO CONTINU";
+      state.roundLabel = `DÉCLENCHEMENT À ${formatTime(fortimeLastTrigger)}`;
     } else {
-      value = elapsed;
-      state.blockLabel = "FOR TIME";
-      state.roundLabel = "CHRONO MONTANT — SANS TIME CAP";
+      state.roundLabel = capSeconds > 0 ? `TEMPS RESTANT AVANT CAP (ÉCOULÉ : ${formatTime(elapsed)})` : "CHRONO MONTANT — SANS TIME CAP";
     }
+    if (capSeconds > 0 && elapsed >= capSeconds) state.roundLabel = "TIME CAP ATTEINT";
   }
 
   if (timerType === "STOPWATCH") {
@@ -2409,7 +2461,7 @@ function updateClock() {
   if (timerType === "AMRAP") {
     const dur = Math.max(1, Number(document.getElementById("amrapDuration").value) || 20);
     state.blockLabel = `AMRAP — ${dur} MIN`;
-    state.roundLabel = "MAX DE ROUNDS";
+    state.roundLabel = `TOURS EFFECTUÉS : ${amrapRounds}`;
   }
 
   if (timerType === "TABATA") {
@@ -2574,6 +2626,16 @@ function resetTimer() {
   stopTimer();
 
   elapsed = 0;
+  amrapRounds = 0;
+  fortimeRoundsDone = 0;
+  fortimeRestUntil = 0;
+  fortimeIntermediateUntil = 0;
+  fortimeIntermediateActive = false;
+  fortimeLastTrigger = 0;
+  updateAmrapRoundCounter();
+  updateFortimeRoundCounter();
+  const eventNotice = document.getElementById("fortimeEventNotice");
+  if (eventNotice) { eventNotice.textContent = ""; eventNotice.classList.add("hidden"); }
   phase = "work";
   cycle = 1;
   countdownRemaining = 0;
@@ -2679,6 +2741,7 @@ function updateEmomComputedPreview() {
 document.getElementById("emomDuration").addEventListener("change", updateEmomComputedPreview);
 document.getElementById("emomWork").addEventListener("change", updateEmomComputedPreview);
 updateEmomComputedPreview();
+updateFortimeFormatFields();
 
 // =======================================
 // DEMARRAGE EFFECTIF DU WOD
@@ -2792,6 +2855,19 @@ function tick() {
       remaining = elapsed;
     }
 
+    const fmt = document.getElementById("fortimeFormat")?.value || "simple";
+    if (fmt === "intermediate") {
+      const every = Math.max(1, Number(document.getElementById("fortimeTriggerInterval").value) || 5) * 60;
+      if (elapsed > 0 && elapsed % every === 0 && fortimeLastTrigger !== elapsed) {
+        fortimeLastTrigger = elapsed;
+        fortimeIntermediateUntil = 0;
+        fortimeIntermediateActive = true;
+        const moves = document.getElementById("fortimeIntermediateMoves").value.trim();
+        const notice = document.getElementById("fortimeEventNotice");
+        if (notice) { notice.textContent = `MOUVEMENT INTERMÉDIAIRE — ${moves || "À CONFIGURER"}`; notice.classList.remove("hidden"); }
+        playCountdownTone("GO");
+      }
+    }
     updateClock();
     return;
   }
@@ -2923,6 +2999,80 @@ function triggerPause() {
   document.getElementById("fsPhasePill").textContent = "EN PAUSE";
   updateFsPauseButton();
 }
+
+function updateFortimeFormatFields() {
+  const fmt = document.getElementById("fortimeFormat")?.value || "simple";
+  document.getElementById("fortimeRftFields")?.classList.toggle("hidden", !(fmt === "rft" || fmt === "rft-rest"));
+  document.getElementById("fortimeIntermediateFields")?.classList.toggle("hidden", fmt !== "intermediate");
+  const restField = document.getElementById("fortimeRest")?.closest(".field");
+  if (restField) restField.classList.toggle("hidden", fmt !== "rft-rest");
+  const help = document.getElementById("fortimeFormatHelp");
+  if (help) help.textContent = fmt === "simple" ? "FOR TIME SIMPLE : termine le WOD le plus vite possible. Mets le Time Cap à 0 pour un chrono sans limite." : fmt === "rft" ? "RFT : valide chaque round avec le bouton ROUND TERMINÉ. Le chrono continue de tourner." : fmt === "rft-rest" ? "RFT avec récupération : chaque validation déclenche le repos choisi. Le chrono principal continue pendant le repos." : "Les mouvements intermédiaires se déclenchent toutes les X minutes. Le chrono continue pendant leur réalisation.";
+  updateFortimeRoundCounter();
+}
+function updateFortimeRoundCounter() {
+  const fmt = document.getElementById("fortimeFormat")?.value || "simple";
+  const show = timerType === "FORTIME" && (fmt === "rft" || fmt === "rft-rest");
+  document.getElementById("fortimeRoundCounter")?.classList.toggle("hidden", !show);
+  const total = Math.max(1, Number(document.getElementById("fortimeRounds")?.value) || 5);
+  const label = `ROUND : ${fortimeRoundsDone} / ${total}`;
+  const count = document.getElementById("fortimeRoundCount"); if (count) count.textContent = label;
+  const btn = document.getElementById("fsFortimeCompleteRoundBtn");
+  if (btn) { btn.classList.toggle("hidden", !show); btn.textContent = `ROUND TERMINÉ — ${fortimeRoundsDone}/${total}`; }
+  const intermediate = timerType === "FORTIME" && fmt === "intermediate" && fortimeIntermediateActive;
+  document.getElementById("fortimeIntermediateDoneBtn")?.classList.toggle("hidden", !intermediate);
+  document.getElementById("fsFortimeIntermediateDoneBtn")?.classList.toggle("hidden", !intermediate);
+}
+function finishFortimeIntermediate() {
+  fortimeIntermediateActive = false;
+  const notice = document.getElementById("fortimeEventNotice");
+  if (notice) notice.classList.add("hidden");
+  updateFortimeRoundCounter();
+  updateClock();
+}
+document.getElementById("fortimeIntermediateDoneBtn")?.addEventListener("click", finishFortimeIntermediate);
+document.getElementById("fsFortimeIntermediateDoneBtn")?.addEventListener("click", finishFortimeIntermediate);
+function completeFortimeRound() {
+  if (timerType !== "FORTIME" || !running) return;
+  const fmt = document.getElementById("fortimeFormat")?.value || "simple";
+  if (fmt !== "rft" && fmt !== "rft-rest") return;
+  const total = Math.max(1, Number(document.getElementById("fortimeRounds").value) || 5);
+  if (fortimeRoundsDone >= total) return;
+  fortimeRoundsDone++;
+  playCountdownTone("GO");
+  updateFortimeRoundCounter();
+  if (fortimeRoundsDone >= total) { updateClock(); finishTimer("RFT TERMINÉ — TOUS LES ROUNDS VALIDÉS"); return; }
+  if (fmt === "rft-rest") {
+    const rest = Math.max(0, Number(document.getElementById("fortimeRest").value) || 0);
+    fortimeRestUntil = elapsed + rest;
+    if (rest > 0) playTransitionSound("rest");
+  }
+  updateClock();
+}
+document.getElementById("fortimeFormat")?.addEventListener("change", () => { updateFortimeFormatFields(); resetTimer(); });
+document.getElementById("fortimeRounds")?.addEventListener("input", updateFortimeRoundCounter);
+document.getElementById("fortimeCompleteRoundBtn")?.addEventListener("click", completeFortimeRound);
+document.getElementById("fsFortimeCompleteRoundBtn")?.addEventListener("click", completeFortimeRound);
+
+function updateAmrapRoundCounter() {
+  const wrap = document.getElementById("amrapRoundCounter");
+  const count = document.getElementById("amrapRoundCount");
+  if (wrap) wrap.classList.toggle("hidden", timerType !== "AMRAP");
+  if (count) count.textContent = `TOURS : ${amrapRounds}`;
+  const fsButton = document.getElementById("fsAmrapAddRoundBtn");
+  if (fsButton) {
+    fsButton.classList.toggle("hidden", timerType !== "AMRAP");
+    fsButton.textContent = `+1 TOUR — ${amrapRounds}`;
+  }
+  if (timerType === "AMRAP") updateClock();
+}
+function addAmrapRound() {
+  if (timerType !== "AMRAP") return;
+  amrapRounds++;
+  updateAmrapRoundCounter();
+}
+document.getElementById("amrapAddRoundBtn")?.addEventListener("click", addAmrapRound);
+document.getElementById("fsAmrapAddRoundBtn")?.addEventListener("click", addAmrapRound);
 
 document.getElementById("startTimer").addEventListener("click", triggerStartOrResume);
 document.getElementById("pauseTimer").addEventListener("click", triggerPause);
