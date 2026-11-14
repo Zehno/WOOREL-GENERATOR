@@ -1760,7 +1760,7 @@ function displayLibrary() {
   if (!container) return;
   container.innerHTML = "";
   if (!wods.length) { container.innerHTML = '<p class="muted">Aucun WOD dans ta bibliothèque pour le moment.</p>'; return; }
-  const visibleWods = activeWodCategoryFilter === "ALL" ? wods : wods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
+  const visibleWods = (activeWodCategoryFilter === "ALL" ? wods : wods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter)).slice().sort((a, b) => activeWodCategoryFilter === "WOD HEROES" ? String(a.name || "").localeCompare(String(b.name || ""), "en", { sensitivity: "base" }) : 0);
   if (!visibleWods.length) { container.innerHTML = `<p class="muted">Aucun WOD dans la catégorie ${escapeHTML(activeWodCategoryFilter)}.</p>`; return; }
   visibleWods.forEach(wod => {
     const card = document.createElement("div");
@@ -3881,6 +3881,77 @@ const CROSSFIT_GIRLS_WODS = [
   {name:"Nicole",type:"AMRAP",duration:20,timerConfig:{format:"AMRAP",duration_minutes:20},consigne:"AMRAP en 20 minutes : 400 m run puis maximum de Pull-ups.",movements:[{name:"Run — 400 m",reps:null,position:1},{name:"Pull-ups — maximum de répétitions",reps:null,position:2}]}
 ];
 
+// Premier lot du catalogue officiel CrossFit Hero & Tribute Workouts : A à D.
+// Les prescriptions complètes sont conservées dans consigne ; les mouvements
+// sont également structurés pour être exploitables dans le chronomètre.
+const CROSSFIT_HERO_WODS = [
+  {name:"Abbate",type:"FOR TIME",consigne:"For time : 1-mile run, 21 clean and jerks, 800-meter run, 21 clean and jerks, 1-mile run.",movements:[["Run — 1 mile"],["Clean and jerks",21],["Run — 800 m"],["Clean and jerks",21],["Run — 1 mile"]]},
+  {name:"Adambrown",type:"FOR TIME",consigne:"2 rounds for time : 24 deadlifts, 24 box jumps, 24 wall-ball shots, 24 bench presses, 24 box jumps, 24 wall-ball shots, 24 cleans. RX : femmes 95-lb deadlift, 20-in box, 14-lb ball to 9 ft, 135-lb bench press, 95-lb clean ; hommes 295-lb deadlift, 24-in box, 20-lb ball to 10 ft, 195-lb bench press, 145-lb clean.",movements:[["Deadlifts",24],["Box jumps",24],["Wall-ball shots",24],["Bench presses",24],["Box jumps",24],["Wall-ball shots",24],["Cleans",24]]},
+  {name:"Adrian",type:"FOR TIME",consigne:"7 rounds for time : 3 forward rolls, 5 wall climbs, 7 toes-to-bars, 9 box jumps.",movements:[["Forward rolls",3],["Wall climbs",5],["Toes-to-bars",7],["Box jumps",9]]},
+  {name:"Alec",type:"FOR TIME",consigne:"For time : 3 rounds of 8 burpees, 28 air squats, 9 push-ups ; run 1,000 m ; 25 over-the-shoulder sandbag cleans ; run 1,000 m ; then 5 rounds of 10 deadlifts, 14 box jumps, 10 burpees.",movements:[["Burpees",8],["Air squats",28],["Push-ups",9],["Run — 1,000 m"],["Over-the-shoulder sandbag cleans",25],["Run — 1,000 m"],["Deadlifts",10],["Box jumps",14],["Burpees",10]]},
+  {name:"Alexander",type:"FOR TIME",consigne:"5 rounds for time : 31 back squats, 12 power cleans.",movements:[["Back squats",31],["Power cleans",12]]},
+  {name:"Andy",type:"FOR TIME",consigne:"For time : 25 thrusters, 50 box jumps, 75 deadlifts, 1.5-mile run, 75 deadlifts, 50 box jumps, 25 thrusters.",movements:[["Thrusters",25],["Box jumps",50],["Deadlifts",75],["Run — 1.5 miles"],["Deadlifts",75],["Box jumps",50],["Thrusters",25]]},
+  {name:"Arnie",type:"FOR TIME",consigne:"With a single kettlebell for time : 21 Turkish get-ups right arm, 50 kettlebell swings, 21 overhead squats left arm, 50 kettlebell swings, 21 overhead squats right arm, 50 kettlebell swings, 21 Turkish get-ups left arm. RX : 53 lb femmes / 70 lb hommes.",movements:[["Turkish get-ups — right arm",21],["Kettlebell swings",50],["Overhead squats — left arm",21],["Kettlebell swings",50],["Overhead squats — right arm",21],["Kettlebell swings",50],["Turkish get-ups — left arm",21]]},
+  {name:"Artie",type:"AMRAP",duration:20,consigne:"AMRAP 20 minutes : 5 pull-ups, 10 push-ups, 15 squats, 5 pull-ups, 10 thrusters.",movements:[["Pull-ups",5],["Push-ups",10],["Squats",15],["Pull-ups",5],["Thrusters",10]]},
+  {name:"Badger",type:"FOR TIME",consigne:"3 rounds for time : 30 squat cleans, 30 pull-ups, run 800 m. RX : 65 lb femmes / 95 lb hommes pour les squat cleans.",movements:[["Squat cleans",30],["Pull-ups",30],["Run — 800 m"]]},
+  {name:"Barraza",type:"AMRAP",duration:18,consigne:"AMRAP 18 minutes : run 200 m, 9 deadlifts, 6 burpee bar muscle-ups.",movements:[["Run — 200 m"],["Deadlifts",9],["Burpee bar muscle-ups",6]]},
+  {name:"Bell",type:"FOR TIME",consigne:"3 rounds for time : 21 deadlifts, 15 pull-ups, 9 front squats.",movements:[["Deadlifts",21],["Pull-ups",15],["Front squats",9]]},
+  {name:"Bert",type:"FOR TIME",consigne:"For time : 50 burpees, run 400 m, 100 push-ups, run 400 m, 150 walking lunges, run 400 m, 200 squats, run 400 m, 150 walking lunges, run 400 m, 100 push-ups, run 400 m, 50 burpees.",movements:[["Burpees",50],["Run — 400 m"],["Push-ups",100],["Run — 400 m"],["Walking lunges",150],["Run — 400 m"],["Squats",200],["Run — 400 m"],["Walking lunges",150],["Run — 400 m"],["Push-ups",100],["Run — 400 m"],["Burpees",50]]},
+  {name:"Big Sexy",type:"FOR TIME",consigne:"5 rounds for time : 6 deadlifts, 6 burpees, 5 cleans, 5 chest-to-bar pull-ups, 4 thrusters, 4 muscle-ups.",movements:[["Deadlifts",6],["Burpees",6],["Cleans",5],["Chest-to-bar pull-ups",5],["Thrusters",4],["Muscle-ups",4]]},
+  {name:"Blake",type:"FOR TIME",consigne:"4 rounds for time : 100-foot overhead walking lunge, 30 box jumps, 20 wall-ball shots, 10 handstand push-ups. RX : femmes 25-lb plate, 20-in box, 14-lb ball to 9 ft ; hommes 45-lb plate, 24-in box, 20-lb ball to 10 ft.",movements:[["Overhead walking lunge — 100 ft"],["Box jumps",30],["Wall-ball shots",20],["Handstand push-ups",10]]},
+  {name:"Bowen",type:"FOR TIME",consigne:"3 rounds for time : run 800 m, 7 deadlifts, 10 burpee pull-ups, 14 single-arm kettlebell thrusters (7 each arm), 20 box jumps.",movements:[["Run — 800 m"],["Deadlifts",7],["Burpee pull-ups",10],["Single-arm kettlebell thrusters",14],["Box jumps",20]]},
+  {name:"Bradley",type:"FOR TIME",consigne:"10 rounds for time : sprint 100 m, 10 pull-ups, sprint 100 m, 10 burpees. Rest 30 seconds after each round.",movements:[["Sprint — 100 m"],["Pull-ups",10],["Sprint — 100 m"],["Burpees",10]]},
+  {name:"Bradshaw",type:"FOR TIME",consigne:"10 rounds for time : 3 handstand push-ups, 6 deadlifts, 12 pull-ups, 24 double-unders.",movements:[["Handstand push-ups",3],["Deadlifts",6],["Pull-ups",12],["Double-unders",24]]},
+  {name:"Brehm",type:"FOR TIME",consigne:"For time : 10 rope climbs to 15 ft, 20 back squats, 30 handstand push-ups, 40-calorie row.",movements:[["Rope climbs — 15 ft",10],["Back squats",20],["Handstand push-ups",30],["Row — 40 calories"]]},
+  {name:"Brenton",type:"FOR TIME",consigne:"5 rounds for time : 100-foot bear crawl, 100-foot standing broad jump. Perform 3 burpees after every 5 broad jumps. If available, wear a 20-lb vest or body armor.",movements:[["Bear crawl — 100 ft"],["Standing broad jump — 100 ft"],["Burpees — every 5 broad jumps",3]]},
+  {name:"Brian",type:"FOR TIME",consigne:"3 rounds for time : 5 rope climbs to 15 ft, 25 back squats.",movements:[["Rope climbs — 15 ft",5],["Back squats",25]]},
+  {name:"Bruck",type:"FOR TIME",consigne:"4 rounds for time : run 400 m, 24 back squats, 24 jerks.",movements:[["Run — 400 m"],["Back squats",24],["Jerks",24]]},
+  {name:"Bulger",type:"FOR TIME",consigne:"10 rounds for time : run 150 m, 7 chest-to-bar pull-ups, 7 front squats, 7 handstand push-ups. RX front squat : 95 lb femmes / 135 lb hommes.",movements:[["Run — 150 m"],["Chest-to-bar pull-ups",7],["Front squats",7],["Handstand push-ups",7]]},
+  {name:"Bull",type:"FOR TIME",consigne:"2 rounds for time : 200 double-unders, 50 overhead squats, 50 pull-ups, run 1 mile. RX overhead squat : 135 lb femmes / 185 lb hommes.",movements:[["Double-unders",200],["Overhead squats",50],["Pull-ups",50],["Run — 1 mile"]]},
+  {name:"Buriak",type:"AMRAP",duration:20,consigne:"AMRAP 20 minutes : 5 squat cleans, 10 burpees over the bar, 15 pull-ups, run 200 m.",movements:[["Squat cleans",5],["Burpees over the bar",10],["Pull-ups",15],["Run — 200 m"]]},
+  {name:"Cameron",type:"FOR TIME",consigne:"For time : 50 walking lunge steps, 25 chest-to-bar pull-ups, 50 box jumps, 25 triple-unders, 50 back extensions, 25 ring dips, 50 knees-to-elbows, 25 wall-ball shot two-for-ones, 50 sit-ups, 5 rope climbs to 15 ft.",movements:[["Walking lunge steps",50],["Chest-to-bar pull-ups",25],["Box jumps",50],["Triple-unders",25],["Back extensions",50],["Ring dips",25],["Knees-to-elbows",50],["Wall-ball two-for-ones",25],["Sit-ups",50],["Rope climbs — 15 ft",5]]},
+  {name:"Capoot",type:"FOR TIME",consigne:"For time : 100 push-ups, run 800 m, 75 push-ups, run 1,200 m, 50 push-ups, run 1,600 m, 25 push-ups, run 2,000 m.",movements:[["Push-ups",100],["Run — 800 m"],["Push-ups",75],["Run — 1,200 m"],["Push-ups",50],["Run — 1,600 m"],["Push-ups",25],["Run — 2,000 m"]]},
+  {name:"Carse",type:"FOR TIME",consigne:"21-18-15-12-9-6-3 reps for time : squat cleans, double-unders, deadlifts, box jumps. Begin each round with a 50-meter bear crawl.",movements:[["Bear crawl — 50 m at start of each round"],["Squat cleans — descending 21-3"],["Double-unders — descending 21-3"],["Deadlifts — descending 21-3"],["Box jumps — descending 21-3"]]},
+  {name:"CHAD",type:"FOR TIME",consigne:"For time : 1,000 weighted box step-ups. Official workout uses a 20-inch box and a 45-lb rucksack/weighted pack (standard prescription).",movements:[["Weighted box step-ups",1000]]},
+  {name:"City 100",type:"FOR TIME",consigne:"Partner workout. 31 shuttle runs (7 m down, 7 m back), then 10 rounds : 7 deadlifts, 7 hang power cleans, 7-meter overhead walking lunge. One partner holds a barbell in front rack while the other completes a full round, then switch.",movements:[["Shuttle runs — 7 m out and back",31],["Deadlifts",7],["Hang power cleans",7],["Overhead walking lunge — 7 m",7]]},
+  {name:"Clovis",type:"FOR TIME",consigne:"For time : run 10 miles and complete 150 burpee pull-ups. Partition the run and burpee pull-ups as needed.",movements:[["Run — 10 miles"],["Burpee pull-ups",150]]},
+  {name:"Coe",type:"FOR TIME",consigne:"10 rounds for time : 10 thrusters, 10 ring push-ups. RX thrusters : 65 lb femmes / 95 lb hommes.",movements:[["Thrusters",10],["Ring push-ups",10]]},
+  {name:"Coffey",type:"FOR TIME",consigne:"For time : run 800 m, 50 back squats, 50 bench presses, run 800 m, 35 back squats, 35 bench presses, run 800 m, 20 back squats, 20 bench presses, run 800 m, 1 muscle-up.",movements:[["Run — 800 m"],["Back squats",50],["Bench presses",50],["Run — 800 m"],["Back squats",35],["Bench presses",35],["Run — 800 m"],["Back squats",20],["Bench presses",20],["Run — 800 m"],["Muscle-up",1]]},
+  {name:"Coffland",type:"FOR TIME",consigne:"Hang from a pull-up bar for 6 minutes. Each time you drop from the bar, complete an 800-meter run and 30 push-ups before hanging again.",movements:[["Dead hang — 6 min total"],["Run — 800 m after each drop"],["Push-ups",30]]},
+  {name:"Collin",type:"FOR TIME",consigne:"6 rounds for time : 400-meter sandbag carry, 12 push presses, 12 box jumps, 12 sumo deadlift high pulls. RX sandbag : 35 lb femmes / 50 lb hommes ; push press 75/115 lb ; SDHP 65/95 lb.",movements:[["Sandbag carry — 400 m"],["Push presses",12],["Box jumps",12],["Sumo deadlift high pulls",12]]},
+  {name:"Crain",type:"FOR TIME",consigne:"2 rounds for time : 34 push-ups, 50-yard sprint, 34 deadlifts, 50-yard sprint, 34 box jumps, 50-yard sprint, 34 clean and jerks, 50-yard sprint, 34 burpees, 50-yard sprint, 34 wall-ball shots, 50-yard sprint, 34 pull-ups, 50-yard sprint.",movements:[["Push-ups",34],["Sprint — 50 yd"],["Deadlifts",34],["Sprint — 50 yd"],["Box jumps",34],["Sprint — 50 yd"],["Clean and jerks",34],["Sprint — 50 yd"],["Burpees",34],["Sprint — 50 yd"],["Wall-ball shots",34],["Sprint — 50 yd"],["Pull-ups",34],["Sprint — 50 yd"]]},
+  {name:"Donny",type:"FOR TIME",consigne:"21-15-9-9-15-21 reps for time : deadlifts and burpees.",movements:[["Deadlifts — 21-15-9-9-15-21"],["Burpees — 21-15-9-9-15-21"]]},
+  {name:"Dork",type:"FOR TIME",consigne:"6 rounds for time : 60 double-unders, 30 kettlebell swings, 15 burpees.",movements:[["Double-unders",60],["Kettlebell swings",30],["Burpees",15]]},
+  {name:"Dragon",type:"FOR TIME",consigne:"For time : run 5K, 4 minutes to find a 4-rep-max deadlift, run 5K, 4 minutes to find a 4-rep-max push jerk.",movements:[["Run — 5 km"],["Find 4RM deadlift — 4 min"],["Run — 5 km"],["Find 4RM push jerk — 4 min"]]},
+  {name:"Drew",type:"FOR TIME",consigne:"For time. Each round honors one of the heroes who died in the helicopter crash. Kraus : 200-m run, 30 pull-ups, 30 hand-release push-ups, 4 deadlifts ; rest 30 sec. Scott : 400-m run, 25 pull-ups, 25 hand-release push-ups, 4 deadlifts ; rest 30 sec. Good : 600-m run, 20 pull-ups, 20 hand-release push-ups, 4 deadlifts ; rest 30 sec. Cully : 800-m run, 15 pull-ups, 15 hand-release push-ups, 4 deadlifts. Night Stalkers : 269 step-ups.",movements:[["Run — 200 m / 400 m / 600 m / 800 m"],["Pull-ups — 30 / 25 / 20 / 15"],["Hand-release push-ups — 30 / 25 / 20 / 15"],["Deadlifts — 4 each round"],["Step-ups",269]]},
+  {name:"DT",type:"FOR TIME",consigne:"5 rounds for time : 12 deadlifts, 9 hang power cleans, 6 push jerks. RX : 105 lb femmes / 155 lb hommes.",movements:[["Deadlifts",12],["Hang power cleans",9],["Push jerks",6]]},
+  {name:"Dunn",type:"AMRAP",duration:19,consigne:"AMRAP 19 minutes : 3 muscle-ups, 1 shuttle sprint (5 yd, 10 yd, 15 yd), 6 burpee box jump-overs. On burpees, jump over the box without touching it.",movements:[["Muscle-ups",3],["Shuttle sprint — 5/10/15 yd",1],["Burpee box jump-overs",6]]},
+  {name:"DVB",type:"FOR TIME",consigne:"For time : run 1 mile with a medicine ball, then 8 rounds of 10 wall-ball shots and 1 rope climb; run 800 m with a medicine ball, then 4 rounds of 10 wall-ball shots and 1 rope climb; run 400 m with a medicine ball, then 2 rounds of 10 wall-ball shots and 1 rope climb.",movements:[["Run with medicine ball — 1 mile"],["Wall-ball shots",10],["Rope climbs",1],["Run with medicine ball — 800 m"],["Wall-ball shots",10],["Rope climbs",1],["Run with medicine ball — 400 m"],["Wall-ball shots",10],["Rope climbs",1]]}
+];
+
+function buildHeroWod(entry) {
+  return {
+    name: entry.name, type: entry.type, duration: entry.duration || null,
+    timerConfig: entry.type === "AMRAP" ? {format:"AMRAP",duration_minutes:entry.duration} : {format:"simple",time_cap_minutes:null},
+    consigne: entry.consigne,
+    movements: entry.movements.map((m, i) => ({name:m[0], reps:m.length > 1 ? m[1] : null, position:i+1}))
+  };
+}
+
+async function importCrossfitHeroWods() {
+  const existing = new Set(wods.map(w => String(w.name || "").trim().toLowerCase()));
+  const missing = CROSSFIT_HERO_WODS.filter(w => !existing.has(w.name.toLowerCase()));
+  for (const entry of missing) {
+    const saved = await window.saveManualWodToSupabase({...buildHeroWod(entry), category:"WOD HEROES"});
+    wods.unshift(saved);
+    existing.add(entry.name.toLowerCase());
+  }
+  updateCount();
+  if (activeWodCategoryFilter === "WOD HEROES") displayLibrary();
+  const status = document.getElementById("libraryStatus");
+  if (status && missing.length) status.textContent = `${missing.length} WOD HEROES (lot A-D) ajoutés à la bibliothèque.`;
+}
+
 async function importCrossfitGirlsWods() {
   const existing = new Set(wods.map(w => String(w.name || "").trim().toLowerCase()));
   const missing = CROSSFIT_GIRLS_WODS.filter(w => !existing.has(w.name.toLowerCase()));
@@ -3901,6 +3972,7 @@ async function showLoggedIn() {
   authMessage.textContent = "";
   try {
     await loadWodsFromSupabase();
+    await importCrossfitHeroWods();
     await importCrossfitGirlsWods();
     await openSharedWodFromLink();
     openPage("timer");
