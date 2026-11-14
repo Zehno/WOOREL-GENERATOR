@@ -392,16 +392,17 @@ header {position:relative; padding-right:110px; padding-left:110px}
   justify-content: space-between;
   align-items: center;
   padding: 24px 20px 32px;
-  background: #101419;
+  background: radial-gradient(ellipse at 50% 45%, #171b20 0%, #080a0d 72%);
   color: #f3f5f7;
-  transition: background-color 0.35s ease;
+  transition: background-color 0.25s ease;
   user-select: none;
 }
 .fs-overlay.hidden { display: none !important; }
-.fs-overlay.phase-prep { background: #1c2430; }
-.fs-overlay.phase-work { background: #4a2025; }
-.fs-overlay.phase-rest { background: #123d2d; }
-.fs-overlay.phase-done { background: #1f2937; }
+/* Habillage inspiré d'un timer LED de salle : boîtier noir, affichage lumineux */
+.fs-overlay.phase-prep { background: radial-gradient(ellipse at 50% 45%, #17202b 0%, #07090c 72%); }
+.fs-overlay.phase-work { background: radial-gradient(ellipse at 50% 45%, #182018 0%, #070907 72%); }
+.fs-overlay.phase-rest { background: radial-gradient(ellipse at 50% 45%, #10202a 0%, #06090c 72%); }
+.fs-overlay.phase-done { background: radial-gradient(ellipse at 50% 45%, #202027 0%, #08090c 72%); }
 
 .fs-top {
   width: 100%;
@@ -429,10 +430,10 @@ header {position:relative; padding-right:110px; padding-left:110px}
   border-radius: 10px;
   text-transform: uppercase;
 }
-.phase-prep .fs-phase-pill { background: #3b82f6; color: #fff; }
-.phase-work .fs-phase-pill { background: #e45b5b; color: #fff; }
-.phase-rest .fs-phase-pill { background: #26c281; color: #101419; }
-.phase-done .fs-phase-pill { background: #e45b5b; color: #fff; }
+.phase-prep .fs-phase-pill { background: #2563eb; color: #fff; box-shadow: 0 0 24px #2563eb66; }
+.phase-work .fs-phase-pill { background: #a5ff22; color: #071006; box-shadow: 0 0 24px #a5ff2266; }
+.phase-rest .fs-phase-pill { background: #38bdf8; color: #04131b; box-shadow: 0 0 24px #38bdf866; }
+.phase-done .fs-phase-pill { background: #f59e0b; color: #171006; box-shadow: 0 0 24px #f59e0b66; }
 
 .fs-exit-btn {
   background: rgba(0, 0, 0, 0.45);
@@ -460,25 +461,41 @@ header {position:relative; padding-right:110px; padding-left:110px}
   letter-spacing: 1px;
 }
 .fs-clock {
+  display: inline-block;
+  min-width: min(88vw, 920px);
+  padding: 18px 34px 26px;
+  border: 5px solid #30363d;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #050607, #0b0e11);
+  box-shadow: inset 0 0 28px #000, 0 14px 45px #000b, 0 0 0 2px #111820;
+  color: #a5ff22;
+  font-family: "Arial Black", "Courier New", monospace;
   font-size: clamp(110px, 26vw, 310px);
   font-weight: 900;
   line-height: 0.95;
   font-variant-numeric: tabular-nums;
   letter-spacing: -4px;
   margin: 10px 0;
-  text-shadow: 0 8px 30px rgba(0,0,0,0.45);
+  text-shadow: 0 0 10px currentColor, 0 0 28px currentColor;
+  transition: color .2s ease, text-shadow .2s ease;
 }
+.phase-work .fs-clock { color: #a5ff22; }
+.phase-rest .fs-clock { color: #38bdf8; }
+.phase-prep .fs-clock { color: #60a5fa; }
+.phase-done .fs-clock { color: #f59e0b; }
 .fs-round-info {
   display:inline-block;
-  color:#60a5fa;
-  background:rgba(96,165,250,.14);
-  border:2px solid rgba(96,165,250,.72);
-  border-radius:14px;
+  color:#ffbd4a;
+  background:rgba(255,189,74,.10);
+  border:2px solid rgba(255,189,74,.78);
+  border-radius:12px;
   padding:10px 24px;
   font-size: clamp(22px, 4vw, 44px);
   font-weight: 900;
   letter-spacing: 2px;
-  margin-top: 8px;
+  margin-top: 14px;
+  text-shadow: 0 0 12px #ffbd4a66;
+  box-shadow: 0 0 18px #ffbd4a22;
 }
 .fs-exercises-box {
   margin: 16px auto 0;
@@ -713,7 +730,7 @@ header {
 .fs-overlay.phase-work .fs-phase-pill{box-shadow:0 0 28px rgba(228,91,91,.28)}
 .fs-overlay.phase-rest .fs-phase-pill{box-shadow:0 0 28px rgba(38,194,129,.25)}
 .fs-skip-btn {background:#60a5fa;color:#101419;border:0;border-radius:10px;padding:12px 16px;font-weight:900;cursor:pointer}
-@media(max-width:600px){.fs-clock{font-size:clamp(82px,23vw,170px)}.fs-round-info{font-size:clamp(18px,5vw,28px);padding:8px 12px}.fs-controls{gap:8px}.fs-controls button{padding:13px 8px;font-size:14px}}
+@media(max-width:600px){.fs-clock{min-width:0;width:100%;box-sizing:border-box;padding:14px 8px 18px;font-size:clamp(82px,23vw,170px);border-width:3px}.fs-round-info{font-size:clamp(18px,5vw,28px);padding:8px 12px}.fs-controls{gap:8px}.fs-controls button{padding:13px 8px;font-size:14px}}
 
 
 
@@ -2190,7 +2207,9 @@ function syncFullscreenDisplay(state) {
   overlay.classList.add("phase-" + state.visualPhase);
 
   document.getElementById("fsBlockBadge").textContent = state.blockLabel;
-  document.getElementById("fsPhasePill").textContent = state.phaseLabel;
+  const phasePill = document.getElementById("fsPhasePill");
+  phasePill.textContent = state.phaseLabel === "REST" || state.phaseLabel === "REPOS" || state.phaseLabel.includes("REPOS")
+    ? "RÉCUPÉRATION" : state.phaseLabel;
   document.getElementById("fsClock").textContent = state.clockText;
   document.getElementById("fsRoundInfo").textContent = state.roundLabel;
   const focusEl = document.getElementById("fsExerciseFocus");
