@@ -1057,6 +1057,26 @@ main { overflow-x: hidden; }
   .page.page-slide-next, .page.page-slide-prev { animation: none; }
 }
 
+
+/* ================= GARMIN / MON SUIVI ================= */
+.garmin-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin:16px 0}
+.garmin-kpi{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:16px;min-height:105px}
+.garmin-kpi .kpi-label{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.garmin-kpi .kpi-value{font-size:25px;font-weight:900;margin-top:9px;color:var(--text)}
+.garmin-kpi .kpi-detail{font-size:11px;color:var(--muted);margin-top:4px}
+.garmin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px}
+.garmin-panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px;margin:14px 0}
+.garmin-panel h3{margin:0 0 12px;font-size:15px}
+.garmin-status{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--border);border-radius:99px;padding:6px 10px;font-size:11px;font-weight:800;color:var(--muted)}
+.garmin-status::before{content:'';width:8px;height:8px;border-radius:50%;background:#929eaa}
+.garmin-status.ok::before{background:#26c281}.garmin-status.wait::before{background:#f2a344}.garmin-status.error::before{background:#e45b5b}
+.garmin-empty{border:1px dashed var(--border);border-radius:12px;padding:22px;text-align:center;color:var(--muted);font-size:13px}
+.garmin-table-wrap{overflow-x:auto}.garmin-table{width:100%;border-collapse:collapse;font-size:12px;min-width:580px}.garmin-table th,.garmin-table td{padding:11px 9px;text-align:left;border-bottom:1px solid var(--border)}.garmin-table th{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.garmin-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.garmin-note{font-size:12px;line-height:1.55;color:var(--muted)}
+.garmin-progress{height:7px;background:var(--panel2);border-radius:20px;overflow:hidden}.garmin-progress>span{display:block;height:100%;width:0;background:var(--green);transition:width .25s}
+.garmin-chart-placeholder{height:150px;border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:12px;padding:16px}
+@media(max-width:600px){.garmin-panel{padding:14px}.garmin-kpi{padding:12px}.garmin-kpi .kpi-value{font-size:22px}}
+
 </style>
 </head>
 
@@ -1096,6 +1116,7 @@ main { overflow-x: hidden; }
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE WOD</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
   <button class="tab" data-page="historyPage">HISTORIQUE</button>
+  <button class="tab" data-page="garminPage">MON SUIVI</button>
 </nav>
 
 <main>
@@ -1502,6 +1523,45 @@ main { overflow-x: hidden; }
 
 </section>
 
+
+
+<!-- MON SUIVI / GARMIN -->
+<section id="garminPage" class="page">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+    <div><h2 style="margin-bottom:4px">MON SUIVI</h2><p class="small-note" style="margin:0">Tableau de bord personnel — Garmin epix Gen 2</p></div>
+    <span id="garminConnectionBadge" class="garmin-status wait">CONNEXION À CONFIGURER</span>
+  </div>
+
+  <div class="garmin-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div><h3 style="margin-bottom:4px">GARMIN CONNECT</h3><div class="garmin-note">Import de tes activités et de tes données de récupération.</div></div>
+      <div class="garmin-actions"><button type="button" class="secondary" id="garminTestBtn">TESTER LA CONNEXION</button><button type="button" class="primary" id="garminSyncBtn">↻ SYNCHRONISER</button></div>
+    </div>
+    <div id="garminSyncMessage" class="garmin-note" role="status" aria-live="polite" style="margin-top:12px">Le module d'interface est prêt. Le service sécurisé Cloudflare reste à raccorder.</div>
+    <div class="garmin-progress" style="margin-top:12px"><span id="garminSyncProgress"></span></div>
+  </div>
+
+  <div class="garmin-kpis">
+    <div class="garmin-kpi"><div class="kpi-label">Activités importées</div><div class="kpi-value" id="garminActivityCount">—</div><div class="kpi-detail">Depuis la première synchronisation</div></div>
+    <div class="garmin-kpi"><div class="kpi-label">Volume cette semaine</div><div class="kpi-value" id="garminWeeklyTime">—</div><div class="kpi-detail">Toutes disciplines</div></div>
+    <div class="garmin-kpi"><div class="kpi-label">FC au repos</div><div class="kpi-value" id="garminRestingHr">—</div><div class="kpi-detail">Dernière valeur disponible</div></div>
+    <div class="garmin-kpi"><div class="kpi-label">HRV nocturne</div><div class="kpi-value" id="garminHrv">—</div><div class="kpi-detail">Dernière valeur disponible</div></div>
+  </div>
+
+  <div class="garmin-grid">
+    <div class="garmin-panel"><h3>CHARGE ET RÉCUPÉRATION</h3><div class="garmin-chart-placeholder" id="garminRecoveryChart">Les données HRV, sommeil, stress et fréquence cardiaque apparaîtront ici après connexion.</div><p class="garmin-note">Les tendances seront calculées à partir des données réellement importées. Pas de score inventé en l'absence de données.</p></div>
+    <div class="garmin-panel"><h3>PROGRESSION SPORTIVE</h3><div class="garmin-chart-placeholder" id="garminProgressChart">Évolution des allures, seuils, puissance vélo et performances rameur.</div><p class="garmin-note">Les analyses seront séparées par discipline pour éviter de mélanger des charges non comparables.</p></div>
+  </div>
+
+  <div class="garmin-panel"><h3>DERNIÈRES ACTIVITÉS</h3><div class="garmin-table-wrap"><table class="garmin-table"><thead><tr><th>Date</th><th>Activité</th><th>Durée</th><th>Distance</th><th>FC moy.</th><th>FC max.</th></tr></thead><tbody id="garminActivityRows"><tr><td colspan="6"><div class="garmin-empty">Aucune activité Garmin importée pour le moment.</div></td></tr></tbody></table></div></div>
+
+  <div class="garmin-panel"><h3>RÉGLAGES DE CONNEXION</h3>
+    <div class="field"><label for="garminWorkerUrl">URL DU SERVICE CLOUDFLARE (WORKER)</label><input id="garminWorkerUrl" type="url" placeholder="https://ton-worker.ton-compte.workers.dev" autocomplete="url"></div>
+    <div class="garmin-actions"><button type="button" class="secondary" id="garminSaveUrlBtn">ENREGISTRER L'URL</button><span id="garminUrlStatus" class="garmin-note">Cette URL n'est pas une clé secrète.</span></div>
+    <p class="garmin-note" style="margin-top:12px"><strong>Sécurité :</strong> ne saisis jamais ta clé Garmin Personal API ici. Elle devra être enregistrée dans les secrets du Worker Cloudflare, côté serveur. La clé ne doit apparaître ni dans ce fichier HTML, ni dans GitHub, ni dans le navigateur.</p>
+  </div>
+  <div class="garmin-panel"><h3>ORDRE DE DÉPLOIEMENT</h3><ol class="garmin-note" style="padding-left:20px;line-height:1.8"><li>Configurer le Worker sécurisé et les secrets Garmin.</li><li>Créer les tables de stockage Garmin dans Supabase.</li><li>Activer la synchronisation des activités.</li><li>Ajouter les données quotidiennes : HRV, sommeil, stress et FC au repos.</li><li>Construire les analyses de charge et le rapprochement avec ton planning WOD.</li></ol></div>
+</section>
 
 <!-- HISTORIQUE -->
 <section id="historyPage" class="page">
@@ -3687,6 +3747,62 @@ renderWorkoutHistory();
     const swBlob = new Blob([swCode], { type: "application/javascript" });
     navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
   }
+})();
+
+
+// =======================================
+// GARMIN — INTERFACE ET CONTRAT WORKER
+// La clé Garmin reste exclusivement dans les secrets Cloudflare.
+// Routes attendues côté Worker : GET /garmin/status, GET /garmin/dashboard, POST /garmin/sync.
+// =======================================
+(function initGarminDashboard(){
+  const $g = id => document.getElementById(id);
+  const urlInput = $g('garminWorkerUrl');
+  if (!urlInput) return;
+  const savedUrl = localStorage.getItem('wodfactory_garmin_worker_url') || '';
+  urlInput.value = savedUrl;
+  const cleanBase = () => (urlInput.value || '').trim().replace(/\/+$/, '');
+  const setMessage = (msg, kind='wait') => {
+    const el=$g('garminSyncMessage'); if(el) el.textContent=msg;
+    const badge=$g('garminConnectionBadge'); if(badge){badge.className='garmin-status '+kind;badge.textContent=kind==='ok'?'CONNECTÉ':kind==='error'?'ERREUR DE CONNEXION':'À CONFIGURER';}
+  };
+  const setBusy = busy => { const b=$g('garminSyncBtn'); if(b){b.disabled=busy;b.textContent=busy?'SYNCHRONISATION…':'↻ SYNCHRONISER';} const p=$g('garminSyncProgress'); if(p)p.style.width=busy?'35%':'0%'; };
+  const formatDuration = seconds => { if(seconds==null)return '—'; const m=Math.round(Number(seconds)/60); return m>=60?`${Math.floor(m/60)} h ${String(m%60).padStart(2,'0')}`:`${m} min`; };
+  function renderDashboard(data={}){
+    const set=(id,v)=>{const e=$g(id);if(e)e.textContent=(v===null||v===undefined||v==='')?'—':v;};
+    set('garminActivityCount',data.activity_count ?? data.activityCount);
+    set('garminWeeklyTime',data.weekly_duration_seconds!=null?formatDuration(data.weekly_duration_seconds):data.weekly_time);
+    set('garminRestingHr',data.resting_hr!=null?`${data.resting_hr} bpm`:'—');
+    set('garminHrv',data.hrv_ms!=null?`${data.hrv_ms} ms`:'—');
+    const rows=$g('garminActivityRows');
+    if(rows && Array.isArray(data.activities) && data.activities.length){
+      rows.innerHTML=data.activities.slice(0,20).map(a=>`<tr><td>${String(a.date||a.start_time||'—')}</td><td>${String(a.name||a.type||'Activité')}</td><td>${formatDuration(a.duration_seconds)}</td><td>${a.distance_km!=null?Number(a.distance_km).toFixed(2)+' km':'—'}</td><td>${a.avg_hr!=null?a.avg_hr+' bpm':'—'}</td><td>${a.max_hr!=null?a.max_hr+' bpm':'—'}</td></tr>`).join('');
+    }
+  }
+  async function request(path, options={}){
+    const base=cleanBase(); if(!base) throw new Error('Renseigne d’abord l’URL du Worker Cloudflare.');
+    const response=await fetch(base+path,{...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});
+    const body=await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(body.message||`Erreur HTTP ${response.status}`);
+    return body;
+  }
+  $g('garminSaveUrlBtn')?.addEventListener('click',()=>{
+    const value=cleanBase();
+    if(value && !/^https:\/\//i.test(value)){ $g('garminUrlStatus').textContent='L’URL doit commencer par https://'; return; }
+    localStorage.setItem('wodfactory_garmin_worker_url',value);
+    $g('garminUrlStatus').textContent=value?'URL enregistrée sur cet appareil.':'URL effacée.';
+    setMessage(value?'URL enregistrée. Le Worker doit encore être configuré.':'Aucune URL de Worker configurée.');
+  });
+  $g('garminTestBtn')?.addEventListener('click',async()=>{
+    try{setMessage('Vérification du service Cloudflare…');const d=await request('/garmin/status');setMessage(d.connected?'Connexion Garmin active.':'Worker joignable, mais Garmin n’est pas encore connecté.',d.connected?'ok':'wait');}
+    catch(e){setMessage(e.message,'error');}
+  });
+  $g('garminSyncBtn')?.addEventListener('click',async()=>{
+    try{setBusy(true);setMessage('Demande de synchronisation envoyée…');const d=await request('/garmin/sync',{method:'POST',body:JSON.stringify({mode:'incremental'})});if(d.dashboard)renderDashboard(d.dashboard);else if(d.activities)renderDashboard(d);$g('garminSyncProgress').style.width='100%';setMessage(d.message||'Synchronisation terminée.','ok');}
+    catch(e){setMessage(e.message,'error');}
+    finally{setBusy(false);}
+  });
+  if(savedUrl){request('/garmin/dashboard').then(renderDashboard).then(()=>setMessage('Données du tableau de bord chargées.','ok')).catch(()=>setMessage('Worker non configuré ou données Garmin indisponibles.'))}
 })();
 
 // =======================================
