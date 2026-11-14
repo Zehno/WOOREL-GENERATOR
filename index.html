@@ -3849,12 +3849,59 @@ function normalizeWodType(type) {
   return type || "LIBRE";
 }
 
+// Import initial des 27 CrossFit Girls WODs dans la bibliothèque partagée.
+// L'import est idempotent : les noms déjà présents ne sont pas recréés.
+const CROSSFIT_GIRLS_WODS = [
+  {name:"Amanda",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 9-7-5 reps de Muscle-ups et Squat Snatches (135/95 lb).",movements:[{name:"Muscle-ups",reps:null,position:1},{name:"Squat Snatches — 135/95 lb",reps:null,position:2}]},
+  {name:"Angie",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 100 répétitions de chaque mouvement.",movements:[{name:"Pull-ups",reps:100,position:1},{name:"Push-ups",reps:100,position:2},{name:"Sit-ups",reps:100,position:3},{name:"Squats",reps:100,position:4}]},
+  {name:"Annie",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 50-40-30-20-10 reps de Double-unders et Sit-ups.",movements:[{name:"Double-unders",reps:null,position:1},{name:"Sit-ups",reps:null,position:2}]},
+  {name:"Barbara",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 5 rounds. Repos : 3 minutes après chaque round (comme indiqué sur la fiche).",movements:[{name:"Pull-ups",reps:20,position:1},{name:"Push-ups",reps:30,position:2},{name:"Sit-ups",reps:40,position:3},{name:"Air squats",reps:50,position:4}]},
+  {name:"Candy",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"5 rounds for time.",movements:[{name:"Pull-ups",reps:20,position:1},{name:"Push-ups",reps:40,position:2},{name:"Squats",reps:60,position:3}]},
+  {name:"Chelsea",type:"EMOM",duration:30,timerConfig:{format:"EMOM",duration_minutes:30,work_seconds:60,rest_seconds:0,interval_seconds:60},consigne:"Every minute on the minute pendant 30 minutes.",movements:[{name:"Pull-ups",reps:5,position:1},{name:"Push-ups",reps:10,position:2},{name:"Air squats",reps:15,position:3}]},
+  {name:"Cindy",type:"AMRAP",duration:20,timerConfig:{format:"AMRAP",duration_minutes:20},consigne:"AMRAP en 20 minutes.",movements:[{name:"Pull-ups",reps:5,position:1},{name:"Push-ups",reps:10,position:2},{name:"Air squats",reps:15,position:3}]},
+  {name:"Diane",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 21-15-9 reps de Deadlifts (225/155 lb) et Handstand push-ups.",movements:[{name:"Deadlifts — 225/155 lb",reps:null,position:1},{name:"Handstand push-ups",reps:null,position:2}]},
+  {name:"Elizabeth",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 21-15-9 reps de Squat cleans (135/95 lb) et Ring dips.",movements:[{name:"Squat cleans — 135/95 lb",reps:null,position:1},{name:"Ring dips",reps:null,position:2}]},
+  {name:"Eva",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"5 rounds for time : 800 m run, 30 kettlebell swings (2 pood), 30 pull-ups.",movements:[{name:"Run — 800 m",reps:null,position:1},{name:"Kettlebell swings — 2 pood",reps:30,position:2},{name:"Pull-ups",reps:30,position:3}]},
+  {name:"Fran",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 21-15-9 reps de Thrusters (95/65 lb) et Pull-ups.",movements:[{name:"Thrusters — 95/65 lb",reps:null,position:1},{name:"Pull-ups",reps:null,position:2}]},
+  {name:"Grace",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 30 Clean-and-jerks (135/95 lb).",movements:[{name:"Clean-and-jerks — 135/95 lb",reps:30,position:1}]},
+  {name:"Gwen",type:"LIBRE",duration:null,timerConfig:{format:"LIBRE"},consigne:"15-12-9 reps for load : Clean-and-jerks (unbroken). Repos selon besoin entre les séries.",movements:[{name:"Clean-and-jerks (unbroken)",reps:null,position:1}]},
+  {name:"Helen",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"3 rounds for time : 400 m run, 21 kettlebell swings (50/35 lb), 12 pull-ups.",movements:[{name:"Run — 400 m",reps:null,position:1},{name:"Kettlebell swings — 50/35 lb",reps:21,position:2},{name:"Pull-ups",reps:12,position:3}]},
+  {name:"Hope",type:"LIBRE",duration:null,timerConfig:{format:"LIBRE"},consigne:"3 rounds. La fiche indique les mouvements et charges mais ne précise pas les répétitions ni la durée de chaque poste : Burpees, Power snatch (75 lb), Box jump (24 in), Thruster (75 lb), Chest-to-bar pull-ups.",movements:[{name:"Burpees",reps:null,position:1},{name:"Power snatch — 75 lb",reps:null,position:2},{name:"Box jump — 24 in",reps:null,position:3},{name:"Thruster — 75 lb",reps:null,position:4},{name:"Chest-to-bar pull-ups",reps:null,position:5}]},
+  {name:"Isabel",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 30 Snatches (135/95 lb).",movements:[{name:"Snatches — 135/95 lb",reps:30,position:1}]},
+  {name:"Jackie",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 1 000 m row, 50 Thrusters (45/35 lb), 30 Pull-ups.",movements:[{name:"Row — 1 000 m",reps:null,position:1},{name:"Thrusters — 45/35 lb",reps:50,position:2},{name:"Pull-ups",reps:30,position:3}]},
+  {name:"Karen",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 150 Wall ball shots (20/14 lb).",movements:[{name:"Wall ball shots — 20/14 lb",reps:150,position:1}]},
+  {name:"Kelly",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"5 rounds for time : 400 m run, 30 Box jumps (24/20 in), 30 Wall ball shots (20/14 lb).",movements:[{name:"Run — 400 m",reps:null,position:1},{name:"Box jumps — 24/20 in",reps:30,position:2},{name:"Wall ball shots — 20/14 lb",reps:30,position:3}]},
+  {name:"Linda",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 10-1 reps de Deadlift (2,5 × poids de corps), Bench press (poids de corps), Clean (0,75 × poids de corps).",movements:[{name:"Deadlift — 2,5 × poids de corps",reps:null,position:1},{name:"Bench press — poids de corps",reps:null,position:2},{name:"Clean — 0,75 × poids de corps",reps:null,position:3}]},
+  {name:"Lynne",type:"LIBRE",duration:null,timerConfig:{format:"LIBRE"},consigne:"5 rounds for max reps. La fiche ne précise pas de temps de repos.",movements:[{name:"Bench press — poids de corps",reps:null,position:1},{name:"Pull-ups",reps:null,position:2}]},
+  {name:"Maggie",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"5 rounds for time.",movements:[{name:"Handstand push-ups",reps:20,position:1},{name:"Pull-ups",reps:40,position:2},{name:"Alternating pistols",reps:60,position:3}]},
+  {name:"Marguerita",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"50 reps for time : Burpee / Push-up / Jumping jack / Sit-up / Handstand, dans l'ordre indiqué. La fiche ne précise pas la répartition des 50 reps entre les mouvements.",movements:[{name:"Burpee",reps:null,position:1},{name:"Push-up",reps:null,position:2},{name:"Jumping jack",reps:null,position:3},{name:"Sit-up",reps:null,position:4},{name:"Handstand",reps:null,position:5}]},
+  {name:"Mary",type:"AMRAP",duration:20,timerConfig:{format:"AMRAP",duration_minutes:20},consigne:"AMRAP en 20 minutes.",movements:[{name:"Handstand push-ups",reps:5,position:1},{name:"Pistols (jambes alternées)",reps:10,position:2},{name:"Pull-ups",reps:15,position:3}]},
+  {name:"Megan",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"For time : 21-15-9 reps de Burpees, Kettlebell swings (53/35 lb) et Double-unders.",movements:[{name:"Burpees",reps:null,position:1},{name:"Kettlebell swings — 53/35 lb",reps:null,position:2},{name:"Double-unders",reps:null,position:3}]},
+  {name:"Nancy",type:"FOR TIME",duration:null,timerConfig:{format:"simple",time_cap_minutes:null},consigne:"5 rounds for time : 400 m run et 15 Overhead squats (95/65 lb).",movements:[{name:"Run — 400 m",reps:null,position:1},{name:"Overhead squats — 95/65 lb",reps:15,position:2}]},
+  {name:"Nicole",type:"AMRAP",duration:20,timerConfig:{format:"AMRAP",duration_minutes:20},consigne:"AMRAP en 20 minutes : 400 m run puis maximum de Pull-ups.",movements:[{name:"Run — 400 m",reps:null,position:1},{name:"Pull-ups — maximum de répétitions",reps:null,position:2}]}
+];
+
+async function importCrossfitGirlsWods() {
+  const existing = new Set(wods.map(w => String(w.name || "").trim().toLowerCase()));
+  const missing = CROSSFIT_GIRLS_WODS.filter(w => !existing.has(w.name.toLowerCase()));
+  if (!missing.length) return;
+  for (const wod of missing) {
+    const saved = await window.saveManualWodToSupabase({...wod, category:"WOD GIRL"});
+    wods.unshift(saved);
+  }
+  updateCount();
+  displayLibrary();
+  const status = document.getElementById("libraryStatus");
+  if (status) status.textContent = `${missing.length} WOD GIRL ajoutés à la bibliothèque.`;
+}
+
 async function showLoggedIn() {
   authScreen.style.display = "none";
   appShell.style.display = "block";
   authMessage.textContent = "";
   try {
     await loadWodsFromSupabase();
+    await importCrossfitGirlsWods();
     await openSharedWodFromLink();
     openPage("timer");
   } catch (error) {
