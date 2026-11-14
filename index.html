@@ -1198,14 +1198,22 @@ main { overflow-x: hidden; }
       <div id="emomSettings" class="hidden">
         <div class="grid">
           <div class="field">
-            <label>DURÉE TOTALE (MIN)</label>
-            <input id="emomDuration" type="number" min="1" value="12">
+            <label for="emomWork">TEMPS DE TRAVAIL</label>
+            <select id="emomWork">
+              <option value="20">20 sec</option>
+              <option value="30">30 sec</option>
+              <option value="45">45 sec</option>
+              <option value="60" selected>1 min</option>
+              ${Array.from({length:45}, (_, i) => `<option value="${75 + i * 15}">${Math.floor((75 + i * 15) / 60)} min ${String((75 + i * 15) % 60).padStart(2, "0")} sec</option>`).join("")}
+            </select>
           </div>
           <div class="field">
-            <label>TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label>
-            <input id="emomWork" type="number" min="1" max="59" value="40">
+            <label for="emomDuration">DURÉE TOTALE — MULTIPLICATEUR</label>
+            <select id="emomDuration">
+              ${Array.from({length:101}, (_, i) => `<option value="${i + 1}" ${i === 11 ? "selected" : ""}>x${i + 1}</option>`).join("")}
+            </select>
           </div>
-          <p class="small-note" id="emomComputedPreview">12 minutes × 2 rounds par minute = 24 rounds de 30 secondes (12 min au total).</p>
+          <p class="small-note" id="emomComputedPreview">1 min × 12 = 12 min au total (12 rounds). Aucun repos entre les rounds.</p>
         </div>
       </div>
 
@@ -1901,7 +1909,9 @@ function getDuration() {
   }
 
   if (timerType === "EMOM") {
-    return Math.max(1, Number(document.getElementById("emomDuration").value) || 12) * 60;
+    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
+    const multiplier = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
+    return workSeconds * multiplier;
   }
 
   if (timerType === "FORTIME") {
@@ -2270,8 +2280,8 @@ function updateClock() {
 
   if (timerType === "EMOM") {
     const totalSeconds = getDuration();
-    const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
-    const totalRounds = Math.ceil(totalSeconds / workSeconds);
+    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
+    const totalRounds = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
     const currentRound = Math.min(totalRounds, Math.floor(elapsed / workSeconds) + 1);
     state.visualPhase = "work";
     state.phaseLabel = "TRAVAIL";
@@ -2513,18 +2523,16 @@ function startPreparation() {
 }
 
 function updateEmomComputedPreview() {
-  const durationMinutes = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
-  const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
-  const rounds = Math.ceil((durationMinutes * 60) / workSeconds);
-  const factor = 60 / workSeconds;
-  const factorText = Number.isInteger(factor) ? factor : factor.toFixed(2).replace(".", ",");
+  const multiplier = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
+  const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
+  const totalSeconds = workSeconds * multiplier;
   const preview = document.getElementById("emomComputedPreview");
   if (preview) {
-    preview.textContent = `${durationMinutes} min × ${factorText} rounds/min = ${rounds} rounds de ${workSeconds} s — durée totale : ${formatTime(durationMinutes * 60)}. Aucune récupération entre les rounds.`;
+    preview.textContent = `${formatTime(workSeconds)} de travail × ${multiplier} (${multiplier} rounds) = durée totale : ${formatTime(totalSeconds)}. Aucun repos entre les rounds.`;
   }
 }
-document.getElementById("emomDuration").addEventListener("input", updateEmomComputedPreview);
-document.getElementById("emomWork").addEventListener("input", updateEmomComputedPreview);
+document.getElementById("emomDuration").addEventListener("change", updateEmomComputedPreview);
+document.getElementById("emomWork").addEventListener("change", updateEmomComputedPreview);
 updateEmomComputedPreview();
 
 // =======================================
@@ -2569,7 +2577,7 @@ function checkMidpointSignal() {
 
   // EMOM : signal à mi-parcours de chaque round de travail
   if (timerType === "EMOM") {
-    const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
+    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
     if (workSeconds > 1 && elapsed % workSeconds === Math.floor(workSeconds / 2)) playMidpointTone();
   }
 }
@@ -2686,7 +2694,7 @@ function tick() {
 
   // EMOM sans récupération : chaque intervalle enchaîne directement le round suivant.
   if (timerType === "EMOM") {
-    const workSeconds = Math.max(1, Math.min(59, Number(document.getElementById("emomWork").value) || 40));
+    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
     const roundPosition = elapsed % workSeconds;
     if (workSeconds > 10 && roundPosition === workSeconds - 10 && elapsed < getDuration()) {
       playEmomTenSecondsWarning();
