@@ -1116,7 +1116,6 @@ main { overflow-x: hidden; }
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE WOD</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
   <button class="tab" data-page="historyPage">HISTORIQUE</button>
-  <button class="tab" data-page="garminPage">MON SUIVI</button>
 </nav>
 
 <main>
@@ -1134,6 +1133,7 @@ main { overflow-x: hidden; }
       <h2>AJOUTER UN WOD MANUELLEMENT</h2>
       <form id="manualWodForm">
         <div class="field"><label for="manualWodTitle">TITRE DU WOD</label><input id="manualWodTitle" required maxlength="100" placeholder="Ex. : ENGINE BUILDER"></div>
+        <div class="field"><label for="manualWodCollection">ENREGISTRER DANS</label><select id="manualWodCollection"><option value="PERSONAL">MES WOD</option><option value="ELODIE">ELODIE ❤️</option></select><p class="small-note">Les séances d’Élodie restent séparées de ta bibliothèque personnelle.</p></div>
         <div class="field">
           <label><input type="checkbox" id="manualMultiBlock"> CRÉER UNE SÉANCE AVEC PLUSIEURS BLOCS</label>
           <p class="small-note">Ajoute autant de blocs que nécessaire, avec un format et un temps de repos entre chaque bloc.</p>
@@ -1202,6 +1202,10 @@ main { overflow-x: hidden; }
       <div class="field" style="margin:14px 0 10px;max-width:520px">
         <label for="libraryWodSearch">RECHERCHER UN WOD PAR SON NOM</label>
         <input id="libraryWodSearch" type="search" placeholder="Écris le début du nom du WOD..." autocomplete="off" aria-label="Rechercher un WOD par le début de son nom">
+      </div>
+      <div class="wod-category-filters" id="wodCollectionFilters" aria-label="Choisir une bibliothèque">
+        <button type="button" class="wod-category-filter active" data-collection-filter="PERSONAL">MES WOD</button>
+        <button type="button" class="wod-category-filter" data-collection-filter="ELODIE">ELODIE ❤️</button>
       </div>
       <div class="wod-category-filters" id="wodCategoryFilters" aria-label="Filtrer les WOD par catégorie">
         <button type="button" class="wod-category-filter active" data-category-filter="ALL">TOUS</button>
@@ -1525,42 +1529,6 @@ main { overflow-x: hidden; }
 
 
 
-<!-- MON SUIVI / GARMIN -->
-<section id="garminPage" class="page">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-    <div><h2 style="margin-bottom:4px">MON SUIVI</h2><p class="small-note" style="margin:0">Tableau de bord personnel — Garmin epix Gen 2</p></div>
-    <span id="garminConnectionBadge" class="garmin-status wait">CONNEXION À CONFIGURER</span>
-  </div>
-
-  <div class="garmin-panel">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <div><h3 style="margin-bottom:4px">GARMIN CONNECT</h3><div class="garmin-note">Import de tes activités et de tes données de récupération.</div></div>
-      <div class="garmin-actions"><button type="button" class="secondary" id="garminTestBtn">VÉRIFIER LA SESSION</button><button type="button" class="primary" id="garminSyncBtn">↻ SYNCHRONISER</button></div>
-    </div>
-    <div id="garminSyncMessage" class="garmin-note" role="status" aria-live="polite" style="margin-top:12px">Connexion sécurisée via Supabase. Connecte-toi à WOD FACTORY puis lance une synchronisation.</div>
-    <div class="garmin-progress" style="margin-top:12px"><span id="garminSyncProgress"></span></div>
-  </div>
-
-  <div class="garmin-kpis">
-    <div class="garmin-kpi"><div class="kpi-label">Activités importées</div><div class="kpi-value" id="garminActivityCount">—</div><div class="kpi-detail">Depuis la première synchronisation</div></div>
-    <div class="garmin-kpi"><div class="kpi-label">Volume cette semaine</div><div class="kpi-value" id="garminWeeklyTime">—</div><div class="kpi-detail">Toutes disciplines</div></div>
-    <div class="garmin-kpi"><div class="kpi-label">FC au repos</div><div class="kpi-value" id="garminRestingHr">—</div><div class="kpi-detail">Dernière valeur disponible</div></div>
-    <div class="garmin-kpi"><div class="kpi-label">HRV nocturne</div><div class="kpi-value" id="garminHrv">—</div><div class="kpi-detail">Dernière valeur disponible</div></div>
-  </div>
-
-  <div class="garmin-grid">
-    <div class="garmin-panel"><h3>CHARGE ET RÉCUPÉRATION</h3><div class="garmin-chart-placeholder" id="garminRecoveryChart">Les données HRV, sommeil, stress et fréquence cardiaque apparaîtront ici après connexion.</div><p class="garmin-note">Les tendances seront calculées à partir des données réellement importées. Pas de score inventé en l'absence de données.</p></div>
-    <div class="garmin-panel"><h3>PROGRESSION SPORTIVE</h3><div class="garmin-chart-placeholder" id="garminProgressChart">Évolution des allures, seuils, puissance vélo et performances rameur.</div><p class="garmin-note">Les analyses seront séparées par discipline pour éviter de mélanger des charges non comparables.</p></div>
-  </div>
-
-  <div class="garmin-panel"><h3>DERNIÈRES ACTIVITÉS</h3><div class="garmin-table-wrap"><table class="garmin-table"><thead><tr><th>Date</th><th>Activité</th><th>Durée</th><th>Distance</th><th>FC moy.</th><th>FC max.</th></tr></thead><tbody id="garminActivityRows"><tr><td colspan="6"><div class="garmin-empty">Aucune activité Garmin importée pour le moment.</div></td></tr></tbody></table></div></div>
-
-  <div class="garmin-panel"><h3>CONNEXION SÉCURISÉE</h3>
-    <p class="garmin-note">WOD FACTORY transmet la demande à la fonction sécurisée <strong>garmin-sync</strong> de Supabase. La clé Garmin Personal API reste uniquement dans les secrets de cette fonction : elle ne doit jamais être ajoutée au HTML, à GitHub ou au navigateur.</p>
-    <p class="garmin-note">La vérification de session contrôle ton accès à Supabase. Le test réel de l'accès Garmin est effectué au lancement de la synchronisation.</p>
-  </div>
-</section>
-
 <!-- HISTORIQUE -->
 <section id="historyPage" class="page">
   <h2>HISTORIQUE DES SÉANCES</h2>
@@ -1786,8 +1754,22 @@ function updateCount() {
 
 const WOD_CATEGORIES = ["HYROX", "WOD HEROES", "WOD GIRL", "WOD"];
 let activeWodCategoryFilter = "ALL";
+let activeWodCollectionFilter = "PERSONAL";
 function getWodCategory(wod) { return WOD_CATEGORIES.includes(wod?.category) ? wod.category : "WOD"; }
 function setupWodCategoryFilters() {
+  const collectionFilters = document.getElementById("wodCollectionFilters");
+  if (collectionFilters && collectionFilters.dataset.bound !== "true") {
+    collectionFilters.dataset.bound = "true";
+    collectionFilters.addEventListener("click", event => {
+      const button = event.target.closest("[data-collection-filter]");
+      if (!button) return;
+      activeWodCollectionFilter = button.dataset.collectionFilter || "PERSONAL";
+      collectionFilters.querySelectorAll("[data-collection-filter]").forEach(item => item.classList.toggle("active", item.dataset.collectionFilter === activeWodCollectionFilter));
+      const selector = document.getElementById("manualWodCollection");
+      if (selector) selector.value = activeWodCollectionFilter;
+      displayLibrary();
+    });
+  }
   const search = document.getElementById("libraryWodSearch");
   if (search && search.dataset.bound !== "true") {
     search.dataset.bound = "true";
@@ -1829,7 +1811,8 @@ function displayLibrary() {
   if (!wods.length) { container.innerHTML = '<p class="muted">Aucun WOD dans ta bibliothèque pour le moment.</p>'; return; }
   const searchInput = document.getElementById("libraryWodSearch");
   const searchTerm = String(searchInput?.value || "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr");
-  let visibleWods = activeWodCategoryFilter === "ALL" ? wods.slice() : wods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
+  let visibleWods = wods.filter(wod => (wod.collection || "PERSONAL") === activeWodCollectionFilter);
+  visibleWods = activeWodCategoryFilter === "ALL" ? visibleWods : visibleWods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
   if (searchTerm) {
     visibleWods = visibleWods.filter(wod => String(wod.name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr").startsWith(searchTerm));
   }
@@ -1891,6 +1874,7 @@ function displayLibrary() {
 
 function beginEditWod(wod) {
   editingWodId = wod.id;
+  document.getElementById("manualWodCollection").value = wod.collection || "PERSONAL";
   document.getElementById("manualWodTitle").value = wod.name || "";
   const isMulti = !!(wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length);
   document.getElementById("manualMultiBlock").checked = isMulti;
@@ -1934,6 +1918,7 @@ function beginEditWod(wod) {
 function resetManualWodEditor() {
   editingWodId = null;
   document.getElementById("manualWodForm").reset();
+  document.getElementById("manualWodCollection").value = activeWodCollectionFilter;
   document.getElementById("manualMultiBlock").checked = false;
   document.getElementById("singleWodFields").classList.remove("hidden");
   document.getElementById("multiBlockEditor").classList.add("hidden");
@@ -3481,7 +3466,7 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   button.disabled = true; button.textContent = "ENREGISTREMENT...";
   status.textContent = "Enregistrement dans Supabase...";
   try {
-    const wodData = { name, type, duration, movements, timerConfig, consigne, category: editingWodId !== null ? getWodCategory(wods.find(item => String(item.id) === String(editingWodId))) : "WOD" };
+    const wodData = { name, type, duration, movements, timerConfig, consigne, category: editingWodId !== null ? getWodCategory(wods.find(item => String(item.id) === String(editingWodId))) : "WOD", collection: document.getElementById("manualWodCollection")?.value || "PERSONAL" };
     if (editingWodId !== null) {
       const updated = await window.updateManualWodInSupabase(editingWodId, wodData);
       const index = wods.findIndex(item => String(item.id) === String(editingWodId));
@@ -3749,10 +3734,6 @@ renderWorkoutHistory();
 
 
 // =======================================
-// GARMIN — connexion à la fonction Supabase Edge
-// La clé Garmin reste exclusivement dans les secrets Supabase.
-// =======================================
-
 // =======================================
 // INITIALISATION
 // =======================================
@@ -3771,132 +3752,6 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SUPABASE_URL = "https://tfaarrfjmaaxauzrratx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xOrQfokHftTW1czGvoCtDg_kupMXCEQ";
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
-
-// Tableau de bord Garmin : lecture des tables protégées par RLS.
-const garminEl = id => document.getElementById(id);
-const garminMessage = (message, kind = "wait") => {
-  const node = garminEl("garminSyncMessage");
-  if (node) node.textContent = message;
-  const badge = garminEl("garminConnectionBadge");
-  if (badge) {
-    badge.className = "garmin-status " + kind;
-    badge.textContent = kind === "ok" ? "CONNECTÉ À SUPABASE" : kind === "error" ? "ERREUR DE CONNEXION" : "EN ATTENTE";
-  }
-};
-const garminDuration = seconds => {
-  if (seconds == null || !Number.isFinite(Number(seconds))) return "—";
-  const minutes = Math.round(Number(seconds) / 60);
-  return minutes >= 60 ? `${Math.floor(minutes / 60)} h ${String(minutes % 60).padStart(2, "0")}` : `${minutes} min`;
-};
-function setGarminBusy(busy) {
-  const button = garminEl("garminSyncBtn");
-  if (button) { button.disabled = busy; button.textContent = busy ? "SYNCHRONISATION…" : "↻ SYNCHRONISER"; }
-  const progress = garminEl("garminSyncProgress");
-  if (progress) progress.style.width = busy ? "35%" : "0%";
-}
-async function loadGarminDashboard() {
-  const { data: activities, error: activityError, count } = await supabase
-    .from("garmin_activities")
-    .select("garmin_activity_id, activity_name, activity_type, started_at, duration_seconds, distance_meters, average_hr, max_hr", { count: "exact" })
-    .order("started_at", { ascending: false })
-    .limit(100);
-  if (activityError) throw activityError;
-
-  const { data: metrics, error: metricsError } = await supabase
-    .from("garmin_daily_metrics")
-    .select("metric_date, resting_hr, hrv_ms, sleep_seconds, sleep_score, stress_average, body_battery")
-    .order("metric_date", { ascending: false })
-    .limit(30);
-  if (metricsError) throw metricsError;
-
-  const since = Date.now() - 7 * 24 * 60 * 60 * 1000;
-  const weeklySeconds = (activities || []).reduce((sum, a) => {
-    const date = a.started_at ? new Date(a.started_at).getTime() : 0;
-    return sum + (date >= since ? Number(a.duration_seconds || 0) : 0);
-  }, 0);
-  const setText = (id, value) => { const el = garminEl(id); if (el) el.textContent = value == null || value === "" ? "—" : String(value); };
-  setText("garminActivityCount", count ?? (activities || []).length);
-  setText("garminWeeklyTime", weeklySeconds ? garminDuration(weeklySeconds) : "—");
-  setText("garminRestingHr", metrics?.[0]?.resting_hr != null ? `${metrics[0].resting_hr} bpm` : "—");
-  setText("garminHrv", metrics?.[0]?.hrv_ms != null ? `${metrics[0].hrv_ms} ms` : "—");
-
-  const rows = garminEl("garminActivityRows");
-  if (rows) {
-    rows.replaceChildren();
-    if (!activities?.length) {
-      const tr = document.createElement("tr");
-      const td = document.createElement("td"); td.colSpan = 6;
-      td.innerHTML = '<div class="garmin-empty">Aucune activité Garmin importée pour le moment.</div>';
-      tr.appendChild(td); rows.appendChild(tr);
-    } else {
-      activities.slice(0, 20).forEach(a => {
-        const tr = document.createElement("tr");
-        const date = a.started_at ? new Date(a.started_at).toLocaleDateString("fr-FR") : "—";
-        const distance = a.distance_meters != null ? `${(Number(a.distance_meters) / 1000).toFixed(2)} km` : "—";
-        [date, a.activity_name || a.activity_type || "Activité", garminDuration(a.duration_seconds), distance,
-          a.average_hr != null ? `${a.average_hr} bpm` : "—", a.max_hr != null ? `${a.max_hr} bpm` : "—"]
-          .forEach(value => { const td = document.createElement("td"); td.textContent = String(value); tr.appendChild(td); });
-        rows.appendChild(tr);
-      });
-    }
-  }
-  const recovery = garminEl("garminRecoveryChart");
-  if (recovery) {
-    const latest = metrics?.[0];
-    recovery.textContent = latest
-      ? `Dernière journée (${latest.metric_date}) — Sommeil : ${latest.sleep_seconds != null ? garminDuration(latest.sleep_seconds) : "—"} ; stress moyen : ${latest.stress_average ?? "—"} ; Body Battery : ${latest.body_battery ?? "—"}.`
-      : "Aucune donnée quotidienne de récupération importée pour le moment.";
-  }
-}
-function garminErrorMessage(error) {
-  return error?.message || error?.details || String(error || "Erreur inconnue");
-}
-
-// Ce bouton vérifie uniquement la session Supabase, pas encore l'accès Garmin.
-garminEl("garminTestBtn")?.addEventListener("click", async () => {
-  try {
-    garminMessage("Vérification de ta session Supabase…");
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    if (!data.session) throw new Error("Session absente. Déconnecte-toi puis reconnecte-toi à WOD FACTORY.");
-    garminMessage("Session Supabase valide. L'accès Garmin sera vérifié pendant la synchronisation.", "ok");
-    await loadGarminDashboard();
-  } catch (error) {
-    garminMessage(garminErrorMessage(error), "error");
-  }
-});
-
-garminEl("garminSyncBtn")?.addEventListener("click", async () => {
-  try {
-    setGarminBusy(true);
-    garminMessage("Synchronisation Garmin en cours… Ne ferme pas cette page.");
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError) throw sessionError;
-    if (!sessionData.session) throw new Error("Tu dois être connecté à WOD FACTORY pour synchroniser Garmin.");
-
-    // Le contrat de la fonction garmin-sync est un POST avec { days } (1 à 28).
-    const { data, error } = await supabase.functions.invoke("garmin-sync", { body: { days: 28 } });
-    if (error) {
-      let detail = error.message || "La fonction garmin-sync a refusé la demande.";
-      try {
-        const response = error.context;
-        if (response && typeof response.json === "function") {
-          const body = await response.clone().json();
-          detail = body.error || body.message || body.details || detail;
-        }
-      } catch (_) {}
-      throw new Error(detail);
-    }
-    await loadGarminDashboard();
-    const summary = data?.message || data?.status || "Import terminé ; tableau de bord actualisé depuis Supabase.";
-    const progress = garminEl("garminSyncProgress"); if (progress) progress.style.width = "100%";
-    garminMessage(summary, "ok");
-  } catch (error) {
-    garminMessage("Échec de synchronisation : " + garminErrorMessage(error), "error");
-  } finally {
-    setGarminBusy(false);
-  }
-});
 
 const authScreen = document.getElementById("authScreen");
 const appShell = document.getElementById("appShell");
@@ -3944,7 +3799,7 @@ window.saveManualWodToSupabase = async function(wod) {
     name: wod.name,
     wod_type: wod.type,
     duration_minutes: wod.duration,
-    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD" })
+    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", collection: wod.collection === "ELODIE" ? "ELODIE" : "PERSONAL" })
   }).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
 
@@ -3961,7 +3816,7 @@ window.saveManualWodToSupabase = async function(wod) {
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    description: row.instructions || "", consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", timerConfig: wod.timerConfig, movements: wod.movements
+    description: row.instructions || "", consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", collection: wod.collection === "ELODIE" ? "ELODIE" : "PERSONAL", timerConfig: wod.timerConfig, movements: wod.movements
   };
 };
 
@@ -3986,7 +3841,7 @@ window.updateManualWodInSupabase = async function(id, wod) {
     name: wod.name,
     wod_type: wod.type,
     duration_minutes: wod.duration,
-    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD" })
+    instructions: "WOOREL_WOD_DATA:" + JSON.stringify({ timerConfig: wod.timerConfig, consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", collection: wod.collection === "ELODIE" ? "ELODIE" : "PERSONAL" })
   }).eq("id", id).select("id, name, wod_type, duration_minutes, instructions").single();
   if (error) throw error;
 
@@ -4002,7 +3857,7 @@ window.updateManualWodInSupabase = async function(id, wod) {
   return {
     id: row.id, name: row.name, type: normalizeWodType(row.wod_type),
     duration: row.duration_minutes ? Number(row.duration_minutes) : null,
-    description: row.instructions || "", consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", timerConfig: wod.timerConfig,
+    description: row.instructions || "", consigne: wod.consigne || "", category: WOD_CATEGORIES.includes(wod.category) ? wod.category : "WOD", collection: wod.collection === "ELODIE" ? "ELODIE" : "PERSONAL", timerConfig: wod.timerConfig,
     movements: wod.movements
   };
 };
@@ -4033,6 +3888,7 @@ async function loadWodsFromSupabase() {
       }
       return "WOD";
     })(),
+    collection: (() => { const raw = String(row.instructions || ""); if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).collection === "ELODIE" ? "ELODIE" : "PERSONAL"; } catch (_) {} } return "PERSONAL"; })(),
     timerConfig: (() => {
       const raw = String(row.instructions || "");
       if (raw.startsWith("WOOREL_WOD_DATA:")) { try { return JSON.parse(raw.slice("WOOREL_WOD_DATA:".length)).timerConfig || null; } catch (_) { return null; } }
@@ -4419,10 +4275,6 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
 const { data: { session } } = await supabase.auth.getSession();
 if (session) {
   await showLoggedIn();
-  loadGarminDashboard().catch(error => {
-    // Les tables peuvent être vides avant le premier import ; afficher l'erreur seulement dans le statut.
-    garminMessage("Session active. Données Garmin non chargées : " + garminErrorMessage(error), "wait");
-  });
 } else {
   showLoggedOut();
 }
