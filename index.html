@@ -1182,6 +1182,31 @@ main { overflow-x: hidden; }
   border-color: var(--green);
 }
 
+
+/* ================= PLANNING SPORT ================= */
+.planning-toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+.planning-toolbar .secondary{flex:0 0 auto}
+.planning-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;margin:14px 0}
+.planning-day{min-width:0;padding:10px 5px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);color:var(--text);cursor:pointer;text-align:center}
+.planning-day.active{border-color:var(--green);box-shadow:0 0 0 2px rgba(140,255,0,.16);background:var(--panel2)}
+.planning-day.today .planning-day-num{color:var(--green)}
+.planning-day-name{font-size:10px;color:var(--muted);font-weight:900;text-transform:uppercase}
+.planning-day-num{font-size:19px;font-weight:1000;margin:5px 0}
+.planning-dots{display:flex;justify-content:center;gap:3px;min-height:7px}
+.planning-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.planning-session{border:1px solid var(--border);border-left:4px solid var(--green);border-radius:10px;background:var(--card-bg);padding:13px;margin:10px 0}
+.planning-session.cat-COURSE{border-left-color:#45a3ff}.planning-session.cat-MUSCULATION{border-left-color:#ff9f1c}.planning-session.cat-WOD{border-left-color:#a78bfa}
+.planning-session-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.planning-session-title{font-weight:900;font-size:15px}.planning-session-meta{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.5px;margin:5px 0}
+.planning-session-details{font-size:13px;line-height:1.5;white-space:pre-wrap;color:var(--muted);margin-top:8px}
+.planning-session-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.planning-session-actions button{padding:7px 9px;font-size:11px}
+.planning-status{display:inline-block;border:1px solid var(--border);border-radius:99px;padding:4px 8px;font-size:10px;font-weight:900;color:var(--muted)}
+.planning-status.done{color:var(--green);border-color:var(--green)}.planning-status.cancelled{color:var(--red);border-color:var(--red)}
+.planning-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.planning-kpi{background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:11px}.planning-kpi strong{display:block;font-size:21px}.planning-kpi span{font-size:10px;color:var(--muted);font-weight:800}
+.planning-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.planning-empty{border:1px dashed var(--border);border-radius:10px;padding:22px;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:600px){.planning-week{gap:4px}.planning-day{padding:8px 2px}.planning-day-name{font-size:9px}.planning-day-num{font-size:16px}.planning-form-grid{grid-template-columns:1fr}.planning-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 </style>
 </head>
 
@@ -1221,6 +1246,7 @@ main { overflow-x: hidden; }
   <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE WOD</button>
   <button class="tab" data-page="timer">CHRONOMÈTRE</button>
   <button class="tab" data-page="historyPage">HISTORIQUE</button>
+  <button class="tab" data-page="planningPage">PLANNING</button>
 </nav>
 
 <main>
@@ -1646,6 +1672,42 @@ main { overflow-x: hidden; }
 </section>
 
 
+
+
+<!-- PLANNING SPORT -->
+<section id="planningPage" class="page">
+  <h2>PLANNING SPORT</h2>
+  <div class="panel">
+    <div class="planning-toolbar">
+      <div><div style="font-weight:1000;font-size:16px" id="planningMonthLabel">PLANNING</div><div class="small-note">Programmation quotidienne de tes entraînements</div></div>
+      <div class="actions" style="flex:0 0 auto"><button class="secondary" id="planningPrevWeek" type="button">←</button><button class="secondary" id="planningToday" type="button">AUJOURD'HUI</button><button class="secondary" id="planningNextWeek" type="button">→</button></div>
+    </div>
+    <div class="planning-week" id="planningWeekDays"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0">
+      <div><div style="font-size:11px;color:var(--muted);font-weight:900">JOUR SÉLECTIONNÉ</div><div id="planningSelectedDate" style="font-size:18px;font-weight:1000"></div></div>
+      <button class="primary" id="planningAddSession" type="button" style="width:auto;padding:12px 16px">+ AJOUTER UNE SÉANCE</button>
+    </div>
+    <div class="planning-kpis"><div class="planning-kpi"><strong id="planningWeekCount">0</strong><span>SÉANCES / SEMAINE</span></div><div class="planning-kpi"><strong id="planningWeekHours">0 h</strong><span>VOLUME PRÉVU</span></div><div class="planning-kpi"><strong id="planningWeekDone">0</strong><span>RÉALISÉES</span></div></div>
+    <div id="planningDaySessions"><div class="planning-empty">Aucune séance programmée pour cette journée.</div></div>
+    <div class="small-note" id="planningStatus" role="status" style="margin-top:10px"></div>
+  </div>
+  <div class="panel hidden" id="planningEditorPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h2 id="planningEditorTitle" style="margin:0 0 15px">AJOUTER UNE SÉANCE</h2><button class="secondary" id="planningCancelEdit" type="button">FERMER ✕</button></div>
+    <form id="planningSessionForm">
+      <input type="hidden" id="planningSessionId">
+      <div class="field"><label for="planningDate">DATE</label><input type="date" id="planningDate" required></div>
+      <div class="field"><label for="planningCategory">DISCIPLINE</label><select id="planningCategory"><option value="COURSE">COURSE À PIED</option><option value="MUSCULATION">MUSCULATION</option><option value="WOD">WOD</option></select></div>
+      <div class="field"><label for="planningType">TYPE DE SÉANCE</label><select id="planningType"></select></div>
+      <div class="field hidden" id="planningWodSourceWrap"><label for="planningWodSource">CHOISIR DANS MA BIBLIOTHÈQUE WOD</label><select id="planningWodSource"><option value="">— Création manuelle —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
+      <div class="field"><label for="planningTitle">NOM DE LA SÉANCE</label><input id="planningTitle" maxlength="120" required placeholder="Ex. : VMA 10 × 400 m"></div>
+      <div class="planning-form-grid"><div class="field"><label for="planningDuration">DURÉE PRÉVUE (MINUTES)</label><input type="number" id="planningDuration" min="0" max="1440" placeholder="Ex. : 60"></div><div class="field"><label for="planningStatusSelect">STATUT</label><select id="planningStatusSelect"><option value="PLANNED">À FAIRE</option><option value="DONE">RÉALISÉE</option><option value="CANCELLED">ANNULÉE</option></select></div></div>
+      <div class="field"><label for="planningDetails">CONTENU DÉTAILLÉ DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea></div>
+      <div class="field"><label for="planningNotes">OBJECTIF / CONSIGNES</label><textarea id="planningNotes" rows="3" placeholder="Objectif, RPE, zone FC, consignes techniques..."></textarea></div>
+      <div class="actions"><button class="primary" id="planningSaveBtn" type="submit">ENREGISTRER LA SÉANCE</button><button class="secondary" id="planningSaveToLibrary" type="button">ENREGISTRER AUSSI DANS LA BIBLIOTHÈQUE WOD</button></div>
+      <p class="small-note" id="planningFormStatus"></p>
+    </form>
+  </div>
+</section>
 
 <!-- HISTORIQUE -->
 <section id="historyPage" class="page">
@@ -3980,13 +4042,80 @@ resetTimer();
 </script>
 
 
+
+<script>
+// ================= PLANNING SPORT — interface =================
+(() => {
+ const $ = id => document.getElementById(id);
+ let selectedDate = new Date(); selectedDate.setHours(12,0,0,0);
+ let sessions = []; let editingId = null;
+ const dateKey = d => { const x=new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
+ const parseDate = value => { const [y,m,d]=String(value).split('-').map(Number); return new Date(y,m-1,d,12); };
+ const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+ const monday = d => addDays(d,-((d.getDay()+6)%7));
+ const fmt = d => new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(d);
+ const esc = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const typeOptions = {COURSE:['Seuil','EF','VMA','Long','Tempo'],MUSCULATION:['PUSH','LOWER','PULL'],WOD:['HYROX','CrossFit','Libre']};
+ function updateTypes(){ const cat=$('planningCategory').value; $('planningType').innerHTML=typeOptions[cat].map(x=>`<option>${x}</option>`).join(''); $('planningWodSourceWrap').classList.toggle('hidden',cat!=='WOD'); }
+ function weekSessions(){const start=dateKey(monday(selectedDate)),end=dateKey(addDays(monday(selectedDate),6));return sessions.filter(x=>x.session_date>=start&&x.session_date<=end);}
+ function render(){
+  const start=monday(selectedDate), today=dateKey(new Date());
+  $('planningMonthLabel').textContent=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(selectedDate).toUpperCase();
+  $('planningWeekDays').innerHTML=Array.from({length:7},(_,i)=>{const d=addDays(start,i),key=dateKey(d),items=sessions.filter(x=>x.session_date===key);return `<button type="button" class="planning-day ${key===dateKey(selectedDate)?'active':''} ${key===today?'today':''}" data-plan-date="${key}"><div class="planning-day-name">${new Intl.DateTimeFormat('fr-FR',{weekday:'short'}).format(d)}</div><div class="planning-day-num">${d.getDate()}</div><div class="planning-dots">${items.slice(0,4).map(x=>`<i class="planning-dot" style="background:${x.category==='COURSE'?'#45a3ff':x.category==='MUSCULATION'?'#ff9f1c':'#a78bfa'}"></i>`).join('')}</div></button>`}).join('');
+  $('planningSelectedDate').textContent=fmt(selectedDate);
+  const day=sessions.filter(x=>x.session_date===dateKey(selectedDate)).sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||''));
+  $('planningDaySessions').innerHTML=day.length?day.map(x=>`<article class="planning-session cat-${esc(x.category)}"><div class="planning-session-head"><div><div class="planning-session-title">${esc(x.title)}</div><div class="planning-session-meta">${esc(x.category==='COURSE'?'COURSE À PIED':x.category==='MUSCULATION'?'MUSCULATION':'WOD')} · ${esc(x.session_type)}${x.duration_minutes?` · ${x.duration_minutes} MIN`:''}</div></div><span class="planning-status ${x.status==='DONE'?'done':x.status==='CANCELLED'?'cancelled':''}">${x.status==='DONE'?'RÉALISÉE':x.status==='CANCELLED'?'ANNULÉE':'À FAIRE'}</span></div>${x.details?`<div class="planning-session-details">${esc(x.details)}</div>`:''}${x.notes?`<div class="planning-session-details"><strong>OBJECTIF :</strong> ${esc(x.notes)}</div>`:''}<div class="planning-session-actions"><button class="secondary" type="button" data-plan-edit="${esc(x.id)}">MODIFIER</button><button class="secondary" type="button" data-plan-duplicate="${esc(x.id)}">DUPLIQUER</button><button class="secondary" type="button" data-plan-delete="${esc(x.id)}">SUPPRIMER</button></div></article>`).join(''):'<div class="planning-empty">Aucune séance programmée pour cette journée.<br>Ajoute ta première séance avec le bouton ci-dessus.</div>';
+  const ws=weekSessions(); $('planningWeekCount').textContent=ws.length; $('planningWeekHours').textContent=(ws.reduce((a,x)=>a+Number(x.duration_minutes||0),0)/60).toLocaleString('fr-FR',{maximumFractionDigits:1})+' h'; $('planningWeekDone').textContent=ws.filter(x=>x.status==='DONE').length;
+ }
+ function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=item?.category||'COURSE'; updateTypes(); $('planningType').value=item?.session_type||typeOptions[$('planningCategory').value][0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningDetails').value=item?.details||''; $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',$('planningCategory').value!=='WOD'); $('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); editingId=null; }
+ function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— Création manuelle —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
+ async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
+ $('planningPrevWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,-7);render()});$('planningNextWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,7);render()});$('planningToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);render()});$('planningAddSession').addEventListener('click',()=>openEditor());$('planningCancelEdit').addEventListener('click',closeEditor);$('planningCategory').addEventListener('change',()=>{updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',$('planningCategory').value!=='WOD')});
+ $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod)return;$('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
+ $('planningWeekDays').addEventListener('click',e=>{const b=e.target.closest('[data-plan-date]');if(!b)return;selectedDate=parseDate(b.dataset.planDate);render()});
+ $('planningDaySessions').addEventListener('click',async e=>{const edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),del=e.target.closest('[data-plan-delete]');if(edit){const item=sessions.find(x=>String(x.id)===edit.dataset.planEdit);if(item)openEditor(item)}if(dup){const item=sessions.find(x=>String(x.id)===dup.dataset.planDuplicate);if(item)openEditor({...item,id:null,session_date:dateKey(addDays(parseDate(item.session_date),1)),title:item.title+' (copie)'})}if(del&&confirm('Supprimer cette séance du planning ?')){try{await window.deletePlanningSession(del.dataset.planDelete);await refresh()}catch(err){alert('Suppression impossible : '+err.message)}}});
+ $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,status:$('planningStatusSelect').value,details:$('planningDetails').value.trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
+ $('planningSaveToLibrary').addEventListener('click',async()=>{if($('planningCategory').value!=='WOD')return;const name=$('planningTitle').value.trim(),details=$('planningDetails').value.trim();if(!name||!details){$('planningFormStatus').textContent='Renseigne le nom et le contenu du WOD avant de l’enregistrer.';return;}const movements=details.split(/\n+/).map((line,i)=>({name:line.trim(),reps:null,position:i+1})).filter(x=>x.name);try{const saved=await window.saveManualWodToSupabase({name,type:'LIBRE',duration:Number($('planningDuration').value)||null,movements,timerConfig:{format:'LIBRE'},consigne:$('planningNotes').value.trim(),category:'WOD',collection:'PERSONAL'});window.wods.unshift(saved);fillWodSelect();$('planningWodSource').value=saved.id;$('planningFormStatus').textContent='WOD enregistré dans la bibliothèque. Tu peux maintenant enregistrer la séance au planning.';}catch(err){$('planningFormStatus').textContent='Enregistrement dans la bibliothèque impossible : '+err.message}});
+ window.refreshSportPlanning=refresh;window.onSportPlanningPage=()=>{fillWodSelect();refresh()};
+ document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="planningPage"]'))window.onSportPlanningPage()});
+ updateTypes();render();
+})();
+</script>
+
 <script type="module">
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // Configuration publique du projet : la clé publishable peut être utilisée côté navigateur.
 const SUPABASE_URL = "https://tfaarrfjmaaxauzrratx.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_xOrQfokHftTW1czGvoCtDg_kupMXCEQ";
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+// Planning SPORT : table dédiée, isolée par utilisateur via RLS.
+window.loadPlanningSessions = async function() {
+  const { data, error } = await supabase.from('training_sessions').select('*').order('session_date',{ascending:true});
+  if (error) throw error;
+  return data || [];
+};
+window.createPlanningSession = async function(payload) {
+  const { data:{user}, error:userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) throw new Error('Utilisateur non connecté.');
+  const { data, error } = await supabase.from('training_sessions').insert({...payload,user_id:user.id}).select('*').single();
+  if (error) throw error;
+  return data;
+};
+window.updatePlanningSession = async function(id,payload) {
+  const { data, error } = await supabase.from('training_sessions').update(payload).eq('id',id).select('*').single();
+  if (error) throw error;
+  return data;
+};
+window.deletePlanningSession = async function(id) {
+  const { error } = await supabase.from('training_sessions').delete().eq('id',id);
+  if (error) throw error;
+};
+
 
 const authScreen = document.getElementById("authScreen");
 const appShell = document.getElementById("appShell");
@@ -4470,6 +4599,7 @@ async function showLoggedIn() {
   authMessage.textContent = "";
   try {
     await loadWodsFromSupabase();
+    if (window.refreshSportPlanning) await window.refreshSportPlanning();
     await clearDuplicateGirlHeroConsignes();
     await importCrossfitHeroWods();
     await importCrossfitGirlsWods();
