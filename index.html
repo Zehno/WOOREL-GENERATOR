@@ -1238,7 +1238,7 @@ main { overflow-x: hidden; }
       <h2>AJOUTER UN WOD MANUELLEMENT</h2>
       <form id="manualWodForm">
         <div class="field"><label for="manualWodTitle">TITRE DU WOD</label><input id="manualWodTitle" required maxlength="100" placeholder="Ex. : ENGINE BUILDER"></div>
-        <div class="field"><label for="manualWodCollection">ENREGISTRER DANS</label><select id="manualWodCollection"><option value="PERSONAL">MES WOD</option><option value="">ELODIE ❤️</option></select><p class="small-note">Les séances d’Élodie restent séparées de ta bibliothèque personnelle.</p></div>
+        <div class="field"><label for="manualWodCollection">ENREGISTRER DANS</label><select id="manualWodCollection"><option value="PERSONAL">MES WOD</option><option value="ELODIE">ELODIE ❤️</option></select><p class="small-note">Les séances d’Élodie restent séparées de ta bibliothèque personnelle.</p></div>
         <div class="field">
           <label><input type="checkbox" id="manualMultiBlock"> CRÉER UNE SÉANCE AVEC PLUSIEURS BLOCS</label>
           <p class="small-note">Ajoute autant de blocs que nécessaire, avec un format et un temps de repos entre chaque bloc.</p>
@@ -1317,7 +1317,7 @@ main { overflow-x: hidden; }
         <button type="button" class="wod-category-filter" data-category-filter="WOD HEROES">WOD HEROES</button>
         <button type="button" class="wod-category-filter" data-category-filter="WOD GIRL">WOD GIRL</button>
         <button type="button" class="wod-category-filter" data-category-filter="WOD">WOD</button>
-        <button type="button" class="wod-category-filter" data-category-filter="WOD">ELODIE ❤️</button>
+        <button type="button" class="wod-category-filter" data-category-filter="ELODIE">ELODIE ❤️</button>
 
       </div>
       <div id="libraryList"><p class="muted">Connecte-toi pour charger ta bibliothèque.</p></div>
@@ -1876,12 +1876,17 @@ let activeWodCollectionFilter = "PERSONAL";
 function getWodCategory(wod) { return WOD_CATEGORIES.includes(wod?.category) ? wod.category : "WOD"; }
 function setupWodCategoryFilters() {
   const collectionFilters = document.getElementById("wodCollectionFilters");
+  const filters = document.getElementById("wodCategoryFilters");
   if (collectionFilters && collectionFilters.dataset.bound !== "true") {
     collectionFilters.dataset.bound = "true";
     collectionFilters.addEventListener("click", event => {
       const button = event.target.closest("[data-collection-filter]");
       if (!button) return;
       activeWodCollectionFilter = button.dataset.collectionFilter || "PERSONAL";
+      if (activeWodCollectionFilter === "PERSONAL" && activeWodCategoryFilter === "ELODIE") {
+        activeWodCategoryFilter = "ALL";
+        filters?.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === "ALL"));
+      }
       collectionFilters.querySelectorAll("[data-collection-filter]").forEach(item => item.classList.toggle("active", item.dataset.collectionFilter === activeWodCollectionFilter));
       const selector = document.getElementById("manualWodCollection");
       if (selector) selector.value = activeWodCollectionFilter;
@@ -1893,13 +1898,20 @@ function setupWodCategoryFilters() {
     search.dataset.bound = "true";
     search.addEventListener("input", () => displayLibrary());
   }
-  const filters = document.getElementById("wodCategoryFilters");
   if (!filters || filters.dataset.bound === "true") return;
   filters.dataset.bound = "true";
   filters.addEventListener("click", event => {
     const button = event.target.closest("[data-category-filter]");
     if (!button) return;
     activeWodCategoryFilter = button.dataset.categoryFilter || "ALL";
+    if (activeWodCategoryFilter === "ELODIE") {
+      activeWodCollectionFilter = "ELODIE";
+    } else {
+      activeWodCollectionFilter = "PERSONAL";
+    }
+    collectionFilters?.querySelectorAll("[data-collection-filter]").forEach(item => item.classList.toggle("active", item.dataset.collectionFilter === activeWodCollectionFilter));
+    const selector = document.getElementById("manualWodCollection");
+    if (selector) selector.value = activeWodCollectionFilter;
     filters.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === activeWodCategoryFilter));
     displayLibrary();
   });
@@ -1930,7 +1942,7 @@ function displayLibrary() {
   const searchInput = document.getElementById("libraryWodSearch");
   const searchTerm = String(searchInput?.value || "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr");
   let visibleWods = wods.filter(wod => (wod.collection || "PERSONAL") === activeWodCollectionFilter);
-  visibleWods = activeWodCategoryFilter === "ALL" ? visibleWods : visibleWods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
+  visibleWods = (activeWodCategoryFilter === "ALL" || activeWodCategoryFilter === "ELODIE") ? visibleWods : visibleWods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
   if (searchTerm) {
     visibleWods = visibleWods.filter(wod => String(wod.name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr").startsWith(searchTerm));
   }
@@ -1938,7 +1950,7 @@ function displayLibrary() {
   if (!visibleWods.length) {
     container.innerHTML = searchTerm
       ? `<p class="muted">Aucun WOD ne commence par « ${escapeHTML(String(searchInput.value).trim())} » dans cette sélection.</p>`
-      : `<p class="muted">Aucun WOD dans la catégorie ${escapeHTML(activeWodCategoryFilter)}.</p>`;
+      : `<p class="muted">Aucun WOD dans la catégorie ${escapeHTML(activeWodCategoryFilter === "ELODIE" ? "ELODIE ❤️" : activeWodCategoryFilter)}.</p>`;
     return;
   }
   visibleWods.forEach(wod => {
@@ -2036,7 +2048,7 @@ function beginEditWod(wod) {
 function resetManualWodEditor() {
   editingWodId = null;
   document.getElementById("manualWodForm").reset();
-  document.getElementById("manualWodCollection").value = activeWodCollectionFilter;
+  document.getElementById("manualWodCollection").value = activeWodCollectionFilter === "ELODIE" ? "ELODIE" : "PERSONAL";
   document.getElementById("manualMultiBlock").checked = false;
   document.getElementById("singleWodFields").classList.remove("hidden");
   document.getElementById("multiBlockEditor").classList.add("hidden");
