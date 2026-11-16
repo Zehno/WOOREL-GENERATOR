@@ -1077,6 +1077,55 @@ main { overflow-x: hidden; }
 .garmin-chart-placeholder{height:150px;border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:12px;padding:16px}
 @media(max-width:600px){.garmin-panel{padding:14px}.garmin-kpi{padding:12px}.garmin-kpi .kpi-value{font-size:22px}}
 
+
+.timer-wod-recap {
+  margin: 18px auto 0;
+  max-width: 680px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--green);
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: left;
+}
+.timer-wod-recap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.timer-wod-recap-title {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--green);
+  letter-spacing: 0.5px;
+}
+.timer-wod-recap-consigne {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+.timer-wod-recap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+.timer-wod-recap-item {
+  background: var(--panel);
+  padding: 8px 11px;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+}
+
 </style>
 </head>
 
@@ -1489,6 +1538,15 @@ main { overflow-x: hidden; }
     <div id="timerInfo" class="muted">AMRAP</div>
     <div class="timer-progress" aria-label="Progression de la séance"><div class="timer-progress-fill" id="timerProgressFill"></div></div>
     <div class="small-note" id="timerProgressLabel">0 % de la séance</div>
+
+    <div id="timerWodRecapBox" class="timer-wod-recap hidden" aria-live="polite">
+      <div class="timer-wod-recap-header">
+        <span class="timer-wod-recap-title" id="timerWodRecapTitle">RÉCAP DE LA SÉANCE</span>
+        <span class="tag" style="margin:0">MÉMO MOUVEMENTS</span>
+      </div>
+      <div class="timer-wod-recap-consigne hidden" id="timerWodRecapConsigne"></div>
+      <div class="timer-wod-recap-list" id="timerWodRecapList"></div>
+    </div>
 
     <div id="amrapRoundCounter" class="actions" style="margin-top:14px;justify-content:center">
       <button class="primary" type="button" id="amrapAddRoundBtn">+1 TOUR</button>
@@ -1938,6 +1996,51 @@ document.getElementById("cancelEditWod").addEventListener("click", () => {
 // TRANSFERT VERS CHRONOMETRE
 // =======================================
 
+
+function renderTimerWodRecap() {
+  const box = document.getElementById("timerWodRecapBox");
+  if (!box) return;
+  const titleEl = document.getElementById("timerWodRecapTitle");
+  const consigneEl = document.getElementById("timerWodRecapConsigne");
+  const listEl = document.getElementById("timerWodRecapList");
+
+  const name = (document.getElementById("timerWodName")?.value || "").trim();
+  const consigne = (document.getElementById("timerWodConsigne")?.value || "").trim();
+  const content = (document.getElementById("timerWodContent")?.value || "").trim();
+
+  if (!name && !content && !consigne) {
+    box.classList.add("hidden");
+    return;
+  }
+
+  if (titleEl) titleEl.textContent = name || "SÉANCE CHARGÉE";
+  if (consigneEl) {
+    if (consigne) {
+      consigneEl.textContent = consigne;
+      consigneEl.classList.remove("hidden");
+    } else {
+      consigneEl.textContent = "";
+      consigneEl.classList.add("hidden");
+    }
+  }
+
+  if (listEl) {
+    if (content) {
+      const blocks = content.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
+      if (blocks.length > 1) {
+        listEl.innerHTML = blocks.map(b => `<div class="timer-wod-recap-item">${escapeHTML(b)}</div>`).join("");
+      } else {
+        const lines = content.split(/\n+/).map(l => l.trim()).filter(Boolean);
+        listEl.innerHTML = lines.map(l => `<div class="timer-wod-recap-item">${escapeHTML(l)}</div>`).join("");
+      }
+    } else {
+      listEl.innerHTML = '<div class="small-note">Aucun mouvement renseigné.</div>';
+    }
+  }
+
+  box.classList.remove("hidden");
+}
+
 function sendWodToTimer(wod) {
   if (!wod) return;
   document.getElementById("timerWodName").value = wod.name || "WOD partagé";
@@ -1947,6 +2050,7 @@ function sendWodToTimer(wod) {
     `${m.reps ?? ""}${m.unit ? " "+m.unit : ""} ${m.name || ""}${m.load ? " — "+m.load : ""}`.trim()
   ).join("\n");
   renderTimerDemoPreview();
+  renderTimerWodRecap();
 
   const type = wod.type === "FOR TIME" ? "FORTIME" : wod.type;
   if (wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length) {
@@ -1955,6 +2059,7 @@ function sendWodToTimer(wod) {
     document.getElementById("timerWodContent").value = sequenceBlocks.map((b,i) =>
       `BLOC ${i+1} — ${b.type}\n${b.exercises || ""}`).join("\n\n");
     renderTimerDemoPreview();
+  renderTimerWodRecap();
     resetTimer(); openPage("timer"); updateClock(); return;
   }
   sequenceBlocks = [];
@@ -3490,6 +3595,7 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   const el = document.getElementById(id);
   if (el) el.addEventListener("input", () => {
     updateClock();
+    renderTimerWodRecap();
     if (id === "timerWodContent") {
       renderTimerDemoPreview();
       renderTimerExerciseSuggestions();
