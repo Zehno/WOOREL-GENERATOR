@@ -1124,6 +1124,71 @@ main { overflow-x: hidden; }
   padding: 8px 11px;
   border-radius: 7px;
   border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.timer-wod-recap-item-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+.timer-wod-recap-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.memo-toggle-btn {
+  margin: 0;
+  cursor: pointer;
+  background: rgba(140,255,0,.16);
+  color: var(--green);
+  border: 1px solid rgba(140,255,0,.45);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.6px;
+  transition: filter .15s, transform .15s, background .15s, color .15s;
+}
+.memo-toggle-btn:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+.memo-toggle-btn.active {
+  background: var(--green);
+  color: #081000;
+  border-color: var(--green);
+}
+.timer-memo-panel {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.timer-memo-panel .timer-demo-list {
+  margin-top: 0;
+}
+.recap-detail-link {
+  background: var(--panel2);
+  color: var(--green);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.recap-detail-link:hover {
+  border-color: var(--green);
 }
 
 </style>
@@ -1542,10 +1607,13 @@ main { overflow-x: hidden; }
     <div id="timerWodRecapBox" class="timer-wod-recap hidden" aria-live="polite">
       <div class="timer-wod-recap-header">
         <span class="timer-wod-recap-title" id="timerWodRecapTitle">RÉCAP DE LA SÉANCE</span>
-        <span class="tag" style="margin:0">MÉMO MOUVEMENTS</span>
+        <button type="button" class="memo-toggle-btn" id="toggleTimerMemoBtn" aria-expanded="false" aria-controls="timerMemoPanel">👁 MÉMO MOUVEMENTS</button>
       </div>
       <div class="timer-wod-recap-consigne hidden" id="timerWodRecapConsigne"></div>
       <div class="timer-wod-recap-list" id="timerWodRecapList"></div>
+      <div id="timerMemoPanel" class="timer-memo-panel hidden">
+        <div id="timerDemoPreview" class="timer-demo-list" aria-live="polite"></div>
+      </div>
     </div>
 
     <div id="amrapRoundCounter" class="actions" style="margin-top:14px;justify-content:center">
@@ -2028,10 +2096,20 @@ function renderTimerWodRecap() {
     if (content) {
       const blocks = content.split(/\n\s*\n/).map(b => b.trim()).filter(Boolean);
       if (blocks.length > 1) {
-        listEl.innerHTML = blocks.map(b => `<div class="timer-wod-recap-item">${escapeHTML(b)}</div>`).join("");
+        listEl.innerHTML = blocks.map(b => `<div class="timer-wod-recap-item"><div class="timer-wod-recap-item-main" style="white-space:pre-line">${escapeHTML(b)}</div></div>`).join("");
       } else {
         const lines = content.split(/\n+/).map(l => l.trim()).filter(Boolean);
-        listEl.innerHTML = lines.map(l => `<div class="timer-wod-recap-item">${escapeHTML(l)}</div>`).join("");
+        listEl.innerHTML = lines.map(l => {
+          const movement = findMovementForTimerLine(l);
+          const imgUrl = movement ? getMovementDemoImageUrl(movement) : "";
+          return `<div class="timer-wod-recap-item">
+            <div class="timer-wod-recap-item-main">
+              ${imgUrl ? `<img class="timer-wod-recap-thumb" src="${imgUrl}" alt="${escapeHTML(movement.name)}" loading="lazy" onerror="this.style.display='none'">` : ""}
+              <span>${escapeHTML(l)}</span>
+            </div>
+            ${movement ? `<button type="button" class="recap-detail-link" data-recap-movement-id="${escapeHTML(movement.id)}">VISUEL ↗</button>` : ""}
+          </div>`;
+        }).join("");
       }
     } else {
       listEl.innerHTML = '<div class="small-note">Aucun mouvement renseigné.</div>';
@@ -2469,26 +2547,60 @@ function getExerciseLineParts(line) {
   if (load) { trailing = load[0]; value = value.slice(0, -load[0].length); }
   return { leading, exercise: value.trim(), trailing };
 }
+function normalizeTokenSingular(token) {
+  if (token.length > 3 && token.endsWith("ies")) return token.slice(0, -3) + "y";
+  if (token.length > 3 && token.endsWith("es") && /(sh|ch|x|s|z)es$/.test(token)) return token.slice(0, -2);
+  if (token.length > 3 && token.endsWith("s") && !token.endsWith("ss")) return token.slice(0, -1);
+  return token;
+}
 function cleanExerciseNameForMatch(line) {
   const parts = getExerciseLineParts(line);
-  return parts.exercise.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
+  const cleaned = parts.exercise
+    .replace(/—.*$/, "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\b(strict|kipping|butterfly|alternating|weighted|single|arm|barbell|dumbbell|kettlebell)\b/g, " ")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  if (!cleaned) return "";
+  return cleaned.split(/\s+/).map(normalizeTokenSingular).join(" ");
 }
 function findMovementForTimerLine(line) {
   const list = window.WODFactoryMovements || [];
+  const rawCleaned = getExerciseLineParts(line).exercise
+    .replace(/—.*$/, "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()
+    .split(/\s+/).map(normalizeTokenSingular).join(" ");
   const target = cleanExerciseNameForMatch(line);
-  if (!target) return null;
-  let best = null, bestScore = 0;
-  for (const movement of list) {
-    for (const candidate of [movement.name, movement.fr, ...(movement.aliases || [])].map(cleanExerciseNameForMatch)) {
-      if (candidate === target) return movement;
-      const a = new Set(target.split(" ")), b = new Set(candidate.split(" "));
-      const common = [...a].filter(token => b.has(token)).length;
-      const score = common / Math.max(a.size, b.size);
-      if (score > bestScore) { bestScore = score; best = movement; }
+  if (!target && !rawCleaned) return null;
+
+  // 1. Correspondance exacte sur le nom complet normalisé
+  for (const query of [rawCleaned, target].filter(Boolean)) {
+    for (const movement of list) {
+      const candidates = [movement.name, movement.fr, ...(movement.aliases || [])]
+        .map(c => String(c || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(/\s+/).map(normalizeTokenSingular).join(" "));
+      if (candidates.includes(query)) return movement;
     }
   }
-  return bestScore >= 0.82 ? best : null;
+
+  // 2. Score par recouvrement de mots-clés
+  let best = null, bestScore = 0;
+  for (const query of [rawCleaned, target].filter(Boolean)) {
+    const a = new Set(query.split(" ").filter(Boolean));
+    if (!a.size) continue;
+    for (const movement of list) {
+      for (const rawCand of [movement.name, movement.fr, ...(movement.aliases || [])]) {
+        const candStr = String(rawCand || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().split(/\s+/).map(normalizeTokenSingular).join(" ");
+        if (!candStr) continue;
+        const b = new Set(candStr.split(" ").filter(Boolean));
+        const common = [...a].filter(token => b.has(token)).length;
+        const score = common / Math.max(a.size, b.size);
+        if (score > bestScore) { bestScore = score; best = movement; }
+      }
+    }
+  }
+  return bestScore >= 0.72 ? best : null;
 }
 
 const MANUAL_MUSCLE_KEYWORDS = {
@@ -3625,6 +3737,19 @@ document.getElementById("timerDemoPreview")?.addEventListener("click", event => 
   const button = event.target.closest("[data-movement-id]");
   if (button) window.WODFactoryOpenMovementDetail?.(button.dataset.movementId);
 });
+document.getElementById("timerWodRecapList")?.addEventListener("click", event => {
+  const button = event.target.closest("[data-recap-movement-id]");
+  if (button) window.WODFactoryOpenMovementDetail?.(button.dataset.recapMovementId);
+});
+document.getElementById("toggleTimerMemoBtn")?.addEventListener("click", () => {
+  const panel = document.getElementById("timerMemoPanel");
+  const btn = document.getElementById("toggleTimerMemoBtn");
+  if (!panel || !btn) return;
+  const isHidden = panel.classList.toggle("hidden");
+  btn.classList.toggle("active", !isHidden);
+  btn.setAttribute("aria-expanded", String(!isHidden));
+  if (!isHidden) renderTimerDemoPreview();
+});
 
 
 // =======================================
@@ -4370,6 +4495,7 @@ if (session) {
 <script>
 (() => {
  const movements = [
+  {id:'cardio-run',name:'Run',fr:'Course à pied',aliases:['run','sprint','jog','course','course à pied'],family:'ERGOMÈTRES',equipment:'BODYWEIGHT / RUNNING',muscles:'Quadriceps, ischio-jambiers, fessiers, mollets, sangle abdominale',desc:'Course à pied sur distance ou durée donnée, en gardant une foulée régulière et le buste gainé.',source:'https://liftmanual.com/running/'},
   {id:'db-walking-lunge',name:'Dumbbell Walking Lunge',fr:'Fentes marchées avec haltères',aliases:['dumbbell walking lunge','walking lunge','fentes marchées','fentes marchées haltères'],family:'LEGS',equipment:'DUMBBELL',muscles:'Quadriceps et grand fessier (principaux), adducteurs et ischio-jambiers (secondaires), mollets, sangle abdominale et avant-bras (stabilisateurs)',desc:'Fentes alternées en avançant, avec un haltère dans chaque main. Garder le buste haut, contrôler la descente et pousser dans le pied avant pour enchaîner les pas.',source:'https://fitnessprogramer.com/exercise/dumbbell-walking-lunge/'},
   {id:'power-sled-push',name:'Power Sled Push',fr:'Poussée de traîneau',aliases:['power sled push','sled push','poussée de traîneau','pousser le sled'],family:'HYROX',equipment:'SLED',muscles:'Quadriceps, fessiers, ischio-jambiers et mollets (principaux), tronc et épaules (stabilisation)',desc:'Pousser un traîneau chargé sur une distance donnée. Garder le tronc gainé et produire une poussée continue avec les jambes.',source:'https://liftmanual.com/power-sled-push/',image:'https://liftmanual.com/wp-content/uploads/2023/04/power-sled-push.jpg'},
   {id:'sled-pull',name:'Sled Pull',fr:'Tirage de traîneau',aliases:['sled pull','tirage de traîneau','traction traîneau','hyrox sled pull'],family:'HYROX',equipment:'SLED + ROPE',muscles:'Grand dorsal, trapèzes, rhomboïdes, deltoïdes postérieurs, biceps, avant-bras et gainage; quadriceps, ischio-jambiers et fessiers selon la variante HYROX',desc:'Tirer le traîneau à la corde en alternant les prises, avec le tronc gainé et une traction régulière sans à-coups. En version HYROX, reculer en position fléchie pour déplacer la charge.',source:'https://www.docteur-fitness.com/sled-pull'},
@@ -4423,12 +4549,12 @@ if (session) {
   {id:'barbell-front-rack-split-squat-2',name:'Barbell Front Rack Split Squat',fr:'Squat fendu front rack – variante',family:'LEGS',equipment:'BARBELL',muscles:'Quadriceps, fessiers, gainage',desc:'Variante de squat fendu avec barre en position front rack.',source:'https://liftmanual.com/barbell-front-rack-split-squat-2/'},
   {id:'barbell-shoulder-grip-upright-row',name:'Barbell Shoulder Grip Upright Row',fr:'Tirage menton prise largeur épaules',family:'PULL',equipment:'BARBELL',muscles:'Deltoïdes, trapèzes',desc:'Tirage vertical de la barre avec prise largeur épaules.',source:'https://liftmanual.com/barbell-shoulder-grip-upright-row/'},
   {id:'barbell-wide-grip-bent-over-row',name:'Barbell Wide-Grip Bent Over Row',fr:'Rowing barre prise large',family:'PULL',equipment:'BARBELL',muscles:'Deltoïdes postérieurs, trapèzes, rhomboïdes',desc:'Tirage horizontal buste penché avec prise large.',source:'https://liftmanual.com/barbell-bent-over-wide-grip-row/'},
-  {id:'barbell-squat',name:'Barbell Squat',fr:'Back squat barre',family:'LEGS',equipment:'BARBELL',muscles:'Quadriceps, fessiers, sangle abdominale',desc:'Squat avec barre sur le haut du dos.',source:'https://liftmanual.com/barbell-squat/'},
+  {id:'barbell-squat',name:'Barbell Squat',fr:'Back squat barre',aliases:['back squat','back squats','barbell squat','squat','squats','air squat','air squats'],family:'LEGS',equipment:'BARBELL',muscles:'Quadriceps, fessiers, sangle abdominale',desc:'Squat avec barre sur le haut du dos.',source:'https://liftmanual.com/barbell-squat/'},
   {id:'barbell-wide-grip-upright-row',name:'Barbell Wide Grip Upright Row',fr:'Tirage menton prise large',family:'PULL',equipment:'BARBELL',muscles:'Deltoïdes, trapèzes',desc:'Tirage vertical de la barre avec prise large.',source:'https://liftmanual.com/barbell-wide-grip-upright-row/'}
   ,
   {id:'barbell-clean-high-pull',name:'Barbell Clean High Pull',fr:'Tirage haut d’épaulé barre',family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Trapèzes, deltoïdes, fessiers, ischio-jambiers',desc:'Tirage explosif de la barre jusqu’à hauteur de poitrine, dans la trajectoire de l’épaulé.',source:'https://liftmanual.com/barbell-clean-high-pull/'},
   {id:'barbell-clean-pull',name:'Barbell Clean Pull',fr:'Tirage d’épaulé barre',family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Chaîne postérieure, trapèzes, quadriceps',desc:'Tirage technique reprenant la première et la deuxième phase de l’épaulé.',source:'https://liftmanual.com/barbell-clean-pull/'},
-  {id:'barbell-clean-and-jerk',name:'Barbell Clean and Jerk',fr:'Épaulé-jeté barre',family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Corps entier, chaîne postérieure, jambes, épaules, triceps',desc:'Mouvement olympique combinant un épaulé puis un jeté au-dessus de la tête.',source:'https://liftmanual.com/barbell-clean-and-jerk/'},
+  {id:'barbell-clean-and-jerk',name:'Barbell Clean and Jerk',fr:'Épaulé-jeté barre',aliases:['clean and jerk','clean and jerks','clean-and-jerks'],family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Corps entier, chaîne postérieure, jambes, épaules, triceps',desc:'Mouvement olympique combinant un épaulé puis un jeté au-dessus de la tête.',source:'https://liftmanual.com/barbell-clean-and-jerk/'},
   {id:'db-hang-clean-and-jerk',name:'DB Hang Clean and Jerk',fr:'Épaulé-jeté haltères depuis suspension',family:'HALTÉROPHILIE - CLEAN',equipment:'DUMBBELL',muscles:'Corps entier, jambes, fessiers, épaules, triceps',desc:'Épaulé depuis la suspension avec deux haltères, suivi d’un jeté.',source:'https://liftmanual.com/dumbbell-hang-clean-and-jerk/'},
   {id:'db-hang-clean',name:'Dumbbell Hang Clean',fr:'Épaulé haltère depuis suspension',family:'HALTÉROPHILIE - CLEAN',equipment:'DUMBBELL',muscles:'Fessiers, ischio-jambiers, quadriceps, trapèzes',desc:'Épaulé avec haltère(s) depuis la position suspendue.',source:'https://liftmanual.com/dumbbell-hang-clean/'},
   {id:'db-power-clean-and-jerk',name:'DB Power Clean and Jerk',fr:'Épaulé en puissance et jeté haltères',family:'HALTÉROPHILIE - CLEAN',equipment:'DUMBBELL',muscles:'Corps entier, jambes, fessiers, épaules, triceps',desc:'Enchaînement d’un power clean avec haltères et d’un jeté.',source:'https://liftmanual.com/dumbbell-power-clean-and-jerk/'},
@@ -4439,7 +4565,7 @@ if (session) {
   {id:'db-clean-and-press',name:'Dumbbell Clean and Press',fr:'Épaulé-développé haltère(s)',family:'HALTÉROPHILIE - CLEAN',equipment:'DUMBBELL',muscles:'Corps entier, jambes, fessiers, épaules, triceps',desc:'Épaulé avec haltère(s) suivi d’un développé au-dessus de la tête.',source:'https://liftmanual.com/dumbbell-clean-and-press/'},
   {id:'db-clean',name:'Dumbbell Clean',fr:'Épaulé haltère',family:'HALTÉROPHILIE - CLEAN',equipment:'DUMBBELL',muscles:'Fessiers, ischio-jambiers, quadriceps, trapèzes',desc:'Épaulé réalisé avec un haltère, généralement en version unilatérale.',source:'https://liftmanual.com/dumbbell-clean/'},
   {id:'barbell-hang-clean',name:'Barbell Hang Clean',fr:'Épaulé barre depuis suspension',family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Fessiers, ischio-jambiers, quadriceps, trapèzes',desc:'Épaulé à la barre démarré depuis la position suspendue.',source:'https://liftmanual.com/barbell-hang-clean/'},
-  {id:'barbell-hang-power-clean',name:'Barbell Hang Power Clean',fr:'Power clean barre depuis suspension',family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Fessiers, ischio-jambiers, quadriceps, trapèzes',desc:'Épaulé en puissance à la barre depuis la suspension.',source:'https://liftmanual.com/barbell-hang-power-clean/'},
+  {id:'barbell-hang-power-clean',name:'Barbell Hang Power Clean',fr:'Power clean barre depuis suspension',aliases:['hang power clean','hang power cleans','power clean','power cleans'],family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Fessiers, ischio-jambiers, quadriceps, trapèzes',desc:'Épaulé en puissance à la barre depuis la suspension.',source:'https://liftmanual.com/barbell-hang-power-clean/'},
   {id:'barbell-clean-and-press',name:'Barbell Clean and Press',fr:'Épaulé-développé barre',family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Corps entier, jambes, fessiers, épaules, triceps',desc:'Épaulé à la barre suivi d’un développé au-dessus de la tête.',source:'https://liftmanual.com/barbell-clean-and-press/'},
   {id:'barbell-muscle-clean',name:'Barbell Muscle Clean',fr:'Muscle clean barre',family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Trapèzes, épaules, bras, chaîne postérieure',desc:'Épaulé sans flexion sous la barre, réalisé en tirant puis en faisant passer les coudes.',source:'https://liftmanual.com/barbell-muscle-clean/'},
   {id:'barbell-full-clean',name:'Barbell Full Clean',fr:'Épaulé complet barre',aliases:['barbell full clean','full clean','squat clean','épaulé complet','clean'],family:'HALTÉROPHILIE - CLEAN',equipment:'BARBELL',muscles:'Quadriceps, fessiers et ischio-jambiers (principaux), trapèzes, dos, épaules, avant-bras et sangle abdominale',desc:'Mouvement d’haltérophilie : tirer la barre depuis le sol, extension explosive des hanches et des genoux, puis réception en squat avant avec les coudes hauts.',source:'https://liftmanual.com/barbell-full-clean/',image:'https://liftmanual.com/wp-content/uploads/2023/04/barbell-full-clean.jpg'},
@@ -4461,7 +4587,7 @@ if (session) {
   {id:'kb-two-arm-row',name:'KB Two-Arm Row',fr:'Rowing deux kettlebells',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Grand dorsal, trapèzes, rhomboïdes, biceps',desc:'Tirage horizontal à deux kettlebells, buste incliné et gainé.',source:'https://liftmanual.com/kettlebell-two-arm-row/'},
   {id:'kb-burpee',name:'Kettlebell Burpee',fr:'Burpee avec kettlebell et développé',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Corps entier, pectoraux, épaules, triceps, jambes',desc:'Burpee chargé avec kettlebell suivi d’une poussée au-dessus de la tête.',source:'https://liftmanual.com/kettlebell-burpee/'},
   {id:'kb-sumo-squat',name:'Kettlebell Sumo Squat',fr:'Squat sumo kettlebell',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Quadriceps, adducteurs, fessiers',desc:'Squat en stance large avec kettlebell tenue devant le corps.',source:'https://liftmanual.com/kettlebell-sumo-squat/'},
-  {id:'kb-full-swing',name:'Kettlebell Full Swing',fr:'Swing américain kettlebell',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Fessiers, ischio-jambiers, lombaires, épaules, gainage',desc:'Balancement explosif de la kettlebell jusqu’au-dessus de la tête.',source:'https://liftmanual.com/kettlebell-full-swing/'},
+  {id:'kb-full-swing',name:'Kettlebell Full Swing',fr:'Swing américain kettlebell',aliases:['kettlebell swing','kettlebell swings','kb swing','swing'],family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Fessiers, ischio-jambiers, lombaires, épaules, gainage',desc:'Balancement explosif de la kettlebell jusqu’au-dessus de la tête.',source:'https://liftmanual.com/kettlebell-full-swing/'},
   {id:'kb-goblet-squat',name:'Kettlebell Goblet Squat',fr:'Goblet squat kettlebell',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Quadriceps, fessiers, gainage',desc:'Squat avec kettlebell tenue contre la poitrine en position goblet.',source:'https://liftmanual.com/kettlebell-goblet-squat/'},
   {id:'kb-split-squat',name:'Kettlebell Split Squat',fr:'Squat fendu kettlebell',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Quadriceps, fessiers',desc:'Squat en position fendue avec kettlebell(s), sans déplacement des pieds.',source:'https://liftmanual.com/kettlebell-split-squat/'},
   {id:'kb-clean-and-press',name:'Kettlebell Clean and Press',fr:'Épaulé-développé kettlebell',family:'KETTLEBELL',equipment:'KETTLEBELL',muscles:'Corps entier, jambes, fessiers, épaules, triceps',desc:'Épaulé de kettlebell suivi d’un développé au-dessus de la tête.',source:'https://liftmanual.com/kettlebell-clean-and-press/'},
@@ -4480,12 +4606,12 @@ if (session) {
    {id:'bw-push-up',name:'Push Up',fr:'Pompe',family:'POIDS DE CORPS',equipment:'BODYWEIGHT',muscles:'Pectoraux, triceps, deltoïdes antérieurs, gainage',desc:'Poussée horizontale au poids du corps, en position de planche.',source:'https://liftmanual.com/push-up/'},
   {id:'bw-wall-walks',name:'Wall Walks',fr:'Wall Walk',family:'POIDS DE CORPS',equipment:'BODYWEIGHT + WALL',muscles:'Épaules, triceps, sangle abdominale',desc:'Progression contrôlée en inversion avec appui des pieds contre un mur.',source:'https://liftmanual.com/wall-walks/'},
   {id:'bw-muscle-up',name:'Muscle-Up',fr:'Muscle-Up',family:'POIDS DE CORPS',equipment:'PULL-UP BAR',muscles:'Dos, pectoraux, épaules, biceps, triceps',desc:'Transition combinant une traction et un passage au-dessus de la barre jusqu’au support.',source:'https://liftmanual.com/muscle-up/'},
-  {id:'mb-wall-ball',name:'Wall Ball',fr:'Wall Ball',family:'MED BALL',equipment:'MEDICINE BALL + WALL TARGET',muscles:'Quadriceps, fessiers, épaules, triceps, gainage',desc:'Enchaînement squat et lancer de med-ball vers une cible murale.',source:'https://liftmanual.com/wall-ball/'},
+  {id:'mb-wall-ball',name:'Wall Ball',fr:'Wall Ball',aliases:['wall ball','wall balls','wall-ball shots','wall ball shots'],family:'MED BALL',equipment:'MEDICINE BALL + WALL TARGET',muscles:'Quadriceps, fessiers, épaules, triceps, gainage',desc:'Enchaînement squat et lancer de med-ball vers une cible murale.',source:'https://liftmanual.com/wall-ball/'},
   {id:'bw-walking-lunge',name:'Walking Lunge',fr:'Fentes marchées',family:'POIDS DE CORPS',equipment:'BODYWEIGHT',muscles:'Quadriceps, fessiers, ischio-jambiers, gainage',desc:'Fentes alternées en avançant, au poids du corps.',source:'https://liftmanual.com/walking-lunge/'},
-  {id:'bw-pull-up',name:'Pull-Up',fr:'Traction',family:'POIDS DE CORPS',equipment:'PULL-UP BAR',muscles:'Grand dorsal, biceps, trapèzes, avant-bras',desc:'Traction verticale suspendue à une barre fixe.',source:'https://liftmanual.com/pull-up/'},
+  {id:'bw-pull-up',name:'Pull-Up',fr:'Traction',aliases:['pull up','pull-up','pull ups','pull-ups','strict pull-ups','chest-to-bar pull-ups'],family:'POIDS DE CORPS',equipment:'PULL-UP BAR',muscles:'Grand dorsal, biceps, trapèzes, avant-bras',desc:'Traction verticale suspendue à une barre fixe.',source:'https://liftmanual.com/pull-up/'},
   {id:'erg-ski-ergometer',name:'Ski Erg',fr:'SkiErg',family:'ERGOMÈTRES',equipment:'SKI ERG',muscles:'Dorsaux, épaules, triceps, abdominaux, jambes',desc:'Tirage vertical et extension du tronc sur ergomètre de ski.',source:'https://liftmanual.com/ski-ergometer/'},
-  {id:'bw-burpee',name:'Burpee',fr:'Burpee',family:'POIDS DE CORPS',equipment:'BODYWEIGHT',muscles:'Corps entier, pectoraux, épaules, quadriceps, fessiers',desc:'Enchaînement au sol et retour debout avec extension dynamique.',source:'https://liftmanual.com/burpee/'},
-  {id:'plyo-jump-on-fit-box',name:'Jump on Fit Box',fr:'Saut sur box',family:'PLYOMÉTRIE',equipment:'PLYOMETRIC BOX',muscles:'Quadriceps, fessiers, mollets',desc:'Saut vertical ou horizontal pour atterrir sur une box stable.',source:'https://liftmanual.com/jump-on-fit-box/'},
+  {id:'bw-burpee',name:'Burpee',fr:'Burpee',aliases:['burpee','burpees','burpee pull up','burpee pull-ups','strict burpee pull-ups','bar facing burpees'],family:'POIDS DE CORPS',equipment:'BODYWEIGHT',muscles:'Corps entier, pectoraux, épaules, quadriceps, fessiers',desc:'Enchaînement au sol et retour debout avec extension dynamique.',source:'https://liftmanual.com/burpee/'},
+  {id:'plyo-jump-on-fit-box',name:'Jump on Fit Box',fr:'Saut sur box',aliases:['box jump','box jumps','jump on fit box'],family:'PLYOMÉTRIE',equipment:'PLYOMETRIC BOX',muscles:'Quadriceps, fessiers, mollets',desc:'Saut vertical ou horizontal pour atterrir sur une box stable.',source:'https://liftmanual.com/jump-on-fit-box/'},
   {id:'erg-assault-bike-run',name:'Assault Bike Run',fr:'Assault Bike',family:'ERGOMÈTRES',equipment:'ASSAULT BIKE',muscles:'Quadriceps, fessiers, ischio-jambiers, épaules, bras',desc:'Effort cyclique sur vélo à air avec engagement simultané des bras et des jambes.',source:'https://liftmanual.com/assault-bike-run/'},
   {id:'plyo-jump-squat',name:'Jump Squat',fr:'Squat sauté',family:'PLYOMÉTRIE',equipment:'BODYWEIGHT',muscles:'Quadriceps, fessiers, mollets',desc:'Squat suivi d’une extension explosive avec saut vertical.',source:'https://liftmanual.com/jump-squat/'},
   {id:'plyo-jump-box-over',name:'Jump Box Over',fr:'Saut latéral par-dessus box',family:'PLYOMÉTRIE',equipment:'PLYOMETRIC BOX',muscles:'Quadriceps, fessiers, mollets, gainage',desc:'Saut latéral ou passage dynamique par-dessus une box.',source:'https://liftmanual.com/jump-box-over/'},
@@ -4512,7 +4638,7 @@ if (session) {
   ,{id:'db-one-arm-thruster',name:'DB One Arm Thruster',fr:'Thruster haltère à un bras',aliases:['db one arm thruster','dumbbell one arm thruster','single arm dumbbell thruster','thruster un bras'],family:'PUSH',equipment:'DUMBBELL',muscles:'Quadriceps, fessiers, deltoïdes, triceps, sangle abdominale et obliques',desc:'Combinaison unilatérale d’un squat avec haltère en position rack et d’une poussée au-dessus de la tête, en utilisant l’extension des jambes pour assister le développé.',source:'https://liftmanual.com/dumbbell-one-arm-thruster/'}
   ,{id:'db-push-press',name:'Dumbbell Push Press',fr:'Push Press haltères',aliases:['dumbbell push press','db push press','développé épaulé haltères'],family:'PUSH',equipment:'DUMBBELLS',muscles:'Deltoïdes, triceps, quadriceps, fessiers, sangle abdominale',desc:'Poussée verticale avec deux haltères, aidée par une flexion-extension rapide des jambes. Verrouiller les bras au-dessus de la tête sans cambrer excessivement.',source:'https://liftmanual.com/dumbbell-push-press/'}
   ,{id:'db-thruster',name:'Dumbbell Thruster',fr:'Thruster haltères',aliases:['dumbbell thruster','db thruster','thruster avec haltères'],family:'PUSH',equipment:'DUMBBELLS',muscles:'Quadriceps, fessiers, deltoïdes, triceps, sangle abdominale',desc:'Enchaînement fluide d’un front squat avec deux haltères en position rack et d’un développé au-dessus de la tête, en utilisant l’extension des jambes pour accélérer la poussée.',source:'https://liftmanual.com/dumbbell-thruster/'}
-  ,{id:'barbell-thruster',name:'Barbell Thruster',fr:'Thruster barre',aliases:['barbell thruster','thruster barbell','thruster à la barre'],family:'PUSH',equipment:'BARBELL',muscles:'Quadriceps, fessiers, deltoïdes, triceps, sangle abdominale',desc:'Enchaînement d’un front squat avec la barre en position front rack et d’un développé vertical. La sortie explosive du squat transmet l’élan à la poussée au-dessus de la tête.',source:'https://liftmanual.com/barbell-thruster/'}
+  ,{id:'barbell-thruster',name:'Barbell Thruster',fr:'Thruster barre',aliases:['thruster','thrusters','barbell thruster'],aliases:['barbell thruster','thruster barbell','thruster à la barre'],family:'PUSH',equipment:'BARBELL',muscles:'Quadriceps, fessiers, deltoïdes, triceps, sangle abdominale',desc:'Enchaînement d’un front squat avec la barre en position front rack et d’un développé vertical. La sortie explosive du squat transmet l’élan à la poussée au-dessus de la tête.',source:'https://liftmanual.com/barbell-thruster/'}
 ];
  const $=id=>document.getElementById(id), norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
  // Lift Manual héberge les visuels des exercices dans sa médiathèque WordPress.
