@@ -4303,9 +4303,24 @@ resetTimer();
   $('statsTotal4').textContent=minutesLabel(total4);$('statsCount4').textContent=done4.length;$('statsTotal12').textContent=minutesLabel(total12);
   const weekly={};done12.forEach(x=>{const d=parseDate(x.session_date),k=dateKey(monday(d));weekly[k]=(weekly[k]||0)+Number(x.actual_duration_minutes||0)});
   const best=Object.entries(weekly).sort((a,b)=>b[1]-a[1])[0];$('statsBestWeek').textContent=best?minutesLabel(best[1]):'—';$('statsBestWeekSub').textContent=best?`Semaine du ${new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(parseDate(best[0]))}`:'Aucune séance réalisée';
-  const groups={};done12.forEach(x=>{let label=categoryName(x.category);if(normalizeCategory(x.category)==='WOD'){const t=String(x.session_type||'');label=t.startsWith('HYROX')?'HYROX':t.startsWith('CrossFit')?'CrossFit':t==='Libre'?'Libre':'WOD';}if(!groups[label])groups[label]={minutes:0,count:0};groups[label].minutes+=Number(x.actual_duration_minutes||0);groups[label].count++;});
-  const allMin=Object.values(groups).reduce((a,g)=>a+g.minutes,0);const sorted=Object.entries(groups).sort((a,b)=>b[1].minutes-a[1].minutes);
-  $('statsDisciplines').innerHTML=sorted.length?sorted.map(([label,g])=>{const pct=allMin?Math.round(g.minutes/allMin*100):0;return `<div class="stats-discipline"><div class="stats-discipline-head"><span>${esc(label)}</span><span>${minutesLabel(g.minutes)} · ${pct}%</span></div><div class="stats-bar"><i style="width:${pct}%"></i></div><div class="stats-discipline-meta">${g.count} séance(s) · ${(g.count/12).toLocaleString('fr-FR',{maximumFractionDigits:1})} séance(s) / semaine</div></div>`}).join(''):'<div class="planning-empty">Aucune séance réalisée sur les 12 dernières semaines.</div>';
+  // Afficher systématiquement toutes les disciplines, même sans séance réalisée.
+  const disciplineOrder=['COURSE À PIED','CYCLISME','FORCE','RÉCUPÉRATION','NATATION','CORE TRAINING','TESTS PHYSIQUES','HYROX','CrossFit','Libre','WOD'];
+  const groups={};disciplineOrder.forEach(label=>groups[label]={minutes:0,count:0});
+  done12.forEach(x=>{
+   let label=categoryName(x.category);
+   if(normalizeCategory(x.category)==='WOD'){
+    const t=String(x.session_type||'');
+    label=t.startsWith('HYROX')?'HYROX':t.startsWith('CrossFit')?'CrossFit':t==='Libre'?'Libre':'WOD';
+   }
+   if(!groups[label])groups[label]={minutes:0,count:0};
+   groups[label].minutes+=Number(x.actual_duration_minutes||0);
+   groups[label].count++;
+  });
+  const allMin=Object.values(groups).reduce((a,g)=>a+g.minutes,0);
+  $('statsDisciplines').innerHTML=disciplineOrder.map(label=>{
+   const g=groups[label],pct=allMin?Math.round(g.minutes/allMin*100):0;
+   return `<div class="stats-discipline"><div class="stats-discipline-head"><span>${esc(label)}</span><span>${minutesLabel(g.minutes)} · ${pct}%</span></div><div class="stats-bar"><i style="width:${pct}%"></i></div><div class="stats-discipline-meta">${g.count} séance(s) · ${(g.count/12).toLocaleString('fr-FR',{maximumFractionDigits:1})} séance(s) / semaine</div></div>`;
+  }).join('');
  }
  function setPlanningView(view){const stats=view==='stats';$('planningCalendarPanel').classList.toggle('hidden',stats);$('planningStatsPanel').classList.toggle('hidden',!stats);$('planningCalendarTab').classList.toggle('active',!stats);$('planningStatsTab').classList.toggle('active',stats);$('planningCalendarTab').setAttribute('aria-selected',String(!stats));$('planningStatsTab').setAttribute('aria-selected',String(stats));if(stats)renderStats();}
  function render(){
