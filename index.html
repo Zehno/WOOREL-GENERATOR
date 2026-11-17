@@ -1377,6 +1377,7 @@ main { overflow-x: hidden; }
       <form id="manualWodForm">
         <div class="field"><label for="manualWodTitle">TITRE DU WOD</label><input id="manualWodTitle" required maxlength="100" placeholder="Ex. : ENGINE BUILDER"></div>
         <div class="field"><label for="manualWodCollection">ENREGISTRER DANS</label><select id="manualWodCollection"><option value="PERSONAL">MES WOD</option><option value="ELODIE">ELODIE ❤️</option></select><p class="small-note">Les séances d’Élodie restent séparées de ta bibliothèque personnelle.</p></div>
+        <div class="field"><label for="manualWodCategory">CATÉGORIE DU WOD</label><select id="manualWodCategory"><option value="WOD">WOD</option><option value="HYROX">HYROX</option><option value="WOD HEROES">WOD HEROES</option><option value="WOD GIRL">WOD GIRL</option></select><p class="small-note">Choisis dans quel onglet de la bibliothèque ce WOD sera classé. La collection (MES WOD / ELODIE) reste indépendante.</p></div>
         <div class="field">
           <label><input type="checkbox" id="manualMultiBlock"> CRÉER UNE SÉANCE AVEC PLUSIEURS BLOCS</label>
           <p class="small-note">Ajoute autant de blocs que nécessaire, avec un format et un temps de repos entre chaque bloc.</p>
@@ -2179,6 +2180,8 @@ function setupWodCategoryFilters() {
     collectionFilters?.querySelectorAll("[data-collection-filter]").forEach(item => item.classList.toggle("active", item.dataset.collectionFilter === activeWodCollectionFilter));
     const selector = document.getElementById("manualWodCollection");
     if (selector) selector.value = activeWodCollectionFilter;
+    const categorySelector = document.getElementById("manualWodCategory");
+    if (categorySelector && WOD_CATEGORIES.includes(activeWodCategoryFilter)) categorySelector.value = activeWodCategoryFilter;
     filters.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === activeWodCategoryFilter));
     displayLibrary();
   });
@@ -2274,6 +2277,7 @@ function displayLibrary() {
 function beginEditWod(wod) {
   editingWodId = wod.id;
   document.getElementById("manualWodCollection").value = wod.collection || "PERSONAL";
+  document.getElementById("manualWodCategory").value = getWodCategory(wod);
   document.getElementById("manualWodTitle").value = wod.name || "";
   const isMulti = !!(wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length);
   document.getElementById("manualMultiBlock").checked = isMulti;
@@ -2318,6 +2322,7 @@ function resetManualWodEditor() {
   editingWodId = null;
   document.getElementById("manualWodForm").reset();
   document.getElementById("manualWodCollection").value = activeWodCollectionFilter === "ELODIE" ? "ELODIE" : "PERSONAL";
+  document.getElementById("manualWodCategory").value = WOD_CATEGORIES.includes(activeWodCategoryFilter) ? activeWodCategoryFilter : "WOD";
   document.getElementById("manualMultiBlock").checked = false;
   document.getElementById("singleWodFields").classList.remove("hidden");
   document.getElementById("multiBlockEditor").classList.add("hidden");
@@ -3954,7 +3959,8 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   button.disabled = true; button.textContent = "ENREGISTREMENT...";
   status.textContent = "Enregistrement dans Supabase...";
   try {
-    const wodData = { name, type, duration, movements, timerConfig, consigne, category: editingWodId !== null ? getWodCategory(wods.find(item => String(item.id) === String(editingWodId))) : "WOD", collection: document.getElementById("manualWodCollection")?.value || "PERSONAL" };
+    const selectedCategory = document.getElementById("manualWodCategory")?.value || "WOD";
+    const wodData = { name, type, duration, movements, timerConfig, consigne, category: WOD_CATEGORIES.includes(selectedCategory) ? selectedCategory : "WOD", collection: document.getElementById("manualWodCollection")?.value || "PERSONAL" };
     if (editingWodId !== null) {
       const updated = await window.updateManualWodInSupabase(editingWodId, wodData);
       const index = wods.findIndex(item => String(item.id) === String(editingWodId));
