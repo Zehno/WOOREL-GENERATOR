@@ -1248,9 +1248,15 @@ main { overflow-x: hidden; }
 .planning-column-add:hover{border-color:var(--green)}
 .planning-session{position:relative;border:1px solid var(--border);border-left:3px solid var(--green);border-radius:8px;background:var(--card-bg);padding:9px;margin:8px 0;cursor:grab;min-width:0}
 .planning-session:active{cursor:grabbing}
-.planning-session.cat-COURSE{border-left-color:#45a3ff}
-.planning-session.cat-MUSCULATION{border-left-color:#ff9f1c}
-.planning-session.cat-WOD{border-left-color:#a78bfa}
+/* Couleur dédiée à chaque discipline : repérage immédiat dans le calendrier */
+.planning-session.cat-COURSE{border-left-color:#45a3ff;background:linear-gradient(90deg,rgba(69,163,255,.10),var(--card-bg) 42%)}
+.planning-session.cat-CYCLISME{border-left-color:#22c55e;background:linear-gradient(90deg,rgba(34,197,94,.10),var(--card-bg) 42%)}
+.planning-session.cat-FORCE,.planning-session.cat-MUSCULATION{border-left-color:#ff9f1c;background:linear-gradient(90deg,rgba(255,159,28,.11),var(--card-bg) 42%)}
+.planning-session.cat-RECUPERATION{border-left-color:#38bdf8;background:linear-gradient(90deg,rgba(56,189,248,.10),var(--card-bg) 42%)}
+.planning-session.cat-NATATION{border-left-color:#06b6d4;background:linear-gradient(90deg,rgba(6,182,212,.10),var(--card-bg) 42%)}
+.planning-session.cat-CORE{border-left-color:#e879f9;background:linear-gradient(90deg,rgba(232,121,249,.10),var(--card-bg) 42%)}
+.planning-session.cat-TESTS{border-left-color:#f97316;background:linear-gradient(90deg,rgba(249,115,22,.11),var(--card-bg) 42%)}
+.planning-session.cat-WOD{border-left-color:#a78bfa;background:linear-gradient(90deg,rgba(167,139,250,.11),var(--card-bg) 42%)}
 .planning-session.is-done{opacity:.68}
 .planning-session.is-cancelled{opacity:.42}
 .planning-session-head{display:block}
@@ -1268,7 +1274,14 @@ main { overflow-x: hidden; }
 .planning-legend{display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-top:14px;font-size:10px;color:var(--muted)}
 .planning-legend>span{display:inline-flex;align-items:center;gap:6px}
 .legend-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
-.legend-dot.course{background:#45a3ff}.legend-dot.musculation{background:#ff9f1c}.legend-dot.wod{background:#a78bfa}
+.legend-dot.course{background:#45a3ff}
+.legend-dot.cyclisme{background:#22c55e}
+.legend-dot.force{background:#ff9f1c}
+.legend-dot.recuperation{background:#38bdf8}
+.legend-dot.natation{background:#06b6d4}
+.legend-dot.core{background:#e879f9}
+.legend-dot.tests{background:#f97316}
+.legend-dot.wod{background:#a78bfa}
 .planning-drag-hint{margin-left:auto}
 .planning-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
 .planning-editor-heading h2{margin:5px 0 0}
@@ -1786,7 +1799,12 @@ main { overflow-x: hidden; }
     </div>
     <div class="planning-legend">
       <span><i class="legend-dot course"></i>Course à pied</span>
-      <span><i class="legend-dot musculation"></i>Musculation</span>
+      <span><i class="legend-dot cyclisme"></i>Cyclisme</span>
+      <span><i class="legend-dot force"></i>Force</span>
+      <span><i class="legend-dot recuperation"></i>Récupération</span>
+      <span><i class="legend-dot natation"></i>Natation</span>
+      <span><i class="legend-dot core"></i>Core training</span>
+      <span><i class="legend-dot tests"></i>Tests physiques</span>
       <span><i class="legend-dot wod"></i>WOD</span>
       <span class="planning-drag-hint">Glisse une séance vers un autre jour pour la déplacer.</span>
     </div>
