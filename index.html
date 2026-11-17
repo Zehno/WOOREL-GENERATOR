@@ -1196,6 +1196,7 @@ main { overflow-x: hidden; }
 .planning-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 .planning-session{border:1px solid var(--border);border-left:4px solid var(--green);border-radius:10px;background:var(--card-bg);padding:13px;margin:10px 0}
 .planning-session.cat-COURSE{border-left-color:#45a3ff}.planning-session.cat-CYCLISME{border-left-color:#22c55e}.planning-session.cat-FORCE,.planning-session.cat-MUSCULATION{border-left-color:#ff9f1c}.planning-session.cat-RECUPERATION{border-left-color:#38bdf8}.planning-session.cat-NATATION{border-left-color:#06b6d4}.planning-session.cat-CORE{border-left-color:#e879f9}.planning-session.cat-TESTS{border-left-color:#f97316}.planning-session.cat-WOD{border-left-color:#a78bfa}
+.planning-session.type-hyrox-run-compromised{border-left-color:#ff5b35}.planning-session.type-hyrox-circuit{border-left-color:#ff8a3d}.planning-session.type-crossfit-mixed-modality{border-left-color:#a78bfa}.planning-session.type-crossfit-gym{border-left-color:#38bdf8}.planning-session.type-crossfit-halterophilie{border-left-color:#f2a344}.planning-session.type-crossfit-ergometre{border-left-color:#22c55e}
 .planning-session-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .planning-session-title{font-weight:900;font-size:15px}.planning-session-meta{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.5px;margin:5px 0}
 .planning-session-details{font-size:13px;line-height:1.5;white-space:pre-wrap;color:var(--muted);margin-top:8px}
@@ -4213,7 +4214,11 @@ resetTimer();
   NATATION:['Endurance','Technique','Fractionné'],
   CORE:['Abdominaux','Gainage','Stabilité'],
   TESTS:['Test VMA','FTP','5 km','10 km','Force maximale','Tests HYROX'],
-  WOD:['HYROX','CrossFit','Libre']
+  WOD:[
+    'HYROX — Run Compromised','HYROX — Circuit',
+    'CrossFit — Mixed Modality','CrossFit — Gym','CrossFit — Haltérophilie','CrossFit — Ergomètre',
+    'HYROX','CrossFit','Libre'
+   ]
  };
  const categoryLabels = {
   COURSE:'COURSE À PIED',CYCLISME:'CYCLISME',FORCE:'FORCE',
@@ -4222,6 +4227,7 @@ resetTimer();
  };
  const normalizeCategory = c => c==='MUSCULATION'?'FORCE':(c||'COURSE');
  const categoryName = c => categoryLabels[normalizeCategory(c)] || String(c||'').toUpperCase();
+ const sessionTypeClass = value => ({'HYROX — Run Compromised':'type-hyrox-run-compromised','HYROX — Circuit':'type-hyrox-circuit','CrossFit — Mixed Modality':'type-crossfit-mixed-modality','CrossFit — Gym':'type-crossfit-gym','CrossFit — Haltérophilie':'type-crossfit-halterophilie','CrossFit — Ergomètre':'type-crossfit-ergometre'}[value]||'');
  const fmtRange = (a,b) => `${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long'}).format(a)} — ${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'}).format(b)}`;
  function updateTypes(selectedValue=''){
   const cat=normalizeCategory($('planningCategory').value);
@@ -4240,7 +4246,7 @@ resetTimer();
    const d=addDays(start,i),key=dateKey(d),items=week.filter(x=>x.session_date===key).sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||''));
    const cards=items.length?items.map(x=>{
     const status=x.status==='DONE'?'RÉALISÉE':x.status==='CANCELLED'?'ANNULÉE':'À FAIRE';
-    return `<article class="planning-session cat-${esc(x.category)} ${x.status==='DONE'?'is-done':''} ${x.status==='CANCELLED'?'is-cancelled':''}" draggable="true" data-plan-card="${esc(x.id)}">
+    return `<article class="planning-session cat-${esc(x.category)} ${sessionTypeClass(x.session_type)} ${x.status==='DONE'?'is-done':''} ${x.status==='CANCELLED'?'is-cancelled':''}" draggable="true" data-plan-card="${esc(x.id)}">
       <div class="planning-session-statusline"><span class="planning-session-meta">${esc(x.session_type)}</span><span class="planning-status ${x.status==='DONE'?'done':x.status==='CANCELLED'?'cancelled':''}">${status}</span></div>
       <div class="planning-session-title">${esc(x.title)}</div>
       <div class="planning-session-meta">${categoryName(x.category)}${x.duration_minutes?` · ${Number(x.duration_minutes)} MIN`:''}</div>
