@@ -1449,6 +1449,7 @@ main { overflow-x: hidden; }
       </div>
       <div class="wod-category-filters" id="wodCollectionFilters" aria-label="Choisir une bibliothèque">
         <button type="button" class="wod-category-filter active" data-collection-filter="PERSONAL">MES WOD</button>
+        <button type="button" class="wod-category-filter" data-collection-filter="ELODIE">ELODIE ❤️</button>
       </div>
       <div class="wod-category-filters" id="wodCategoryFilters" aria-label="Filtrer les WOD par catégorie">
         <button type="button" class="wod-category-filter active" data-category-filter="ALL">TOUS</button>
@@ -1456,7 +1457,6 @@ main { overflow-x: hidden; }
         <button type="button" class="wod-category-filter" data-category-filter="WOD HEROES">WOD HEROES</button>
         <button type="button" class="wod-category-filter" data-category-filter="WOD GIRL">WOD GIRL</button>
         <button type="button" class="wod-category-filter" data-category-filter="WOD">WOD</button>
-        <button type="button" class="wod-category-filter" data-category-filter="ELODIE">ELODIE ❤️</button>
 
       </div>
       <div id="libraryList"><p class="muted">Connecte-toi pour charger ta bibliothèque.</p></div>
@@ -2151,10 +2151,6 @@ function setupWodCategoryFilters() {
       const button = event.target.closest("[data-collection-filter]");
       if (!button) return;
       activeWodCollectionFilter = button.dataset.collectionFilter || "PERSONAL";
-      if (activeWodCollectionFilter === "PERSONAL" && activeWodCategoryFilter === "ELODIE") {
-        activeWodCategoryFilter = "ALL";
-        filters?.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === "ALL"));
-      }
       collectionFilters.querySelectorAll("[data-collection-filter]").forEach(item => item.classList.toggle("active", item.dataset.collectionFilter === activeWodCollectionFilter));
       const selector = document.getElementById("manualWodCollection");
       if (selector) selector.value = activeWodCollectionFilter;
@@ -2172,14 +2168,6 @@ function setupWodCategoryFilters() {
     const button = event.target.closest("[data-category-filter]");
     if (!button) return;
     activeWodCategoryFilter = button.dataset.categoryFilter || "ALL";
-    if (activeWodCategoryFilter === "ELODIE") {
-      activeWodCollectionFilter = "ELODIE";
-    } else {
-      activeWodCollectionFilter = "PERSONAL";
-    }
-    collectionFilters?.querySelectorAll("[data-collection-filter]").forEach(item => item.classList.toggle("active", item.dataset.collectionFilter === activeWodCollectionFilter));
-    const selector = document.getElementById("manualWodCollection");
-    if (selector) selector.value = activeWodCollectionFilter;
     const categorySelector = document.getElementById("manualWodCategory");
     if (categorySelector && WOD_CATEGORIES.includes(activeWodCategoryFilter)) categorySelector.value = activeWodCategoryFilter;
     filters.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === activeWodCategoryFilter));
@@ -2212,7 +2200,7 @@ function displayLibrary() {
   const searchInput = document.getElementById("libraryWodSearch");
   const searchTerm = String(searchInput?.value || "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr");
   let visibleWods = wods.filter(wod => (wod.collection || "PERSONAL") === activeWodCollectionFilter);
-  visibleWods = (activeWodCategoryFilter === "ALL" || activeWodCategoryFilter === "ELODIE") ? visibleWods : visibleWods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
+  visibleWods = activeWodCategoryFilter === "ALL" ? visibleWods : visibleWods.filter(wod => getWodCategory(wod) === activeWodCategoryFilter);
   if (searchTerm) {
     visibleWods = visibleWods.filter(wod => String(wod.name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("fr").startsWith(searchTerm));
   }
@@ -2222,7 +2210,7 @@ function displayLibrary() {
   if (!visibleWods.length) {
     container.innerHTML = searchTerm
       ? `<p class="muted">Aucun WOD ne commence par « ${escapeHTML(String(searchInput.value).trim())} » dans cette sélection.</p>`
-      : `<p class="muted">Aucun WOD dans la catégorie ${escapeHTML(activeWodCategoryFilter === "ELODIE" ? "ELODIE ❤️" : activeWodCategoryFilter)}.</p>`;
+      : `<p class="muted">Aucun WOD dans cette sélection (${escapeHTML(activeWodCollectionFilter === "ELODIE" ? "ELODIE ❤️" : "MES WOD")} · ${escapeHTML(activeWodCategoryFilter)}).</p>`;
     return;
   }
   visibleWods.forEach(wod => {
