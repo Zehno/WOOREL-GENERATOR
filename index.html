@@ -1195,7 +1195,7 @@ main { overflow-x: hidden; }
 .planning-dots{display:flex;justify-content:center;gap:3px;min-height:7px}
 .planning-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
 .planning-session{border:1px solid var(--border);border-left:4px solid var(--green);border-radius:10px;background:var(--card-bg);padding:13px;margin:10px 0}
-.planning-session.cat-COURSE{border-left-color:#45a3ff}.planning-session.cat-MUSCULATION{border-left-color:#ff9f1c}.planning-session.cat-WOD{border-left-color:#a78bfa}
+.planning-session.cat-COURSE{border-left-color:#45a3ff}.planning-session.cat-CYCLISME{border-left-color:#22c55e}.planning-session.cat-FORCE,.planning-session.cat-MUSCULATION{border-left-color:#ff9f1c}.planning-session.cat-RECUPERATION{border-left-color:#38bdf8}.planning-session.cat-NATATION{border-left-color:#06b6d4}.planning-session.cat-CORE{border-left-color:#e879f9}.planning-session.cat-TESTS{border-left-color:#f97316}.planning-session.cat-WOD{border-left-color:#a78bfa}
 .planning-session-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .planning-session-title{font-weight:900;font-size:15px}.planning-session-meta{font-size:10px;color:var(--muted);font-weight:900;letter-spacing:.5px;margin:5px 0}
 .planning-session-details{font-size:13px;line-height:1.5;white-space:pre-wrap;color:var(--muted);margin-top:8px}
@@ -1804,12 +1804,21 @@ main { overflow-x: hidden; }
     <form id="planningSessionForm">
       <input type="hidden" id="planningSessionId">
       <div class="field"><label for="planningDate">DATE</label><input type="date" id="planningDate" required></div>
-      <div class="field"><label for="planningCategory">DISCIPLINE</label><select id="planningCategory"><option value="COURSE">COURSE À PIED</option><option value="MUSCULATION">MUSCULATION</option><option value="WOD">WOD</option></select></div>
+      <div class="field"><label for="planningCategory">DISCIPLINE</label><select id="planningCategory">
+        <option value="COURSE">COURSE À PIED</option>
+        <option value="CYCLISME">CYCLISME</option>
+        <option value="FORCE">FORCE</option>
+        <option value="RECUPERATION">RÉCUPÉRATION</option>
+        <option value="NATATION">NATATION</option>
+        <option value="CORE">CORE TRAINING</option>
+        <option value="TESTS">TESTS PHYSIQUES</option>
+        <option value="WOD">WOD</option>
+      </select></div>
       <div class="field"><label for="planningType">TYPE DE SÉANCE</label><select id="planningType"></select></div>
       <div class="field hidden" id="planningWodSourceWrap"><label for="planningWodSource">CHOISIR DANS MA BIBLIOTHÈQUE WOD</label><select id="planningWodSource"><option value="">— Création manuelle —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
-      <div class="field"><label for="planningTitle">NOM DE LA SÉANCE</label><input id="planningTitle" maxlength="120" required placeholder="Ex. : VMA 10 × 400 m"></div>
+      <div class="field"><label for="planningTitle">INTITULÉ DE LA SÉANCE</label><input id="planningTitle" maxlength="120" required placeholder="Ex. : VMA 10 × 400 m"></div>
       <div class="planning-form-grid"><div class="field"><label for="planningDuration">DURÉE PRÉVUE (MINUTES)</label><input type="number" id="planningDuration" min="0" max="1440" placeholder="Ex. : 60"></div><div class="field"><label for="planningStatusSelect">STATUT</label><select id="planningStatusSelect"><option value="PLANNED">À FAIRE</option><option value="DONE">RÉALISÉE</option><option value="CANCELLED">ANNULÉE</option></select></div></div>
-      <div class="field"><label for="planningDetails">CONTENU DÉTAILLÉ DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea></div>
+      <div class="field"><label for="planningDetails">CONTENU DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea></div>
       <div class="field"><label for="planningNotes">OBJECTIF / CONSIGNES</label><textarea id="planningNotes" rows="3" placeholder="Objectif, RPE, zone FC, consignes techniques..."></textarea></div>
       <div class="actions"><button class="primary" id="planningSaveBtn" type="submit">ENREGISTRER LA SÉANCE</button><button class="secondary" id="planningSaveToLibrary" type="button">ENREGISTRER AUSSI DANS LA BIBLIOTHÈQUE WOD</button></div>
       <p class="small-note" id="planningFormStatus"></p>
@@ -1960,7 +1969,7 @@ document.addEventListener("touchend", event => {
   // Un swipe commencé dans cette zone ne doit jamais changer d'écran.
   const swipeTarget = wodSwipeStartTarget;
   if (swipeTarget && swipeTarget.closest &&
-      swipeTarget.closest(".planning-calendar-scroll, .garmin-table-wrap, [data-horizontal-scroll]")) {
+      swipeTarget.closest("#planningPage, .planning-calendar-scroll, .garmin-table-wrap, [data-horizontal-scroll]")) {
     wodSwipeStartTarget = null;
     return;
   }
@@ -4134,7 +4143,7 @@ renderWorkoutHistory();
 
   if ("serviceWorker" in navigator && window.location.protocol.startsWith("http")) {
     const swCode = `
-      const CACHE = "woorel-v1";
+      const CACHE = "woorel-v2";
       self.addEventListener("install", e => self.skipWaiting());
       self.addEventListener("activate", e => e.waitUntil(clients.claim()));
       self.addEventListener("fetch", e => {
@@ -4178,10 +4187,31 @@ resetTimer();
  const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
  const monday = d => addDays(d,-((d.getDay()+6)%7));
  const esc = value => String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const typeOptions = {COURSE:['Seuil','EF','VMA','Long','Tempo'],MUSCULATION:['PUSH','LOWER','PULL'],WOD:['HYROX','CrossFit','Libre']};
- const categoryName = c => c==='COURSE'?'COURSE À PIED':c==='MUSCULATION'?'MUSCULATION':'WOD';
+ const typeOptions = {
+  COURSE:['EF','Seuil','VMA courte','VMA longue','AS 10 km','AS 5 km','Sortie longue'],
+  CYCLISME:['Endurance','Sweet Spot','FTP','VO2 Max','Récupération','Sortie longue'],
+  FORCE:['Upper','Lower','Push','Pull'],
+  RECUPERATION:['Mobilité','Stretching'],
+  NATATION:['Endurance','Technique','Fractionné'],
+  CORE:['Abdominaux','Gainage','Stabilité'],
+  TESTS:['Test VMA','FTP','5 km','10 km','Force maximale','Tests HYROX'],
+  WOD:['HYROX','CrossFit','Libre']
+ };
+ const categoryLabels = {
+  COURSE:'COURSE À PIED',CYCLISME:'CYCLISME',FORCE:'FORCE',
+  RECUPERATION:'RÉCUPÉRATION',NATATION:'NATATION',
+  CORE:'CORE TRAINING',TESTS:'TESTS PHYSIQUES',WOD:'WOD'
+ };
+ const normalizeCategory = c => c==='MUSCULATION'?'FORCE':(c||'COURSE');
+ const categoryName = c => categoryLabels[normalizeCategory(c)] || String(c||'').toUpperCase();
  const fmtRange = (a,b) => `${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long'}).format(a)} — ${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'}).format(b)}`;
- function updateTypes(){ const cat=$('planningCategory').value; $('planningType').innerHTML=typeOptions[cat].map(x=>`<option>${x}</option>`).join(''); $('planningWodSourceWrap').classList.toggle('hidden',cat!=='WOD'); }
+ function updateTypes(selectedValue=''){
+  const cat=normalizeCategory($('planningCategory').value);
+  const options=typeOptions[cat]||typeOptions.COURSE;
+  $('planningType').innerHTML=options.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
+  if(selectedValue && options.includes(selectedValue)) $('planningType').value=selectedValue;
+  $('planningWodSourceWrap').classList.toggle('hidden',cat!=='WOD');
+ }
  function weekSessions(){const start=dateKey(monday(selectedDate)),end=dateKey(addDays(monday(selectedDate),6));return sessions.filter(x=>x.session_date>=start&&x.session_date<=end);}
  function render(){
   const start=monday(selectedDate),end=addDays(start,6),today=dateKey(new Date());
@@ -4216,7 +4246,7 @@ resetTimer();
   $('planningWeekHours').textContent=(week.reduce((a,x)=>a+Number(x.duration_minutes||0),0)/60).toLocaleString('fr-FR',{maximumFractionDigits:1})+' h';
   $('planningWeekDone').textContent=week.filter(x=>x.status==='DONE').length;
  }
- function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=item?.category||'COURSE'; updateTypes(); $('planningType').value=item?.session_type||typeOptions[$('planningCategory').value][0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningDetails').value=item?.details||''; $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',$('planningCategory').value!=='WOD'); $('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); updateTypes(item?.session_type||''); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningDetails').value=item?.details||''; $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); $('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
  function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); editingId=null; }
  function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— Création manuelle —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
  async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
@@ -4225,7 +4255,7 @@ resetTimer();
  $('planningToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);render()});
  $('planningAddSession').addEventListener('click',()=>openEditor());
  $('planningCancelEdit').addEventListener('click',closeEditor);
- $('planningCategory').addEventListener('change',()=>{updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',$('planningCategory').value!=='WOD')});
+ $('planningCategory').addEventListener('change',()=>{updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD')});
  $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod)return;$('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
  $('planningWeekDays').addEventListener('click',async e=>{
   const add=e.target.closest('[data-plan-add]'),edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),del=e.target.closest('[data-plan-delete]'),done=e.target.closest('[data-plan-done]');
@@ -4241,7 +4271,7 @@ resetTimer();
  $('planningWeekDays').addEventListener('dragleave',e=>{const col=e.target.closest('[data-plan-drop]');if(col&&!col.contains(e.relatedTarget))col.classList.remove('drag-over');});
  $('planningWeekDays').addEventListener('drop',async e=>{const col=e.target.closest('[data-plan-drop]');if(!col)return;e.preventDefault();col.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain')||draggedSessionId;const item=sessions.find(x=>String(x.id)===String(id));if(!item||item.session_date===col.dataset.planDrop)return;try{await window.updatePlanningSession(item.id,{session_date:col.dataset.planDrop});await refresh()}catch(err){alert('Déplacement impossible : '+err.message)}finally{draggedSessionId=null;}});
  $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,status:$('planningStatusSelect').value,details:$('planningDetails').value.trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
- $('planningSaveToLibrary').addEventListener('click',async()=>{if($('planningCategory').value!=='WOD')return;const name=$('planningTitle').value.trim(),details=$('planningDetails').value.trim();if(!name||!details){$('planningFormStatus').textContent='Renseigne le nom et le contenu du WOD avant de l’enregistrer.';return;}const movements=details.split(/\n+/).map((line,i)=>({name:line.trim(),reps:null,position:i+1})).filter(x=>x.name);try{const saved=await window.saveManualWodToSupabase({name,type:'LIBRE',duration:Number($('planningDuration').value)||null,movements,timerConfig:{format:'LIBRE'},consigne:$('planningNotes').value.trim(),category:'WOD',collection:'PERSONAL'});window.wods.unshift(saved);fillWodSelect();$('planningWodSource').value=saved.id;$('planningFormStatus').textContent='WOD enregistré dans la bibliothèque. Tu peux maintenant enregistrer la séance au planning.';}catch(err){$('planningFormStatus').textContent='Enregistrement dans la bibliothèque impossible : '+err.message}});
+ $('planningSaveToLibrary').addEventListener('click',async()=>{if(normalizeCategory($('planningCategory').value)!=='WOD')return;const name=$('planningTitle').value.trim(),details=$('planningDetails').value.trim();if(!name||!details){$('planningFormStatus').textContent='Renseigne le nom et le contenu du WOD avant de l’enregistrer.';return;}const movements=details.split(/\n+/).map((line,i)=>({name:line.trim(),reps:null,position:i+1})).filter(x=>x.name);try{const saved=await window.saveManualWodToSupabase({name,type:'LIBRE',duration:Number($('planningDuration').value)||null,movements,timerConfig:{format:'LIBRE'},consigne:$('planningNotes').value.trim(),category:'WOD',collection:'PERSONAL'});window.wods.unshift(saved);fillWodSelect();$('planningWodSource').value=saved.id;$('planningFormStatus').textContent='WOD enregistré dans la bibliothèque. Tu peux maintenant enregistrer la séance au planning.';}catch(err){$('planningFormStatus').textContent='Enregistrement dans la bibliothèque impossible : '+err.message}});
  window.refreshSportPlanning=refresh;window.onSportPlanningPage=()=>{fillWodSelect();refresh()};
  document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="planningPage"]'))window.onSportPlanningPage()});
  updateTypes();render();
