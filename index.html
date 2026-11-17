@@ -1226,7 +1226,16 @@ main { overflow-x: hidden; }
 .planning-kpi span{display:block;color:#aab7ad;font-size:9px;font-weight:900;letter-spacing:.8px}
 .planning-kpi strong{display:block;font-size:25px;line-height:1.2;margin:7px 0 3px;color:#f4f7f4}
 .planning-kpi small{font-size:10px;color:var(--muted)}
-.planning-calendar-scroll{overflow-x:auto;padding-bottom:5px}
+.planning-calendar-scroll{
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding-bottom:8px;
+  max-width:100%;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  touch-action:pan-x pan-y;
+  scrollbar-width:thin;
+}
 .planning-week{display:grid;grid-template-columns:repeat(7,minmax(135px,1fr));gap:8px;min-width:990px;margin:0}
 .planning-day-column{background:rgba(255,255,255,.018);border:1px solid var(--border);border-radius:11px;min-height:245px;padding:9px;transition:border-color .15s,background .15s}
 .planning-day-column.is-today{border-color:rgba(140,255,0,.65);background:rgba(140,255,0,.035)}
@@ -1937,13 +1946,25 @@ document.addEventListener("click", event => {
 // Sur mobile, un balayage horizontal permet aussi de passer d'un onglet à l'autre.
 let wodSwipeStartX = 0;
 let wodSwipeStartY = 0;
+let wodSwipeStartTarget = null;
 document.addEventListener("touchstart", event => {
   if (!event.touches || event.touches.length !== 1) return;
   wodSwipeStartX = event.touches[0].clientX;
   wodSwipeStartY = event.touches[0].clientY;
+  wodSwipeStartTarget = event.target;
 }, {passive:true});
 document.addEventListener("touchend", event => {
   if (!event.changedTouches || !event.changedTouches.length) return;
+
+  // Le calendrier hebdomadaire possède son propre défilement horizontal.
+  // Un swipe commencé dans cette zone ne doit jamais changer d'écran.
+  const swipeTarget = wodSwipeStartTarget;
+  if (swipeTarget && swipeTarget.closest &&
+      swipeTarget.closest(".planning-calendar-scroll, .garmin-table-wrap, [data-horizontal-scroll]")) {
+    wodSwipeStartTarget = null;
+    return;
+  }
+
   const dx = event.changedTouches[0].clientX - wodSwipeStartX;
   const dy = event.changedTouches[0].clientY - wodSwipeStartY;
   if (Math.abs(dx) < 75 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
@@ -1952,6 +1973,10 @@ document.addEventListener("touchend", event => {
   const current = pages.findIndex(page => page.classList.contains("active"));
   const next = current + (dx < 0 ? 1 : -1);
   if (next >= 0 && next < pages.length) activateMainPage(pages[next].id);
+  wodSwipeStartTarget = null;
+}, {passive:true});
+document.addEventListener("touchcancel", () => {
+  wodSwipeStartTarget = null;
 }, {passive:true});
 
 function openPage(page) {
