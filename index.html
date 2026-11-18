@@ -1311,7 +1311,14 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
 .planning-week-choice small{font-size:9px;color:var(--muted)}
 .planning-week-choice.active{border-color:var(--green);background:rgba(140,255,0,.09);color:var(--green)}
 .planning-week-choice.active small{color:var(--green)}
-.planning-week-content{min-width:0;width:100%}\n.planning-week-block{padding-bottom:9px;margin-bottom:8px;border-bottom:1px solid var(--border)}\n.planning-week-block:last-child{border-bottom:0}\n.planning-week-block-label{text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:.65px;color:var(--muted);padding:4px 5px 6px}\n.planning-calendar-scroll{width:100%;overflow-x:auto;overscroll-behavior-x:contain}\n.planning-column-day{text-transform:capitalize}
+.planning-week-content{min-width:0;width:100%}
+.planning-week{display:grid;grid-template-columns:repeat(7,minmax(125px,1fr));gap:8px;min-width:900px}
+.planning-day-column{min-height:220px}
+.planning-week-block{padding-bottom:9px;margin-bottom:8px;border-bottom:1px solid var(--border)}
+.planning-week-block:last-child{border-bottom:0}
+.planning-week-block-label{text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:.65px;color:var(--muted);padding:4px 5px 6px}
+.planning-calendar-scroll{width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+.planning-column-day{text-transform:capitalize}
 @media(max-width:850px){.planning-week-layout{grid-template-columns:1fr}.planning-week-sidebar{position:static}.planning-week-sidebar #planningWeekSelector{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.planning-week-choice{justify-content:center;flex-direction:column;text-align:center;padding:8px 3px;margin:0}}
 
 /* Statistiques du planning sportif */
