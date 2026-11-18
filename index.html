@@ -1193,6 +1193,14 @@ main { overflow-x: hidden; }
 .manual-choice-btn:focus-visible{outline:2px solid var(--green);outline-offset:3px}
 @media(max-width:520px){.manual-choice-btn{flex:1 1 calc(50% - 9px);font-size:11px;padding:10px 7px}}
 
+
+/* Actions du planning : commandes compactes en icônes uniquement */
+.planning-session-actions{display:flex;align-items:center;gap:5px;flex-wrap:nowrap;margin-top:9px}
+.planning-session-actions button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 29px;width:29px;height:32px;min-width:29px;padding:0!important;border-radius:8px;font-size:15px;line-height:1;font-weight:900}
+.planning-session-actions button[title]{cursor:pointer}
+.planning-session-actions button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+@media(max-width:650px){.planning-session-actions{gap:4px}.planning-session-actions button{flex-basis:28px;width:28px;height:31px;min-width:28px}}
+
 /* ================= PLANNING SPORT ================= */
 .planning-toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
 .planning-toolbar .secondary{flex:0 0 auto}
@@ -4560,14 +4568,13 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
       <div class="planning-session-title">${esc(x.title)}</div>
       <div class="planning-session-meta">${categoryName(x.category)}${x.duration_minutes?` · ${Number(x.duration_minutes)} MIN`:''}</div>
       ${normalizeCategory(x.category)==='WOD'&&planningSpecialtyFromDetails(x.details)?`<div class="planning-session-meta">SPÉCIALITÉ : ${esc(planningSpecialtyFromDetails(x.details))}</div>`:''}
-      ${planningMovementLines(x.details).length?`<div class="planning-session-details"><strong>MOUVEMENTS :</strong> ${planningMovementLines(x.details).map(m=>esc(`${m.reps?m.reps+' ':''}${m.name}${m.load?' · '+m.load:''}`)).join(' · ')}</div>`:''}
-      ${x.details?`<div class="planning-session-details">${esc(stripPlanningSpecialty(x.details).length>105?stripPlanningSpecialty(x.details).slice(0,102)+'…':stripPlanningSpecialty(x.details))}</div>`:''}
+      ${stripPlanningSpecialty(x.details)?`<div class="planning-session-details"><strong>SÉANCE :</strong> ${esc(stripPlanningSpecialty(x.details).length>180?stripPlanningSpecialty(x.details).slice(0,177)+'…':stripPlanningSpecialty(x.details))}</div>`:''}
       <div class="planning-session-actions">
-       <button class="primary" type="button" data-plan-timer="${esc(x.id)}">▶ CHRONO</button>
-       <button class="secondary" type="button" data-plan-edit="${esc(x.id)}">MODIFIER</button>
-       ${x.status!=='DONE'?`<button class="secondary planning-done-btn" type="button" data-plan-done="${esc(x.id)}">✓</button>`:''}
-       <button class="secondary" type="button" data-plan-duplicate="${esc(x.id)}" title="Dupliquer">＋</button>
-       <button class="secondary" type="button" data-plan-delete="${esc(x.id)}" title="Supprimer">✕</button>
+       <button class="primary" type="button" data-plan-timer="${esc(x.id)}" title="Ouvrir dans le chronomètre" aria-label="Ouvrir dans le chronomètre">⏱</button>
+       <button class="secondary" type="button" data-plan-edit="${esc(x.id)}" title="Modifier la séance" aria-label="Modifier la séance">✎</button>
+       ${x.status!=='DONE'?`<button class="secondary planning-done-btn" type="button" data-plan-done="${esc(x.id)}" title="Marquer comme réalisée" aria-label="Marquer comme réalisée">✓</button>`:''}
+       <button class="secondary" type="button" data-plan-duplicate="${esc(x.id)}" title="Dupliquer la séance" aria-label="Dupliquer la séance">⧉</button>
+       <button class="secondary" type="button" data-plan-delete="${esc(x.id)}" title="Supprimer la séance" aria-label="Supprimer la séance">🗑</button>
       </div>
     </article>`;
    }).join(''):'<div class="planning-column-empty">Aucune séance<br>programmée</div>';
