@@ -1931,9 +1931,10 @@ main { overflow-x: hidden; }
     <form id="planningSessionForm">
       <input type="hidden" id="planningSessionId">
       <div class="field"><label for="planningDate">DATE</label><input type="date" id="planningDate" required></div>
-      <div class="field"><label>DISCIPLINE</label><div id="planningCategoryButtons" class="planning-choice-group" role="group" aria-label="Discipline"></div><select id="planningCategory" class="hidden" aria-hidden="true" tabindex="-1">
+      <div class="field"><label>CATÉGORIE</label><div id="planningCategoryButtons" class="planning-choice-group" role="group" aria-label="Discipline"></div><select id="planningCategory" class="hidden" aria-hidden="true" tabindex="-1">
         <option value="COURSE">COURSE À PIED</option><option value="CYCLISME">CYCLISME</option><option value="FORCE">FORCE</option><option value="RECUPERATION">RÉCUPÉRATION</option><option value="NATATION">NATATION</option><option value="CORE">CORE TRAINING</option><option value="TESTS">TESTS PHYSIQUES</option><option value="WOD">WOD</option>
       </select></div>
+      <div class="field hidden" id="planningSpecialtyWrap"><label>SPECIALITÉ SÉANCE</label><div id="planningSpecialtyButtons" class="planning-choice-group" role="group" aria-label="Spécialité séance"></div><select id="planningSpecialty" class="hidden" aria-hidden="true" tabindex="-1"><option value="Libre">Libre</option><option value="HYROX — Run Compromised">HYROX — Run Compromised</option><option value="HYROX — Circuit">HYROX — Circuit</option><option value="CrossFit — Mixed Modality">CrossFit — Mixed Modality</option><option value="CrossFit — Gym">CrossFit — Gym</option><option value="CrossFit — Haltérophilie">CrossFit — Haltérophilie</option><option value="CrossFit — Ergomètre">CrossFit — Ergomètre</option><option value="HYROX">HYROX</option><option value="CrossFit">CrossFit</option></select></div>
       <div class="field"><label id="planningTypeLabel">TYPE DE SÉANCE</label><div id="planningTypeButtons" class="planning-choice-group" role="group" aria-label="Type de séance"></div><select id="planningType" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
       <div class="field hidden" id="planningWodFormatSettings">
         <label>PARAMÈTRES DU FORMAT WOD</label>
@@ -2896,8 +2897,9 @@ function getExerciseLineParts(line) {
   let value = String(line || "");
   let leading = "";
   let trailing = "";
-  // Répétitions ou distance(s) au début : 100 Wall Ball / 100m/80m Burpee.
-  const lead = value.match(/^\s*(?:(?:\d+(?:[.,]\d+)?\s*(?:m|km)\s*\/\s*)*\d+(?:[.,]\d+)?\s*(?:m|km)\s+|\d+\s*(?:x|×)?\s+)/i);
+  // Séries x répétitions (4x10 / 4 x 10), répétitions simples ou distances en tête.
+  const setRep = value.match(/^\s*\d+\s*[x×]\s*\d+(?:[.,]\d+)?\s+/i);
+  const lead = setRep || value.match(/^\s*(?:(?:\d+(?:[.,]\d+)?\s*(?:m|km)\s*\/\s*)*\d+(?:[.,]\d+)?\s*(?:m|km)\s+|\d+\s+)/i);
   if (lead) { leading = lead[0]; value = value.slice(lead[0].length); }
   // Charge(s) en fin de ligne : 9kg, 6 kg, 9kg/6kg, 20 lb.
   const load = value.match(/\s+\d+(?:[.,]\d+)?\s*(?:kg|kgs|lb|lbs)(?:\s*\/\s*\d+(?:[.,]\d+)?\s*(?:kg|kgs|lb|lbs))?\s*$/i);
@@ -4368,12 +4370,7 @@ resetTimer();
   NATATION:['Endurance','Technique','Fractionné'],
   CORE:['Abdominaux','Gainage','Stabilité'],
   TESTS:['Test VMA','FTP','5 km','10 km','Force maximale','Tests HYROX'],
-  WOD:[
-    'AMRAP','EMOM','TABATA','FOR TIME',
-    'HYROX — Run Compromised','HYROX — Circuit',
-    'CrossFit — Mixed Modality','CrossFit — Gym','CrossFit — Haltérophilie','CrossFit — Ergomètre',
-    'HYROX','CrossFit','Libre'
-   ]
+  WOD:['AMRAP','EMOM','TABATA','FOR TIME','LIBRE']
  };
  const categoryLabels = {
   COURSE:'COURSE À PIED',CYCLISME:'CYCLISME',FORCE:'FORCE',
@@ -4385,6 +4382,7 @@ resetTimer();
  const sessionTypeClass = value => ({'HYROX — Run Compromised':'type-hyrox-run-compromised','HYROX — Circuit':'type-hyrox-circuit','CrossFit — Mixed Modality':'type-crossfit-mixed-modality','CrossFit — Gym':'type-crossfit-gym','CrossFit — Haltérophilie':'type-crossfit-halterophilie','CrossFit — Ergomètre':'type-crossfit-ergometre'}[value]||'');
  const fmtRange = (a,b) => `${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long'}).format(a)} — ${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'}).format(b)}`;
  const categoryChoices=[['COURSE','COURSE À PIED'],['CYCLISME','CYCLISME'],['FORCE','FORCE'],['RECUPERATION','RÉCUPÉRATION'],['NATATION','NATATION'],['CORE','CORE TRAINING'],['TESTS','TESTS PHYSIQUES'],['WOD','WOD']];
+ const specialtyChoices=[['HYROX — Run Compromised','HYROX — RUN COMPROMISED'],['HYROX — Circuit','HYROX — CIRCUIT'],['CrossFit — Mixed Modality','CROSSFIT — MIXED MODALITY'],['CrossFit — Gym','CROSSFIT — GYM'],['CrossFit — Haltérophilie','CROSSFIT — HALTÉROPHILIE'],['CrossFit — Ergomètre','CROSSFIT — ERGOMÈTRE'],['HYROX','HYROX'],['CrossFit','CROSSFIT'],['Libre','LIBRE']];
  const statusChoices=[['PLANNED','À FAIRE'],['DONE','RÉALISÉE'],['CANCELLED','ANNULÉE']];
  function renderChoiceButtons(containerId,items,selected){
   const root=$(containerId);if(!root)return;
@@ -4392,6 +4390,7 @@ resetTimer();
  }
  function syncPlanningChoiceButtons(){
   renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value);
+  renderChoiceButtons('planningSpecialtyButtons',specialtyChoices,$('planningSpecialty')?.value||'Libre');
   renderChoiceButtons('planningStatusButtons',statusChoices,$('planningStatusSelect').value);
   const currentType=$('planningType').value;
   renderChoiceButtons('planningTypeButtons',(typeOptions[normalizeCategory($('planningCategory').value)]||typeOptions.COURSE).map(x=>[x,x]),currentType);
@@ -4433,11 +4432,13 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  if(planningChoiceForm && planningChoiceForm.dataset.choiceButtonsBound!=='true'){
   planningChoiceForm.dataset.choiceButtonsBound='true';
   planningChoiceForm.addEventListener('click',event=>{
-   const button=event.target.closest('#planningCategoryButtons [data-choice-value],#planningTypeButtons [data-choice-value],#planningStatusButtons [data-choice-value]');
+   const button=event.target.closest('#planningCategoryButtons [data-choice-value],#planningSpecialtyButtons [data-choice-value],#planningTypeButtons [data-choice-value],#planningStatusButtons [data-choice-value]');
    if(!button)return;
    const value=button.dataset.choiceValue;
    if(button.parentElement.id==='planningCategoryButtons'){
     $('planningCategory').value=value;updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory(value)!=='WOD');
+   }else if(button.parentElement.id==='planningSpecialtyButtons'){
+    $('planningSpecialty').value=value;
    }else if(button.parentElement.id==='planningTypeButtons'){
     $('planningType').value=value;updatePlanningWodFormatFields();
    }else if(button.parentElement.id==='planningStatusButtons'){
@@ -4448,13 +4449,61 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function updateTypes(selectedValue=''){
   const cat=normalizeCategory($('planningCategory').value);
-  const typeLabel=$('planningTypeLabel');if(typeLabel)typeLabel.textContent=cat==='WOD'?'CATÉGORIE / FORMAT DU WOD':'TYPE DE SÉANCE';
+  const typeLabel=$('planningTypeLabel');if(typeLabel)typeLabel.textContent=cat==='WOD'?'FORMAT DU WOD':'TYPE DE SÉANCE';
+  $('planningSpecialtyWrap').classList.toggle('hidden',cat!=='WOD');
   const options=typeOptions[cat]||typeOptions.COURSE;
   const previous=$('planningType').value;
   $('planningType').innerHTML=options.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
   $('planningType').value=(selectedValue && options.includes(selectedValue))?selectedValue:(options.includes(previous)?previous:options[0]);
   $('planningWodSourceWrap').classList.toggle('hidden',cat!=='WOD');
   syncPlanningChoiceButtons();updatePlanningWodFormatFields();
+ }
+ function planningMovementLines(details){
+  const lines=String(details||'').split(/\n+/).map(line=>line.trim()).filter(Boolean);
+  const result=[];
+  for(const line of lines){
+   if(/^(FORMAT\s*:|SPECIALITÉ SÉANCE\s*:)/i.test(line))continue;
+   const setRep=line.match(/^\s*(\d+)\s*[x×]\s*(\d+(?:[.,]\d+)?)\s+/i);
+   const simpleRep=!setRep?line.match(/^\s*(\d+(?:[.,]\d+)?)\s+/):null;
+   const load=line.match(/\s+(\d+(?:[.,]\d+)?)\s*(kg|kgs|lb|lbs)\s*$/i);
+   let movementText=line;
+   if(setRep)movementText=movementText.slice(setRep[0].length);
+   else if(simpleRep)movementText=movementText.slice(simpleRep[0].length);
+   if(load)movementText=movementText.slice(0,load.index);
+   movementText=movementText.replace(/^['"“”]+|['"“”]+$/g,'').trim();
+   if(!movementText)continue;
+   const matched=typeof findMovementForTimerLine==='function'?findMovementForTimerLine(line):null;
+   // N'afficher que les mouvements reconnus ou les lignes clairement prescrites en séries/répétitions.
+   if(!matched&&!setRep&&!simpleRep&&!load)continue;
+   const name=matched?.name||movementText;
+   const reps=setRep?`${setRep[1]}x${setRep[2]}`:(simpleRep?simpleRep[1]:'');
+   const loadText=load?`${load[1]}${load[2].toLowerCase().replace(/s$/,'')}`:'';
+   result.push({name,reps,load:loadText,source:line});
+  }
+  return result;
+ }
+ function planningTimerPayload(item){
+  const category=normalizeCategory(item.category);
+  const details=String(item.details||'');
+  const movements=planningMovementLines(details).map(m=>({name:m.name,reps:m.reps||null,unit:'',load:m.load||''}));
+  const formatMatch=details.match(/FORMAT\s*:\s*(AMRAP|EMOM|TABATA|FOR TIME)\b([^\n]*)/i);
+  const format=formatMatch?formatMatch[1].toUpperCase():String(item.session_type||'').toUpperCase();
+  const tail=formatMatch?.[2]||'';
+  const timerConfig={};let duration=Number(item.duration_minutes)||null;let type='STOPWATCH';
+  if(category==='WOD'&&['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){
+   type=format==='FOR TIME'?'FOR TIME':format;
+   if(format==='AMRAP'){const n=tail.match(/(\d+)\s*min/i);if(n)duration=Number(n[1]);timerConfig.duration_minutes=duration;}
+   if(format==='EMOM'){const n=tail.match(/(\d+)\s*min/i),w=tail.match(/(\d+)\s*sec/i);if(n)duration=Number(n[1]);if(w)timerConfig.work_seconds=Number(w[1]);}
+   if(format==='TABATA'){const c=tail.match(/(\d+)\s*round/i),w=tail.match(/(\d+)\s*s\s*travail/i),r=tail.match(/(\d+)\s*s\s*repos/i);if(c)timerConfig.cycles=Number(c[1]);if(w)timerConfig.work_seconds=Number(w[1]);if(r)timerConfig.rest_seconds=Number(r[1]);}
+   if(format==='FOR TIME'){const c=tail.match(/(\d+)\s*round/i),cap=tail.match(/time cap\s*(\d+)\s*min/i),r=tail.match(/repos\s*(\d+)\s*s/i);if(c)timerConfig.rounds=Number(c[1]);if(cap)duration=Number(cap[1]);if(r)timerConfig.rest_seconds=Number(r[1]);timerConfig.time_cap_minutes=duration??0;}
+  }
+  return {name:item.title||'Séance planifiée',type,duration,consigne:item.notes||'',timerConfig,movements};
+ }
+ function launchPlanningSession(item){
+  if(!item)return;
+  const payload=planningTimerPayload(item);
+  if(payload.type==='STOPWATCH')setTimerType('STOPWATCH');
+  sendWodToTimer(payload);
  }
  function weekSessions(){const start=dateKey(monday(selectedDate)),end=dateKey(addDays(monday(selectedDate),6));return sessions.filter(x=>x.session_date>=start&&x.session_date<=end);}
  const minutesLabel = mins => {const n=Math.round(Number(mins)||0);return `${Math.floor(n/60)} h${n%60?` ${String(n%60).padStart(2,'0')}`:''}`;};
@@ -4510,8 +4559,11 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
       <div class="planning-session-statusline"><span class="planning-session-meta">${esc(x.session_type)}</span><span class="planning-status ${x.status==='DONE'?'done':x.status==='CANCELLED'?'cancelled':''}">${status}</span></div>
       <div class="planning-session-title">${esc(x.title)}</div>
       <div class="planning-session-meta">${categoryName(x.category)}${x.duration_minutes?` · ${Number(x.duration_minutes)} MIN`:''}</div>
-      ${x.details?`<div class="planning-session-details">${esc(x.details.length>105?x.details.slice(0,102)+'…':x.details)}</div>`:''}
+      ${normalizeCategory(x.category)==='WOD'&&planningSpecialtyFromDetails(x.details)?`<div class="planning-session-meta">SPÉCIALITÉ : ${esc(planningSpecialtyFromDetails(x.details))}</div>`:''}
+      ${planningMovementLines(x.details).length?`<div class="planning-session-details"><strong>MOUVEMENTS :</strong> ${planningMovementLines(x.details).map(m=>esc(`${m.reps?m.reps+' ':''}${m.name}${m.load?' · '+m.load:''}`)).join(' · ')}</div>`:''}
+      ${x.details?`<div class="planning-session-details">${esc(stripPlanningSpecialty(x.details).length>105?stripPlanningSpecialty(x.details).slice(0,102)+'…':stripPlanningSpecialty(x.details))}</div>`:''}
       <div class="planning-session-actions">
+       <button class="primary" type="button" data-plan-timer="${esc(x.id)}">▶ CHRONO</button>
        <button class="secondary" type="button" data-plan-edit="${esc(x.id)}">MODIFIER</button>
        ${x.status!=='DONE'?`<button class="secondary planning-done-btn" type="button" data-plan-done="${esc(x.id)}">✓</button>`:''}
        <button class="secondary" type="button" data-plan-duplicate="${esc(x.id)}" title="Dupliquer">＋</button>
@@ -4530,8 +4582,10 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   $('planningWeekHours').textContent=(week.reduce((a,x)=>a+Number(x.duration_minutes||0),0)/60).toLocaleString('fr-FR',{maximumFractionDigits:1})+' h';
   $('planningWeekDone').textContent=week.filter(x=>x.status==='DONE').length;
  }
- function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); updateTypes(item?.session_type||''); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=item?.details||''; $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
- function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); editingId=null; }
+ function planningSpecialtyFromDetails(details){const match=String(details||'').match(/SPECIALITÉ SÉANCE\s*:\s*([^\n]+)/i);return match?match[1].trim():'';}
+ function stripPlanningSpecialty(details){return String(details||'').replace(/\n?SPECIALITÉ SÉANCE\s*:\s*[^\n]*/i,'').trim();}
+ function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); $('planningSpecialty').value=planningSpecialtyFromDetails(item?.details)||(specialtyChoices.some(([value])=>value===item?.session_type)?item.session_type:'Libre'); updateTypes(specialtyChoices.some(([value])=>value===item?.session_type)?'LIBRE':(item?.session_type||'')); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=stripPlanningSpecialty(item?.details||''); $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); $('planningSpecialty').value='Libre'; syncPlanningChoiceButtons(); editingId=null; }
  function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— CRÉATION MANUELLE —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
  async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
  $('planningPrevWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,-7);render()});
@@ -4546,8 +4600,9 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  ['planningWodAmrapDuration','planningWodEmomDuration','planningWodEmomWork','planningWodTabataCycles','planningWodTabataWork','planningWodTabataRest','planningWodFortimeCap','planningWodFortimeRounds','planningWodFortimeRest'].forEach(id=>$(id).addEventListener('input',updatePlanningWodFormatFields));
  $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod){syncPlanningChoiceButtons();return;}const format=String(wod.type||'').toUpperCase()==='FORTIME'?'FOR TIME':String(wod.type||'').toUpperCase();if(['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){$('planningType').value=format;syncPlanningChoiceButtons();updatePlanningWodFormatFields();loadPlanningWodConfig(wod);} $('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
  $('planningWeekDays').addEventListener('click',async e=>{
-  const add=e.target.closest('[data-plan-add]'),edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),del=e.target.closest('[data-plan-delete]'),done=e.target.closest('[data-plan-done]');
+  const add=e.target.closest('[data-plan-add]'),edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),del=e.target.closest('[data-plan-delete]'),done=e.target.closest('[data-plan-done]'),timer=e.target.closest('[data-plan-timer]');
   if(add){selectedDate=parseDate(add.dataset.planAdd);openEditor();return;}
+  if(timer){const item=sessions.find(x=>String(x.id)===timer.dataset.planTimer);if(item)launchPlanningSession(item);return;}
   if(edit){const item=sessions.find(x=>String(x.id)===edit.dataset.planEdit);if(item)openEditor(item);return;}
   if(dup){const item=sessions.find(x=>String(x.id)===dup.dataset.planDuplicate);if(item){selectedDate=parseDate(item.session_date);openEditor({...item,id:null,session_date:dateKey(addDays(parseDate(item.session_date),1)),title:item.title+' (copie)'})}return;}
   if(del&&confirm('Supprimer cette séance du planning ?')){try{await window.deletePlanningSession(del.dataset.planDelete);await refresh()}catch(err){alert('Suppression impossible : '+err.message)}return;}
@@ -4558,7 +4613,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  $('planningWeekDays').addEventListener('dragover',e=>{const col=e.target.closest('[data-plan-drop]');if(!col)return;e.preventDefault();col.classList.add('drag-over');});
  $('planningWeekDays').addEventListener('dragleave',e=>{const col=e.target.closest('[data-plan-drop]');if(col&&!col.contains(e.relatedTarget))col.classList.remove('drag-over');});
  $('planningWeekDays').addEventListener('drop',async e=>{const col=e.target.closest('[data-plan-drop]');if(!col)return;e.preventDefault();col.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain')||draggedSessionId;const item=sessions.find(x=>String(x.id)===String(id));if(!item||item.session_date===col.dataset.planDrop)return;try{await window.updatePlanningSession(item.id,{session_date:col.dataset.planDrop});await refresh()}catch(err){alert('Déplacement impossible : '+err.message)}finally{draggedSessionId=null;}});
- $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,actual_duration_minutes:$('planningStatusSelect').value==='DONE'&&$('planningActualDuration').value!==''?Number($('planningActualDuration').value):null,status:$('planningStatusSelect').value,details:($('planningDetails').value.trim()+(normalizeCategory($('planningCategory').value)==='WOD'?planningWodConfigText():'' )).trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
+ $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,actual_duration_minutes:$('planningStatusSelect').value==='DONE'&&$('planningActualDuration').value!==''?Number($('planningActualDuration').value):null,status:$('planningStatusSelect').value,details:($('planningDetails').value.trim()+(normalizeCategory($('planningCategory').value)==='WOD'?planningWodConfigText()+'\nSPECIALITÉ SÉANCE : '+$('planningSpecialty').value:'' )).trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
  $('planningSaveToLibrary').addEventListener('click',async()=>{if(normalizeCategory($('planningCategory').value)!=='WOD')return;const name=$('planningTitle').value.trim(),details=$('planningDetails').value.trim();if(!name||!details){$('planningFormStatus').textContent='Renseigne le nom et le contenu du WOD avant de l’enregistrer.';return;}const movements=details.split(/\n+/).map((line,i)=>({name:line.trim(),reps:null,position:i+1})).filter(x=>x.name);try{const saved=await window.saveManualWodToSupabase({name,type:'LIBRE',duration:Number($('planningDuration').value)||null,movements,timerConfig:{format:'LIBRE'},consigne:$('planningNotes').value.trim(),category:'WOD',collection:'PERSONAL'});window.wods.unshift(saved);fillWodSelect();$('planningWodSource').value=saved.id;$('planningFormStatus').textContent='WOD enregistré dans la bibliothèque. Tu peux maintenant enregistrer la séance au planning.';}catch(err){$('planningFormStatus').textContent='Enregistrement dans la bibliothèque impossible : '+err.message}});
  window.refreshSportPlanning=refresh;window.onSportPlanningPage=()=>{fillWodSelect();refresh()};
  document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="planningPage"]'))window.onSportPlanningPage()});
