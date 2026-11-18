@@ -4732,11 +4732,15 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const activeKey=dateKey(monday(selectedDate));
   const firstWeek=monday(month),lastWeek=monday(monthEnd);
   let html=`<div class="planning-week-block"><div class="planning-week-block-label">${new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month).toUpperCase()}</div>`;
-  let index=1;
+  const isoWeekNumber=date=>{
+   const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
+   d.setUTCDate(d.getUTCDate()+4-(d.getUTCDay()||7));
+   const yearStart=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+   return Math.ceil((((d-yearStart)/86400000)+1)/7);
+  };
   for(let weekStart=new Date(firstWeek);weekStart<=lastWeek;weekStart=addDays(weekStart,7)){
    const weekEnd=addDays(weekStart,6),key=dateKey(weekStart);
-   html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>S${index}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
-   index++;
+   html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>S${isoWeekNumber(weekStart)}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
   }
   $('planningWeekSelector').innerHTML=html+'</div>';
  }
