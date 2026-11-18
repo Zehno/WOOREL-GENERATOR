@@ -2188,19 +2188,26 @@ function updateCount() {
 
 function syncManualWodChoiceButtons() {
   const collection = document.getElementById("manualWodCollection")?.value || "PERSONAL";
-  const category = document.getElementById("manualWodCategory")?.value || "WOD";
+  const categorySelector = document.getElementById("manualWodCategory");
+  if (collection === "ELODIE" && categorySelector) categorySelector.value = "WOD";
+  const category = categorySelector?.value || "WOD";
   document.querySelectorAll("[data-manual-choice]").forEach(button => {
-    const selected = button.dataset.manualChoice === "collection" ? collection : category;
-    const active = button.dataset.value === selected;
+    const isCategory = button.dataset.manualChoice === "category";
+    const selected = isCategory ? category : collection;
+    const allowedForElodie = !isCategory || collection !== "ELODIE" || button.dataset.value === "WOD";
+    button.hidden = !allowedForElodie;
+    button.disabled = !allowedForElodie;
+    const active = button.dataset.value === selected && allowedForElodie;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", active ? "true" : "false");
   });
 }
 const manualWodChoiceForm = document.getElementById("manualWodForm");
-if (manualWodChoiceForm) {
+if (manualWodChoiceForm && manualWodChoiceForm.dataset.choiceButtonsBound !== "true") {
+  manualWodChoiceForm.dataset.choiceButtonsBound = "true";
   manualWodChoiceForm.addEventListener("click", event => {
     const button = event.target.closest("[data-manual-choice]");
-    if (!button) return;
+    if (!button || button.disabled) return;
     const selectorId = button.dataset.manualChoice === "collection" ? "manualWodCollection" : "manualWodCategory";
     const selector = document.getElementById(selectorId);
     if (!selector) return;
@@ -2242,7 +2249,8 @@ function setupWodCategoryFilters() {
     if (!button) return;
     activeWodCategoryFilter = button.dataset.categoryFilter || "ALL";
     const categorySelector = document.getElementById("manualWodCategory");
-    if (categorySelector && WOD_CATEGORIES.includes(activeWodCategoryFilter)) categorySelector.value = activeWodCategoryFilter;
+    if (categorySelector && activeWodCollectionFilter !== "ELODIE" && WOD_CATEGORIES.includes(activeWodCategoryFilter)) categorySelector.value = activeWodCategoryFilter;
+    if (activeWodCollectionFilter === "ELODIE" && categorySelector) categorySelector.value = "WOD";
     syncManualWodChoiceButtons();
     filters.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === activeWodCategoryFilter));
     displayLibrary();
@@ -2339,7 +2347,8 @@ function displayLibrary() {
 function beginEditWod(wod) {
   editingWodId = wod.id;
   document.getElementById("manualWodCollection").value = wod.collection || "PERSONAL";
-  document.getElementById("manualWodCategory").value = getWodCategory(wod);
+  document.getElementById("manualWodCategory").value = (wod.collection === "ELODIE") ? "WOD" : getWodCategory(wod);
+  syncManualWodChoiceButtons();
   syncManualWodChoiceButtons();
   document.getElementById("manualWodTitle").value = wod.name || "";
   const isMulti = !!(wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length);
@@ -2385,7 +2394,8 @@ function resetManualWodEditor() {
   editingWodId = null;
   document.getElementById("manualWodForm").reset();
   document.getElementById("manualWodCollection").value = activeWodCollectionFilter === "ELODIE" ? "ELODIE" : "PERSONAL";
-  document.getElementById("manualWodCategory").value = WOD_CATEGORIES.includes(activeWodCategoryFilter) ? activeWodCategoryFilter : "WOD";
+  document.getElementById("manualWodCategory").value = activeWodCollectionFilter === "ELODIE" ? "WOD" : (WOD_CATEGORIES.includes(activeWodCategoryFilter) ? activeWodCategoryFilter : "WOD");
+  syncManualWodChoiceButtons();
   syncManualWodChoiceButtons();
   document.getElementById("manualMultiBlock").checked = false;
   document.getElementById("singleWodFields").classList.remove("hidden");
@@ -4368,19 +4378,40 @@ resetTimer();
  const fmtRange = (a,b) => `${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long'}).format(a)} — ${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'}).format(b)}`;
  const categoryChoices=[['COURSE','COURSE À PIED'],['CYCLISME','CYCLISME'],['FORCE','FORCE'],['RECUPERATION','RÉCUPÉRATION'],['NATATION','NATATION'],['CORE','CORE TRAINING'],['TESTS','TESTS PHYSIQUES'],['WOD','WOD']];
  const statusChoices=[['PLANNED','À FAIRE'],['DONE','RÉALISÉE'],['CANCELLED','ANNULÉE']];
- function renderChoiceButtons(containerId,items,selected,onPick){const root=$(containerId);if(!root)return;root.innerHTML=items.map(([value,label])=>`<button type="button" class="planning-choice-btn${String(value)===String(selected)?' active':''}" data-choice-value="${esc(value)}" aria-pressed="${String(value)===String(selected)}">${esc(label)}</button>`).join('');root.querySelectorAll('[data-choice-value]').forEach(btn=>btn.addEventListener('click',()=>onPick(btn.dataset.choiceValue)));}
+ function renderChoiceButtons(containerId,items,selected){
+  const root=$(containerId);if(!root)return;
+  root.innerHTML=items.map(([value,label])=>`<button type="button" class="planning-choice-btn${String(value)===String(selected)?' active':''}" data-choice-value="${esc(value)}" aria-pressed="${String(value)===String(selected)}">${esc(label)}</button>`).join('');
+ }
  function syncPlanningChoiceButtons(){
-  renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value,value=>{$('planningCategory').value=value;updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory(value)!=='WOD');syncPlanningChoiceButtons();});
-  renderChoiceButtons('planningStatusButtons',statusChoices,$('planningStatusSelect').value,value=>{$('planningStatusSelect').value=value;$('planningStatusSelect').dispatchEvent(new Event('change'));syncPlanningChoiceButtons();});
+  renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value);
+  renderChoiceButtons('planningStatusButtons',statusChoices,$('planningStatusSelect').value);
+  const currentType=$('planningType').value;
+  renderChoiceButtons('planningTypeButtons',(typeOptions[normalizeCategory($('planningCategory').value)]||typeOptions.COURSE).map(x=>[x,x]),currentType);
+ }
+ const planningChoiceForm=$('planningSessionForm');
+ if(planningChoiceForm && planningChoiceForm.dataset.choiceButtonsBound!=='true'){
+  planningChoiceForm.dataset.choiceButtonsBound='true';
+  planningChoiceForm.addEventListener('click',event=>{
+   const button=event.target.closest('#planningCategoryButtons [data-choice-value],#planningTypeButtons [data-choice-value],#planningStatusButtons [data-choice-value]');
+   if(!button)return;
+   const value=button.dataset.choiceValue;
+   if(button.parentElement.id==='planningCategoryButtons'){
+    $('planningCategory').value=value;updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory(value)!=='WOD');
+   }else if(button.parentElement.id==='planningTypeButtons'){
+    $('planningType').value=value;
+   }else if(button.parentElement.id==='planningStatusButtons'){
+    $('planningStatusSelect').value=value;$('planningStatusSelect').dispatchEvent(new Event('change'));
+   }
+   syncPlanningChoiceButtons();
+  });
  }
  function updateTypes(selectedValue=''){
   const cat=normalizeCategory($('planningCategory').value);
   const typeLabel=$('planningTypeLabel');if(typeLabel)typeLabel.textContent=cat==='WOD'?'CATÉGORIE / FORMAT DU WOD':'TYPE DE SÉANCE';
   const options=typeOptions[cat]||typeOptions.COURSE;
+  const previous=$('planningType').value;
   $('planningType').innerHTML=options.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
-  if(selectedValue && options.includes(selectedValue)) $('planningType').value=selectedValue;
-  if(!$('planningType').value) $('planningType').value=options[0];
-  renderChoiceButtons('planningTypeButtons',options.map(x=>[x,x]),$('planningType').value,value=>{$('planningType').value=value;syncPlanningChoiceButtons();});
+  $('planningType').value=(selectedValue && options.includes(selectedValue))?selectedValue:(options.includes(previous)?previous:options[0]);
   $('planningWodSourceWrap').classList.toggle('hidden',cat!=='WOD');
   syncPlanningChoiceButtons();
  }
