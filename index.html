@@ -1519,9 +1519,9 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
           </div>
           <select id="manualWodFormat" class="hidden" aria-hidden="true" tabindex="-1"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
         </div>
-        <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MINUTES)</label><input id="manualAmrapDuration" type="number" min="1" value="20"></div>
+        <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MM:SS)</label><input id="manualAmrapDuration" type="text" inputmode="numeric" value="20:00" placeholder="MM:SS (ex. 20:30)"><p class="small-note">Saisis MM:SS pour régler précisément la durée (ex. 12:30).</p></div>
         <div id="manualEmomFields" class="hidden"><div class="grid">
-          <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MINUTES)</label><input id="manualEmomDuration" type="number" min="1" value="12"></div>
+          <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MM:SS)</label><input id="manualEmomDuration" type="text" inputmode="numeric" value="12:00" placeholder="MM:SS (ex. 12:30)"></div>
           <div class="field"><label for="manualEmomWork">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="manualEmomWork" type="number" min="1" max="1200" value="40"></div>
         </div><p class="small-note" id="manualEmomRestPreview">Repos automatique : 20 secondes par minute.</p></div>
         <div id="manualTabataFields" class="hidden"><div class="grid">
@@ -1539,7 +1539,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
             </div>
             <select id="manualFortimeFormat" class="hidden" aria-hidden="true" tabindex="-1"><option value="simple">FOR TIME SIMPLE</option><option value="rft">ROUNDS CHRONOMÉTRÉ (RFT)</option><option value="rft-rest">RFT AVEC RÉCUPÉRATION</option><option value="intermediate">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</option></select>
           </div>
-          <div class="field" id="manualFortimeCapField"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
+          <div class="field" id="manualFortimeCapField"><label for="manualFortimeCap">TIME CAP (MM:SS, 0:00 = SANS LIMITE)</label><input id="manualFortimeCap" type="text" inputmode="numeric" value="20:00" placeholder="MM:SS (0:00 = sans limite)"></div>
           <div class="grid hidden" id="manualFortimeRftFields">
             <div class="field"><label for="manualFortimeRounds">NOMBRE DE ROUNDS</label><input id="manualFortimeRounds" type="number" min="1" value="5"></div>
             <div class="field" id="manualFortimeRestField"><label for="manualFortimeRest">REPOS APRÈS CHAQUE ROUND (SECONDES)</label><input id="manualFortimeRest" type="number" min="0" value="60"></div>
@@ -2055,10 +2055,10 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <div class="field"><label id="planningTypeLabel">TYPE DE SÉANCE</label><div id="planningTypeButtons" class="planning-choice-group" role="group" aria-label="Type de séance"></div><select id="planningType" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
       <div class="field hidden" id="planningWodFormatSettings">
         <label>PARAMÈTRES DU FORMAT WOD</label>
-        <div class="planning-form-grid" id="planningWodAmrapFields"><div class="field"><label for="planningWodAmrapDuration">DURÉE (MIN)</label><input type="number" id="planningWodAmrapDuration" min="1" value="20"></div></div>
-        <div class="planning-form-grid hidden" id="planningWodEmomFields"><div class="field"><label for="planningWodEmomDuration">DURÉE (MIN)</label><input type="number" id="planningWodEmomDuration" min="1" value="12"></div><div class="field"><label for="planningWodEmomWork">TRAVAIL PAR MINUTE (SEC)</label><input type="number" id="planningWodEmomWork" min="1" value="40"></div></div>
+        <div class="planning-form-grid" id="planningWodAmrapFields"><div class="field"><label for="planningWodAmrapDuration">DURÉE (MM:SS)</label><input type="text" inputmode="numeric" id="planningWodAmrapDuration" value="20:00" placeholder="MM:SS"></div></div>
+        <div class="planning-form-grid hidden" id="planningWodEmomFields"><div class="field"><label for="planningWodEmomDuration">DURÉE (MM:SS)</label><input type="text" inputmode="numeric" id="planningWodEmomDuration" value="12:00" placeholder="MM:SS"></div><div class="field"><label for="planningWodEmomWork">TRAVAIL PAR MINUTE (SEC)</label><input type="number" id="planningWodEmomWork" min="1" value="40"></div></div>
         <div class="planning-form-grid hidden" id="planningWodTabataFields"><div class="field"><label for="planningWodTabataCycles">ROUNDS / CYCLES</label><input type="number" id="planningWodTabataCycles" min="1" value="8"></div><div class="field"><label for="planningWodTabataWork">TEMPS DE TRAVAIL (SEC)</label><input type="number" id="planningWodTabataWork" min="1" value="20"></div><div class="field"><label for="planningWodTabataRest">TEMPS DE REPOS (SEC)</label><input type="number" id="planningWodTabataRest" min="0" value="10"></div></div>
-        <div class="planning-form-grid hidden" id="planningWodFortimeFields"><div class="field"><label for="planningWodFortimeCap">TIME CAP (MIN)</label><input type="number" id="planningWodFortimeCap" min="0" value="0"></div><div class="field"><label for="planningWodFortimeRounds">ROUNDS</label><input type="number" id="planningWodFortimeRounds" min="1" value="5"></div><div class="field"><label for="planningWodFortimeRest">REPOS ENTRE ROUNDS (SEC)</label><input type="number" id="planningWodFortimeRest" min="0" value="60"></div></div>
+        <div class="planning-form-grid hidden" id="planningWodFortimeFields"><div class="field"><label for="planningWodFortimeCap">TIME CAP (MM:SS, 0:00 = SANS LIMITE)</label><input type="text" inputmode="numeric" id="planningWodFortimeCap" value="0:00" placeholder="MM:SS"></div><div class="field"><label for="planningWodFortimeRounds">ROUNDS</label><input type="number" id="planningWodFortimeRounds" min="1" value="5"></div><div class="field"><label for="planningWodFortimeRest">REPOS ENTRE ROUNDS (SEC)</label><input type="number" id="planningWodFortimeRest" min="0" value="60"></div></div>
         <p class="small-note" id="planningWodFormatSummary">Les paramètres du format sélectionné seront repris dans le contenu de la séance.</p>
       </div>
       <div class="field hidden" id="planningWodSourceWrap"><label for="planningWodSource">CHOISIR DANS MA BIBLIOTHÈQUE DE WOD</label><select id="planningWodSource"><option value="">— CRÉATION MANUELLE —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
@@ -2438,16 +2438,16 @@ function beginEditWod(wod) {
   manualFormat.value = ["AMRAP", "EMOM", "TABATA", "FOR TIME"].includes(format) ? format : "AMRAP";
   const cfg = wod.timerConfig || {};
   if (manualFormat.value === "AMRAP") {
-    document.getElementById("manualAmrapDuration").value = cfg.duration_minutes ?? wod.duration ?? 20;
+    document.getElementById("manualAmrapDuration").value = formatWodDurationInput(cfg.duration_seconds ?? (Number(cfg.duration_minutes ?? wod.duration ?? 20)*60));
   } else if (manualFormat.value === "EMOM") {
-    document.getElementById("manualEmomDuration").value = cfg.duration_minutes ?? wod.duration ?? 12;
+    document.getElementById("manualEmomDuration").value = formatWodDurationInput(cfg.duration_seconds ?? (Number(cfg.duration_minutes ?? wod.duration ?? 12)*60));
     document.getElementById("manualEmomWork").value = cfg.work_seconds ?? 40;
   } else if (manualFormat.value === "TABATA") {
     document.getElementById("manualTabataWork").value = cfg.work_seconds ?? 20;
     document.getElementById("manualTabataRest").value = cfg.rest_seconds ?? 10;
     document.getElementById("manualTabataCycles").value = cfg.cycles ?? 8;
   } else {
-    document.getElementById("manualFortimeCap").value = cfg.time_cap_minutes ?? wod.duration ?? 0;
+    document.getElementById("manualFortimeCap").value = formatWodDurationInput(cfg.time_cap_seconds ?? (Number(cfg.time_cap_minutes ?? wod.duration ?? 0)*60));
     document.getElementById("manualFortimeFormat").value = cfg.format || "simple";
     document.getElementById("manualFortimeRounds").value = cfg.rounds ?? 5;
     document.getElementById("manualFortimeRest").value = cfg.rest_seconds ?? 60;
@@ -2567,10 +2567,12 @@ function sendWodToTimer(wod) {
   }
   sequenceBlocks = [];
   if (["AMRAP","EMOM","TABATA","FORTIME"].includes(type)) setTimerType(type);
-  if (wod.duration) {
-    if (type === "AMRAP") document.getElementById("amrapDuration").value = wod.duration;
-    if (type === "EMOM") document.getElementById("emomDuration").value = wod.duration;
-    if (type === "FORTIME") document.getElementById("fortimeLimit").value = wod.duration;
+  if (wod.duration || wod.timerConfig?.duration_seconds || wod.timerConfig?.time_cap_seconds) {
+    const cfgSeconds=wod.timerConfig?.duration_seconds ?? wod.timerConfig?.time_cap_seconds;
+    const timerMinutes=cfgSeconds!=null?Number(cfgSeconds)/60:Number(wod.duration||0);
+    if (type === "AMRAP") document.getElementById("amrapDuration").value = timerMinutes;
+    if (type === "EMOM") document.getElementById("emomDuration").value = timerMinutes;
+    if (type === "FORTIME") document.getElementById("fortimeLimit").value = timerMinutes;
   }
   if (wod.timerConfig) {
     const cfg = wod.timerConfig;
@@ -2795,6 +2797,22 @@ function playCountdownTone(number) {
   playTone(frequencies[number] || 880, number === "GO" ? 0.6 : 0.22);
 }
 
+// Saisie des durées WOD : accepte les minutes seules ou le format MM:SS (ex. 12:30).
+function parseWodDurationSeconds(value, fallbackSeconds=0) {
+  const raw=String(value ?? "").trim();
+  if (!raw) return Math.max(0, Number(fallbackSeconds)||0);
+  if (/^\d+\s*:\s*\d{1,2}$/.test(raw)) {
+    const [m,sec]=raw.split(":").map(v=>Number(v.trim()));
+    return Math.max(0,m*60+Math.min(59,sec));
+  }
+  const n=Number(raw);
+  return Number.isFinite(n)&&n>=0 ? Math.round(n*60) : Math.max(0,Number(fallbackSeconds)||0);
+}
+function formatWodDurationInput(seconds) {
+  const n=Math.max(0,Math.round(Number(seconds)||0));
+  return `${Math.floor(n/60)}:${String(n%60).padStart(2,"0")}`;
+}
+
 // =======================================
 // DUREE DU CHRONOMETRE
 // =======================================
@@ -2804,8 +2822,8 @@ function blockDurationSeconds(block) {
   const type = block.type;
   if (type === "TABATA") return Math.max(1, block.work || 20) * Math.max(1, block.cycles || 8) +
     Math.max(0, block.rest || 10) * (Math.max(1, block.cycles || 8) - 1);
-  if (type === "FORTIME") return Math.max(1, block.duration || 1) * 60;
-  return Math.max(1, block.duration || 1) * 60;
+  if (type === "FORTIME") return Math.max(1, block.duration_seconds ?? parseWodDurationSeconds(block.duration,60));
+  return Math.max(1, block.duration_seconds ?? parseWodDurationSeconds(block.duration,60));
 }
 function getSequenceTimeline() {
   let cursor = 0;
@@ -4012,7 +4030,7 @@ function renderMultiBlocks(existing = multiBlockDraft) {
         ${["AMRAP","EMOM","TABATA","FORTIME"].map(t=>`<button type="button" class="manual-format-btn${block.type===t?' active':''}" data-block-format="${t}" data-index="${index}" aria-pressed="${block.type===t}">${t==='FORTIME'?'FOR TIME':t}</button>`).join("")}
       </div><input type="hidden" data-block-field="type" data-index="${index}" value="${block.type||'AMRAP'}"></div>
       <div class="grid">
-        <div class="field"><label>DURÉE / TIME CAP (MINUTES)</label><input type="number" min="1" data-block-field="duration" data-index="${index}" value="${block.duration ?? (block.type==="TABATA"?4:12)}"></div>
+        <div class="field"><label>DURÉE / TIME CAP (MM:SS)</label><input type="text" inputmode="numeric" data-block-field="duration" data-index="${index}" value="${block.duration_seconds!=null?formatWodDurationInput(block.duration_seconds):formatWodDurationInput((Number(block.duration ?? (block.type==="TABATA"?4:12)))*60)}" placeholder="12:30"></div>
         <div class="field ${block.type==="EMOM"?"":"hidden"}" data-emom-wrap="${index}"><label>TRAVAIL PAR MINUTE (SEC)</label><input type="number" min="1" max="59" data-block-field="work" data-index="${index}" value="${block.work ?? 40}"></div>
         <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-wrap="${index}"><label>TRAVAIL (SEC)</label><input type="number" min="1" data-block-field="work" data-index="${index}" value="${block.work ?? 20}"></div>
         <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-rest-wrap="${index}"><label>REPOS (SEC)</label><input type="number" min="0" data-block-field="rest" data-index="${index}" value="${block.rest ?? 10}"></div>
@@ -4029,7 +4047,8 @@ function renderMultiBlocks(existing = multiBlockDraft) {
   host.querySelectorAll("[data-block-field]").forEach(el => {
     el.addEventListener("input", () => {
       const i=Number(el.dataset.index), key=el.dataset.blockField;
-      multiBlockDraft[i][key] = key==="type" || key==="exercises" ? el.value : Number(el.value);
+      multiBlockDraft[i][key] = key==="type" || key==="exercises" || key==="duration" ? el.value : Number(el.value);
+      if(key==="duration") multiBlockDraft[i].duration_seconds=parseWodDurationSeconds(el.value,60);
       if (key==="type") renderMultiBlocks(multiBlockDraft);
       updateMultiBlockTotal();
     });
@@ -4054,7 +4073,7 @@ function collectMultiBlocks(readDOM=true) {
   document.querySelectorAll("#multiBlocksList .panel").forEach((card,i)=>{
     const get=k=>card.querySelector(`[data-block-field="${k}"]`)?.value;
     const type=get("type")||"AMRAP";
-    blocks.push({type,duration:Number(get("duration"))||1,work:Number(get("work"))||(type==="TABATA"?20:40),
+    blocks.push({type,duration:get("duration"),duration_seconds:parseWodDurationSeconds(get("duration"),60),work:Number(get("work"))||(type==="TABATA"?20:40),
       rest:Number(get("rest"))||10,cycles:Number(get("cycles"))||8,exercises:get("exercises")||"",
       rest_after:Number(get("rest_after"))||0});
   });
@@ -4090,16 +4109,18 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   let duration = null;
   let timerConfig = { format: type };
   if (multiMode) {
-    blocks = blocks.map((b,i)=>({...b, duration:Math.max(1,Number(b.duration)||1), rest_after:i===blocks.length-1?0:Math.max(0,Number(b.rest_after)||0)}));
+    blocks = blocks.map((b,i)=>({...b, duration_seconds:Math.max(1,Number(b.duration_seconds)||parseWodDurationSeconds(b.duration,60)), rest_after:i===blocks.length-1?0:Math.max(0,Number(b.rest_after)||0)}));
     timerConfig = { format:"MIX", blocks };
     duration = Math.ceil(getSequenceDurationFromBlocks(blocks)/60);
   } else if (type === "AMRAP") {
-    duration = Math.max(1, Number(document.getElementById("manualAmrapDuration").value) || 1);
-    timerConfig.duration_minutes = duration;
+    const durationSeconds = Math.max(1, parseWodDurationSeconds(document.getElementById("manualAmrapDuration").value,1200));
+    duration = Math.ceil(durationSeconds/60);
+    timerConfig.duration_minutes = durationSeconds/60; timerConfig.duration_seconds = durationSeconds;
   } else if (type === "EMOM") {
-    duration = Math.max(1, Number(document.getElementById("manualEmomDuration").value) || 1);
+    const durationSeconds = Math.max(1, parseWodDurationSeconds(document.getElementById("manualEmomDuration").value,720));
+    duration = Math.ceil(durationSeconds/60);
     const work = Math.max(1, Math.min(59, Number(document.getElementById("manualEmomWork").value) || 40));
-    timerConfig = { format:type, duration_minutes:duration, work_seconds:work, rest_seconds:60-work, interval_seconds:60 };
+    timerConfig = { format:type, duration_minutes:durationSeconds/60, duration_seconds:durationSeconds, work_seconds:work, rest_seconds:60-work, interval_seconds:60 };
   } else if (type === "TABATA") {
     const work = Math.max(1, Number(document.getElementById("manualTabataWork").value) || 20);
     const rest = Math.max(0, Number(document.getElementById("manualTabataRest").value) || 0);
@@ -4108,9 +4129,10 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
     duration = Math.ceil(totalSeconds/60);
     timerConfig = { format:type, work_seconds:work, rest_seconds:rest, cycles, total_seconds:totalSeconds };
   } else {
-    duration = Math.max(0, Number(document.getElementById("manualFortimeCap").value) || 0) || null;
+    const capSeconds = parseWodDurationSeconds(document.getElementById("manualFortimeCap").value,1200);
+    duration = capSeconds>0 ? Math.ceil(capSeconds/60) : null;
     const fortimeFormat = document.getElementById("manualFortimeFormat").value || "simple";
-    timerConfig = { format: fortimeFormat, time_cap_minutes: duration };
+    timerConfig = { format: fortimeFormat, time_cap_minutes: capSeconds/60, time_cap_seconds: capSeconds };
     if (fortimeFormat === "rft" || fortimeFormat === "rft-rest") {
       timerConfig.rounds = Math.max(1, Number(document.getElementById("manualFortimeRounds").value) || 1);
       timerConfig.rest_seconds = fortimeFormat === "rft-rest" ? Math.max(0, Number(document.getElementById("manualFortimeRest").value) || 0) : 0;
@@ -4474,28 +4496,28 @@ resetTimer();
   const target={AMRAP:'Amrap',EMOM:'Emom',TABATA:'Tabata','FOR TIME':'Fortime'}[format];
   if(isWod&&target)$('planningWod'+target+'Fields').classList.remove('hidden');
   const summary=$('planningWodFormatSummary');
-  if(summary){const vals={AMRAP:`AMRAP · ${$('planningWodAmrapDuration').value||20} min`,EMOM:`EMOM · ${$('planningWodEmomDuration').value||12} min · ${$('planningWodEmomWork').value||40} sec de travail/min`,TABATA:`TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||0}s repos`,'FOR TIME':`FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||0} min · repos ${$('planningWodFortimeRest').value||0}s`};summary.textContent=vals[format]||'Choisis AMRAP, EMOM, TABATA ou FOR TIME pour afficher les paramètres.';}
+  if(summary){const vals={AMRAP:`AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`,EMOM:`EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail/min`,TABATA:`TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||0}s repos`,'FOR TIME':`FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||'0:00'} · repos ${$('planningWodFortimeRest').value||0}s`};summary.textContent=vals[format]||'Choisis AMRAP, EMOM, TABATA ou FOR TIME pour afficher les paramètres.';}
  }
  function loadPlanningWodConfig(wod){
   const cfg=wod?.timerConfig||{};const type=String(wod?.type||'').toUpperCase();
-  if(type==='AMRAP')$('planningWodAmrapDuration').value=cfg.duration_minutes??wod.duration??20;
-  if(type==='EMOM'){$('planningWodEmomDuration').value=cfg.duration_minutes??wod.duration??12;$('planningWodEmomWork').value=cfg.work_seconds??40;}
+  if(type==='AMRAP')$('planningWodAmrapDuration').value=formatWodDurationInput(cfg.duration_seconds??Number(cfg.duration_minutes??wod.duration??20)*60);
+  if(type==='EMOM'){$('planningWodEmomDuration').value=formatWodDurationInput(cfg.duration_seconds??Number(cfg.duration_minutes??wod.duration??12)*60);$('planningWodEmomWork').value=cfg.work_seconds??40;}
   if(type==='TABATA'){$('planningWodTabataCycles').value=cfg.cycles??8;$('planningWodTabataWork').value=cfg.work_seconds??20;$('planningWodTabataRest').value=cfg.rest_seconds??10;}
-  if(type==='FOR TIME'||type==='FORTIME'){$('planningWodFortimeCap').value=cfg.time_cap_minutes??wod.duration??0;$('planningWodFortimeRounds').value=cfg.rounds??5;$('planningWodFortimeRest').value=cfg.rest_seconds??60;}
+  if(type==='FOR TIME'||type==='FORTIME'){$('planningWodFortimeCap').value=formatWodDurationInput(cfg.time_cap_seconds??Number(cfg.time_cap_minutes??wod.duration??0)*60);$('planningWodFortimeRounds').value=cfg.rounds??5;$('planningWodFortimeRest').value=cfg.rest_seconds??60;}
   updatePlanningWodFormatFields();
  }
  function planningWodConfigText(){const type=planningWodFormat();if(type==='AMRAP')return `
 
-FORMAT : AMRAP · ${$('planningWodAmrapDuration').value||20} min`;
+FORMAT : AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`;
   if(type==='EMOM')return `
 
-FORMAT : EMOM · ${$('planningWodEmomDuration').value||12} min · ${$('planningWodEmomWork').value||40} sec de travail par minute`;
+FORMAT : EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail par minute`;
   if(type==='TABATA')return `
 
 FORMAT : TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||10}s repos`;
   if(type==='FOR TIME')return `
 
-FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||0} min · repos ${$('planningWodFortimeRest').value||0}s`;
+FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||'0:00'} · repos ${$('planningWodFortimeRest').value||0}s`;
   return '';}
  const planningChoiceForm=$('planningSessionForm');
  if(planningChoiceForm && planningChoiceForm.dataset.choiceButtonsBound!=='true'){
