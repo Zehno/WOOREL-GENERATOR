@@ -4637,7 +4637,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   $('runWeeklyChart').innerHTML=weekRows.some(x=>x.km>0)?weekRows.map(x=>`<div class="run-chart-col"><div class="run-chart-bar" style="height:${Math.max(x.km?3:0,x.km/maxKm*100)}%">${x.km?`<em>${x.km.toLocaleString('fr-FR',{maximumFractionDigits:1})}</em>`:''}</div><span class="run-chart-label">${x.label}</span></div>`).join(''):'<span class="small-note">Aucune distance renseignée sur les 12 dernières semaines.</span>';
   const bestRunWeek=weekRows.reduce((best,x)=>x.km>best.km?x:best,{km:0,label:'—'});
   $('runBestWeek').textContent=bestRunWeek.km?`Meilleure semaine : ${bestRunWeek.km.toLocaleString('fr-FR',{maximumFractionDigits:1})} km · semaine du ${bestRunWeek.label}`:'Meilleure semaine : —';
-  const zoneColors=['#56d8e8','#d62978','#f28c28','#39dc58','#e53935'];
+  const zoneColors=['#9ca3af','#56d8e8','#39dc58','#f28c28','#e53935'];
   const zoneNames=['Z1 · Récupération','Z2 · Endurance','Z3 · Tempo','Z4 · Seuil','Z5 · VO₂ max'];
   const zoneTotals=[1,2,3,4,5].map(n=>done12.reduce((a,x)=>a+Number(x['hr_zone_'+n+'_minutes']||0),0));
   const zoneSum=zoneTotals.reduce((a,b)=>a+b,0),zoneMax=Math.max(1,...zoneTotals);
