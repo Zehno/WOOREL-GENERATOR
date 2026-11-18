@@ -1990,19 +1990,11 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <div class="stats-card"><span>SÉANCES PRÉVUES</span><strong id="statsPlanned">0</strong><small>hors séances annulées</small></div>
       <div class="stats-card"><span>SÉANCES RÉALISÉES</span><strong id="statsDone">0</strong><small id="statsDoneSub">0 non réalisée(s)</small></div>
       <div class="stats-card"><span>TAUX DE RÉALISATION</span><strong id="statsRate">0 %</strong><small>réalisées / prévues</small></div>
-      <div class="stats-card"><span>TEMPS PRÉVU</span><strong id="statsPlannedTime">0 h</strong><small>durée programmée</small></div>
       <div class="stats-card"><span>TEMPS RÉEL</span><strong id="statsActualTime">0 h</strong><small>durées réellement saisies</small></div>
-      <div class="stats-card"><span>ÉCART PRÉVU / RÉEL</span><strong id="statsGap">—</strong><small>réel moins prévu</small></div>
-      <div class="stats-card"><span>MOYENNE HEBDO · 4 SEM.</span><strong id="statsAvg4">0 h</strong><small id="statsAvg4Sessions">0 séance / semaine</small></div>
-      <div class="stats-card"><span>MOYENNE HEBDO · 12 SEM.</span><strong id="statsAvg12">0 h</strong><small id="statsAvg12Sessions">0 séance / semaine</small></div>
     </div>
 
     <div class="stats-section-title">STATISTIQUES · ÉVOLUTION</div>
     <div class="stats-grid">
-      <div class="stats-card"><span>HEURES RÉALISÉES · 4 SEM.</span><strong id="statsTotal4">0 h</strong><small>volume cumulé</small></div>
-      <div class="stats-card"><span>SÉANCES · 4 SEM.</span><strong id="statsCount4">0</strong><small>séances réalisées</small></div>
-      <div class="stats-card"><span>HEURES RÉALISÉES · 12 SEM.</span><strong id="statsTotal12">0 h</strong><small>volume cumulé</small></div>
-      <div class="stats-card"><span>MEILLEURE SEMAINE</span><strong id="statsBestWeek">—</strong><small id="statsBestWeekSub">en temps réel effectué</small></div>
     </div>
     <div class="stats-chart-grid">
       <section class="stats-chart-card">
@@ -4618,20 +4610,13 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const now=new Date();now.setHours(12,0,0,0);const thisMonday=monday(now),thisStart=dateKey(thisMonday),thisEnd=dateKey(addDays(thisMonday,6));
   const current=sessions.filter(x=>x.session_date>=thisStart&&x.session_date<=thisEnd&&x.status!=='CANCELLED');
   const done=current.filter(x=>x.status==='DONE'),planned=current.length,notDone=current.filter(x=>x.status!=='DONE').length;
-  const plannedMin=current.reduce((a,x)=>a+Number(x.duration_minutes||0),0),actualMin=done.reduce((a,x)=>a+Number(x.actual_duration_minutes||0),0);
+  const actualMin=done.reduce((a,x)=>a+Number(x.actual_duration_minutes||0),0);
   const hasActual=done.some(x=>x.actual_duration_minutes!==null&&x.actual_duration_minutes!==undefined&&x.actual_duration_minutes!=='');
   $('statsPlanned').textContent=planned;$('statsDone').textContent=done.length;$('statsDoneSub').textContent=`${notDone} non réalisée(s)`;$('statsRate').textContent=(planned?Math.round(done.length/planned*100):0)+'%';
-  $('statsPlannedTime').textContent=minutesLabel(plannedMin);$('statsActualTime').textContent=minutesLabel(actualMin);$('statsGap').textContent=hasActual?`${actualMin-plannedMin>=0?'+':'−'}${minutesLabel(Math.abs(actualMin-plannedMin))}`:'—';
+  $('statsActualTime').textContent=minutesLabel(actualMin);
   const start4=addDays(thisMonday,-21),start12=addDays(thisMonday,-77),key4=dateKey(start4),key12=dateKey(start12);
   const recent4=sessions.filter(x=>x.session_date>=key4&&x.session_date<=thisEnd),recent12=sessions.filter(x=>x.session_date>=key12&&x.session_date<=thisEnd);
-  const done4=recent4.filter(x=>x.status==='DONE'),done12=recent12.filter(x=>x.status==='DONE');
-  const sumActual=arr=>arr.reduce((a,x)=>a+Number(x.actual_duration_minutes||0),0);
-  const total4=sumActual(done4),total12=sumActual(done12);
-  $('statsAvg4').textContent=minutesLabel(total4/4);$('statsAvg4Sessions').textContent=(done4.length/4).toLocaleString('fr-FR',{maximumFractionDigits:1})+' séance(s) / semaine';
-  $('statsAvg12').textContent=minutesLabel(total12/12);$('statsAvg12Sessions').textContent=(done12.length/12).toLocaleString('fr-FR',{maximumFractionDigits:1})+' séance(s) / semaine';
-  $('statsTotal4').textContent=minutesLabel(total4);$('statsCount4').textContent=done4.length;$('statsTotal12').textContent=minutesLabel(total12);
-  const weekly={};done12.forEach(x=>{const d=parseDate(x.session_date),k=dateKey(monday(d));weekly[k]=(weekly[k]||0)+Number(x.actual_duration_minutes||0)});
-  const best=Object.entries(weekly).sort((a,b)=>b[1]-a[1])[0];$('statsBestWeek').textContent=best?minutesLabel(best[1]):'—';$('statsBestWeekSub').textContent=best?`Semaine du ${new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(parseDate(best[0]))}`:'Aucune séance réalisée';
+  const done12=recent12.filter(x=>x.status==='DONE');
   // Afficher systématiquement toutes les disciplines, même sans séance réalisée.
   const disciplineOrder=['COURSE À PIED','CYCLISME','FORCE','RÉCUPÉRATION','NATATION','CORE TRAINING','TESTS PHYSIQUES','HYROX','CrossFit','Libre','WOD'];
   const groups={};disciplineOrder.forEach(label=>groups[label]={minutes:0,count:0,load:0,loadCount:0});
