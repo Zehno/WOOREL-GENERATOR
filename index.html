@@ -1321,6 +1321,13 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
 .planning-column-day{text-transform:capitalize}
 @media(max-width:850px){.planning-week-layout{grid-template-columns:1fr}.planning-week-sidebar{position:static}.planning-week-sidebar #planningWeekSelector{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.planning-week-choice{justify-content:center;flex-direction:column;text-align:center;padding:8px 3px;margin:0}}
 
+.planning-week-totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--panel2)}
+.planning-week-totals>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.planning-week-totals span{font-size:9px;font-weight:900;letter-spacing:.5px;color:var(--muted)}
+.planning-week-totals strong{font-size:18px;font-weight:1000}
+.planning-week-sidebar{max-height:70vh;overflow-y:auto;position:sticky;top:12px}
+.planning-week-block-label{white-space:nowrap}
+@media(max-width:850px){.planning-week-totals{grid-template-columns:1fr 1fr}.planning-week-sidebar{max-height:none;overflow:visible}}
 /* Statistiques du planning sportif */
 /* Sélections du formulaire planning et bibliothèque : boutons */
 .manual-format-buttons{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
@@ -1980,7 +1987,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
     <div class="planning-week-layout">
       <aside class="planning-week-sidebar" aria-label="Navigation des semaines">
-        <div class="planning-week-sidebar-title">CYCLES DE 4 SEMAINES</div>
+        <div class="planning-week-sidebar-title">SEMAINES DU MOIS</div>
         <div id="planningWeekSelector"></div>
       </aside>
       <div class="planning-week-content">
@@ -1990,6 +1997,11 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
           <div class="planning-kpi"><span>SÉANCES RÉALISÉES</span><strong id="planningWeekDone">0</strong><small>validées</small></div>
         </div>
         <div class="planning-calendar-scroll"><div class="planning-week" id="planningWeekDays"></div></div>
+        <section class="planning-week-totals" aria-label="Totaux hebdomadaires">
+          <div><span>DISTANCE COURSE À PIED</span><strong id="planningWeekDistance">0 km</strong></div>
+          <div><span>DURÉE TOTALE RÉALISÉE</span><strong id="planningWeekActualDuration">0 h</strong></div>
+          <div><span>CALORIES</span><strong id="planningWeekCalories">0 kcal</strong></div>
+        </section>
       </div>
     </div>
     <div class="planning-legend">
@@ -4715,24 +4727,18 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function setPlanningView(view){const stats=view==='stats';$('planningCalendarPanel').classList.toggle('hidden',stats);$('planningStatsPanel').classList.toggle('hidden',!stats);$('planningCalendarTab').classList.toggle('active',!stats);$('planningStatsTab').classList.toggle('active',stats);$('planningCalendarTab').setAttribute('aria-selected',String(!stats));$('planningStatsTab').setAttribute('aria-selected',String(stats));if(stats)renderStats();}
  function renderWeekSelector(){
-  const monthBase=new Date(new Date().getFullYear(),new Date().getMonth(),1,12);
+  const month=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1,12);
+  const monthEnd=new Date(selectedDate.getFullYear(),selectedDate.getMonth()+1,0,12);
   const activeKey=dateKey(monday(selectedDate));
-  const blocks=[];
-  for(let offset=0;offset<6;offset++){
-   const month=new Date(monthBase.getFullYear(),monthBase.getMonth()+offset,1,12);
-   const monthEnd=new Date(month.getFullYear(),month.getMonth()+1,0,12);
-   const firstWeek=monday(month);
-   const lastWeek=monday(monthEnd);
-   let html=`<div class="planning-week-block"><div class="planning-week-block-label">${new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month).toUpperCase()}</div>`;
-   let index=1;
-   for(let weekStart=new Date(firstWeek);weekStart<=lastWeek;weekStart=addDays(weekStart,7)){
-    const weekEnd=addDays(weekStart,6),key=dateKey(weekStart);
-    html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>S${index}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
-    index++;
-   }
-   html+='</div>';blocks.push(html);
+  const firstWeek=monday(month),lastWeek=monday(monthEnd);
+  let html=`<div class="planning-week-block"><div class="planning-week-block-label">${new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month).toUpperCase()}</div>`;
+  let index=1;
+  for(let weekStart=new Date(firstWeek);weekStart<=lastWeek;weekStart=addDays(weekStart,7)){
+   const weekEnd=addDays(weekStart,6),key=dateKey(weekStart);
+   html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>S${index}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
+   index++;
   }
-  $('planningWeekSelector').innerHTML=blocks.join('');
+  $('planningWeekSelector').innerHTML=html+'</div>';
  }
  function render(){
   renderStats();
@@ -4770,6 +4776,13 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   $('planningWeekCount').textContent=week.length;
   $('planningWeekHours').textContent=(week.reduce((a,x)=>a+Number(x.duration_minutes||0),0)/60).toLocaleString('fr-FR',{maximumFractionDigits:1})+' h';
   $('planningWeekDone').textContent=week.filter(x=>x.status==='DONE').length;
+  const completedWeek=week.filter(x=>x.status==='DONE');
+  const weeklyKm=completedWeek.filter(x=>normalizeCategory(x.category)==='COURSE').reduce((a,x)=>a+Number(x.distance_km||0),0);
+  const weeklyMinutes=completedWeek.reduce((a,x)=>a+Number(x.actual_duration_minutes||0),0);
+  const weeklyCalories=completedWeek.reduce((a,x)=>a+Number(x.calories_burned||x.calories||0),0);
+  $('planningWeekDistance').textContent=weeklyKm.toLocaleString('fr-FR',{maximumFractionDigits:2})+' km';
+  $('planningWeekActualDuration').textContent=minutesLabel(weeklyMinutes);
+  $('planningWeekCalories').textContent=Math.round(weeklyCalories).toLocaleString('fr-FR')+' kcal';
  }
  function planningSpecialtyFromDetails(details){const match=String(details||'').match(/SPECIALITÉ SÉANCE\s*:\s*([^\n]+)/i);return match?match[1].trim():'';}
  function stripPlanningSpecialty(details){return String(details||'').replace(/\n?SPECIALITÉ SÉANCE\s*:\s*[^\n]*/i,'').trim();}
