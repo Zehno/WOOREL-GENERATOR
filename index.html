@@ -1310,6 +1310,12 @@ main { overflow-x: hidden; }
 }
 
 /* Statistiques du planning sportif */
+/* Sélections du formulaire planning et bibliothèque : boutons */
+.manual-format-buttons{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.manual-format-btn{appearance:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:9px;padding:10px 13px;font-size:11px;font-weight:900;letter-spacing:.35px;cursor:pointer;transition:.15s}
+.manual-format-btn:hover{border-color:var(--green)}
+.manual-format-btn.active{border-color:var(--green);background:rgba(140,255,0,.12);color:var(--green);box-shadow:inset 0 0 0 1px rgba(140,255,0,.12)}
+.manual-format-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
 /* Sélections du formulaire planning : boutons plutôt que listes déroulantes */
 .planning-choice-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
 .planning-choice-btn{appearance:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:9px;padding:10px 13px;font-size:11px;font-weight:900;letter-spacing:.35px;cursor:pointer;transition:.15s}
@@ -1418,8 +1424,14 @@ main { overflow-x: hidden; }
           <p class="small-note">Ajoute autant de blocs que nécessaire, avec un format et un temps de repos entre chaque bloc.</p>
         </div>
         <div id="singleWodFields">
-        <div class="field"><label for="manualWodFormat">FORMAT</label>
-          <select id="manualWodFormat"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
+        <div class="field"><label>FORMAT</label>
+          <div id="manualWodFormatButtons" class="manual-format-buttons" role="group" aria-label="Format du WOD">
+            <button class="manual-format-btn active" type="button" data-manual-format="AMRAP" aria-pressed="true">AMRAP</button>
+            <button class="manual-format-btn" type="button" data-manual-format="EMOM" aria-pressed="false">EMOM</button>
+            <button class="manual-format-btn" type="button" data-manual-format="TABATA" aria-pressed="false">TABATA</button>
+            <button class="manual-format-btn" type="button" data-manual-format="FOR TIME" aria-pressed="false">FOR TIME</button>
+          </div>
+          <select id="manualWodFormat" class="hidden" aria-hidden="true" tabindex="-1"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
         </div>
         <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MINUTES)</label><input id="manualAmrapDuration" type="number" min="1" value="20"></div>
         <div id="manualEmomFields" class="hidden"><div class="grid">
@@ -1432,7 +1444,15 @@ main { overflow-x: hidden; }
           <div class="field"><label for="manualTabataCycles">NOMBRE DE CYCLES</label><input id="manualTabataCycles" type="number" min="1" value="8"></div>
         </div><p class="small-note" id="manualTabataTotal">Durée totale calculée : 4 min 00 s.</p></div>
         <div id="manualFortimeFields" class="hidden">
-          <div class="field"><label for="manualFortimeFormat">FORMAT FOR TIME</label><select id="manualFortimeFormat"><option value="simple">FOR TIME SIMPLE</option><option value="rft">ROUNDS CHRONOMÉTRÉ (RFT)</option><option value="rft-rest">RFT AVEC RÉCUPÉRATION</option><option value="intermediate">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</option></select></div>
+          <div class="field"><label>FORMAT FOR TIME</label>
+            <div id="manualFortimeFormatButtons" class="manual-format-buttons" role="group" aria-label="Sous-format For Time">
+              <button class="manual-format-btn active" type="button" data-manual-fortime="simple" aria-pressed="true">FOR TIME SIMPLE</button>
+              <button class="manual-format-btn" type="button" data-manual-fortime="rft" aria-pressed="false">ROUNDS CHRONOMÉTRÉ (RFT)</button>
+              <button class="manual-format-btn" type="button" data-manual-fortime="rft-rest" aria-pressed="false">RFT AVEC RÉCUPÉRATION</button>
+              <button class="manual-format-btn" type="button" data-manual-fortime="intermediate" aria-pressed="false">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</button>
+            </div>
+            <select id="manualFortimeFormat" class="hidden" aria-hidden="true" tabindex="-1"><option value="simple">FOR TIME SIMPLE</option><option value="rft">ROUNDS CHRONOMÉTRÉ (RFT)</option><option value="rft-rest">RFT AVEC RÉCUPÉRATION</option><option value="intermediate">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</option></select>
+          </div>
           <div class="field" id="manualFortimeCapField"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
           <div class="grid hidden" id="manualFortimeRftFields">
             <div class="field"><label for="manualFortimeRounds">NOMBRE DE ROUNDS</label><input id="manualFortimeRounds" type="number" min="1" value="5"></div>
@@ -1914,8 +1934,8 @@ main { overflow-x: hidden; }
       <div class="field"><label>DISCIPLINE</label><div id="planningCategoryButtons" class="planning-choice-group" role="group" aria-label="Discipline"></div><select id="planningCategory" class="hidden" aria-hidden="true" tabindex="-1">
         <option value="COURSE">COURSE À PIED</option><option value="CYCLISME">CYCLISME</option><option value="FORCE">FORCE</option><option value="RECUPERATION">RÉCUPÉRATION</option><option value="NATATION">NATATION</option><option value="CORE">CORE TRAINING</option><option value="TESTS">TESTS PHYSIQUES</option><option value="WOD">WOD</option>
       </select></div>
-      <div class="field"><label>TYPE DE SÉANCE</label><div id="planningTypeButtons" class="planning-choice-group" role="group" aria-label="Type de séance"></div><select id="planningType" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
-      <div class="field hidden" id="planningWodSourceWrap"><label>CHOISIR DANS MA BIBLIOTHÈQUE WOD</label><div id="planningWodSourceButtons" class="planning-choice-group compact" role="group" aria-label="WOD de la bibliothèque"></div><select id="planningWodSource" class="hidden" aria-hidden="true" tabindex="-1"><option value="">— Création manuelle —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
+      <div class="field"><label id="planningTypeLabel">TYPE DE SÉANCE</label><div id="planningTypeButtons" class="planning-choice-group" role="group" aria-label="Type de séance"></div><select id="planningType" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
+      <div class="field hidden" id="planningWodSourceWrap"><label for="planningWodSource">CHOISIR DANS MA BIBLIOTHÈQUE DE WOD</label><select id="planningWodSource"><option value="">— CRÉATION MANUELLE —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
       <div class="field"><label for="planningTitle">INTITULÉ DE LA SÉANCE</label><input id="planningTitle" maxlength="120" required placeholder="Ex. : VMA 10 × 400 m"></div>
       <div class="planning-form-grid"><div class="field"><label for="planningDuration">DURÉE PRÉVUE (MINUTES)</label><input type="number" id="planningDuration" min="0" max="1440" placeholder="Ex. : 60"></div><div class="field"><label>STATUT</label><div id="planningStatusButtons" class="planning-choice-group compact" role="group" aria-label="Statut de la séance"></div><select id="planningStatusSelect" class="hidden" aria-hidden="true" tabindex="-1"><option value="PLANNED">À FAIRE</option><option value="DONE">RÉALISÉE</option><option value="CANCELLED">ANNULÉE</option></select></div></div>
       <div class="field" id="planningActualDurationWrap"><label for="planningActualDuration">DURÉE RÉELLE EFFECTUÉE (MINUTES)</label><input type="number" id="planningActualDuration" min="0" max="1440" placeholder="Ex. : 52"><p class="small-note">À renseigner lorsque la séance est réalisée. Cette durée alimentera les statistiques.</p></div>
@@ -3839,8 +3859,17 @@ manualFormat.addEventListener("change", () => {
   updateManualExerciseHelp();
 });
 document.getElementById("manualFortimeFormat").addEventListener("change", updateManualFortimeFields);
+function syncManualFormatButtons(){
+  document.querySelectorAll('[data-manual-format]').forEach(btn=>{const active=btn.dataset.manualFormat===manualFormat.value;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));});
+  const fortime=document.getElementById('manualFortimeFormat');
+  document.querySelectorAll('[data-manual-fortime]').forEach(btn=>{const active=btn.dataset.manualFortime===fortime.value;btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));});
+}
+document.getElementById('manualWodFormatButtons').addEventListener('click',e=>{const btn=e.target.closest('[data-manual-format]');if(!btn)return;manualFormat.value=btn.dataset.manualFormat;manualFormat.dispatchEvent(new Event('change',{bubbles:true}));syncManualFormatButtons();});
+document.getElementById('manualFortimeFormatButtons').addEventListener('click',e=>{const btn=e.target.closest('[data-manual-fortime]');if(!btn)return;document.getElementById('manualFortimeFormat').value=btn.dataset.manualFortime;document.getElementById('manualFortimeFormat').dispatchEvent(new Event('change',{bubbles:true}));syncManualFormatButtons();});
+
 ["manualEmomWork","manualTabataWork","manualTabataRest","manualTabataCycles"].forEach(id => document.getElementById(id).addEventListener("input", updateManualPreviews));
 updateManualFormatFields();
+syncManualFormatButtons();
 updateManualExerciseHelp();
 
 function parseManualExercises(raw) {
@@ -3891,9 +3920,9 @@ function renderMultiBlocks(existing = multiBlockDraft) {
         <h3>BLOC ${index+1}</h3>
         <button type="button" class="secondary" data-remove-block="${index}">SUPPRIMER</button>
       </div>
-      <div class="field"><label>FORMAT</label><select data-block-field="type" data-index="${index}">
-        ${["AMRAP","EMOM","TABATA","FORTIME"].map(t=>`<option ${block.type===t?"selected":""}>${t}</option>`).join("")}
-      </select></div>
+      <div class="field"><label>FORMAT</label><div class="manual-format-buttons" role="group" aria-label="Format du bloc ${index+1}">
+        ${["AMRAP","EMOM","TABATA","FORTIME"].map(t=>`<button type="button" class="manual-format-btn${block.type===t?' active':''}" data-block-format="${t}" data-index="${index}" aria-pressed="${block.type===t}">${t==='FORTIME'?'FOR TIME':t}</button>`).join("")}
+      </div><input type="hidden" data-block-field="type" data-index="${index}" value="${block.type||'AMRAP'}"></div>
       <div class="grid">
         <div class="field"><label>DURÉE / TIME CAP (MINUTES)</label><input type="number" min="1" data-block-field="duration" data-index="${index}" value="${block.duration ?? (block.type==="TABATA"?4:12)}"></div>
         <div class="field ${block.type==="EMOM"?"":"hidden"}" data-emom-wrap="${index}"><label>TRAVAIL PAR MINUTE (SEC)</label><input type="number" min="1" max="59" data-block-field="work" data-index="${index}" value="${block.work ?? 40}"></div>
@@ -3905,6 +3934,10 @@ function renderMultiBlocks(existing = multiBlockDraft) {
       <div class="field"><label>REPOS APRÈS CE BLOC (MINUTES)</label><input type="number" min="0" step="0.5" data-block-field="rest_after" data-index="${index}" value="${block.rest_after ?? 0}" ${index===multiBlockDraft.length-1?"disabled":""}></div>`;
     host.appendChild(card);
   });
+  host.querySelectorAll('[data-block-format]').forEach(btn=>btn.addEventListener('click',()=>{
+    const i=Number(btn.dataset.index),type=btn.dataset.blockFormat;
+    if(!multiBlockDraft[i])return;multiBlockDraft[i].type=type;renderMultiBlocks(multiBlockDraft);
+  }));
   host.querySelectorAll("[data-block-field]").forEach(el => {
     el.addEventListener("input", () => {
       const i=Number(el.dataset.index), key=el.dataset.blockField;
@@ -4318,6 +4351,7 @@ resetTimer();
   CORE:['Abdominaux','Gainage','Stabilité'],
   TESTS:['Test VMA','FTP','5 km','10 km','Force maximale','Tests HYROX'],
   WOD:[
+    'AMRAP','EMOM','TABATA','FOR TIME',
     'HYROX — Run Compromised','HYROX — Circuit',
     'CrossFit — Mixed Modality','CrossFit — Gym','CrossFit — Haltérophilie','CrossFit — Ergomètre',
     'HYROX','CrossFit','Libre'
@@ -4336,11 +4370,12 @@ resetTimer();
  const statusChoices=[['PLANNED','À FAIRE'],['DONE','RÉALISÉE'],['CANCELLED','ANNULÉE']];
  function renderChoiceButtons(containerId,items,selected,onPick){const root=$(containerId);if(!root)return;root.innerHTML=items.map(([value,label])=>`<button type="button" class="planning-choice-btn${String(value)===String(selected)?' active':''}" data-choice-value="${esc(value)}" aria-pressed="${String(value)===String(selected)}">${esc(label)}</button>`).join('');root.querySelectorAll('[data-choice-value]').forEach(btn=>btn.addEventListener('click',()=>onPick(btn.dataset.choiceValue)));}
  function syncPlanningChoiceButtons(){
-  renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value,value=>{$('planningCategory').value=value;updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory(value)!=='WOD');});
+  renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value,value=>{$('planningCategory').value=value;updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory(value)!=='WOD');syncPlanningChoiceButtons();});
   renderChoiceButtons('planningStatusButtons',statusChoices,$('planningStatusSelect').value,value=>{$('planningStatusSelect').value=value;$('planningStatusSelect').dispatchEvent(new Event('change'));syncPlanningChoiceButtons();});
  }
  function updateTypes(selectedValue=''){
   const cat=normalizeCategory($('planningCategory').value);
+  const typeLabel=$('planningTypeLabel');if(typeLabel)typeLabel.textContent=cat==='WOD'?'CATÉGORIE / FORMAT DU WOD':'TYPE DE SÉANCE';
   const options=typeOptions[cat]||typeOptions.COURSE;
   $('planningType').innerHTML=options.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
   if(selectedValue && options.includes(selectedValue)) $('planningType').value=selectedValue;
@@ -4425,7 +4460,7 @@ resetTimer();
  }
  function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); updateTypes(item?.session_type||''); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=item?.details||''; $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
  function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); editingId=null; }
- function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— Création manuelle —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;const choices=[['','— CRÉATION MANUELLE —'],...list.map(w=>[String(w.id),`${w.name} · ${w.type}`])];renderChoiceButtons('planningWodSourceButtons',choices,select.value,value=>{select.value=value;select.dispatchEvent(new Event('change'));syncPlanningChoiceButtons();});}
+ function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— CRÉATION MANUELLE —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
  async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
  $('planningPrevWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,-7);render()});
  $('planningNextWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,7);render()});
