@@ -1311,7 +1311,7 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
 .planning-week-choice small{font-size:9px;color:var(--muted)}
 .planning-week-choice.active{border-color:var(--green);background:rgba(140,255,0,.09);color:var(--green)}
 .planning-week-choice.active small{color:var(--green)}
-.planning-week-content{min-width:0}
+.planning-week-content{min-width:0;width:100%}\n.planning-week-block{padding-bottom:9px;margin-bottom:8px;border-bottom:1px solid var(--border)}\n.planning-week-block:last-child{border-bottom:0}\n.planning-week-block-label{text-transform:uppercase;font-size:9px;font-weight:1000;letter-spacing:.65px;color:var(--muted);padding:4px 5px 6px}\n.planning-calendar-scroll{width:100%;overflow-x:auto;overscroll-behavior-x:contain}\n.planning-column-day{text-transform:capitalize}
 @media(max-width:850px){.planning-week-layout{grid-template-columns:1fr}.planning-week-sidebar{position:static}.planning-week-sidebar #planningWeekSelector{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.planning-week-choice{justify-content:center;flex-direction:column;text-align:center;padding:8px 3px;margin:0}}
 
 /* Statistiques du planning sportif */
@@ -4720,15 +4720,20 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function setPlanningView(view){const stats=view==='stats';$('planningCalendarPanel').classList.toggle('hidden',stats);$('planningStatsPanel').classList.toggle('hidden',!stats);$('planningCalendarTab').classList.toggle('active',!stats);$('planningStatsTab').classList.toggle('active',stats);$('planningCalendarTab').setAttribute('aria-selected',String(!stats));$('planningStatsTab').setAttribute('aria-selected',String(stats));if(stats)renderStats();}
  function renderWeekSelector(){
-  const base=monday(new Date());
+  const monthBase=new Date(new Date().getFullYear(),new Date().getMonth(),1,12);
   const activeKey=dateKey(monday(selectedDate));
   const blocks=[];
-  for(let block=0;block<6;block++){
-   let html=`<div class="planning-week-block"><div class="planning-week-block-label">${block===0?'BLOC ACTUEL':`BLOC ${block+1}`}</div>`;
-   for(let w=0;w<4;w++){
-    const offset=block*4+w,weekStart=addDays(base,offset*7),weekEnd=addDays(weekStart,6),key=dateKey(weekStart);
-    const label=`S${w+1}`;
-    html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>${label}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
+  for(let offset=0;offset<6;offset++){
+   const month=new Date(monthBase.getFullYear(),monthBase.getMonth()+offset,1,12);
+   const monthEnd=new Date(month.getFullYear(),month.getMonth()+1,0,12);
+   const firstWeek=monday(month);
+   const lastWeek=monday(monthEnd);
+   let html=`<div class="planning-week-block"><div class="planning-week-block-label">${new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(month).toUpperCase()}</div>`;
+   let index=1;
+   for(let weekStart=new Date(firstWeek);weekStart<=lastWeek;weekStart=addDays(weekStart,7)){
+    const weekEnd=addDays(weekStart,6),key=dateKey(weekStart);
+    html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>S${index}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
+    index++;
    }
    html+='</div>';blocks.push(html);
   }
@@ -4761,7 +4766,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
     </article>`;
    }).join(''):'<div class="planning-column-empty">Aucune séance<br>programmée</div>';
    return `<div class="planning-day-column ${key===today?'is-today':''}" data-plan-drop="${key}">
-     <div class="planning-column-head"><div><div class="planning-column-day">${new Intl.DateTimeFormat('fr-FR',{weekday:'short'}).format(d)}</div><div class="planning-column-date">${d.getDate()}</div></div><button class="planning-column-add" type="button" data-plan-add="${key}" title="Ajouter une séance">+</button></div>
+     <div class="planning-column-head"><div><div class="planning-column-day">${new Intl.DateTimeFormat('fr-FR',{weekday:'long'}).format(d)}</div><div class="planning-column-date">${d.getDate()}</div></div><button class="planning-column-add" type="button" data-plan-add="${key}" title="Ajouter une séance">+</button></div>
      ${cards}
    </div>`;
   }).join('');
