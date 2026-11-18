@@ -1183,6 +1183,16 @@ main { overflow-x: hidden; }
 }
 
 
+
+
+/* Choix rapides en boutons dans le formulaire de création WOD */
+.manual-choice-buttons{display:flex;flex-wrap:wrap;gap:9px;margin-top:8px}
+.manual-choice-btn{flex:1 1 120px;min-height:46px;padding:11px 14px;border:1px solid #344237;border-radius:10px;background:linear-gradient(180deg,#1b241d,#121914);color:#d9e1da;font-size:12px;font-weight:900;letter-spacing:.45px;cursor:pointer;transition:background .15s,border-color .15s,transform .15s}
+.manual-choice-btn:hover{border-color:var(--green);transform:translateY(-1px)}
+.manual-choice-btn.active{background:linear-gradient(135deg,#a5ff22,#65d900);border-color:#a5ff22;color:#081000;box-shadow:0 0 15px rgba(140,255,0,.18)}
+.manual-choice-btn:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+@media(max-width:520px){.manual-choice-btn{flex:1 1 calc(50% - 9px);font-size:11px;padding:10px 7px}}
+
 /* ================= PLANNING SPORT ================= */
 .planning-toolbar{display:flex;gap:9px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
 .planning-toolbar .secondary{flex:0 0 auto}
@@ -1300,6 +1310,13 @@ main { overflow-x: hidden; }
 }
 
 /* Statistiques du planning sportif */
+/* Sélections du formulaire planning : boutons plutôt que listes déroulantes */
+.planning-choice-group{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
+.planning-choice-btn{appearance:none;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:9px;padding:10px 13px;font-size:11px;font-weight:900;letter-spacing:.35px;cursor:pointer;transition:.15s}
+.planning-choice-btn:hover{border-color:var(--green)}
+.planning-choice-btn.active{border-color:var(--green);background:rgba(140,255,0,.12);color:var(--green);box-shadow:inset 0 0 0 1px rgba(140,255,0,.12)}
+.planning-choice-btn:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.planning-choice-group.compact .planning-choice-btn{padding:8px 10px;font-size:10px}
 .planning-view-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 14px}
 .planning-view-tabs button{flex:1;min-width:130px}
 .planning-view-tabs button.active{border-color:var(--green);color:var(--green);background:rgba(140,255,0,.08)}
@@ -1376,8 +1393,26 @@ main { overflow-x: hidden; }
       <h2>AJOUTER UN WOD MANUELLEMENT</h2>
       <form id="manualWodForm">
         <div class="field"><label for="manualWodTitle">TITRE DU WOD</label><input id="manualWodTitle" required maxlength="100" placeholder="Ex. : ENGINE BUILDER"></div>
-        <div class="field"><label for="manualWodCollection">ENREGISTRER DANS</label><select id="manualWodCollection"><option value="PERSONAL">MES WOD</option><option value="ELODIE">ELODIE ❤️</option></select><p class="small-note">Les séances d’Élodie restent séparées de ta bibliothèque personnelle.</p></div>
-        <div class="field"><label for="manualWodCategory">CATÉGORIE DU WOD</label><select id="manualWodCategory"><option value="WOD">WOD</option><option value="HYROX">HYROX</option><option value="WOD HEROES">WOD HEROES</option><option value="WOD GIRL">WOD GIRL</option></select><p class="small-note">Choisis dans quel onglet de la bibliothèque ce WOD sera classé. La collection (MES WOD / ELODIE) reste indépendante.</p></div>
+        <div class="field">
+          <label>ENREGISTRER DANS</label>
+          <div class="manual-choice-buttons" role="group" aria-label="Enregistrer le WOD dans">
+            <button class="manual-choice-btn active" type="button" data-manual-choice="collection" data-value="PERSONAL" aria-pressed="true">MES WOD</button>
+            <button class="manual-choice-btn" type="button" data-manual-choice="collection" data-value="ELODIE" aria-pressed="false">ELODIE ❤️</button>
+          </div>
+          <select id="manualWodCollection" class="hidden" aria-hidden="true" tabindex="-1"><option value="PERSONAL">MES WOD</option><option value="ELODIE">ELODIE ❤️</option></select>
+          <p class="small-note">Les séances d’Élodie restent séparées de ta bibliothèque personnelle.</p>
+        </div>
+        <div class="field">
+          <label>CATÉGORIE DU WOD</label>
+          <div class="manual-choice-buttons manual-category-buttons" role="group" aria-label="Catégorie du WOD">
+            <button class="manual-choice-btn active" type="button" data-manual-choice="category" data-value="WOD" aria-pressed="true">WOD</button>
+            <button class="manual-choice-btn" type="button" data-manual-choice="category" data-value="HYROX" aria-pressed="false">HYROX</button>
+            <button class="manual-choice-btn" type="button" data-manual-choice="category" data-value="WOD HEROES" aria-pressed="false">WOD HEROES</button>
+            <button class="manual-choice-btn" type="button" data-manual-choice="category" data-value="WOD GIRL" aria-pressed="false">WOD GIRL</button>
+          </div>
+          <select id="manualWodCategory" class="hidden" aria-hidden="true" tabindex="-1"><option value="WOD">WOD</option><option value="HYROX">HYROX</option><option value="WOD HEROES">WOD HEROES</option><option value="WOD GIRL">WOD GIRL</option></select>
+          <p class="small-note">Choisis la catégorie dans laquelle classer ce WOD. La collection (MES WOD / ELODIE) reste indépendante.</p>
+        </div>
         <div class="field">
           <label><input type="checkbox" id="manualMultiBlock"> CRÉER UNE SÉANCE AVEC PLUSIEURS BLOCS</label>
           <p class="small-note">Ajoute autant de blocs que nécessaire, avec un format et un temps de repos entre chaque bloc.</p>
@@ -1876,20 +1911,13 @@ main { overflow-x: hidden; }
     <form id="planningSessionForm">
       <input type="hidden" id="planningSessionId">
       <div class="field"><label for="planningDate">DATE</label><input type="date" id="planningDate" required></div>
-      <div class="field"><label for="planningCategory">DISCIPLINE</label><select id="planningCategory">
-        <option value="COURSE">COURSE À PIED</option>
-        <option value="CYCLISME">CYCLISME</option>
-        <option value="FORCE">FORCE</option>
-        <option value="RECUPERATION">RÉCUPÉRATION</option>
-        <option value="NATATION">NATATION</option>
-        <option value="CORE">CORE TRAINING</option>
-        <option value="TESTS">TESTS PHYSIQUES</option>
-        <option value="WOD">WOD</option>
+      <div class="field"><label>DISCIPLINE</label><div id="planningCategoryButtons" class="planning-choice-group" role="group" aria-label="Discipline"></div><select id="planningCategory" class="hidden" aria-hidden="true" tabindex="-1">
+        <option value="COURSE">COURSE À PIED</option><option value="CYCLISME">CYCLISME</option><option value="FORCE">FORCE</option><option value="RECUPERATION">RÉCUPÉRATION</option><option value="NATATION">NATATION</option><option value="CORE">CORE TRAINING</option><option value="TESTS">TESTS PHYSIQUES</option><option value="WOD">WOD</option>
       </select></div>
-      <div class="field"><label for="planningType">TYPE DE SÉANCE</label><select id="planningType"></select></div>
-      <div class="field hidden" id="planningWodSourceWrap"><label for="planningWodSource">CHOISIR DANS MA BIBLIOTHÈQUE WOD</label><select id="planningWodSource"><option value="">— Création manuelle —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
+      <div class="field"><label>TYPE DE SÉANCE</label><div id="planningTypeButtons" class="planning-choice-group" role="group" aria-label="Type de séance"></div><select id="planningType" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
+      <div class="field hidden" id="planningWodSourceWrap"><label>CHOISIR DANS MA BIBLIOTHÈQUE WOD</label><div id="planningWodSourceButtons" class="planning-choice-group compact" role="group" aria-label="WOD de la bibliothèque"></div><select id="planningWodSource" class="hidden" aria-hidden="true" tabindex="-1"><option value="">— Création manuelle —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
       <div class="field"><label for="planningTitle">INTITULÉ DE LA SÉANCE</label><input id="planningTitle" maxlength="120" required placeholder="Ex. : VMA 10 × 400 m"></div>
-      <div class="planning-form-grid"><div class="field"><label for="planningDuration">DURÉE PRÉVUE (MINUTES)</label><input type="number" id="planningDuration" min="0" max="1440" placeholder="Ex. : 60"></div><div class="field"><label for="planningStatusSelect">STATUT</label><select id="planningStatusSelect"><option value="PLANNED">À FAIRE</option><option value="DONE">RÉALISÉE</option><option value="CANCELLED">ANNULÉE</option></select></div></div>
+      <div class="planning-form-grid"><div class="field"><label for="planningDuration">DURÉE PRÉVUE (MINUTES)</label><input type="number" id="planningDuration" min="0" max="1440" placeholder="Ex. : 60"></div><div class="field"><label>STATUT</label><div id="planningStatusButtons" class="planning-choice-group compact" role="group" aria-label="Statut de la séance"></div><select id="planningStatusSelect" class="hidden" aria-hidden="true" tabindex="-1"><option value="PLANNED">À FAIRE</option><option value="DONE">RÉALISÉE</option><option value="CANCELLED">ANNULÉE</option></select></div></div>
       <div class="field" id="planningActualDurationWrap"><label for="planningActualDuration">DURÉE RÉELLE EFFECTUÉE (MINUTES)</label><input type="number" id="planningActualDuration" min="0" max="1440" placeholder="Ex. : 52"><p class="small-note">À renseigner lorsque la séance est réalisée. Cette durée alimentera les statistiques.</p></div>
       <div class="field"><label for="planningDetails">CONTENU DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea></div>
       <div class="field"><label for="planningNotes">OBJECTIF / CONSIGNES</label><textarea id="planningNotes" rows="3" placeholder="Objectif, RPE, zone FC, consignes techniques..."></textarea></div>
@@ -2138,6 +2166,30 @@ function updateCount() {
   if (count) count.textContent = wods.length;
 }
 
+function syncManualWodChoiceButtons() {
+  const collection = document.getElementById("manualWodCollection")?.value || "PERSONAL";
+  const category = document.getElementById("manualWodCategory")?.value || "WOD";
+  document.querySelectorAll("[data-manual-choice]").forEach(button => {
+    const selected = button.dataset.manualChoice === "collection" ? collection : category;
+    const active = button.dataset.value === selected;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", active ? "true" : "false");
+  });
+}
+const manualWodChoiceForm = document.getElementById("manualWodForm");
+if (manualWodChoiceForm) {
+  manualWodChoiceForm.addEventListener("click", event => {
+    const button = event.target.closest("[data-manual-choice]");
+    if (!button) return;
+    const selectorId = button.dataset.manualChoice === "collection" ? "manualWodCollection" : "manualWodCategory";
+    const selector = document.getElementById(selectorId);
+    if (!selector) return;
+    selector.value = button.dataset.value;
+    syncManualWodChoiceButtons();
+  });
+  syncManualWodChoiceButtons();
+}
+
 const WOD_CATEGORIES = ["HYROX", "WOD HEROES", "WOD GIRL", "WOD"];
 let activeWodCategoryFilter = "ALL";
 let activeWodCollectionFilter = "PERSONAL";
@@ -2154,6 +2206,7 @@ function setupWodCategoryFilters() {
       collectionFilters.querySelectorAll("[data-collection-filter]").forEach(item => item.classList.toggle("active", item.dataset.collectionFilter === activeWodCollectionFilter));
       const selector = document.getElementById("manualWodCollection");
       if (selector) selector.value = activeWodCollectionFilter;
+      syncManualWodChoiceButtons();
       displayLibrary();
     });
   }
@@ -2170,6 +2223,7 @@ function setupWodCategoryFilters() {
     activeWodCategoryFilter = button.dataset.categoryFilter || "ALL";
     const categorySelector = document.getElementById("manualWodCategory");
     if (categorySelector && WOD_CATEGORIES.includes(activeWodCategoryFilter)) categorySelector.value = activeWodCategoryFilter;
+    syncManualWodChoiceButtons();
     filters.querySelectorAll("[data-category-filter]").forEach(item => item.classList.toggle("active", item.dataset.categoryFilter === activeWodCategoryFilter));
     displayLibrary();
   });
@@ -2266,6 +2320,7 @@ function beginEditWod(wod) {
   editingWodId = wod.id;
   document.getElementById("manualWodCollection").value = wod.collection || "PERSONAL";
   document.getElementById("manualWodCategory").value = getWodCategory(wod);
+  syncManualWodChoiceButtons();
   document.getElementById("manualWodTitle").value = wod.name || "";
   const isMulti = !!(wod.timerConfig && Array.isArray(wod.timerConfig.blocks) && wod.timerConfig.blocks.length);
   document.getElementById("manualMultiBlock").checked = isMulti;
@@ -2311,6 +2366,7 @@ function resetManualWodEditor() {
   document.getElementById("manualWodForm").reset();
   document.getElementById("manualWodCollection").value = activeWodCollectionFilter === "ELODIE" ? "ELODIE" : "PERSONAL";
   document.getElementById("manualWodCategory").value = WOD_CATEGORIES.includes(activeWodCategoryFilter) ? activeWodCategoryFilter : "WOD";
+  syncManualWodChoiceButtons();
   document.getElementById("manualMultiBlock").checked = false;
   document.getElementById("singleWodFields").classList.remove("hidden");
   document.getElementById("multiBlockEditor").classList.add("hidden");
@@ -4276,12 +4332,22 @@ resetTimer();
  const categoryName = c => categoryLabels[normalizeCategory(c)] || String(c||'').toUpperCase();
  const sessionTypeClass = value => ({'HYROX — Run Compromised':'type-hyrox-run-compromised','HYROX — Circuit':'type-hyrox-circuit','CrossFit — Mixed Modality':'type-crossfit-mixed-modality','CrossFit — Gym':'type-crossfit-gym','CrossFit — Haltérophilie':'type-crossfit-halterophilie','CrossFit — Ergomètre':'type-crossfit-ergometre'}[value]||'');
  const fmtRange = (a,b) => `${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long'}).format(a)} — ${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'}).format(b)}`;
+ const categoryChoices=[['COURSE','COURSE À PIED'],['CYCLISME','CYCLISME'],['FORCE','FORCE'],['RECUPERATION','RÉCUPÉRATION'],['NATATION','NATATION'],['CORE','CORE TRAINING'],['TESTS','TESTS PHYSIQUES'],['WOD','WOD']];
+ const statusChoices=[['PLANNED','À FAIRE'],['DONE','RÉALISÉE'],['CANCELLED','ANNULÉE']];
+ function renderChoiceButtons(containerId,items,selected,onPick){const root=$(containerId);if(!root)return;root.innerHTML=items.map(([value,label])=>`<button type="button" class="planning-choice-btn${String(value)===String(selected)?' active':''}" data-choice-value="${esc(value)}" aria-pressed="${String(value)===String(selected)}">${esc(label)}</button>`).join('');root.querySelectorAll('[data-choice-value]').forEach(btn=>btn.addEventListener('click',()=>onPick(btn.dataset.choiceValue)));}
+ function syncPlanningChoiceButtons(){
+  renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value,value=>{$('planningCategory').value=value;updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory(value)!=='WOD');});
+  renderChoiceButtons('planningStatusButtons',statusChoices,$('planningStatusSelect').value,value=>{$('planningStatusSelect').value=value;$('planningStatusSelect').dispatchEvent(new Event('change'));syncPlanningChoiceButtons();});
+ }
  function updateTypes(selectedValue=''){
   const cat=normalizeCategory($('planningCategory').value);
   const options=typeOptions[cat]||typeOptions.COURSE;
   $('planningType').innerHTML=options.map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('');
   if(selectedValue && options.includes(selectedValue)) $('planningType').value=selectedValue;
+  if(!$('planningType').value) $('planningType').value=options[0];
+  renderChoiceButtons('planningTypeButtons',options.map(x=>[x,x]),$('planningType').value,value=>{$('planningType').value=value;syncPlanningChoiceButtons();});
   $('planningWodSourceWrap').classList.toggle('hidden',cat!=='WOD');
+  syncPlanningChoiceButtons();
  }
  function weekSessions(){const start=dateKey(monday(selectedDate)),end=dateKey(addDays(monday(selectedDate),6));return sessions.filter(x=>x.session_date>=start&&x.session_date<=end);}
  const minutesLabel = mins => {const n=Math.round(Number(mins)||0);return `${Math.floor(n/60)} h${n%60?` ${String(n%60).padStart(2,'0')}`:''}`;};
@@ -4357,20 +4423,20 @@ resetTimer();
   $('planningWeekHours').textContent=(week.reduce((a,x)=>a+Number(x.duration_minutes||0),0)/60).toLocaleString('fr-FR',{maximumFractionDigits:1})+' h';
   $('planningWeekDone').textContent=week.filter(x=>x.status==='DONE').length;
  }
- function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); updateTypes(item?.session_type||''); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=item?.details||''; $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); $('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ function openEditor(item=null){ editingId=item?.id||null; $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); updateTypes(item?.session_type||''); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=item?.details||''; $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
  function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); editingId=null; }
- function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— Création manuelle —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
+ function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— Création manuelle —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;const choices=[['','— CRÉATION MANUELLE —'],...list.map(w=>[String(w.id),`${w.name} · ${w.type}`])];renderChoiceButtons('planningWodSourceButtons',choices,select.value,value=>{select.value=value;select.dispatchEvent(new Event('change'));syncPlanningChoiceButtons();});}
  async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
  $('planningPrevWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,-7);render()});
  $('planningNextWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,7);render()});
  $('planningToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);render()});
  $('planningAddSession').addEventListener('click',()=>openEditor());
  $('planningCancelEdit').addEventListener('click',closeEditor);
- $('planningCategory').addEventListener('change',()=>{updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD')});
- $('planningStatusSelect').addEventListener('change',()=>{$('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE')});
+ $('planningCategory').addEventListener('change',()=>{updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD');syncPlanningChoiceButtons()});
+ $('planningStatusSelect').addEventListener('change',()=>{$('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE');syncPlanningChoiceButtons()});
  $('planningCalendarTab').addEventListener('click',()=>setPlanningView('calendar'));
  $('planningStatsTab').addEventListener('click',()=>setPlanningView('stats'));
- $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod)return;$('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
+ $('planningWodSource').addEventListener('change',()=>{syncPlanningChoiceButtons();const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod)return;$('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
  $('planningWeekDays').addEventListener('click',async e=>{
   const add=e.target.closest('[data-plan-add]'),edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),del=e.target.closest('[data-plan-delete]'),done=e.target.closest('[data-plan-done]');
   if(add){selectedDate=parseDate(add.dataset.planAdd);openEditor();return;}
@@ -4388,7 +4454,7 @@ resetTimer();
  $('planningSaveToLibrary').addEventListener('click',async()=>{if(normalizeCategory($('planningCategory').value)!=='WOD')return;const name=$('planningTitle').value.trim(),details=$('planningDetails').value.trim();if(!name||!details){$('planningFormStatus').textContent='Renseigne le nom et le contenu du WOD avant de l’enregistrer.';return;}const movements=details.split(/\n+/).map((line,i)=>({name:line.trim(),reps:null,position:i+1})).filter(x=>x.name);try{const saved=await window.saveManualWodToSupabase({name,type:'LIBRE',duration:Number($('planningDuration').value)||null,movements,timerConfig:{format:'LIBRE'},consigne:$('planningNotes').value.trim(),category:'WOD',collection:'PERSONAL'});window.wods.unshift(saved);fillWodSelect();$('planningWodSource').value=saved.id;$('planningFormStatus').textContent='WOD enregistré dans la bibliothèque. Tu peux maintenant enregistrer la séance au planning.';}catch(err){$('planningFormStatus').textContent='Enregistrement dans la bibliothèque impossible : '+err.message}});
  window.refreshSportPlanning=refresh;window.onSportPlanningPage=()=>{fillWodSelect();refresh()};
  document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="planningPage"]'))window.onSportPlanningPage()});
- $('planningActualDurationWrap').classList.add('hidden');updateTypes();render();
+ $('planningActualDurationWrap').classList.add('hidden');updateTypes();syncPlanningChoiceButtons();fillWodSelect();render();
 })();
 </script>
 
