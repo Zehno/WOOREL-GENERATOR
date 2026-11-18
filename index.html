@@ -4670,10 +4670,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const rpeLoadOf=x=>Math.max(0,Number(x.actual_duration_minutes||0))*Math.max(0,Number(x.session_rpe||0));
   const rpeEligible=x=>['WOD','HYROX','FORCE'].includes(normalizeCategory(x.category))&&Number(x.session_rpe)>0&&Number(x.actual_duration_minutes)>0;
   const rollingRpeLoad=rollingSessions.filter(rpeEligible).reduce((a,x)=>a+rpeLoadOf(x),0);
-  const trainingDays=new Set(rollingSessions.map(x=>x.session_date)).size,restDays=7-trainingDays;
-  $('statsTrainingDays7').textContent=trainingDays+'/7';$('statsTrainingDaysSub').textContent=`${trainingDays} jour(s) avec séance réalisée`;
-  $('statsRestDays7').textContent=restDays+'/7';$('statsZoneLoad7').textContent=rollingLoad?Math.round(rollingLoad).toLocaleString('fr-FR')+' UA':'— UA';
-  const rollingZoneTotal=rollingZones.reduce((a,v)=>a+v,0);$('statsZoneTime7').textContent=rollingZoneTotal?minutesLabel(rollingZoneTotal):'—';
+  const rollingZoneTotal=rollingZones.reduce((a,v)=>a+v,0);
   $('statsRpeLoad7').textContent=Math.round(rollingRpeLoad).toLocaleString('fr-FR')+' UA';
   // Graphiques calculés à partir des séances réellement enregistrées, sans données fictives.
   const chartWeeks=Array.from({length:12},(_,i)=>dateKey(addDays(start12,i*7)));
@@ -4708,9 +4705,6 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const twelveRpeLoad=done12.filter(rpeEligible).reduce((a,x)=>a+rpeLoadOf(x),0);$('statsRpeChartTotal').textContent=twelveRpeLoad?Math.round(twelveRpeLoad).toLocaleString('fr-FR')+' UA':'— UA';
   $('statsLoadWeek').textContent=Math.round(weekLoad).toLocaleString('fr-FR')+' UA';
   $('statsLoadWeekSub').textContent=weekLoadRows.length?`${weekLoadRows.length} séance(s) avec temps en zones renseigné`:'Aucune donnée de zone saisie cette semaine';
-  $('statsLoad4').textContent=fourWeekRows.length?Math.round(fourLoad).toLocaleString('fr-FR')+' UA':'— UA';
-  $('statsLoadAvg4').textContent=fourWeekRows.length?Math.round(fourLoad/4).toLocaleString('fr-FR')+' UA':'— UA';
-  $('statsLoadAvgSession').textContent=twelveWeekRows.length?Math.round(twelveLoad/twelveWeekRows.length).toLocaleString('fr-FR')+' UA':'— UA';
   const loadGroups={};disciplineOrder.forEach(label=>loadGroups[label]={load:0,count:0});
   twelveWeekRows.forEach(x=>{let label=categoryName(x.category);if(normalizeCategory(x.category)==='WOD'){const t=String(x.session_type||'');label=t.startsWith('HYROX')?'HYROX':t.startsWith('CrossFit')?'CrossFit':t==='Libre'?'Libre':'WOD';}if(!loadGroups[label])loadGroups[label]={load:0,count:0};loadGroups[label].load+=loadOf(x);loadGroups[label].count++;});
   const maxLoad=Math.max(0,...Object.values(loadGroups).map(g=>g.load));
