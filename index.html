@@ -4698,6 +4698,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   renderWeeklyBars('statsRunChart',runValues,'','km');
   renderWeeklyBars('statsLoadChart',loadValues,'load','UA');
   renderWeeklyBars('statsRpeChart',rpeValues,'load','UA');
+  const total12=done12.reduce((sum,x)=>sum+Number(x.actual_duration_minutes||0),0);
   $('statsChartVolumeTotal').textContent=minutesLabel(total12);
   const totalRunKm=Object.values(runByWeek).reduce((a,v)=>a+v,0);
   $('statsChartRunTotal').textContent=totalRunKm.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:1})+' km';
