@@ -1956,7 +1956,7 @@ main { overflow-x: hidden; }
       <div class="field"><label for="planningTitle">INTITULÉ DE LA SÉANCE</label><input id="planningTitle" maxlength="120" required placeholder="Ex. : VMA 10 × 400 m"></div>
       <div class="planning-form-grid"><div class="field"><label for="planningDuration">DURÉE PRÉVUE (MINUTES)</label><input type="number" id="planningDuration" min="0" max="1440" placeholder="Ex. : 60"></div><div class="field"><label>STATUT</label><div id="planningStatusButtons" class="planning-choice-group compact" role="group" aria-label="Statut de la séance"></div><select id="planningStatusSelect" class="hidden" aria-hidden="true" tabindex="-1"><option value="PLANNED">À FAIRE</option><option value="DONE">RÉALISÉE</option><option value="CANCELLED">ANNULÉE</option></select></div></div>
       <div class="field" id="planningActualDurationWrap"><label for="planningActualDuration">DURÉE RÉELLE EFFECTUÉE (MINUTES)</label><input type="number" id="planningActualDuration" min="0" max="1440" placeholder="Ex. : 52"><p class="small-note">À renseigner lorsque la séance est réalisée. Cette durée alimentera les statistiques.</p></div>
-      <div class="field"><label for="planningDetails">CONTENU DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea></div>
+      <div class="field"><label for="planningDetails">CONTENU DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea><div id="planningExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note">Commence à saisir un mouvement (ex. Back Squat ou Rameur), puis sélectionne-le dans la bibliothèque. Les prescriptions comme 4x10, 80 kg ou 1000 m sont conservées.</p></div>
       <div class="field"><label for="planningNotes">OBJECTIF / CONSIGNES</label><textarea id="planningNotes" rows="3" placeholder="Objectif, RPE, zone FC, consignes techniques..."></textarea></div>
       <div class="actions"><button class="primary" id="planningSaveBtn" type="submit">ENREGISTRER LA SÉANCE</button><button class="secondary" id="planningSaveToLibrary" type="button">ENREGISTRER AUSSI DANS LA BIBLIOTHÈQUE WOD</button></div>
       <p class="small-note" id="planningFormStatus"></p>
@@ -3069,8 +3069,9 @@ function chooseExerciseSuggestion(textareaId, boxId, id) {
     updateClock();
     renderTimerDemoPreview();
   } else if (textareaId === "manualWodExercises") {
-   
     renderManualDemoPreview();
+  } else if (textareaId === "planningDetails") {
+    state.textarea.dispatchEvent(new Event("input", { bubbles: true }));
   }
 }
 function renderTimerExerciseSuggestions() {
@@ -4110,6 +4111,7 @@ function attachExerciseAutocomplete(textareaId, boxId) {
 }
 attachExerciseAutocomplete("timerWodContent", "timerExerciseSuggestions");
 attachExerciseAutocomplete("manualWodExercises", "manualExerciseSuggestions");
+attachExerciseAutocomplete("planningDetails", "planningExerciseSuggestions");
 const manualExerciseInput=document.getElementById('manualWodExercises');
 manualExerciseInput?.addEventListener('input',renderManualDemoPreview);
 manualExerciseInput?.addEventListener('change',renderManualDemoPreview);
