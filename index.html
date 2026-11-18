@@ -1368,6 +1368,11 @@ main { overflow-x: hidden; }
 .stats-accordion-content .stats-grid{margin-top:12px}
 @media(max-width:650px){.stats-accordion>summary{padding:13px}.stats-accordion-content{padding:4px 12px 12px}}
 
+
+/* Récupération Garmin */
+.recovery-panel{margin:18px 0 22px;padding:16px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,var(--panel2),var(--card-bg))}.recovery-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}.recovery-head strong{font-size:13px;letter-spacing:.6px}.recovery-head small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.recovery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}.recovery-metric{padding:11px;background:var(--panel);border:1px solid var(--border);border-radius:10px;min-width:0}.recovery-metric span{display:block;font-size:9px;color:var(--muted);font-weight:900;letter-spacing:.5px}.recovery-metric b{display:block;font-size:21px;margin:5px 0;overflow-wrap:anywhere}.recovery-metric small{font-size:9px;color:var(--muted)}.recovery-form{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;align-items:end;margin-top:14px}.recovery-form .field{margin:0;min-width:0}.recovery-form label{font-size:9px}.recovery-form input{width:100%;min-width:0}.recovery-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.recovery-history{font-size:10px;color:var(--muted);margin-top:12px;max-height:150px;overflow:auto}.recovery-history-row{display:grid;grid-template-columns:1.2fr repeat(4,1fr);gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}.recovery-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:10px}.recovery-status{font-size:10px;color:var(--accent);margin-top:8px;min-height:14px}
+@media(max-width:760px){.recovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.recovery-form{grid-template-columns:repeat(2,minmax(0,1fr))}.recovery-form .field:first-child{grid-column:span 2}.recovery-history-row{grid-template-columns:1.1fr repeat(4,minmax(0,1fr));gap:4px;font-size:9px}.recovery-panel{padding:12px}}
+
 /* STATISTIQUES — graphiques hebdomadaires */
 .stats-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:4px 0 22px}
 .stats-chart-card{min-width:0;padding:16px;background:linear-gradient(145deg,var(--panel2),var(--card-bg));border:1px solid var(--border);border-radius:14px}
@@ -1991,6 +1996,34 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <div class="stats-card"><span>MOYENNE HEBDO · 4 SEM.</span><strong id="statsAvg4">0 h</strong><small id="statsAvg4Sessions">0 séance / semaine</small></div>
       <div class="stats-card"><span>MOYENNE HEBDO · 12 SEM.</span><strong id="statsAvg12">0 h</strong><small id="statsAvg12Sessions">0 séance / semaine</small></div>
     </div>
+
+    <section class="recovery-panel" aria-label="Suivi de récupération Garmin">
+      <div class="recovery-head"><div><strong>RÉCUPÉRATION & SOMMEIL · GARMIN</strong><small>Import de tes données ou saisie quotidienne · suivi indépendant de la charge d'entraînement</small></div><button class="secondary" id="recoveryImportBtn" type="button">IMPORTER GARMIN</button></div>
+      <div class="recovery-grid">
+        <div class="recovery-metric"><span>SOMMEIL MOYEN · 7 J</span><b id="recoverySleepAvg">—</b><small>Durée par nuit</small></div>
+        <div class="recovery-metric"><span>SCORE MOYEN · 7 J</span><b id="recoveryScoreAvg">—</b><small>Sur 100</small></div>
+        <div class="recovery-metric"><span>VFC LA PLUS RÉCENTE</span><b id="recoveryHrvLatest">—</b><small>ms · tendance à observer</small></div>
+        <div class="recovery-metric"><span>FC REPOS RÉCENTE</span><b id="recoveryRhrLatest">—</b><small>bpm</small></div>
+      </div>
+      <details class="stats-accordion" style="margin:10px 0 0">
+        <summary><span><strong>AJOUTER / MODIFIER UNE JOURNÉE</strong><small>Sommeil, VFC, fréquence cardiaque et Body Battery</small></span><span class="stats-accordion-toggle" aria-hidden="true"></span></summary>
+        <div class="stats-accordion-content">
+          <form id="recoveryForm" class="recovery-form">
+            <div class="field"><label for="recoveryDate">DATE</label><input type="date" id="recoveryDate" required></div>
+            <div class="field"><label for="recoverySleep">SOMMEIL (HEURES)</label><input type="number" id="recoverySleep" min="0" max="24" step="0.05" placeholder="7.5"></div>
+            <div class="field"><label for="recoveryScore">SCORE SOMMEIL /100</label><input type="number" id="recoveryScore" min="0" max="100" step="1" placeholder="85"></div>
+            <div class="field"><label for="recoveryHrv">VFC (ms)</label><input type="number" id="recoveryHrv" min="1" max="300" step="1" placeholder="55"></div>
+            <div class="field"><label for="recoveryRhr">FC REPOS (bpm)</label><input type="number" id="recoveryRhr" min="20" max="220" step="1" placeholder="47"></div>
+            <div class="field"><label for="recoveryBattery">BODY BATTERY /100</label><input type="number" id="recoveryBattery" min="0" max="100" step="1" placeholder="80"></div>
+            <div class="recovery-actions" style="grid-column:1/-1"><button class="primary" type="submit">ENREGISTRER</button><button class="secondary" type="button" id="recoveryClearForm">EFFACER</button></div>
+          </form>
+        </div>
+      </details>
+      <input id="recoveryFileInput" type="file" accept=".csv,.json,.txt" hidden>
+      <div class="recovery-status" id="recoveryStatus" aria-live="polite"></div>
+      <div class="recovery-history" id="recoveryHistory">Aucune donnée de récupération enregistrée.</div>
+      <p class="recovery-note">Les données sont stockées dans ce navigateur (localStorage), séparément de Supabase. L'import accepte les fichiers CSV ou JSON contenant des colonnes de date, durée de sommeil, score, VFC, FC au repos et/ou Body Battery. Les fichiers Garmin Wellness exportés en FIT/ZIP ne sont pas lus directement par cette version.</p>
+    </section>
     <div class="stats-section-title">STATISTIQUES · ÉVOLUTION</div>
     <div class="stats-grid">
       <div class="stats-card"><span>HEURES RÉALISÉES · 4 SEM.</span><strong id="statsTotal4">0 h</strong><small>volume cumulé</small></div>
@@ -2018,6 +2051,10 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <summary><span><strong>CHARGE PAR DISCIPLINE</strong><small>Durée réelle × RPE · 12 dernières semaines</small></span><span class="stats-accordion-toggle" aria-hidden="true"></span></summary>
       <div class="stats-accordion-content">
         <div class="stats-grid">
+          <div class="stats-card"><span>JOURS AVEC ENTRAÎNEMENT · 7 J</span><strong id="statsTrainingDays7">—</strong><small id="statsTrainingDaysSub">sur les 7 derniers jours</small></div>
+          <div class="stats-card"><span>JOURS DE REPOS · 7 J</span><strong id="statsRestDays7">—</strong><small>sans séance enregistrée comme réalisée</small></div>
+          <div class="stats-card"><span>MONOTONIE · 7 J</span><strong id="statsMonotony7">—</strong><small>moyenne quotidienne / écart-type</small></div>
+          <div class="stats-card"><span>STRAIN · 7 J</span><strong id="statsStrain7">—</strong><small>charge 7 jours × monotonie</small></div>
           <div class="stats-card"><span>CHARGE · SEMAINE EN COURS</span><strong id="statsLoadWeek">— UA</strong><small id="statsLoadWeekSub">Séances avec durée et RPE renseignés</small></div>
           <div class="stats-card"><span>CHARGE · 4 DERNIÈRES SEM.</span><strong id="statsLoad4">— UA</strong><small>Charge cumulée</small></div>
           <div class="stats-card"><span>MOYENNE HEBDO · 4 SEM.</span><strong id="statsLoadAvg4">— UA</strong><small>Charge moyenne sur 4 semaines</small></div>
@@ -4619,6 +4656,27 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function weekSessions(){const start=dateKey(monday(selectedDate)),end=dateKey(addDays(monday(selectedDate),6));return sessions.filter(x=>x.session_date>=start&&x.session_date<=end);}
  const minutesLabel = mins => {const n=Math.round(Number(mins)||0);return `${Math.floor(n/60)} h${n%60?` ${String(n%60).padStart(2,'0')}`:''}`;};
+ const RECOVERY_KEY='prepa_solo_recovery_v1';
+ function getRecoveryRows(){try{const a=JSON.parse(localStorage.getItem(RECOVERY_KEY)||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+ function saveRecoveryRows(rows){localStorage.setItem(RECOVERY_KEY,JSON.stringify(rows.sort((a,b)=>a.date.localeCompare(b.date))));renderRecovery()}
+ function renderRecovery(){
+  const rows=getRecoveryRows(),recent=rows.filter(x=>{const d=new Date(x.date+'T12:00:00');const n=new Date();n.setHours(12,0,0,0);return d>=addDays(n,-6)&&d<=n});
+  const avg=(key)=>{const a=recent.filter(x=>x[key]!==null&&x[key]!==undefined&&x[key]!=='').map(x=>Number(x[key]));return a.length?a.reduce((s,v)=>s+v,0)/a.length:null};
+  const fmt=(v,d=0)=>v===null?'—':Number(v).toLocaleString('fr-FR',{maximumFractionDigits:d});
+  const latest=rows[rows.length-1]||{};
+  $('recoverySleepAvg').textContent=avg('sleepHours')===null?'—':fmt(avg('sleepHours'),1)+' h';
+  $('recoveryScoreAvg').textContent=avg('sleepScore')===null?'—':fmt(avg('sleepScore'))+'/100';
+  $('recoveryHrvLatest').textContent=latest.hrv==null?'—':fmt(latest.hrv)+' ms';
+  $('recoveryRhrLatest').textContent=latest.rhr==null?'—':fmt(latest.rhr)+' bpm';
+  $('recoveryHistory').innerHTML=rows.length?'<div class="recovery-history-row"><b>DATE</b><b>SOMMEIL</b><b>SCORE</b><b>VFC</b><b>FC</b></div>'+rows.slice(-14).reverse().map(x=>`<div class="recovery-history-row"><span>${new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(new Date(x.date+'T12:00:00'))}</span><span>${x.sleepHours==null?'—':fmt(x.sleepHours,1)+' h'}</span><span>${x.sleepScore==null?'—':fmt(x.sleepScore)}</span><span>${x.hrv==null?'—':fmt(x.hrv)}</span><span>${x.rhr==null?'—':fmt(x.rhr)}</span></div>`).join(''):'Aucune donnée de récupération enregistrée.';
+ }
+ function recoveryNormalizeKey(k){return String(k||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'')}
+ function recoveryDate(v){if(!v)return '';const s=String(v).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const m=s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;const d=new Date(s);return isNaN(d)?'':d.toISOString().slice(0,10)}
+ function recoveryNum(v){if(v===null||v===undefined||v==='')return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null}
+ function recoveryMapRow(raw){const obj={};Object.entries(raw||{}).forEach(([k,v])=>obj[recoveryNormalizeKey(k)]=v);const pick=keys=>{for(const k of keys){if(obj[k]!==undefined&&obj[k]!==''&&obj[k]!==null)return obj[k]}return null};const date=recoveryDate(pick(['date','calendarDate','sleepDate','startdate','timestamp','datetime']));if(!date)return null;let sleep=recoveryNum(pick(['sleephours','sleepdurationhours','durationhours','totalhours','sleeptotalhours']));if(sleep===null){const mins=recoveryNum(pick(['sleepminutes','durationminutes','totalminutes']));if(mins!==null)sleep=mins/60;else{const secs=recoveryNum(pick(['sleepduration','duration','totalsleepseconds']));if(secs!==null)sleep=secs>24?secs/3600:secs;}}return {date,sleepHours:sleep,sleepScore:recoveryNum(pick(['sleepscore','score','sleepqualityscore'])),hrv:recoveryNum(pick(['hrv','hrvms','avghrv','averagernn','overnighthrv'])),rhr:recoveryNum(pick(['rhr','restingheartrate','restinghr','restingheartRate'.toLowerCase(),'restingheartbeatsperminute'])),battery:recoveryNum(pick(['bodybattery','bodybatterystart','bodybatterywake'])),source:'Garmin/import'}}
+ function recoveryParseCsv(text){const first=text.split(/\r?\n/,1)[0]||'';const sep=(first.match(/;/g)||[]).length>(first.match(/,/g)||[]).length?';':',';const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());const parseLine=line=>{const out=[];let cur='',q=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&line[i+1]==='"'&&q){cur+='"';i++}else if(c==='"')q=!q;else if(c===sep&&!q){out.push(cur);cur=''}else cur+=c}out.push(cur);return out};const headers=parseLine(lines.shift()||'');return lines.map(line=>{const vals=parseLine(line);return Object.fromEntries(headers.map((h,i)=>[h,vals[i]??'']))})}
+ function recoveryImportRows(data){let arr=Array.isArray(data)?data:(data&&Array.isArray(data.data)?data.data:(data&&Array.isArray(data.records)?data.records:(data&&Array.isArray(data.rows)?data.rows:[])));const mapped=arr.map(recoveryMapRow).filter(Boolean);if(!mapped.length)throw new Error('Aucune ligne exploitable. Vérifie les colonnes date, sommeil, score, VFC ou FC repos.');const byDate=new Map(getRecoveryRows().map(x=>[x.date,x]));mapped.forEach(x=>byDate.set(x.date,{...(byDate.get(x.date)||{}),...x}));saveRecoveryRows([...byDate.values()]);return mapped.length}
+
  function renderStats(){
   const now=new Date();now.setHours(12,0,0,0);const thisMonday=monday(now),thisStart=dateKey(thisMonday),thisEnd=dateKey(addDays(thisMonday,6));
   const current=sessions.filter(x=>x.session_date>=thisStart&&x.session_date<=thisEnd&&x.status!=='CANCELLED');
@@ -4660,6 +4718,13 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const loadOf=x=>Number(x.actual_duration_minutes)*Number(x.rpe);
   const weekLoadRows=withLoad(current),fourWeekRows=withLoad(recent4),twelveWeekRows=withLoad(done12);
   const weekLoad=weekLoadRows.reduce((a,x)=>a+loadOf(x),0),fourLoad=fourWeekRows.reduce((a,x)=>a+loadOf(x),0),twelveLoad=twelveWeekRows.reduce((a,x)=>a+loadOf(x),0);
+  // Monotonie et strain sur 7 jours glissants : les journées sans séance comptent comme 0 UA.
+  const todayKey=dateKey(now),rollingStart=dateKey(addDays(now,-6)),rollingSessions=sessions.filter(x=>x.session_date>=rollingStart&&x.session_date<=todayKey&&x.status==='DONE'&&Number(x.actual_duration_minutes)>0),rollingRows=withLoad(rollingSessions);
+  const dailyLoad=Array.from({length:7},(_,i)=>{const k=dateKey(addDays(now,i-6));return rollingRows.filter(x=>x.session_date===k).reduce((a,x)=>a+loadOf(x),0)});
+  const rollingTotal=dailyLoad.reduce((a,v)=>a+v,0),trainingDays=new Set(rollingSessions.map(x=>x.session_date)).size,restDays=7-trainingDays,missingRpe=rollingSessions.some(x=>x.rpe===null||x.rpe===undefined||x.rpe===''||Number(x.rpe)<1||Number(x.rpe)>10),meanDaily=rollingTotal/7,variance=dailyLoad.reduce((a,v)=>a+Math.pow(v-meanDaily,2),0)/7,sdDaily=Math.sqrt(variance),monotony=!missingRpe&&sdDaily>0?meanDaily/sdDaily:null,strain=monotony===null?null:rollingTotal*monotony;
+  $('statsTrainingDays7').textContent=trainingDays+'/7';$('statsTrainingDaysSub').textContent=`${trainingDays} jour(s) avec séance réalisée`;
+  $('statsRestDays7').textContent=restDays+'/7';$('statsMonotony7').textContent=monotony===null?'—':monotony.toLocaleString('fr-FR',{maximumFractionDigits:2});$('statsStrain7').textContent=strain===null?'—':Math.round(strain).toLocaleString('fr-FR')+' UA';
+  if(missingRpe){$('statsMonotony7').title='Renseigne le RPE de chaque séance réalisée pour calculer la monotonie et le strain.';$('statsStrain7').title='Renseigne le RPE de chaque séance réalisée pour calculer la monotonie et le strain.';}
   // Graphiques calculés à partir des séances réellement enregistrées, sans données fictives.
   const chartWeeks=Array.from({length:12},(_,i)=>dateKey(addDays(start12,i*7)));
   const volumeByWeek={},loadByWeek={};
@@ -4747,6 +4812,13 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  $('planningStatusSelect').addEventListener('change',()=>{const done=$('planningStatusSelect').value==='DONE';$('planningActualDurationWrap').classList.toggle('hidden',!done);$('planningRpeWrap').classList.toggle('hidden',!done);syncPlanningChoiceButtons()});
  $('planningCalendarTab').addEventListener('click',()=>setPlanningView('calendar'));
  $('planningStatsTab').addEventListener('click',()=>setPlanningView('stats'));
+ $('recoveryDate').value=dateKey(new Date());
+ $('recoveryForm').addEventListener('submit',e=>{e.preventDefault();const row={date:$('recoveryDate').value,sleepHours:recoveryNum($('recoverySleep').value),sleepScore:recoveryNum($('recoveryScore').value),hrv:recoveryNum($('recoveryHrv').value),rhr:recoveryNum($('recoveryRhr').value),battery:recoveryNum($('recoveryBattery').value),source:'Saisie manuelle'};if(!row.date)return;const rows=getRecoveryRows(),idx=rows.findIndex(x=>x.date===row.date);if(idx>=0)rows[idx]={...rows[idx],...row};else rows.push(row);saveRecoveryRows(rows);$('recoveryStatus').textContent='Bilan de récupération enregistré.';});
+ $('recoveryClearForm').addEventListener('click',()=>{['recoverySleep','recoveryScore','recoveryHrv','recoveryRhr','recoveryBattery'].forEach(id=>$(id).value='');$('recoveryStatus').textContent='Champs effacés.';});
+ $('recoveryImportBtn').addEventListener('click',()=>$('recoveryFileInput').click());
+ $('recoveryFileInput').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const txt=await file.text();let data;if(file.name.toLowerCase().endsWith('.json'))data=JSON.parse(txt);else data=recoveryParseCsv(txt);const count=recoveryImportRows(data);$('recoveryStatus').textContent=`Import terminé : ${count} journée(s) ajoutée(s) ou mise(s) à jour.`;}catch(err){$('recoveryStatus').textContent='Import impossible : '+(err.message||err);}finally{e.target.value='';}});
+ renderRecovery();
+
  ['planningWodAmrapDuration','planningWodEmomDuration','planningWodEmomWork','planningWodTabataCycles','planningWodTabataWork','planningWodTabataRest','planningWodFortimeCap','planningWodFortimeRounds','planningWodFortimeRest'].forEach(id=>$(id).addEventListener('input',updatePlanningWodFormatFields));
  $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod){syncPlanningChoiceButtons();return;}const format=String(wod.type||'').toUpperCase()==='FORTIME'?'FOR TIME':String(wod.type||'').toUpperCase();if(['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){$('planningType').value=format;syncPlanningChoiceButtons();updatePlanningWodFormatFields();loadPlanningWodConfig(wod);} $('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
  $('planningWeekDays').addEventListener('click',async e=>{
