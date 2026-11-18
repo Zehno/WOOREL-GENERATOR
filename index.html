@@ -2219,6 +2219,13 @@ function activateMainPage(pageId) {
   pages.forEach(p => p.classList.toggle("active", p.id === pageId));
 }
 
+// Compatibilité avec les appels historiques de navigation dans l’application.
+// Plusieurs fonctions (bibliothèque, chronomètre et historique) utilisent encore openPage().
+function openPage(pageId) {
+  return activateMainPage(pageId);
+}
+window.openPage = openPage;
+
 document.addEventListener("click", event => {
   const button = event.target.closest(".tab");
   if (!button) return;
