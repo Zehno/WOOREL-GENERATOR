@@ -1040,22 +1040,7 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
 }
 
 
-/* Navigation principale : vrai slide horizontal entre les écrans. */
-main { overflow-x: hidden; }
-.page { will-change: transform, opacity; }
-.page.page-slide-next { animation: wodPageSlideNext .48s cubic-bezier(.22,.75,.25,1) both; }
-.page.page-slide-prev { animation: wodPageSlidePrev .48s cubic-bezier(.22,.75,.25,1) both; }
-@keyframes wodPageSlideNext {
-  0% { opacity: .25; transform: translate3d(100%,0,0); }
-  100% { opacity: 1; transform: translate3d(0,0,0); }
-}
-@keyframes wodPageSlidePrev {
-  0% { opacity: .25; transform: translate3d(-100%,0,0); }
-  100% { opacity: 1; transform: translate3d(0,0,0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .page.page-slide-next, .page.page-slide-prev { animation: none; }
-}
+/* Navigation principale : changement d’onglet instantané, sans animation de slide. */
 
 
 /* ================= GARMIN / MON SUIVI ================= */
@@ -1371,6 +1356,19 @@ main { overflow-x: hidden; }
 
 /* Récupération Garmin */
 .recovery-panel{margin:18px 0 22px;padding:16px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,var(--panel2),var(--card-bg))}.recovery-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}.recovery-head strong{font-size:13px;letter-spacing:.6px}.recovery-head small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.recovery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}.recovery-metric{padding:11px;background:var(--panel);border:1px solid var(--border);border-radius:10px;min-width:0}.recovery-metric span{display:block;font-size:9px;color:var(--muted);font-weight:900;letter-spacing:.5px}.recovery-metric b{display:block;font-size:21px;margin:5px 0;overflow-wrap:anywhere}.recovery-metric small{font-size:9px;color:var(--muted)}.recovery-form{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;align-items:end;margin-top:14px}.recovery-form .field{margin:0;min-width:0}.recovery-form label{font-size:9px}.recovery-form input{width:100%;min-width:0}.recovery-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.recovery-history{font-size:10px;color:var(--muted);margin-top:12px;max-height:150px;overflow:auto}.recovery-history-row{display:grid;grid-template-columns:1.2fr repeat(4,1fr);gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}.recovery-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:10px}.recovery-status{font-size:10px;color:var(--accent);margin-top:8px;min-height:14px}
+.recovery-analysis{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+.recovery-analysis-title{font-size:11px;font-weight:900;letter-spacing:.06em;margin-bottom:10px}
+.recovery-analysis-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.recovery-analysis-card{padding:11px;border-radius:10px;background:var(--card-bg);border:1px solid var(--border);min-width:0}
+.recovery-analysis-card span{display:block;font-size:9px;font-weight:800;color:var(--muted)}
+.recovery-analysis-card b{display:block;font-size:21px;margin:5px 0;overflow-wrap:anywhere}
+.recovery-analysis-card small{font-size:9px;color:var(--muted)}
+.recovery-analysis-advice{margin:11px 0;padding:10px 12px;border-radius:9px;background:var(--panel2);font-size:11px;line-height:1.5}
+.recovery-analysis-table{overflow-x:auto;font-size:10px;color:var(--muted)}
+.recovery-analysis-row{display:grid;grid-template-columns:1.15fr 1fr 1fr 1.1fr;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border);min-width:300px}
+.recovery-analysis-row strong{color:var(--text)}
+@media(max-width:600px){.recovery-analysis{padding:11px}.recovery-analysis-grid{grid-template-columns:1fr 1fr}.recovery-analysis-card:last-child{grid-column:1/-1}.recovery-analysis-card b{font-size:19px}}
+
 @media(max-width:760px){.recovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.recovery-form{grid-template-columns:repeat(2,minmax(0,1fr))}.recovery-form .field:first-child{grid-column:span 2}.recovery-history-row{grid-template-columns:1.1fr repeat(4,minmax(0,1fr));gap:4px;font-size:9px}.recovery-panel{padding:12px}}
 
 /* STATISTIQUES — graphiques hebdomadaires */
@@ -1998,7 +1996,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
     </div>
 
     <section class="recovery-panel" aria-label="Suivi de récupération Garmin">
-      <div class="recovery-head"><div><strong>RÉCUPÉRATION & SOMMEIL · GARMIN</strong><small>Import de tes données ou saisie quotidienne · suivi indépendant de la charge d'entraînement</small></div><button class="secondary" id="recoveryImportBtn" type="button">IMPORTER GARMIN</button></div>
+      <div class="recovery-head"><div><strong>RÉCUPÉRATION & SOMMEIL · GARMIN</strong><small>Sommeil, VFC et FC au repos mis en regard de la charge réellement effectuée</small></div><button class="secondary" id="recoveryImportBtn" type="button">IMPORTER GARMIN</button></div>
       <div class="recovery-grid">
         <div class="recovery-metric"><span>SOMMEIL MOYEN · 7 J</span><b id="recoverySleepAvg">—</b><small>Durée par nuit</small></div>
         <div class="recovery-metric"><span>SCORE MOYEN · 7 J</span><b id="recoveryScoreAvg">—</b><small>Sur 100</small></div>
@@ -2020,6 +2018,17 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
         </div>
       </details>
       <input id="recoveryFileInput" type="file" accept=".csv,.json,.txt" hidden>
+      <section class="recovery-analysis" aria-label="Analyse croisée sommeil et charge">
+        <div class="recovery-analysis-title">SOMMEIL & CHARGE · ANALYSE CROISÉE</div>
+        <div class="recovery-analysis-grid">
+          <div class="recovery-analysis-card"><span>SOMMEIL MOYEN · 7 J</span><b id="recoveryAnalysisSleep">—</b><small id="recoveryAnalysisSleepDetail">Données disponibles</small></div>
+          <div class="recovery-analysis-card"><span>CHARGE · 7 J</span><b id="recoveryAnalysisLoad">—</b><small id="recoveryAnalysisLoadDetail">Durée réelle × RPE</small></div>
+          <div class="recovery-analysis-card"><span>JOURS À SURVEILLER</span><b id="recoveryAnalysisAlerts">—</b><small id="recoveryAnalysisAlertsDetail">Sommeil court et charge élevée</small></div>
+        </div>
+        <div id="recoveryAnalysisAdvice" class="recovery-analysis-advice">Ajoute tes données Garmin et renseigne la durée réelle ainsi que le RPE de tes séances pour afficher l'analyse croisée.</div>
+        <div class="recovery-analysis-table" id="recoveryAnalysisTable">Aucune analyse disponible.</div>
+        <p class="recovery-note">Lecture indicative : une nuit est signalée si le sommeil est inférieur à 7 h. Une charge élevée correspond à une charge journalière supérieure à la moyenne des jours chargés sur la période. Cette comparaison aide à repérer des associations, mais ne démontre pas un lien de causalité. Le sommeil ne modifie jamais le calcul de charge (durée réelle × RPE).</p>
+      </section>
       <div class="recovery-status" id="recoveryStatus" aria-live="polite"></div>
       <div class="recovery-history" id="recoveryHistory">Aucune donnée de récupération enregistrée.</div>
       <p class="recovery-note">Les données sont stockées dans ce navigateur (localStorage), séparément de Supabase. L'import accepte les fichiers CSV ou JSON contenant des colonnes de date, durée de sommeil, score, VFC, FC au repos et/ou Body Battery. Les fichiers Garmin Wellness exportés en FIT/ZIP ne sont pas lus directement par cette version.</p>
@@ -2201,26 +2210,13 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 // NAVIGATION
 // =======================================
 
-// Navigation principale avec transition horizontale type slide.
+// Navigation principale sans animation ni effet de glissement.
 function activateMainPage(pageId) {
   const pages = [...document.querySelectorAll(".page")];
   const tabs = [...document.querySelectorAll(".tab")];
-  const current = pages.findIndex(p => p.classList.contains("active"));
-  const next = pages.findIndex(p => p.id === pageId);
-  if (next < 0) return;
-  const direction = current < 0 || next >= current ? "next" : "prev";
-
+  if (!pages.some(p => p.id === pageId)) return;
   tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.page === pageId));
-  pages.forEach(p => {
-    const isTarget = p.id === pageId;
-    p.classList.remove("page-slide-next", "page-slide-prev");
-    p.classList.toggle("active", isTarget);
-    if (isTarget && current !== next) {
-      // Force le redémarrage de l'animation lors de chaque navigation.
-      void p.offsetWidth;
-      p.classList.add(direction === "next" ? "page-slide-next" : "page-slide-prev");
-    }
-  });
+  pages.forEach(p => p.classList.toggle("active", p.id === pageId));
 }
 
 document.addEventListener("click", event => {
@@ -2229,53 +2225,8 @@ document.addEventListener("click", event => {
   activateMainPage(button.dataset.page);
 });
 
-// Sur mobile, un balayage horizontal permet aussi de passer d'un onglet à l'autre.
-let wodSwipeStartX = 0;
-let wodSwipeStartY = 0;
-let wodSwipeStartTarget = null;
-document.addEventListener("touchstart", event => {
-  if (!event.touches || event.touches.length !== 1) return;
-  wodSwipeStartX = event.touches[0].clientX;
-  wodSwipeStartY = event.touches[0].clientY;
-  wodSwipeStartTarget = event.target;
-}, {passive:true});
-document.addEventListener("touchend", event => {
-  if (!event.changedTouches || !event.changedTouches.length) return;
+// La navigation mobile se fait uniquement avec les onglets, sans balayage horizontal.
 
-  // Le calendrier hebdomadaire possède son propre défilement horizontal.
-  // Un swipe commencé dans cette zone ne doit jamais changer d'écran.
-  const swipeTarget = wodSwipeStartTarget;
-  if (swipeTarget && swipeTarget.closest &&
-      swipeTarget.closest("#planningPage, .planning-calendar-scroll, .garmin-table-wrap, [data-horizontal-scroll]")) {
-    wodSwipeStartTarget = null;
-    return;
-  }
-
-  const dx = event.changedTouches[0].clientX - wodSwipeStartX;
-  const dy = event.changedTouches[0].clientY - wodSwipeStartY;
-  if (Math.abs(dx) < 75 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
-  if (event.target.closest('input, textarea, select, button, a, [contenteditable="true"]')) return;
-  const pages = [...document.querySelectorAll(".page")];
-  const current = pages.findIndex(page => page.classList.contains("active"));
-  const next = current + (dx < 0 ? 1 : -1);
-  if (next >= 0 && next < pages.length) activateMainPage(pages[next].id);
-  wodSwipeStartTarget = null;
-}, {passive:true});
-document.addEventListener("touchcancel", () => {
-  wodSwipeStartTarget = null;
-}, {passive:true});
-
-function openPage(page) {
-  activateMainPage(page);
-}
-
-document.querySelectorAll(".library-subtab").forEach(button => {
-  button.addEventListener("click", () => {
-    const panelId = button.dataset.libraryPanel;
-    document.querySelectorAll(".library-subtab").forEach(tab => tab.classList.toggle("active", tab === button));
-    document.querySelectorAll(".library-panel").forEach(panel => panel.classList.toggle("active", panel.id === panelId));
-  });
-});
 
 function openLibraryPanel(panelId) {
   document.querySelectorAll(".library-subtab").forEach(tab => tab.classList.toggle("active", tab.dataset.libraryPanel === panelId));
@@ -4669,6 +4620,33 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   $('recoveryHrvLatest').textContent=latest.hrv==null?'—':fmt(latest.hrv)+' ms';
   $('recoveryRhrLatest').textContent=latest.rhr==null?'—':fmt(latest.rhr)+' bpm';
   $('recoveryHistory').innerHTML=rows.length?'<div class="recovery-history-row"><b>DATE</b><b>SOMMEIL</b><b>SCORE</b><b>VFC</b><b>FC</b></div>'+rows.slice(-14).reverse().map(x=>`<div class="recovery-history-row"><span>${new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(new Date(x.date+'T12:00:00'))}</span><span>${x.sleepHours==null?'—':fmt(x.sleepHours,1)+' h'}</span><span>${x.sleepScore==null?'—':fmt(x.sleepScore)}</span><span>${x.hrv==null?'—':fmt(x.hrv)}</span><span>${x.rhr==null?'—':fmt(x.rhr)}</span></div>`).join(''):'Aucune donnée de récupération enregistrée.';
+  renderRecoveryAnalysis();
+ }
+ function renderRecoveryAnalysis(){
+  const recovery=getRecoveryRows(),today=new Date();today.setHours(12,0,0,0);
+  const days=Array.from({length:7},(_,i)=>{const d=addDays(today,i-6),key=dateKey(d);const sleep=recovery.find(x=>x.date===key);const daySessions=sessions.filter(x=>x.session_date===key&&x.status==='DONE'&&Number(x.actual_duration_minutes)>0);const loadRows=daySessions.filter(x=>x.rpe!==null&&x.rpe!==undefined&&x.rpe!==''&&Number(x.rpe)>=1&&Number(x.rpe)<=10);const load=loadRows.reduce((sum,x)=>sum+Number(x.actual_duration_minutes)*Number(x.rpe),0);return {key,date:d,sleep,load,hasLoad:loadRows.length>0,sessionCount:daySessions.length};});
+  const sleepValues=days.filter(x=>x.sleep&&x.sleep.sleepHours!=null).map(x=>Number(x.sleep.sleepHours));
+  const loadValues=days.filter(x=>x.hasLoad).map(x=>x.load);
+  const sleepAvg=sleepValues.length?sleepValues.reduce((a,b)=>a+b,0)/sleepValues.length:null;
+  const totalLoad=loadValues.reduce((a,b)=>a+b,0);
+  const positiveLoads=loadValues.filter(v=>v>0),meanLoad=positiveLoads.length?positiveLoads.reduce((a,b)=>a+b,0)/positiveLoads.length:0;
+  const alerts=days.filter(x=>x.sleep&&Number(x.sleep.sleepHours)<7&&x.hasLoad&&x.load>meanLoad).length;
+  const fmt=(v,n=1)=>Number(v).toLocaleString('fr-FR',{maximumFractionDigits:n});
+  $('recoveryAnalysisSleep').textContent=sleepAvg===null?'—':fmt(sleepAvg)+' h';
+  $('recoveryAnalysisSleepDetail').textContent=`${sleepValues.length}/7 nuit(s) renseignée(s)`;
+  $('recoveryAnalysisLoad').textContent=loadValues.length?Math.round(totalLoad).toLocaleString('fr-FR')+' UA':'—';
+  $('recoveryAnalysisLoadDetail').textContent=`${loadValues.length} jour(s) avec charge calculable`;
+  $('recoveryAnalysisAlerts').textContent=(sleepValues.length||loadValues.length)?String(alerts):'—';
+  $('recoveryAnalysisAlertsDetail').textContent='Sommeil < 7 h + charge au-dessus de la moyenne';
+  let advice='';
+  if(!sleepValues.length&&!loadValues.length) advice='Ajoute tes données Garmin et renseigne la durée réelle ainsi que le RPE de tes séances pour afficher l’analyse croisée.';
+  else if(!sleepValues.length) advice='La charge est calculée, mais aucune donnée de sommeil n’est disponible sur les 7 derniers jours. Importe ton suivi Garmin pour mettre les deux indicateurs en regard.';
+  else if(!loadValues.length) advice='Le sommeil est renseigné, mais aucune charge n’est calculable. Vérifie que tes séances réalisées comportent une durée réelle et un RPE.';
+  else if(alerts>=2) advice=`${alerts} journée(s) associent un sommeil inférieur à 7 h et une charge supérieure à la moyenne des jours chargés. À surveiller : regarde aussi les sensations, la VFC et la FC au repos avant d’ajuster la séance suivante.`;
+  else if(alerts===1) advice='Une journée associe un sommeil inférieur à 7 h et une charge supérieure à la moyenne. Surveille l’évolution sur les prochains jours, sans tirer de conclusion à partir d’une seule journée.';
+  else advice='Aucune journée ne réunit actuellement les deux critères de vigilance. Cela ne garantit pas une récupération complète : confronte ces données à tes sensations, à la VFC et à la FC au repos.';
+  $('recoveryAnalysisAdvice').textContent=advice;
+  $('recoveryAnalysisTable').innerHTML='<div class="recovery-analysis-row"><strong>JOUR</strong><strong>SOMMEIL</strong><strong>CHARGE</strong><strong>LECTURE</strong></div>'+days.slice().reverse().map(x=>{const short=x.sleep&&x.sleep.sleepHours!=null&&Number(x.sleep.sleepHours)<7;const high=x.hasLoad&&meanLoad>0&&x.load>meanLoad;const tag=short&&high?'À surveiller':short?'Sommeil court':high?'Charge élevée':x.sleep||x.hasLoad?'—':'Données manquantes';return `<div class="recovery-analysis-row"><span>${new Intl.DateTimeFormat('fr-FR',{weekday:'short',day:'2-digit',month:'2-digit'}).format(x.date)}</span><span>${x.sleep&&x.sleep.sleepHours!=null?fmt(x.sleep.sleepHours)+' h':'—'}</span><span>${x.hasLoad?Math.round(x.load).toLocaleString('fr-FR')+' UA':'—'}</span><span>${tag}</span></div>`;}).join('');
  }
  function recoveryNormalizeKey(k){return String(k||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'')}
  function recoveryDate(v){if(!v)return '';const s=String(v).trim();if(/^\d{4}-\d{2}-\d{2}/.test(s))return s.slice(0,10);const m=s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;const d=new Date(s);return isNaN(d)?'':d.toISOString().slice(0,10)}
