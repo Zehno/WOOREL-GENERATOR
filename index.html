@@ -2010,6 +2010,10 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
         <div id="statsVolumeChart" class="stats-chart-empty">Les volumes hebdomadaires apparaîtront après les premières séances réalisées.</div>
       </section>
       <section class="stats-chart-card">
+        <div class="stats-chart-head"><div><div class="stats-chart-title">VOLUME DE COURSE À PIED</div><div class="stats-chart-subtitle">Distance réellement parcourue · 12 semaines</div></div><div class="stats-chart-total" id="statsChartRunTotal">0 km</div></div>
+        <div id="statsRunChart" class="stats-chart-empty">Les kilomètres hebdomadaires apparaîtront après les premières séances de course réalisées et renseignées.</div>
+      </section>
+      <section class="stats-chart-card">
         <div class="stats-chart-head"><div><div class="stats-chart-title">CHARGE D’ENTRAÎNEMENT</div><div class="stats-chart-subtitle">Charge zonée · 12 semaines</div></div><div class="stats-chart-total" id="statsChartLoadTotal">— UA</div></div>
         <div id="statsLoadChart" class="stats-chart-empty">Renseigne le temps passé en Z1 à Z5 pour afficher la charge.</div>
       </section>
@@ -4661,9 +4665,9 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const rollingZoneTotal=rollingZones.reduce((a,v)=>a+v,0);$('statsZoneTime7').textContent=rollingZoneTotal?minutesLabel(rollingZoneTotal):'—';
   // Graphiques calculés à partir des séances réellement enregistrées, sans données fictives.
   const chartWeeks=Array.from({length:12},(_,i)=>dateKey(addDays(start12,i*7)));
-  const volumeByWeek={},loadByWeek={};
-  chartWeeks.forEach(k=>{volumeByWeek[k]=0;loadByWeek[k]=0;});
-  done12.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in volumeByWeek)volumeByWeek[k]+=Number(x.actual_duration_minutes||0);});
+  const volumeByWeek={},runByWeek={},loadByWeek={};
+  chartWeeks.forEach(k=>{volumeByWeek[k]=0;runByWeek[k]=0;loadByWeek[k]=0;});
+  done12.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in volumeByWeek){volumeByWeek[k]+=Number(x.actual_duration_minutes||0);if(normalizeCategory(x.category)==='COURSE')runByWeek[k]+=Math.max(0,Number(x.distance_km||0));}});
   twelveWeekRows.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in loadByWeek)loadByWeek[k]+=loadOf(x);});
   const renderWeeklyBars=(targetId,values,colorClass,unit)=>{
    const target=$(targetId),max=Math.max(0,...values.map(v=>v.value)),sum=values.reduce((a,v)=>a+v.value,0);
@@ -4672,16 +4676,20 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
    target.innerHTML=values.map(v=>{
     const height=max?Math.max(v.value>0?3:0,Math.round(v.value/max*100)):0;
     const label=new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(parseDate(v.key));
-    const shown=v.value?Math.round(v.value).toLocaleString('fr-FR')+(unit==='UA'?'':'m'):'';
+    const shown=v.value?(unit==='km'?Number(v.value.toFixed(1)).toLocaleString('fr-FR')+' km':Math.round(v.value).toLocaleString('fr-FR')+(unit==='UA'?'':'m')):'';
     return `<div class="stats-week-col" title="Semaine du ${label} : ${Math.round(v.value).toLocaleString('fr-FR')} ${unit}"><div class="stats-week-value">${shown}</div><div class="stats-week-track"><i class="stats-week-bar ${colorClass}" style="height:${height}%"></i></div><div class="stats-week-label">${label}</div></div>`;
    }).join('');
    return sum;
   };
   const volumeValues=chartWeeks.map(key=>({key,value:volumeByWeek[key]}));
+  const runValues=chartWeeks.map(key=>({key,value:runByWeek[key]}));
   const loadValues=chartWeeks.map(key=>({key,value:loadByWeek[key]}));
   renderWeeklyBars('statsVolumeChart',volumeValues,'','min');
+  renderWeeklyBars('statsRunChart',runValues,'','km');
   renderWeeklyBars('statsLoadChart',loadValues,'load','UA');
   $('statsChartVolumeTotal').textContent=minutesLabel(total12);
+  const totalRunKm=Object.values(runByWeek).reduce((a,v)=>a+v,0);
+  $('statsChartRunTotal').textContent=totalRunKm.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:1})+' km';
   $('statsChartLoadTotal').textContent=twelveWeekRows.length?Math.round(twelveLoad).toLocaleString('fr-FR')+' UA':'— UA';
   $('statsLoadWeek').textContent=weekLoadRows.length?Math.round(weekLoad).toLocaleString('fr-FR')+' UA':'— UA';
   $('statsLoadWeekSub').textContent=`${weekLoadRows.length} séance(s) avec temps en zones renseigné`;
