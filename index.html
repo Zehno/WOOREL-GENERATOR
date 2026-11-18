@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>LES WODs D'OREL</title>
+<title>PREPA SOLO</title>
 
 <style>
 :root {
@@ -1350,6 +1350,41 @@ main { overflow-x: hidden; }
 .stats-period-note{font-size:11px;color:var(--muted);margin:-5px 0 14px}
 @media(max-width:650px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.planning-stats-panel{padding:13px}.stats-card{padding:10px}.stats-card strong{font-size:21px}}
 
+
+/* ===== REFONTE PREPA SOLO : navigation adaptative ===== */
+:root{--accent:#b7f34a;--accent-soft:rgba(183,243,74,.12);--sidebar-width:248px}
+body{background:radial-gradient(ellipse at 75% -15%,rgba(65,91,67,.16),transparent 42%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.05px}
+header{margin-left:var(--sidebar-width);min-height:88px;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;background:rgba(16,20,25,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:relative;z-index:5}
+.logo{font-size:22px;letter-spacing:1.4px}.subtitle{font-size:10px;letter-spacing:1.5px}
+.header-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.tabs{position:fixed;z-index:20;inset:0 auto 0 0;width:var(--sidebar-width);max-width:none;margin:0;padding:24px 15px;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:8px;background:linear-gradient(180deg,#171f27 0%,#11171d 100%);border-right:1px solid #303b46}
+.sidebar-brand{display:flex;align-items:center;gap:12px;padding:7px 9px 25px;margin-bottom:15px;border-bottom:1px solid rgba(255,255,255,.08);color:#f3f5f7}
+.sidebar-brand strong{display:block;font-size:15px;letter-spacing:1.1px}.sidebar-brand small{display:block;margin-top:4px;color:#8996a2;font-size:9px;letter-spacing:2px}
+.sidebar-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:var(--accent);color:#11170b;font-weight:1000;font-size:22px;box-shadow:0 5px 20px rgba(183,243,74,.15)}
+.sidebar-label{padding:0 11px 7px;color:#77838e;font-size:9px;font-weight:900;letter-spacing:1.6px}
+.tab{width:100%;flex:none;display:flex;align-items:center;justify-content:flex-start;gap:13px;padding:13px 14px;background:transparent;border:1px solid transparent;border-radius:11px;color:#aab5bf;text-align:left;font-size:11px;font-weight:850;letter-spacing:.65px;transition:background .18s,border-color .18s,color .18s}
+.tab:hover{background:rgba(255,255,255,.045);color:#fff}.tab.active{background:var(--accent-soft);border-color:rgba(183,243,74,.2);color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.tab-icon{width:23px;flex:0 0 23px;text-align:center;font-size:20px;line-height:1}.tab-text{white-space:nowrap}
+.sidebar-footer{margin-top:auto;padding:15px 10px 5px;border-top:1px solid rgba(255,255,255,.08);color:#66737e;font-size:9px;font-weight:800;letter-spacing:1.3px}
+main{max-width:1180px;margin:0 auto 0 var(--sidebar-width);padding:26px clamp(18px,3vw,42px) 60px}
+.page h2{font-size:18px;letter-spacing:1.1px;margin:8px 0 22px}
+.panel{border-radius:15px;padding:22px;box-shadow:0 8px 28px rgba(0,0,0,.10)}
+.wod-card{border-radius:12px}.primary,.secondary,.tab,button{transition:all .18s ease}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:760px){
+ :root{--sidebar-width:0px}
+ header{margin-left:0;min-height:70px;padding:12px 15px;align-items:flex-start;flex-direction:column;gap:9px}
+ .logo{font-size:19px}.subtitle{margin-top:3px;font-size:9px}
+ .header-controls{width:100%;justify-content:flex-start;gap:6px}.header-controls button{font-size:10px;padding:8px 10px}
+ .tabs{inset:auto 0 0 0;width:100%;height:68px;max-width:none;flex-direction:row;justify-content:space-around;align-items:stretch;gap:3px;padding:6px max(6px,env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom));background:rgba(17,23,29,.97);backdrop-filter:blur(16px);border-right:0;border-top:1px solid #35414c;box-shadow:0 -8px 28px rgba(0,0,0,.25)}
+ .sidebar-brand,.sidebar-label,.sidebar-footer{display:none}
+ .tab{flex:1;min-width:0;width:auto;justify-content:center;flex-direction:column;gap:3px;padding:5px 2px;border-radius:9px;font-size:8px;letter-spacing:.15px;text-align:center}
+ .tab.active{box-shadow:inset 0 2px 0 var(--accent)}.tab-icon{width:auto;flex:none;font-size:19px}.tab-text{white-space:normal;line-height:1.1}
+ main{margin:0;padding:17px 13px calc(90px + env(safe-area-inset-bottom));width:100%}
+ .panel{padding:16px;border-radius:13px}
+}
+@media(max-width:380px){.tab{font-size:7px}.tab-icon{font-size:17px}.logo{font-size:17px}.header-controls button{font-size:9px;padding:7px 8px}}
+@media(min-width:761px) and (max-width:980px){:root{--sidebar-width:215px}.tabs{padding:20px 12px}.tab{font-size:10px}main{padding-left:22px;padding-right:22px}}
 </style>
 </head>
 
@@ -1376,7 +1411,7 @@ main { overflow-x: hidden; }
 
 <div id="appShell">
 <header>
-  <div class="logo">LES WODs <span>D'OREL</span></div>
+  <div class="logo">PREPA <span>SOLO</span></div>
   <div class="subtitle">Chronomètre et séances personnalisées</div>
   <div class="header-controls">
     <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
@@ -1385,11 +1420,14 @@ main { overflow-x: hidden; }
   </div>
 </header>
 
-<nav class="tabs">
-  <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE WOD</button>
-  <button class="tab" data-page="timer">CHRONOMÈTRE</button>
-  <button class="tab" data-page="historyPage">HISTORIQUE</button>
-  <button class="tab" data-page="planningPage">PLANNING</button>
+<nav class="tabs" aria-label="Navigation principale">
+  <div class="sidebar-brand"><span class="sidebar-mark">P</span><div><strong>PREPA SOLO</strong><small>TRAINING HUB</small></div></div>
+  <div class="sidebar-label">ESPACE PERSONNEL</div>
+  <button class="tab" data-page="planningPage"><span class="tab-icon">▦</span><span class="tab-text">PLANNING</span></button>
+  <button class="tab" data-page="libraryPage"><span class="tab-icon">▤</span><span class="tab-text">BIBLIOTHÈQUE WOD</span></button>
+  <button class="tab" data-page="timer"><span class="tab-icon">◷</span><span class="tab-text">CHRONOMÈTRE</span></button>
+  <button class="tab" data-page="historyPage"><span class="tab-icon">↺</span><span class="tab-text">HISTORIQUE</span></button>
+  <div class="sidebar-footer">PRÉPARATION · PERFORMANCE</div>
 </nav>
 
 <main>
