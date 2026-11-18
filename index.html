@@ -1350,6 +1350,25 @@ main { overflow-x: hidden; }
 .stats-period-note{font-size:11px;color:var(--muted);margin:-5px 0 14px}
 @media(max-width:650px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.planning-stats-panel{padding:13px}.stats-card{padding:10px}.stats-card strong{font-size:21px}}
 
+/* STATISTIQUES — graphiques hebdomadaires */
+.stats-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:4px 0 22px}
+.stats-chart-card{min-width:0;padding:16px;background:linear-gradient(145deg,var(--panel2),var(--card-bg));border:1px solid var(--border);border-radius:14px}
+.stats-chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px}
+.stats-chart-title{font-size:12px;font-weight:950;letter-spacing:.55px}
+.stats-chart-subtitle{font-size:10px;color:var(--muted);margin-top:4px}
+.stats-chart-total{font-size:18px;font-weight:1000;color:var(--accent);white-space:nowrap}
+.stats-week-bars{height:156px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;align-items:end;border-bottom:1px solid var(--border);padding:0 2px}
+.stats-week-col{height:100%;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
+.stats-week-value{font-size:9px;color:var(--muted);font-weight:800;min-height:11px;white-space:nowrap}
+.stats-week-track{height:112px;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.stats-week-bar{width:min(100%,22px);min-height:2px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#b7f34a,#5c9c25);box-shadow:0 0 12px rgba(183,243,74,.12)}
+.stats-week-bar.load{background:linear-gradient(180deg,#ffbd66,#d97706)}
+.stats-week-label{font-size:8px;color:var(--muted);white-space:nowrap}
+.stats-chart-empty{height:156px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:11px;border:1px dashed var(--border);border-radius:9px;padding:14px}
+@media(max-width:760px){.stats-chart-grid{grid-template-columns:1fr}.stats-week-bars{gap:4px}.stats-week-bar{width:min(100%,18px)}}
+@media(max-width:380px){.stats-chart-card{padding:11px}.stats-week-bars{gap:2px}.stats-week-label{font-size:7px}.stats-week-value{font-size:8px}}
+
+
 
 /* ===== REFONTE PREPA SOLO : navigation adaptative ===== */
 :root{--accent:#b7f34a;--accent-soft:rgba(183,243,74,.12);--sidebar-width:248px}
@@ -1960,6 +1979,16 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       <div class="stats-card"><span>SÉANCES · 4 SEM.</span><strong id="statsCount4">0</strong><small>séances réalisées</small></div>
       <div class="stats-card"><span>HEURES RÉALISÉES · 12 SEM.</span><strong id="statsTotal12">0 h</strong><small>volume cumulé</small></div>
       <div class="stats-card"><span>MEILLEURE SEMAINE</span><strong id="statsBestWeek">—</strong><small id="statsBestWeekSub">en temps réel effectué</small></div>
+    </div>
+    <div class="stats-chart-grid">
+      <section class="stats-chart-card">
+        <div class="stats-chart-head"><div><div class="stats-chart-title">VOLUME D’ENTRAÎNEMENT</div><div class="stats-chart-subtitle">Durée réellement effectuée · 12 semaines</div></div><div class="stats-chart-total" id="statsChartVolumeTotal">0 h</div></div>
+        <div id="statsVolumeChart" class="stats-chart-empty">Les volumes hebdomadaires apparaîtront après les premières séances réalisées.</div>
+      </section>
+      <section class="stats-chart-card">
+        <div class="stats-chart-head"><div><div class="stats-chart-title">CHARGE D’ENTRAÎNEMENT</div><div class="stats-chart-subtitle">Durée réelle × RPE · 12 semaines</div></div><div class="stats-chart-total" id="statsChartLoadTotal">— UA</div></div>
+        <div id="statsLoadChart" class="stats-chart-empty">Renseigne la durée réelle et le RPE pour afficher la charge.</div>
+      </section>
     </div>
     <div class="stats-section-title">SUIVI PAR DISCIPLINE · 12 DERNIÈRES SEMAINES</div>
     <div id="statsDisciplines"><div class="planning-empty">Les statistiques apparaîtront dès que des séances seront réalisées et renseignées.</div></div>
@@ -4606,6 +4635,30 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const loadOf=x=>Number(x.actual_duration_minutes)*Number(x.rpe);
   const weekLoadRows=withLoad(current),fourWeekRows=withLoad(recent4),twelveWeekRows=withLoad(done12);
   const weekLoad=weekLoadRows.reduce((a,x)=>a+loadOf(x),0),fourLoad=fourWeekRows.reduce((a,x)=>a+loadOf(x),0),twelveLoad=twelveWeekRows.reduce((a,x)=>a+loadOf(x),0);
+  // Graphiques calculés à partir des séances réellement enregistrées, sans données fictives.
+  const chartWeeks=Array.from({length:12},(_,i)=>dateKey(addDays(start12,i*7)));
+  const volumeByWeek={},loadByWeek={};
+  chartWeeks.forEach(k=>{volumeByWeek[k]=0;loadByWeek[k]=0;});
+  done12.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in volumeByWeek)volumeByWeek[k]+=Number(x.actual_duration_minutes||0);});
+  twelveWeekRows.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in loadByWeek)loadByWeek[k]+=loadOf(x);});
+  const renderWeeklyBars=(targetId,values,colorClass,unit)=>{
+   const target=$(targetId),max=Math.max(0,...values.map(v=>v.value)),sum=values.reduce((a,v)=>a+v.value,0);
+   if(!values.some(v=>v.value>0)){target.className='stats-chart-empty';target.textContent=unit==='UA'?'Aucune séance avec durée et RPE renseignés sur cette période.':'Aucune séance réalisée avec durée réelle renseignée sur cette période.';return;}
+   target.className='stats-week-bars';
+   target.innerHTML=values.map(v=>{
+    const height=max?Math.max(v.value>0?3:0,Math.round(v.value/max*100)):0;
+    const label=new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(parseDate(v.key));
+    const shown=v.value?Math.round(v.value).toLocaleString('fr-FR')+(unit==='UA'?'':'m'):'';
+    return `<div class="stats-week-col" title="Semaine du ${label} : ${Math.round(v.value).toLocaleString('fr-FR')} ${unit}"><div class="stats-week-value">${shown}</div><div class="stats-week-track"><i class="stats-week-bar ${colorClass}" style="height:${height}%"></i></div><div class="stats-week-label">${label}</div></div>`;
+   }).join('');
+   return sum;
+  };
+  const volumeValues=chartWeeks.map(key=>({key,value:volumeByWeek[key]}));
+  const loadValues=chartWeeks.map(key=>({key,value:loadByWeek[key]}));
+  renderWeeklyBars('statsVolumeChart',volumeValues,'','min');
+  renderWeeklyBars('statsLoadChart',loadValues,'load','UA');
+  $('statsChartVolumeTotal').textContent=minutesLabel(total12);
+  $('statsChartLoadTotal').textContent=twelveWeekRows.length?Math.round(twelveLoad).toLocaleString('fr-FR')+' UA':'— UA';
   $('statsLoadWeek').textContent=weekLoadRows.length?Math.round(weekLoad).toLocaleString('fr-FR')+' UA':'— UA';
   $('statsLoadWeekSub').textContent=`${weekLoadRows.length} séance(s) avec RPE renseigné`;
   $('statsLoad4').textContent=fourWeekRows.length?Math.round(fourLoad).toLocaleString('fr-FR')+' UA':'— UA';
