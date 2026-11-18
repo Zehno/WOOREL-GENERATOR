@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#101419">
-<title>LES WODs D'OREL</title>
+<title>PREPA SOLO</title>
 
 <style>
 :root {
@@ -1040,22 +1040,7 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
 }
 
 
-/* Navigation principale : vrai slide horizontal entre les écrans. */
-main { overflow-x: hidden; }
-.page { will-change: transform, opacity; }
-.page.page-slide-next { animation: wodPageSlideNext .48s cubic-bezier(.22,.75,.25,1) both; }
-.page.page-slide-prev { animation: wodPageSlidePrev .48s cubic-bezier(.22,.75,.25,1) both; }
-@keyframes wodPageSlideNext {
-  0% { opacity: .25; transform: translate3d(100%,0,0); }
-  100% { opacity: 1; transform: translate3d(0,0,0); }
-}
-@keyframes wodPageSlidePrev {
-  0% { opacity: .25; transform: translate3d(-100%,0,0); }
-  100% { opacity: 1; transform: translate3d(0,0,0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .page.page-slide-next, .page.page-slide-prev { animation: none; }
-}
+/* Navigation principale : changement d’onglet instantané, sans animation de slide. */
 
 
 /* ================= GARMIN / MON SUIVI ================= */
@@ -1351,33 +1336,95 @@ main { overflow-x: hidden; }
 @media(max-width:650px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.planning-stats-panel{padding:13px}.stats-card{padding:10px}.stats-card strong{font-size:21px}}
 
 
-/* Dashboard course et zones FC */
-.run-dashboard{margin-top:22px}
-.run-dashboard-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:12px}
-.run-panel{background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:16px;min-width:0}
-.run-panel h3{font-size:13px;margin:0 0 12px;letter-spacing:.4px}
-.run-kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:12px}
-.run-kpi{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:11px;min-width:0}
-.run-kpi span{display:block;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.5px}
-.run-kpi strong{display:block;font-size:21px;margin-top:6px;overflow-wrap:anywhere}
-.run-chart{display:flex;align-items:flex-end;gap:7px;height:150px;padding:10px 2px 0;border-bottom:1px solid var(--border)}
-.run-chart-col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
-.run-chart-bar{width:min(100%,32px);min-height:2px;background:var(--green);border-radius:6px 6px 2px 2px;position:relative}
-.run-chart-bar em{position:absolute;top:-17px;left:50%;transform:translateX(-50%);font-size:9px;font-style:normal;color:var(--text);white-space:nowrap}
-.run-chart-label{font-size:9px;color:var(--muted);white-space:nowrap}
-.hr-zone-list{display:grid;gap:11px}
-.hr-zone-row{display:grid;grid-template-columns:34px minmax(0,1fr) 54px;align-items:center;gap:8px;font-size:11px}
-.hr-zone-track{height:9px;background:var(--panel);border-radius:99px;overflow:hidden}
-.hr-zone-track i{display:block;height:100%;border-radius:99px}
-.hr-zone-time{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
-.hr-zone-total{font-size:11px;color:var(--muted);margin-top:12px}
-.run-input-panel{border:1px solid var(--border);border-radius:12px;padding:13px;margin:12px 0;background:var(--panel2)}
-.run-input-panel .field{margin-bottom:9px}
-.hr-input-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-.hr-input-grid .field{min-width:0}
-.hr-input-grid input{width:100%;min-width:0}
-@media(max-width:700px){.run-dashboard-grid{grid-template-columns:1fr}.run-kpi-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.run-panel{padding:12px}.hr-input-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.run-chart{gap:4px}.run-chart-label{font-size:8px}}
+/* STATISTIQUES — accordéons pour libérer de l'espace */
+.stats-accordion{margin:12px 0;border:1px solid var(--border);border-radius:13px;background:var(--panel2);overflow:hidden}
+.stats-accordion>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 16px;cursor:pointer;user-select:none}
+.stats-accordion>summary::-webkit-details-marker{display:none}
+.stats-accordion>summary>span:first-child{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stats-accordion>summary strong{font-size:12px;font-weight:1000;letter-spacing:.7px}
+.stats-accordion>summary small{font-size:10px;color:var(--muted);font-weight:600}
+.stats-accordion>summary:focus-visible{outline:2px solid var(--green);outline-offset:-3px;border-radius:12px}
+.stats-accordion-toggle{width:26px;height:26px;flex:0 0 26px;border:1px solid var(--border);border-radius:8px;position:relative;background:var(--card-bg)}
+.stats-accordion-toggle:before,.stats-accordion-toggle:after{content:"";position:absolute;left:7px;right:7px;top:12px;height:2px;background:var(--green);border-radius:2px}
+.stats-accordion-toggle:after{transform:rotate(90deg);transition:transform .18s ease}
+.stats-accordion[open]>summary{border-bottom:1px solid var(--border);background:rgba(140,255,0,.035)}
+.stats-accordion[open] .stats-accordion-toggle:after{transform:rotate(0)}
+.stats-accordion-content{padding:5px 16px 14px}
+.stats-accordion-content .stats-grid{margin-top:12px}
+@media(max-width:650px){.stats-accordion>summary{padding:13px}.stats-accordion-content{padding:4px 12px 12px}}
 
+
+/* Récupération Garmin */
+.recovery-panel{margin:18px 0 22px;padding:16px;border:1px solid var(--border);border-radius:14px;background:linear-gradient(145deg,var(--panel2),var(--card-bg))}.recovery-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}.recovery-head strong{font-size:13px;letter-spacing:.6px}.recovery-head small{display:block;color:var(--muted);font-size:10px;margin-top:4px}.recovery-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0}.recovery-metric{padding:11px;background:var(--panel);border:1px solid var(--border);border-radius:10px;min-width:0}.recovery-metric span{display:block;font-size:9px;color:var(--muted);font-weight:900;letter-spacing:.5px}.recovery-metric b{display:block;font-size:21px;margin:5px 0;overflow-wrap:anywhere}.recovery-metric small{font-size:9px;color:var(--muted)}.recovery-form{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:9px;align-items:end;margin-top:14px}.recovery-form .field{margin:0;min-width:0}.recovery-form label{font-size:9px}.recovery-form input{width:100%;min-width:0}.recovery-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.recovery-history{font-size:10px;color:var(--muted);margin-top:12px;max-height:150px;overflow:auto}.recovery-history-row{display:grid;grid-template-columns:1.2fr repeat(4,1fr);gap:8px;padding:7px 0;border-bottom:1px solid var(--border)}.recovery-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:10px}.recovery-status{font-size:10px;color:var(--accent);margin-top:8px;min-height:14px}
+.recovery-analysis{margin-top:16px;padding:14px;border:1px solid var(--border);border-radius:12px;background:var(--panel)}
+.recovery-analysis-title{font-size:11px;font-weight:900;letter-spacing:.06em;margin-bottom:10px}
+.recovery-analysis-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.recovery-analysis-card{padding:11px;border-radius:10px;background:var(--card-bg);border:1px solid var(--border);min-width:0}
+.recovery-analysis-card span{display:block;font-size:9px;font-weight:800;color:var(--muted)}
+.recovery-analysis-card b{display:block;font-size:21px;margin:5px 0;overflow-wrap:anywhere}
+.recovery-analysis-card small{font-size:9px;color:var(--muted)}
+.recovery-analysis-advice{margin:11px 0;padding:10px 12px;border-radius:9px;background:var(--panel2);font-size:11px;line-height:1.5}
+.recovery-analysis-table{overflow-x:auto;font-size:10px;color:var(--muted)}
+.recovery-analysis-row{display:grid;grid-template-columns:1.15fr 1fr 1fr 1.1fr;gap:8px;padding:8px 4px;border-bottom:1px solid var(--border);min-width:300px}
+.recovery-analysis-row strong{color:var(--text)}
+@media(max-width:600px){.recovery-analysis{padding:11px}.recovery-analysis-grid{grid-template-columns:1fr 1fr}.recovery-analysis-card:last-child{grid-column:1/-1}.recovery-analysis-card b{font-size:19px}}
+
+@media(max-width:760px){.recovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.recovery-form{grid-template-columns:repeat(2,minmax(0,1fr))}.recovery-form .field:first-child{grid-column:span 2}.recovery-history-row{grid-template-columns:1.1fr repeat(4,minmax(0,1fr));gap:4px;font-size:9px}.recovery-panel{padding:12px}}
+
+/* STATISTIQUES — graphiques hebdomadaires */
+.stats-chart-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:4px 0 22px}
+.stats-chart-card{min-width:0;padding:16px;background:linear-gradient(145deg,var(--panel2),var(--card-bg));border:1px solid var(--border);border-radius:14px}
+.stats-chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:16px}
+.stats-chart-title{font-size:12px;font-weight:950;letter-spacing:.55px}
+.stats-chart-subtitle{font-size:10px;color:var(--muted);margin-top:4px}
+.stats-chart-total{font-size:18px;font-weight:1000;color:var(--accent);white-space:nowrap}
+.stats-week-bars{height:156px;display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:5px;align-items:end;border-bottom:1px solid var(--border);padding:0 2px}
+.stats-week-col{height:100%;min-width:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
+.stats-week-value{font-size:9px;color:var(--muted);font-weight:800;min-height:11px;white-space:nowrap}
+.stats-week-track{height:112px;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.stats-week-bar{width:min(100%,22px);min-height:2px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#b7f34a,#5c9c25);box-shadow:0 0 12px rgba(183,243,74,.12)}
+.stats-week-bar.load{background:linear-gradient(180deg,#ffbd66,#d97706)}
+.stats-week-label{font-size:8px;color:var(--muted);white-space:nowrap}
+.stats-chart-empty{height:156px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:11px;border:1px dashed var(--border);border-radius:9px;padding:14px}
+@media(max-width:760px){.stats-chart-grid{grid-template-columns:1fr}.stats-week-bars{gap:4px}.stats-week-bar{width:min(100%,18px)}}
+@media(max-width:380px){.stats-chart-card{padding:11px}.stats-week-bars{gap:2px}.stats-week-label{font-size:7px}.stats-week-value{font-size:8px}}
+
+
+
+/* ===== REFONTE PREPA SOLO : navigation adaptative ===== */
+:root{--accent:#b7f34a;--accent-soft:rgba(183,243,74,.12);--sidebar-width:248px}
+body{background:radial-gradient(ellipse at 75% -15%,rgba(65,91,67,.16),transparent 42%),var(--bg);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.05px}
+header{margin-left:var(--sidebar-width);min-height:88px;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;background:rgba(16,20,25,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:relative;z-index:5}
+.logo{font-size:22px;letter-spacing:1.4px}.subtitle{font-size:10px;letter-spacing:1.5px}
+.header-controls{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.tabs{position:fixed;z-index:20;inset:0 auto 0 0;width:var(--sidebar-width);max-width:none;margin:0;padding:24px 15px;display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;gap:8px;background:linear-gradient(180deg,#171f27 0%,#11171d 100%);border-right:1px solid #303b46}
+.sidebar-brand{display:flex;align-items:center;gap:12px;padding:7px 9px 25px;margin-bottom:15px;border-bottom:1px solid rgba(255,255,255,.08);color:#f3f5f7}
+.sidebar-brand strong{display:block;font-size:15px;letter-spacing:1.1px}.sidebar-brand small{display:block;margin-top:4px;color:#8996a2;font-size:9px;letter-spacing:2px}
+.sidebar-mark{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:var(--accent);color:#11170b;font-weight:1000;font-size:22px;box-shadow:0 5px 20px rgba(183,243,74,.15)}
+.sidebar-label{padding:0 11px 7px;color:#77838e;font-size:9px;font-weight:900;letter-spacing:1.6px}
+.tab{width:100%;flex:none;display:flex;align-items:center;justify-content:flex-start;gap:13px;padding:13px 14px;background:transparent;border:1px solid transparent;border-radius:11px;color:#aab5bf;text-align:left;font-size:11px;font-weight:850;letter-spacing:.65px;transition:background .18s,border-color .18s,color .18s}
+.tab:hover{background:rgba(255,255,255,.045);color:#fff}.tab.active{background:var(--accent-soft);border-color:rgba(183,243,74,.2);color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.tab-icon{width:23px;flex:0 0 23px;text-align:center;font-size:20px;line-height:1}.tab-text{white-space:nowrap}
+.sidebar-footer{margin-top:auto;padding:15px 10px 5px;border-top:1px solid rgba(255,255,255,.08);color:#66737e;font-size:9px;font-weight:800;letter-spacing:1.3px}
+main{max-width:1180px;margin:0 auto 0 var(--sidebar-width);padding:26px clamp(18px,3vw,42px) 60px}
+.page h2{font-size:18px;letter-spacing:1.1px;margin:8px 0 22px}
+.panel{border-radius:15px;padding:22px;box-shadow:0 8px 28px rgba(0,0,0,.10)}
+.wod-card{border-radius:12px}.primary,.secondary,.tab,button{transition:all .18s ease}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:760px){
+ :root{--sidebar-width:0px}
+ header{margin-left:0;min-height:70px;padding:12px 15px;align-items:flex-start;flex-direction:column;gap:9px}
+ .logo{font-size:19px}.subtitle{margin-top:3px;font-size:9px}
+ .header-controls{width:100%;justify-content:flex-start;gap:6px}.header-controls button{font-size:10px;padding:8px 10px}
+ .tabs{inset:auto 0 0 0;width:100%;height:68px;max-width:none;flex-direction:row;justify-content:space-around;align-items:stretch;gap:3px;padding:6px max(6px,env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom));background:rgba(17,23,29,.97);backdrop-filter:blur(16px);border-right:0;border-top:1px solid #35414c;box-shadow:0 -8px 28px rgba(0,0,0,.25)}
+ .sidebar-brand,.sidebar-label,.sidebar-footer{display:none}
+ .tab{flex:1;min-width:0;width:auto;justify-content:center;flex-direction:column;gap:3px;padding:5px 2px;border-radius:9px;font-size:8px;letter-spacing:.15px;text-align:center}
+ .tab.active{box-shadow:inset 0 2px 0 var(--accent)}.tab-icon{width:auto;flex:none;font-size:19px}.tab-text{white-space:normal;line-height:1.1}
+ main{margin:0;padding:17px 13px calc(90px + env(safe-area-inset-bottom));width:100%}
+ .panel{padding:16px;border-radius:13px}
+}
+@media(max-width:380px){.tab{font-size:7px}.tab-icon{font-size:17px}.logo{font-size:17px}.header-controls button{font-size:9px;padding:7px 8px}}
+@media(min-width:761px) and (max-width:980px){:root{--sidebar-width:215px}.tabs{padding:20px 12px}.tab{font-size:10px}main{padding-left:22px;padding-right:22px}}
 </style>
 </head>
 
@@ -1404,7 +1451,7 @@ main { overflow-x: hidden; }
 
 <div id="appShell">
 <header>
-  <div class="logo">LES WODs <span>D'OREL</span></div>
+  <div class="logo">PREPA <span>SOLO</span></div>
   <div class="subtitle">Chronomètre et séances personnalisées</div>
   <div class="header-controls">
     <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
@@ -1413,11 +1460,14 @@ main { overflow-x: hidden; }
   </div>
 </header>
 
-<nav class="tabs">
-  <button class="tab" data-page="libraryPage">BIBLIOTHÈQUE WOD</button>
-  <button class="tab" data-page="timer">CHRONOMÈTRE</button>
-  <button class="tab" data-page="historyPage">HISTORIQUE</button>
-  <button class="tab" data-page="planningPage">PLANNING</button>
+<nav class="tabs" aria-label="Navigation principale">
+  <div class="sidebar-brand"><span class="sidebar-mark">P</span><div><strong>PREPA SOLO</strong><small>TRAINING HUB</small></div></div>
+  <div class="sidebar-label">ESPACE PERSONNEL</div>
+  <button class="tab" data-page="planningPage"><span class="tab-icon">▦</span><span class="tab-text">PLANNING</span></button>
+  <button class="tab" data-page="libraryPage"><span class="tab-icon">▤</span><span class="tab-text">BIBLIOTHÈQUE WOD</span></button>
+  <button class="tab" data-page="timer"><span class="tab-icon">◷</span><span class="tab-text">CHRONOMÈTRE</span></button>
+  <button class="tab" data-page="historyPage"><span class="tab-icon">↺</span><span class="tab-text">HISTORIQUE</span></button>
+  <div class="sidebar-footer">PRÉPARATION · PERFORMANCE</div>
 </nav>
 
 <main>
@@ -1469,9 +1519,9 @@ main { overflow-x: hidden; }
           </div>
           <select id="manualWodFormat" class="hidden" aria-hidden="true" tabindex="-1"><option>AMRAP</option><option>EMOM</option><option>TABATA</option><option>FOR TIME</option></select>
         </div>
-        <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MINUTES)</label><input id="manualAmrapDuration" type="number" min="1" value="20"></div>
+        <div id="manualAmrapFields" class="field"><label for="manualAmrapDuration">DURÉE TOTALE (MM:SS)</label><input id="manualAmrapDuration" type="text" inputmode="numeric" value="20:00" placeholder="MM:SS (ex. 20:30)"><p class="small-note">Saisis MM:SS pour régler précisément la durée (ex. 12:30).</p></div>
         <div id="manualEmomFields" class="hidden"><div class="grid">
-          <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MINUTES)</label><input id="manualEmomDuration" type="number" min="1" value="12"></div>
+          <div class="field"><label for="manualEmomDuration">DURÉE TOTALE (MM:SS)</label><input id="manualEmomDuration" type="text" inputmode="numeric" value="12:00" placeholder="MM:SS (ex. 12:30)"></div>
           <div class="field"><label for="manualEmomWork">TEMPS DE TRAVAIL PAR MINUTE (SECONDES)</label><input id="manualEmomWork" type="number" min="1" max="1200" value="40"></div>
         </div><p class="small-note" id="manualEmomRestPreview">Repos automatique : 20 secondes par minute.</p></div>
         <div id="manualTabataFields" class="hidden"><div class="grid">
@@ -1489,7 +1539,7 @@ main { overflow-x: hidden; }
             </div>
             <select id="manualFortimeFormat" class="hidden" aria-hidden="true" tabindex="-1"><option value="simple">FOR TIME SIMPLE</option><option value="rft">ROUNDS CHRONOMÉTRÉ (RFT)</option><option value="rft-rest">RFT AVEC RÉCUPÉRATION</option><option value="intermediate">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</option></select>
           </div>
-          <div class="field" id="manualFortimeCapField"><label for="manualFortimeCap">TIME CAP (MINUTES, 0 = SANS LIMITE)</label><input id="manualFortimeCap" type="number" min="0" value="20"></div>
+          <div class="field" id="manualFortimeCapField"><label for="manualFortimeCap">TIME CAP (MM:SS, 0:00 = SANS LIMITE)</label><input id="manualFortimeCap" type="text" inputmode="numeric" value="20:00" placeholder="MM:SS (0:00 = sans limite)"></div>
           <div class="grid hidden" id="manualFortimeRftFields">
             <div class="field"><label for="manualFortimeRounds">NOMBRE DE ROUNDS</label><input id="manualFortimeRounds" type="number" min="1" value="5"></div>
             <div class="field" id="manualFortimeRestField"><label for="manualFortimeRest">REPOS APRÈS CHAQUE ROUND (SECONDES)</label><input id="manualFortimeRest" type="number" min="0" value="60"></div>
@@ -1943,9 +1993,8 @@ main { overflow-x: hidden; }
       <div class="stats-card"><span>ÉCART PRÉVU / RÉEL</span><strong id="statsGap">—</strong><small>réel moins prévu</small></div>
       <div class="stats-card"><span>MOYENNE HEBDO · 4 SEM.</span><strong id="statsAvg4">0 h</strong><small id="statsAvg4Sessions">0 séance / semaine</small></div>
       <div class="stats-card"><span>MOYENNE HEBDO · 12 SEM.</span><strong id="statsAvg12">0 h</strong><small id="statsAvg12Sessions">0 séance / semaine</small></div>
-      <div class="stats-card"><span>CHARGE ZONÉE · SEMAINE</span><strong id="statsZoneLoadWeek">0 PCZ</strong><small>calculée sur les temps Z1 à Z5 renseignés</small></div>
-      <div class="stats-card"><span>CHARGE ZONÉE · 12 SEM.</span><strong id="statsZoneLoad12">0 PCZ</strong><small id="statsZoneLoad12Sub">0 séance avec zones renseignées</small></div>
     </div>
+
     <div class="stats-section-title">STATISTIQUES · ÉVOLUTION</div>
     <div class="stats-grid">
       <div class="stats-card"><span>HEURES RÉALISÉES · 4 SEM.</span><strong id="statsTotal4">0 h</strong><small>volume cumulé</small></div>
@@ -1953,22 +2002,39 @@ main { overflow-x: hidden; }
       <div class="stats-card"><span>HEURES RÉALISÉES · 12 SEM.</span><strong id="statsTotal12">0 h</strong><small>volume cumulé</small></div>
       <div class="stats-card"><span>MEILLEURE SEMAINE</span><strong id="statsBestWeek">—</strong><small id="statsBestWeekSub">en temps réel effectué</small></div>
     </div>
-    <div class="stats-section-title">SUIVI PAR DISCIPLINE · 12 DERNIÈRES SEMAINES</div>
-    <div id="statsDisciplines"><div class="planning-empty"></div></div>
-    <div class="run-dashboard">
-      <div class="stats-section-title">COURSE À PIED · VOLUME ET FRÉQUENCE CARDIAQUE</div>
-      <div class="run-kpi-grid">
-        <div class="run-kpi"><span>TOTAL RUNS · 12 SEM.</span><strong id="runTotalCount">0</strong></div>
-        <div class="run-kpi"><span>DISTANCE · 12 SEM.</span><strong id="runTotalKm">0 km</strong></div>
-        <div class="run-kpi"><span>TEMPS DE COURSE</span><strong id="runTotalTime">0 h</strong></div>
-      </div>
-      <div class="run-dashboard-grid">
-        <div class="run-panel"><h3>📈 KILOMÉTRAGE HEBDOMADAIRE</h3><div id="runWeeklyChart" class="run-chart"><span class="small-note"></span></div><div class="hr-zone-total" id="runBestWeek"></div></div>
-        <div class="run-panel"><h3>♥ RÉPARTITION DU TEMPS · 5 ZONES FC</h3><div id="hrZoneChart" class="hr-zone-list"><span class="small-note"></span></div><div class="hr-zone-total" id="hrZoneTotal"></div><p class="small-note"></p></div>
-      </div>
-      <p class="stats-period-note"></p>
+    <div class="stats-chart-grid">
+      <section class="stats-chart-card">
+        <div class="stats-chart-head"><div><div class="stats-chart-title">VOLUME D’ENTRAÎNEMENT</div><div class="stats-chart-subtitle">Durée réellement effectuée · 12 semaines</div></div><div class="stats-chart-total" id="statsChartVolumeTotal">0 h</div></div>
+        <div id="statsVolumeChart" class="stats-chart-empty">Les volumes hebdomadaires apparaîtront après les premières séances réalisées.</div>
+      </section>
+      <section class="stats-chart-card">
+        <div class="stats-chart-head"><div><div class="stats-chart-title">CHARGE D’ENTRAÎNEMENT</div><div class="stats-chart-subtitle">Durée réelle × RPE · 12 semaines</div></div><div class="stats-chart-total" id="statsChartLoadTotal">— UA</div></div>
+        <div id="statsLoadChart" class="stats-chart-empty">Renseigne la durée réelle et le RPE pour afficher la charge.</div>
+      </section>
     </div>
-    <p class="stats-period-note"></p>
+    <details class="stats-accordion">
+      <summary><span><strong>SUIVI PAR DISCIPLINE</strong><small>Volume et nombre de séances · 12 dernières semaines</small></span><span class="stats-accordion-toggle" aria-hidden="true"></span></summary>
+      <div class="stats-accordion-content">
+        <div id="statsDisciplines"><div class="planning-empty">Les statistiques apparaîtront dès que des séances seront réalisées et renseignées.</div></div>
+      </div>
+    </details>
+    <details class="stats-accordion">
+      <summary><span><strong>CHARGE PAR DISCIPLINE</strong><small>Durée réelle × RPE · 12 dernières semaines</small></span><span class="stats-accordion-toggle" aria-hidden="true"></span></summary>
+      <div class="stats-accordion-content">
+        <div class="stats-grid">
+          <div class="stats-card"><span>JOURS AVEC ENTRAÎNEMENT · 7 J</span><strong id="statsTrainingDays7">—</strong><small id="statsTrainingDaysSub">sur les 7 derniers jours</small></div>
+          <div class="stats-card"><span>JOURS DE REPOS · 7 J</span><strong id="statsRestDays7">—</strong><small>sans séance enregistrée comme réalisée</small></div>
+          <div class="stats-card"><span>MONOTONIE · 7 J</span><strong id="statsMonotony7">—</strong><small>moyenne quotidienne / écart-type</small></div>
+          <div class="stats-card"><span>STRAIN · 7 J</span><strong id="statsStrain7">—</strong><small>charge 7 jours × monotonie</small></div>
+          <div class="stats-card"><span>CHARGE · SEMAINE EN COURS</span><strong id="statsLoadWeek">— UA</strong><small id="statsLoadWeekSub">Séances avec durée et RPE renseignés</small></div>
+          <div class="stats-card"><span>CHARGE · 4 DERNIÈRES SEM.</span><strong id="statsLoad4">— UA</strong><small>Charge cumulée</small></div>
+          <div class="stats-card"><span>MOYENNE HEBDO · 4 SEM.</span><strong id="statsLoadAvg4">— UA</strong><small>Charge moyenne sur 4 semaines</small></div>
+          <div class="stats-card"><span>CHARGE PAR SÉANCE · 12 SEM.</span><strong id="statsLoadAvgSession">— UA</strong><small>Moyenne des séances renseignées</small></div>
+        </div>
+        <div id="statsLoadDisciplines"><div class="planning-empty">Renseigne la durée réelle et le RPE après tes séances pour calculer la charge.</div></div>
+      </div>
+    </details>
+    <p class="stats-period-note">Les séances annulées sont exclues. Les durées réelles alimentent le volume ; la charge est calculée uniquement si la durée réelle et le RPE sont renseignés.</p>
   </div>
 
   <!-- Compatibilité conservée avec le formulaire et les fonctions existantes -->
@@ -1989,31 +2055,19 @@ main { overflow-x: hidden; }
       <div class="field"><label id="planningTypeLabel">TYPE DE SÉANCE</label><div id="planningTypeButtons" class="planning-choice-group" role="group" aria-label="Type de séance"></div><select id="planningType" class="hidden" aria-hidden="true" tabindex="-1"></select></div>
       <div class="field hidden" id="planningWodFormatSettings">
         <label>PARAMÈTRES DU FORMAT WOD</label>
-        <div class="planning-form-grid" id="planningWodAmrapFields"><div class="field"><label for="planningWodAmrapDuration">DURÉE (MIN)</label><input type="number" id="planningWodAmrapDuration" min="1" value="20"></div></div>
-        <div class="planning-form-grid hidden" id="planningWodEmomFields"><div class="field"><label for="planningWodEmomDuration">DURÉE (MIN)</label><input type="number" id="planningWodEmomDuration" min="1" value="12"></div><div class="field"><label for="planningWodEmomWork">TRAVAIL PAR MINUTE (SEC)</label><input type="number" id="planningWodEmomWork" min="1" value="40"></div></div>
+        <div class="planning-form-grid" id="planningWodAmrapFields"><div class="field"><label for="planningWodAmrapDuration">DURÉE (MM:SS)</label><input type="text" inputmode="numeric" id="planningWodAmrapDuration" value="20:00" placeholder="MM:SS"></div></div>
+        <div class="planning-form-grid hidden" id="planningWodEmomFields"><div class="field"><label for="planningWodEmomDuration">DURÉE (MM:SS)</label><input type="text" inputmode="numeric" id="planningWodEmomDuration" value="12:00" placeholder="MM:SS"></div><div class="field"><label for="planningWodEmomWork">TRAVAIL PAR MINUTE (SEC)</label><input type="number" id="planningWodEmomWork" min="1" value="40"></div></div>
         <div class="planning-form-grid hidden" id="planningWodTabataFields"><div class="field"><label for="planningWodTabataCycles">ROUNDS / CYCLES</label><input type="number" id="planningWodTabataCycles" min="1" value="8"></div><div class="field"><label for="planningWodTabataWork">TEMPS DE TRAVAIL (SEC)</label><input type="number" id="planningWodTabataWork" min="1" value="20"></div><div class="field"><label for="planningWodTabataRest">TEMPS DE REPOS (SEC)</label><input type="number" id="planningWodTabataRest" min="0" value="10"></div></div>
-        <div class="planning-form-grid hidden" id="planningWodFortimeFields"><div class="field"><label for="planningWodFortimeCap">TIME CAP (MIN)</label><input type="number" id="planningWodFortimeCap" min="0" value="0"></div><div class="field"><label for="planningWodFortimeRounds">ROUNDS</label><input type="number" id="planningWodFortimeRounds" min="1" value="5"></div><div class="field"><label for="planningWodFortimeRest">REPOS ENTRE ROUNDS (SEC)</label><input type="number" id="planningWodFortimeRest" min="0" value="60"></div></div>
+        <div class="planning-form-grid hidden" id="planningWodFortimeFields"><div class="field"><label for="planningWodFortimeCap">TIME CAP (MM:SS, 0:00 = SANS LIMITE)</label><input type="text" inputmode="numeric" id="planningWodFortimeCap" value="0:00" placeholder="MM:SS"></div><div class="field"><label for="planningWodFortimeRounds">ROUNDS</label><input type="number" id="planningWodFortimeRounds" min="1" value="5"></div><div class="field"><label for="planningWodFortimeRest">REPOS ENTRE ROUNDS (SEC)</label><input type="number" id="planningWodFortimeRest" min="0" value="60"></div></div>
         <p class="small-note" id="planningWodFormatSummary">Les paramètres du format sélectionné seront repris dans le contenu de la séance.</p>
       </div>
       <div class="field hidden" id="planningWodSourceWrap"><label for="planningWodSource">CHOISIR DANS MA BIBLIOTHÈQUE DE WOD</label><select id="planningWodSource"><option value="">— CRÉATION MANUELLE —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
       <div class="field"><label for="planningTitle">INTITULÉ DE LA SÉANCE</label><input id="planningTitle" maxlength="120" required placeholder="Ex. : VMA 10 × 400 m"></div>
       <div class="planning-form-grid"><div class="field"><label for="planningDuration">DURÉE PRÉVUE (MINUTES)</label><input type="number" id="planningDuration" min="0" max="1440" placeholder="Ex. : 60"></div><div class="field"><label>STATUT</label><div id="planningStatusButtons" class="planning-choice-group compact" role="group" aria-label="Statut de la séance"></div><select id="planningStatusSelect" class="hidden" aria-hidden="true" tabindex="-1"><option value="PLANNED">À FAIRE</option><option value="DONE">RÉALISÉE</option><option value="CANCELLED">ANNULÉE</option></select></div></div>
       <div class="field" id="planningActualDurationWrap"><label for="planningActualDuration">DURÉE RÉELLE EFFECTUÉE (MINUTES)</label><input type="number" id="planningActualDuration" min="0" max="1440" placeholder="Ex. : 52"><p class="small-note">À renseigner lorsque la séance est réalisée. Cette durée alimentera les statistiques.</p></div>
-      <div class="run-input-panel" id="planningRunMetricsWrap">
-        <div class="stats-section-title">DONNÉES DE LA SÉANCE RÉALISÉE</div>
-        <div class="field"><label for="planningDistanceKm">DISTANCE PARCOURUE (KM)</label><input type="number" id="planningDistanceKm" min="0" max="1000" step="0.01" placeholder="Ex. : 10.25"><p class="small-note">Pour la course à pied, renseigne la distance réellement parcourue.</p></div>
-        <label> TEMPS PASSÉ DANS LES ZONES FC (MINUTES) </label>
-        <div class="hr-input-grid">
-          <div class="field"><label for="planningHrZone1">Z1 · RÉCUP.</label><input type="number" id="planningHrZone1" min="0" step="1" placeholder="0"></div>
-          <div class="field"><label for="planningHrZone2">Z2 · ENDURANCE</label><input type="number" id="planningHrZone2" min="0" step="1" placeholder="0"></div>
-          <div class="field"><label for="planningHrZone3">Z3 · TEMPO</label><input type="number" id="planningHrZone3" min="0" step="1" placeholder="0"></div>
-          <div class="field"><label for="planningHrZone4">Z4 · SEUIL</label><input type="number" id="planningHrZone4" min="0" step="1" placeholder="0"></div>
-          <div class="field"><label for="planningHrZone5">Z5 · VO₂ MAX</label><input type="number" id="planningHrZone5" min="0" step="1" placeholder="0"></div>
-        </div>
-        <p class="small-note">Saisis les minutes de chaque zone à partir de ta montre ou de ton compte-rendu d'entraînement. Laisse vide si la donnée n'est pas disponible.</p>
-      </div>
+      <div class="field hidden" id="planningRpeWrap"><label for="planningRpe">RPE — DIFFICULTÉ RESSENTIE (1 À 10)</label><input type="number" id="planningRpe" min="1" max="10" step="1" placeholder="Ex. : 7"><p class="small-note">1 = très facile · 10 = effort maximal. Sert au calcul de la charge (durée réelle × RPE).</p></div>
       <div class="field"><label for="planningDetails">CONTENU DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea><div id="planningExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note">Commence à saisir un mouvement (ex. Back Squat ou Rameur), puis sélectionne-le dans la bibliothèque. Les prescriptions comme 4x10, 80 kg ou 1000 m sont conservées.</p></div>
-      <div class="field"><label for="planningNotes">OBJECTIF / CONSIGNES</label><textarea id="planningNotes" rows="3" placeholder="Objectif, zones FC visées, consignes techniques..."></textarea></div>
+      <div class="field"><label for="planningNotes">OBJECTIF / CONSIGNES</label><textarea id="planningNotes" rows="3" placeholder="Objectif, RPE, zone FC, consignes techniques..."></textarea></div>
       <div class="actions"><button class="primary" id="planningSaveBtn" type="submit">ENREGISTRER LA SÉANCE</button><button class="secondary" id="planningSaveToLibrary" type="button">ENREGISTRER AUSSI DANS LA BIBLIOTHÈQUE WOD</button><button class="secondary danger-btn hidden" id="planningDeleteFromEditor" type="button">SUPPRIMER LA SÉANCE</button></div>
       <p class="small-note" id="planningFormStatus"></p>
     </form>
@@ -2118,27 +2172,21 @@ main { overflow-x: hidden; }
 // NAVIGATION
 // =======================================
 
-// Navigation principale avec transition horizontale type slide.
+// Navigation principale sans animation ni effet de glissement.
 function activateMainPage(pageId) {
   const pages = [...document.querySelectorAll(".page")];
   const tabs = [...document.querySelectorAll(".tab")];
-  const current = pages.findIndex(p => p.classList.contains("active"));
-  const next = pages.findIndex(p => p.id === pageId);
-  if (next < 0) return;
-  const direction = current < 0 || next >= current ? "next" : "prev";
-
+  if (!pages.some(p => p.id === pageId)) return;
   tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.page === pageId));
-  pages.forEach(p => {
-    const isTarget = p.id === pageId;
-    p.classList.remove("page-slide-next", "page-slide-prev");
-    p.classList.toggle("active", isTarget);
-    if (isTarget && current !== next) {
-      // Force le redémarrage de l'animation lors de chaque navigation.
-      void p.offsetWidth;
-      p.classList.add(direction === "next" ? "page-slide-next" : "page-slide-prev");
-    }
-  });
+  pages.forEach(p => p.classList.toggle("active", p.id === pageId));
 }
+
+// Compatibilité avec les appels historiques de navigation dans l’application.
+// Plusieurs fonctions (bibliothèque, chronomètre et historique) utilisent encore openPage().
+function openPage(pageId) {
+  return activateMainPage(pageId);
+}
+window.openPage = openPage;
 
 document.addEventListener("click", event => {
   const button = event.target.closest(".tab");
@@ -2146,53 +2194,8 @@ document.addEventListener("click", event => {
   activateMainPage(button.dataset.page);
 });
 
-// Sur mobile, un balayage horizontal permet aussi de passer d'un onglet à l'autre.
-let wodSwipeStartX = 0;
-let wodSwipeStartY = 0;
-let wodSwipeStartTarget = null;
-document.addEventListener("touchstart", event => {
-  if (!event.touches || event.touches.length !== 1) return;
-  wodSwipeStartX = event.touches[0].clientX;
-  wodSwipeStartY = event.touches[0].clientY;
-  wodSwipeStartTarget = event.target;
-}, {passive:true});
-document.addEventListener("touchend", event => {
-  if (!event.changedTouches || !event.changedTouches.length) return;
+// La navigation mobile se fait uniquement avec les onglets, sans balayage horizontal.
 
-  // Le calendrier hebdomadaire possède son propre défilement horizontal.
-  // Un swipe commencé dans cette zone ne doit jamais changer d'écran.
-  const swipeTarget = wodSwipeStartTarget;
-  if (swipeTarget && swipeTarget.closest &&
-      swipeTarget.closest("#planningPage, .planning-calendar-scroll, .garmin-table-wrap, [data-horizontal-scroll]")) {
-    wodSwipeStartTarget = null;
-    return;
-  }
-
-  const dx = event.changedTouches[0].clientX - wodSwipeStartX;
-  const dy = event.changedTouches[0].clientY - wodSwipeStartY;
-  if (Math.abs(dx) < 75 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
-  if (event.target.closest('input, textarea, select, button, a, [contenteditable="true"]')) return;
-  const pages = [...document.querySelectorAll(".page")];
-  const current = pages.findIndex(page => page.classList.contains("active"));
-  const next = current + (dx < 0 ? 1 : -1);
-  if (next >= 0 && next < pages.length) activateMainPage(pages[next].id);
-  wodSwipeStartTarget = null;
-}, {passive:true});
-document.addEventListener("touchcancel", () => {
-  wodSwipeStartTarget = null;
-}, {passive:true});
-
-function openPage(page) {
-  activateMainPage(page);
-}
-
-document.querySelectorAll(".library-subtab").forEach(button => {
-  button.addEventListener("click", () => {
-    const panelId = button.dataset.libraryPanel;
-    document.querySelectorAll(".library-subtab").forEach(tab => tab.classList.toggle("active", tab === button));
-    document.querySelectorAll(".library-panel").forEach(panel => panel.classList.toggle("active", panel.id === panelId));
-  });
-});
 
 function openLibraryPanel(panelId) {
   document.querySelectorAll(".library-subtab").forEach(tab => tab.classList.toggle("active", tab.dataset.libraryPanel === panelId));
@@ -2435,16 +2438,16 @@ function beginEditWod(wod) {
   manualFormat.value = ["AMRAP", "EMOM", "TABATA", "FOR TIME"].includes(format) ? format : "AMRAP";
   const cfg = wod.timerConfig || {};
   if (manualFormat.value === "AMRAP") {
-    document.getElementById("manualAmrapDuration").value = cfg.duration_minutes ?? wod.duration ?? 20;
+    document.getElementById("manualAmrapDuration").value = formatWodDurationInput(cfg.duration_seconds ?? (Number(cfg.duration_minutes ?? wod.duration ?? 20)*60));
   } else if (manualFormat.value === "EMOM") {
-    document.getElementById("manualEmomDuration").value = cfg.duration_minutes ?? wod.duration ?? 12;
+    document.getElementById("manualEmomDuration").value = formatWodDurationInput(cfg.duration_seconds ?? (Number(cfg.duration_minutes ?? wod.duration ?? 12)*60));
     document.getElementById("manualEmomWork").value = cfg.work_seconds ?? 40;
   } else if (manualFormat.value === "TABATA") {
     document.getElementById("manualTabataWork").value = cfg.work_seconds ?? 20;
     document.getElementById("manualTabataRest").value = cfg.rest_seconds ?? 10;
     document.getElementById("manualTabataCycles").value = cfg.cycles ?? 8;
   } else {
-    document.getElementById("manualFortimeCap").value = cfg.time_cap_minutes ?? wod.duration ?? 0;
+    document.getElementById("manualFortimeCap").value = formatWodDurationInput(cfg.time_cap_seconds ?? (Number(cfg.time_cap_minutes ?? wod.duration ?? 0)*60));
     document.getElementById("manualFortimeFormat").value = cfg.format || "simple";
     document.getElementById("manualFortimeRounds").value = cfg.rounds ?? 5;
     document.getElementById("manualFortimeRest").value = cfg.rest_seconds ?? 60;
@@ -2564,10 +2567,12 @@ function sendWodToTimer(wod) {
   }
   sequenceBlocks = [];
   if (["AMRAP","EMOM","TABATA","FORTIME"].includes(type)) setTimerType(type);
-  if (wod.duration) {
-    if (type === "AMRAP") document.getElementById("amrapDuration").value = wod.duration;
-    if (type === "EMOM") document.getElementById("emomDuration").value = wod.duration;
-    if (type === "FORTIME") document.getElementById("fortimeLimit").value = wod.duration;
+  if (wod.duration || wod.timerConfig?.duration_seconds || wod.timerConfig?.time_cap_seconds) {
+    const cfgSeconds=wod.timerConfig?.duration_seconds ?? wod.timerConfig?.time_cap_seconds;
+    const timerMinutes=cfgSeconds!=null?Number(cfgSeconds)/60:Number(wod.duration||0);
+    if (type === "AMRAP") document.getElementById("amrapDuration").value = timerMinutes;
+    if (type === "EMOM") document.getElementById("emomDuration").value = timerMinutes;
+    if (type === "FORTIME") document.getElementById("fortimeLimit").value = timerMinutes;
   }
   if (wod.timerConfig) {
     const cfg = wod.timerConfig;
@@ -2792,6 +2797,22 @@ function playCountdownTone(number) {
   playTone(frequencies[number] || 880, number === "GO" ? 0.6 : 0.22);
 }
 
+// Saisie des durées WOD : accepte les minutes seules ou le format MM:SS (ex. 12:30).
+function parseWodDurationSeconds(value, fallbackSeconds=0) {
+  const raw=String(value ?? "").trim();
+  if (!raw) return Math.max(0, Number(fallbackSeconds)||0);
+  if (/^\d+\s*:\s*\d{1,2}$/.test(raw)) {
+    const [m,sec]=raw.split(":").map(v=>Number(v.trim()));
+    return Math.max(0,m*60+Math.min(59,sec));
+  }
+  const n=Number(raw);
+  return Number.isFinite(n)&&n>=0 ? Math.round(n*60) : Math.max(0,Number(fallbackSeconds)||0);
+}
+function formatWodDurationInput(seconds) {
+  const n=Math.max(0,Math.round(Number(seconds)||0));
+  return `${Math.floor(n/60)}:${String(n%60).padStart(2,"0")}`;
+}
+
 // =======================================
 // DUREE DU CHRONOMETRE
 // =======================================
@@ -2801,8 +2822,8 @@ function blockDurationSeconds(block) {
   const type = block.type;
   if (type === "TABATA") return Math.max(1, block.work || 20) * Math.max(1, block.cycles || 8) +
     Math.max(0, block.rest || 10) * (Math.max(1, block.cycles || 8) - 1);
-  if (type === "FORTIME") return Math.max(1, block.duration || 1) * 60;
-  return Math.max(1, block.duration || 1) * 60;
+  if (type === "FORTIME") return Math.max(1, block.duration_seconds ?? parseWodDurationSeconds(block.duration,60));
+  return Math.max(1, block.duration_seconds ?? parseWodDurationSeconds(block.duration,60));
 }
 function getSequenceTimeline() {
   let cursor = 0;
@@ -4009,7 +4030,7 @@ function renderMultiBlocks(existing = multiBlockDraft) {
         ${["AMRAP","EMOM","TABATA","FORTIME"].map(t=>`<button type="button" class="manual-format-btn${block.type===t?' active':''}" data-block-format="${t}" data-index="${index}" aria-pressed="${block.type===t}">${t==='FORTIME'?'FOR TIME':t}</button>`).join("")}
       </div><input type="hidden" data-block-field="type" data-index="${index}" value="${block.type||'AMRAP'}"></div>
       <div class="grid">
-        <div class="field"><label>DURÉE / TIME CAP (MINUTES)</label><input type="number" min="1" data-block-field="duration" data-index="${index}" value="${block.duration ?? (block.type==="TABATA"?4:12)}"></div>
+        <div class="field"><label>DURÉE / TIME CAP (MM:SS)</label><input type="text" inputmode="numeric" data-block-field="duration" data-index="${index}" value="${block.duration_seconds!=null?formatWodDurationInput(block.duration_seconds):formatWodDurationInput((Number(block.duration ?? (block.type==="TABATA"?4:12)))*60)}" placeholder="12:30"></div>
         <div class="field ${block.type==="EMOM"?"":"hidden"}" data-emom-wrap="${index}"><label>TRAVAIL PAR MINUTE (SEC)</label><input type="number" min="1" max="59" data-block-field="work" data-index="${index}" value="${block.work ?? 40}"></div>
         <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-wrap="${index}"><label>TRAVAIL (SEC)</label><input type="number" min="1" data-block-field="work" data-index="${index}" value="${block.work ?? 20}"></div>
         <div class="field ${block.type==="TABATA"?"":"hidden"}" data-tabata-rest-wrap="${index}"><label>REPOS (SEC)</label><input type="number" min="0" data-block-field="rest" data-index="${index}" value="${block.rest ?? 10}"></div>
@@ -4026,7 +4047,8 @@ function renderMultiBlocks(existing = multiBlockDraft) {
   host.querySelectorAll("[data-block-field]").forEach(el => {
     el.addEventListener("input", () => {
       const i=Number(el.dataset.index), key=el.dataset.blockField;
-      multiBlockDraft[i][key] = key==="type" || key==="exercises" ? el.value : Number(el.value);
+      multiBlockDraft[i][key] = key==="type" || key==="exercises" || key==="duration" ? el.value : Number(el.value);
+      if(key==="duration") multiBlockDraft[i].duration_seconds=parseWodDurationSeconds(el.value,60);
       if (key==="type") renderMultiBlocks(multiBlockDraft);
       updateMultiBlockTotal();
     });
@@ -4051,7 +4073,7 @@ function collectMultiBlocks(readDOM=true) {
   document.querySelectorAll("#multiBlocksList .panel").forEach((card,i)=>{
     const get=k=>card.querySelector(`[data-block-field="${k}"]`)?.value;
     const type=get("type")||"AMRAP";
-    blocks.push({type,duration:Number(get("duration"))||1,work:Number(get("work"))||(type==="TABATA"?20:40),
+    blocks.push({type,duration:get("duration"),duration_seconds:parseWodDurationSeconds(get("duration"),60),work:Number(get("work"))||(type==="TABATA"?20:40),
       rest:Number(get("rest"))||10,cycles:Number(get("cycles"))||8,exercises:get("exercises")||"",
       rest_after:Number(get("rest_after"))||0});
   });
@@ -4087,16 +4109,18 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
   let duration = null;
   let timerConfig = { format: type };
   if (multiMode) {
-    blocks = blocks.map((b,i)=>({...b, duration:Math.max(1,Number(b.duration)||1), rest_after:i===blocks.length-1?0:Math.max(0,Number(b.rest_after)||0)}));
+    blocks = blocks.map((b,i)=>({...b, duration_seconds:Math.max(1,Number(b.duration_seconds)||parseWodDurationSeconds(b.duration,60)), rest_after:i===blocks.length-1?0:Math.max(0,Number(b.rest_after)||0)}));
     timerConfig = { format:"MIX", blocks };
     duration = Math.ceil(getSequenceDurationFromBlocks(blocks)/60);
   } else if (type === "AMRAP") {
-    duration = Math.max(1, Number(document.getElementById("manualAmrapDuration").value) || 1);
-    timerConfig.duration_minutes = duration;
+    const durationSeconds = Math.max(1, parseWodDurationSeconds(document.getElementById("manualAmrapDuration").value,1200));
+    duration = Math.ceil(durationSeconds/60);
+    timerConfig.duration_minutes = durationSeconds/60; timerConfig.duration_seconds = durationSeconds;
   } else if (type === "EMOM") {
-    duration = Math.max(1, Number(document.getElementById("manualEmomDuration").value) || 1);
+    const durationSeconds = Math.max(1, parseWodDurationSeconds(document.getElementById("manualEmomDuration").value,720));
+    duration = Math.ceil(durationSeconds/60);
     const work = Math.max(1, Math.min(59, Number(document.getElementById("manualEmomWork").value) || 40));
-    timerConfig = { format:type, duration_minutes:duration, work_seconds:work, rest_seconds:60-work, interval_seconds:60 };
+    timerConfig = { format:type, duration_minutes:durationSeconds/60, duration_seconds:durationSeconds, work_seconds:work, rest_seconds:60-work, interval_seconds:60 };
   } else if (type === "TABATA") {
     const work = Math.max(1, Number(document.getElementById("manualTabataWork").value) || 20);
     const rest = Math.max(0, Number(document.getElementById("manualTabataRest").value) || 0);
@@ -4105,9 +4129,10 @@ document.getElementById("manualWodForm").addEventListener("submit", async event 
     duration = Math.ceil(totalSeconds/60);
     timerConfig = { format:type, work_seconds:work, rest_seconds:rest, cycles, total_seconds:totalSeconds };
   } else {
-    duration = Math.max(0, Number(document.getElementById("manualFortimeCap").value) || 0) || null;
+    const capSeconds = parseWodDurationSeconds(document.getElementById("manualFortimeCap").value,1200);
+    duration = capSeconds>0 ? Math.ceil(capSeconds/60) : null;
     const fortimeFormat = document.getElementById("manualFortimeFormat").value || "simple";
-    timerConfig = { format: fortimeFormat, time_cap_minutes: duration };
+    timerConfig = { format: fortimeFormat, time_cap_minutes: capSeconds/60, time_cap_seconds: capSeconds };
     if (fortimeFormat === "rft" || fortimeFormat === "rft-rest") {
       timerConfig.rounds = Math.max(1, Number(document.getElementById("manualFortimeRounds").value) || 1);
       timerConfig.rest_seconds = fortimeFormat === "rft-rest" ? Math.max(0, Number(document.getElementById("manualFortimeRest").value) || 0) : 0;
@@ -4471,28 +4496,28 @@ resetTimer();
   const target={AMRAP:'Amrap',EMOM:'Emom',TABATA:'Tabata','FOR TIME':'Fortime'}[format];
   if(isWod&&target)$('planningWod'+target+'Fields').classList.remove('hidden');
   const summary=$('planningWodFormatSummary');
-  if(summary){const vals={AMRAP:`AMRAP · ${$('planningWodAmrapDuration').value||20} min`,EMOM:`EMOM · ${$('planningWodEmomDuration').value||12} min · ${$('planningWodEmomWork').value||40} sec de travail/min`,TABATA:`TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||0}s repos`,'FOR TIME':`FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||0} min · repos ${$('planningWodFortimeRest').value||0}s`};summary.textContent=vals[format]||'Choisis AMRAP, EMOM, TABATA ou FOR TIME pour afficher les paramètres.';}
+  if(summary){const vals={AMRAP:`AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`,EMOM:`EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail/min`,TABATA:`TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||0}s repos`,'FOR TIME':`FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||'0:00'} · repos ${$('planningWodFortimeRest').value||0}s`};summary.textContent=vals[format]||'Choisis AMRAP, EMOM, TABATA ou FOR TIME pour afficher les paramètres.';}
  }
  function loadPlanningWodConfig(wod){
   const cfg=wod?.timerConfig||{};const type=String(wod?.type||'').toUpperCase();
-  if(type==='AMRAP')$('planningWodAmrapDuration').value=cfg.duration_minutes??wod.duration??20;
-  if(type==='EMOM'){$('planningWodEmomDuration').value=cfg.duration_minutes??wod.duration??12;$('planningWodEmomWork').value=cfg.work_seconds??40;}
+  if(type==='AMRAP')$('planningWodAmrapDuration').value=formatWodDurationInput(cfg.duration_seconds??Number(cfg.duration_minutes??wod.duration??20)*60);
+  if(type==='EMOM'){$('planningWodEmomDuration').value=formatWodDurationInput(cfg.duration_seconds??Number(cfg.duration_minutes??wod.duration??12)*60);$('planningWodEmomWork').value=cfg.work_seconds??40;}
   if(type==='TABATA'){$('planningWodTabataCycles').value=cfg.cycles??8;$('planningWodTabataWork').value=cfg.work_seconds??20;$('planningWodTabataRest').value=cfg.rest_seconds??10;}
-  if(type==='FOR TIME'||type==='FORTIME'){$('planningWodFortimeCap').value=cfg.time_cap_minutes??wod.duration??0;$('planningWodFortimeRounds').value=cfg.rounds??5;$('planningWodFortimeRest').value=cfg.rest_seconds??60;}
+  if(type==='FOR TIME'||type==='FORTIME'){$('planningWodFortimeCap').value=formatWodDurationInput(cfg.time_cap_seconds??Number(cfg.time_cap_minutes??wod.duration??0)*60);$('planningWodFortimeRounds').value=cfg.rounds??5;$('planningWodFortimeRest').value=cfg.rest_seconds??60;}
   updatePlanningWodFormatFields();
  }
  function planningWodConfigText(){const type=planningWodFormat();if(type==='AMRAP')return `
 
-FORMAT : AMRAP · ${$('planningWodAmrapDuration').value||20} min`;
+FORMAT : AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`;
   if(type==='EMOM')return `
 
-FORMAT : EMOM · ${$('planningWodEmomDuration').value||12} min · ${$('planningWodEmomWork').value||40} sec de travail par minute`;
+FORMAT : EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail par minute`;
   if(type==='TABATA')return `
 
 FORMAT : TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||10}s repos`;
   if(type==='FOR TIME')return `
 
-FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||0} min · repos ${$('planningWodFortimeRest').value||0}s`;
+FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||'0:00'} · repos ${$('planningWodFortimeRest').value||0}s`;
   return '';}
  const planningChoiceForm=$('planningSessionForm');
  if(planningChoiceForm && planningChoiceForm.dataset.choiceButtonsBound!=='true'){
@@ -4573,14 +4598,6 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function weekSessions(){const start=dateKey(monday(selectedDate)),end=dateKey(addDays(monday(selectedDate),6));return sessions.filter(x=>x.session_date>=start&&x.session_date<=end);}
  const minutesLabel = mins => {const n=Math.round(Number(mins)||0);return `${Math.floor(n/60)} h${n%60?` ${String(n%60).padStart(2,'0')}`:''}`;};
- // Charge zonée : somme des minutes passées dans chaque zone, pondérées de 1 à 5.
- // null signifie qu'aucune donnée de zone n'a été saisie pour cette séance.
- const zoneLoad = session => {
-  const keys=[1,2,3,4,5].map(n=>'hr_zone_'+n+'_minutes');
-  if(!keys.some(k=>session[k]!==null&&session[k]!==undefined&&session[k]!==''))return null;
-  return keys.reduce((total,key,index)=>total+Math.max(0,Number(session[key])||0)*(index+1),0);
- };
- const formatZoneLoad = value => `${Math.round(Number(value)||0).toLocaleString('fr-FR')} PCZ`;
  function renderStats(){
   const now=new Date();now.setHours(12,0,0,0);const thisMonday=monday(now),thisStart=dateKey(thisMonday),thisEnd=dateKey(addDays(thisMonday,6));
   const current=sessions.filter(x=>x.session_date>=thisStart&&x.session_date<=thisEnd&&x.status!=='CANCELLED');
@@ -4589,15 +4606,9 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const hasActual=done.some(x=>x.actual_duration_minutes!==null&&x.actual_duration_minutes!==undefined&&x.actual_duration_minutes!=='');
   $('statsPlanned').textContent=planned;$('statsDone').textContent=done.length;$('statsDoneSub').textContent=`${notDone} non réalisée(s)`;$('statsRate').textContent=(planned?Math.round(done.length/planned*100):0)+'%';
   $('statsPlannedTime').textContent=minutesLabel(plannedMin);$('statsActualTime').textContent=minutesLabel(actualMin);$('statsGap').textContent=hasActual?`${actualMin-plannedMin>=0?'+':'−'}${minutesLabel(Math.abs(actualMin-plannedMin))}`:'—';
-  const currentZoneLoad=done.reduce((sum,x)=>sum+(zoneLoad(x)??0),0);
-  $('statsZoneLoadWeek').textContent=formatZoneLoad(currentZoneLoad);
   const start4=addDays(thisMonday,-21),start12=addDays(thisMonday,-77),key4=dateKey(start4),key12=dateKey(start12);
   const recent4=sessions.filter(x=>x.session_date>=key4&&x.session_date<=thisEnd),recent12=sessions.filter(x=>x.session_date>=key12&&x.session_date<=thisEnd);
   const done4=recent4.filter(x=>x.status==='DONE'),done12=recent12.filter(x=>x.status==='DONE');
-  const zoneLoadSessions12=done12.map(x=>zoneLoad(x)).filter(v=>v!==null);
-  const totalZoneLoad12=zoneLoadSessions12.reduce((a,b)=>a+b,0);
-  $('statsZoneLoad12').textContent=formatZoneLoad(totalZoneLoad12);
-  $('statsZoneLoad12Sub').textContent=`${zoneLoadSessions12.length} séance(s) avec zones renseignées`;
   const sumActual=arr=>arr.reduce((a,x)=>a+Number(x.actual_duration_minutes||0),0);
   const total4=sumActual(done4),total12=sumActual(done12);
   $('statsAvg4').textContent=minutesLabel(total4/4);$('statsAvg4Sessions').textContent=(done4.length/4).toLocaleString('fr-FR',{maximumFractionDigits:1})+' séance(s) / semaine';
@@ -4607,42 +4618,67 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const best=Object.entries(weekly).sort((a,b)=>b[1]-a[1])[0];$('statsBestWeek').textContent=best?minutesLabel(best[1]):'—';$('statsBestWeekSub').textContent=best?`Semaine du ${new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(parseDate(best[0]))}`:'Aucune séance réalisée';
   // Afficher systématiquement toutes les disciplines, même sans séance réalisée.
   const disciplineOrder=['COURSE À PIED','CYCLISME','FORCE','RÉCUPÉRATION','NATATION','CORE TRAINING','TESTS PHYSIQUES','HYROX','CrossFit','Libre','WOD'];
-  const groups={};disciplineOrder.forEach(label=>groups[label]={minutes:0,count:0,zoneLoad:0,zoneLoadCount:0});
+  const groups={};disciplineOrder.forEach(label=>groups[label]={minutes:0,count:0,load:0,loadCount:0});
   done12.forEach(x=>{
    let label=categoryName(x.category);
    if(normalizeCategory(x.category)==='WOD'){
     const t=String(x.session_type||'');
     label=t.startsWith('HYROX')?'HYROX':t.startsWith('CrossFit')?'CrossFit':t==='Libre'?'Libre':'WOD';
    }
-   if(!groups[label])groups[label]={minutes:0,count:0,zoneLoad:0,zoneLoadCount:0};
+   if(!groups[label])groups[label]={minutes:0,count:0,load:0,loadCount:0};
    groups[label].minutes+=Number(x.actual_duration_minutes||0);
    groups[label].count++;
-   const load=zoneLoad(x);if(load!==null){groups[label].zoneLoad+=load;groups[label].zoneLoadCount++;}
   });
   const allMin=Object.values(groups).reduce((a,g)=>a+g.minutes,0);
   $('statsDisciplines').innerHTML=disciplineOrder.map(label=>{
    const g=groups[label],pct=allMin?Math.round(g.minutes/allMin*100):0;
-   return `<div class="stats-discipline"><div class="stats-discipline-head"><span>${esc(label)}</span><span>${minutesLabel(g.minutes)} · ${pct}%</span></div><div class="stats-bar"><i style="width:${pct}%"></i></div><div class="stats-discipline-meta">${g.count} séance(s) · ${(g.count/12).toLocaleString('fr-FR',{maximumFractionDigits:1})} séance(s) / semaine${g.zoneLoadCount?` · ${formatZoneLoad(g.zoneLoad)} sur ${g.zoneLoadCount} séance(s)`:''}</div></div>`;
+   return `<div class="stats-discipline"><div class="stats-discipline-head"><span>${esc(label)}</span><span>${minutesLabel(g.minutes)} · ${pct}%</span></div><div class="stats-bar"><i style="width:${pct}%"></i></div><div class="stats-discipline-meta">${g.count} séance(s) · ${(g.count/12).toLocaleString('fr-FR',{maximumFractionDigits:1})} séance(s) / semaine</div></div>`;
   }).join('');
-  // Données course à pied et répartition des zones FC sur les 12 dernières semaines.
-  const runs=done12.filter(x=>normalizeCategory(x.category)==='COURSE');
-  const runKm=runs.reduce((a,x)=>a+Number(x.distance_km||0),0);
-  const runMinutes=runs.reduce((a,x)=>a+Number(x.actual_duration_minutes||0),0);
-  $('runTotalCount').textContent=runs.length;
-  $('runTotalKm').textContent=runKm.toLocaleString('fr-FR',{maximumFractionDigits:1})+' km';
-  $('runTotalTime').textContent=minutesLabel(runMinutes);
-  const weekRows=[];
-  for(let w=11;w>=0;w--){const ws=addDays(thisMonday,-7*w),we=addDays(ws,6),k=dateKey(ws);const km=runs.filter(x=>x.session_date>=k&&x.session_date<=dateKey(we)).reduce((a,x)=>a+Number(x.distance_km||0),0);weekRows.push({label:new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(ws),km});}
-  const maxKm=Math.max(1,...weekRows.map(x=>x.km));
-  $('runWeeklyChart').innerHTML=weekRows.some(x=>x.km>0)?weekRows.map(x=>`<div class="run-chart-col"><div class="run-chart-bar" style="height:${Math.max(x.km?3:0,x.km/maxKm*100)}%">${x.km?`<em>${x.km.toLocaleString('fr-FR',{maximumFractionDigits:1})}</em>`:''}</div><span class="run-chart-label">${x.label}</span></div>`).join(''):'<span class="small-note">Aucune distance renseignée sur les 12 dernières semaines.</span>';
-  const bestRunWeek=weekRows.reduce((best,x)=>x.km>best.km?x:best,{km:0,label:'—'});
-  $('runBestWeek').textContent=bestRunWeek.km?`Meilleure semaine : ${bestRunWeek.km.toLocaleString('fr-FR',{maximumFractionDigits:1})} km · semaine du ${bestRunWeek.label}`:'Meilleure semaine : —';
-  const zoneColors=['#9ca3af','#56d8e8','#39dc58','#f28c28','#e53935'];
-  const zoneNames=['Z1 · Récupération','Z2 · Endurance','Z3 · Tempo','Z4 · Seuil','Z5 · VO₂ max'];
-  const zoneTotals=[1,2,3,4,5].map(n=>done12.reduce((a,x)=>a+Number(x['hr_zone_'+n+'_minutes']||0),0));
-  const zoneSum=zoneTotals.reduce((a,b)=>a+b,0),zoneMax=Math.max(1,...zoneTotals);
-  $('hrZoneChart').innerHTML=zoneSum?zoneTotals.map((v,i)=>`<div class="hr-zone-row"><strong>${'Z'+(i+1)}</strong><div class="hr-zone-track"><i style="width:${v/zoneMax*100}%;background:${zoneColors[i]}"></i></div><span class="hr-zone-time">${minutesLabel(v)}</span></div>`).join(''):'<span class="small-note">Aucun temps passé en zone FC renseigné.</span>';
-  $('hrZoneTotal').textContent=`Temps cumulé en zones : ${minutesLabel(zoneSum)}`;
+  // Charge sessionnelle = durée réelle en minutes × RPE. Les séances incomplètes sont exclues.
+  const withLoad=arr=>arr.filter(x=>x.status==='DONE'&&Number(x.actual_duration_minutes)>0&&x.rpe!==null&&x.rpe!==undefined&&x.rpe!==''&&Number(x.rpe)>=1&&Number(x.rpe)<=10);
+  const loadOf=x=>Number(x.actual_duration_minutes)*Number(x.rpe);
+  const weekLoadRows=withLoad(current),fourWeekRows=withLoad(recent4),twelveWeekRows=withLoad(done12);
+  const weekLoad=weekLoadRows.reduce((a,x)=>a+loadOf(x),0),fourLoad=fourWeekRows.reduce((a,x)=>a+loadOf(x),0),twelveLoad=twelveWeekRows.reduce((a,x)=>a+loadOf(x),0);
+  // Monotonie et strain sur 7 jours glissants : les journées sans séance comptent comme 0 UA.
+  const todayKey=dateKey(now),rollingStart=dateKey(addDays(now,-6)),rollingSessions=sessions.filter(x=>x.session_date>=rollingStart&&x.session_date<=todayKey&&x.status==='DONE'&&Number(x.actual_duration_minutes)>0),rollingRows=withLoad(rollingSessions);
+  const dailyLoad=Array.from({length:7},(_,i)=>{const k=dateKey(addDays(now,i-6));return rollingRows.filter(x=>x.session_date===k).reduce((a,x)=>a+loadOf(x),0)});
+  const rollingTotal=dailyLoad.reduce((a,v)=>a+v,0),trainingDays=new Set(rollingSessions.map(x=>x.session_date)).size,restDays=7-trainingDays,missingRpe=rollingSessions.some(x=>x.rpe===null||x.rpe===undefined||x.rpe===''||Number(x.rpe)<1||Number(x.rpe)>10),meanDaily=rollingTotal/7,variance=dailyLoad.reduce((a,v)=>a+Math.pow(v-meanDaily,2),0)/7,sdDaily=Math.sqrt(variance),monotony=!missingRpe&&sdDaily>0?meanDaily/sdDaily:null,strain=monotony===null?null:rollingTotal*monotony;
+  $('statsTrainingDays7').textContent=trainingDays+'/7';$('statsTrainingDaysSub').textContent=`${trainingDays} jour(s) avec séance réalisée`;
+  $('statsRestDays7').textContent=restDays+'/7';$('statsMonotony7').textContent=monotony===null?'—':monotony.toLocaleString('fr-FR',{maximumFractionDigits:2});$('statsStrain7').textContent=strain===null?'—':Math.round(strain).toLocaleString('fr-FR')+' UA';
+  if(missingRpe){$('statsMonotony7').title='Renseigne le RPE de chaque séance réalisée pour calculer la monotonie et le strain.';$('statsStrain7').title='Renseigne le RPE de chaque séance réalisée pour calculer la monotonie et le strain.';}
+  // Graphiques calculés à partir des séances réellement enregistrées, sans données fictives.
+  const chartWeeks=Array.from({length:12},(_,i)=>dateKey(addDays(start12,i*7)));
+  const volumeByWeek={},loadByWeek={};
+  chartWeeks.forEach(k=>{volumeByWeek[k]=0;loadByWeek[k]=0;});
+  done12.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in volumeByWeek)volumeByWeek[k]+=Number(x.actual_duration_minutes||0);});
+  twelveWeekRows.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in loadByWeek)loadByWeek[k]+=loadOf(x);});
+  const renderWeeklyBars=(targetId,values,colorClass,unit)=>{
+   const target=$(targetId),max=Math.max(0,...values.map(v=>v.value)),sum=values.reduce((a,v)=>a+v.value,0);
+   if(!values.some(v=>v.value>0)){target.className='stats-chart-empty';target.textContent=unit==='UA'?'Aucune séance avec durée et RPE renseignés sur cette période.':'Aucune séance réalisée avec durée réelle renseignée sur cette période.';return;}
+   target.className='stats-week-bars';
+   target.innerHTML=values.map(v=>{
+    const height=max?Math.max(v.value>0?3:0,Math.round(v.value/max*100)):0;
+    const label=new Intl.DateTimeFormat('fr-FR',{day:'2-digit',month:'2-digit'}).format(parseDate(v.key));
+    const shown=v.value?Math.round(v.value).toLocaleString('fr-FR')+(unit==='UA'?'':'m'):'';
+    return `<div class="stats-week-col" title="Semaine du ${label} : ${Math.round(v.value).toLocaleString('fr-FR')} ${unit}"><div class="stats-week-value">${shown}</div><div class="stats-week-track"><i class="stats-week-bar ${colorClass}" style="height:${height}%"></i></div><div class="stats-week-label">${label}</div></div>`;
+   }).join('');
+   return sum;
+  };
+  const volumeValues=chartWeeks.map(key=>({key,value:volumeByWeek[key]}));
+  const loadValues=chartWeeks.map(key=>({key,value:loadByWeek[key]}));
+  renderWeeklyBars('statsVolumeChart',volumeValues,'','min');
+  renderWeeklyBars('statsLoadChart',loadValues,'load','UA');
+  $('statsChartVolumeTotal').textContent=minutesLabel(total12);
+  $('statsChartLoadTotal').textContent=twelveWeekRows.length?Math.round(twelveLoad).toLocaleString('fr-FR')+' UA':'— UA';
+  $('statsLoadWeek').textContent=weekLoadRows.length?Math.round(weekLoad).toLocaleString('fr-FR')+' UA':'— UA';
+  $('statsLoadWeekSub').textContent=`${weekLoadRows.length} séance(s) avec RPE renseigné`;
+  $('statsLoad4').textContent=fourWeekRows.length?Math.round(fourLoad).toLocaleString('fr-FR')+' UA':'— UA';
+  $('statsLoadAvg4').textContent=fourWeekRows.length?Math.round(fourLoad/4).toLocaleString('fr-FR')+' UA':'— UA';
+  $('statsLoadAvgSession').textContent=twelveWeekRows.length?Math.round(twelveLoad/twelveWeekRows.length).toLocaleString('fr-FR')+' UA':'— UA';
+  const loadGroups={};disciplineOrder.forEach(label=>loadGroups[label]={load:0,count:0});
+  twelveWeekRows.forEach(x=>{let label=categoryName(x.category);if(normalizeCategory(x.category)==='WOD'){const t=String(x.session_type||'');label=t.startsWith('HYROX')?'HYROX':t.startsWith('CrossFit')?'CrossFit':t==='Libre'?'Libre':'WOD';}if(!loadGroups[label])loadGroups[label]={load:0,count:0};loadGroups[label].load+=loadOf(x);loadGroups[label].count++;});
+  const maxLoad=Math.max(0,...Object.values(loadGroups).map(g=>g.load));
+  $('statsLoadDisciplines').innerHTML=disciplineOrder.map(label=>{const g=loadGroups[label],pct=maxLoad?Math.round(g.load/maxLoad*100):0;return `<div class="stats-discipline"><div class="stats-discipline-head"><span>${esc(label)}</span><span>${g.count?Math.round(g.load).toLocaleString('fr-FR')+' UA':'—'}</span></div><div class="stats-bar"><i style="width:${pct}%"></i></div><div class="stats-discipline-meta">${g.count} séance(s) avec charge calculable</div></div>`;}).join('');
  }
  function setPlanningView(view){const stats=view==='stats';$('planningCalendarPanel').classList.toggle('hidden',stats);$('planningStatsPanel').classList.toggle('hidden',!stats);$('planningCalendarTab').classList.toggle('active',!stats);$('planningStatsTab').classList.toggle('active',stats);$('planningCalendarTab').setAttribute('aria-selected',String(!stats));$('planningStatsTab').setAttribute('aria-selected',String(stats));if(stats)renderStats();}
  function render(){
@@ -4683,8 +4719,8 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function planningSpecialtyFromDetails(details){const match=String(details||'').match(/SPECIALITÉ SÉANCE\s*:\s*([^\n]+)/i);return match?match[1].trim():'';}
  function stripPlanningSpecialty(details){return String(details||'').replace(/\n?SPECIALITÉ SÉANCE\s*:\s*[^\n]*/i,'').trim();}
- function openEditor(item=null){ editingId=item?.id||null; $('planningDeleteFromEditor').classList.toggle('hidden',!item?.id); $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); $('planningSpecialty').value=planningSpecialtyFromDetails(item?.details)||(specialtyChoices.some(([value])=>value===item?.session_type)?item.session_type:'Libre'); updateTypes(specialtyChoices.some(([value])=>value===item?.session_type)?'LIBRE':(item?.session_type||'')); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??'';$('planningDistanceKm').value=item?.distance_km??'';[1,2,3,4,5].forEach(n=>$('planningHrZone'+n).value=item?.['hr_zone_'+n+'_minutes']??'');$('planningRunMetricsWrap').classList.toggle('hidden',item?.status!=='DONE');$('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=stripPlanningSpecialty(item?.details||''); $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
- function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset();$('planningRunMetricsWrap').classList.add('hidden'); $('planningSpecialty').value='Libre'; syncPlanningChoiceButtons(); editingId=null; }
+ function openEditor(item=null){ editingId=item?.id||null; $('planningDeleteFromEditor').classList.toggle('hidden',!item?.id); $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); $('planningSpecialty').value=planningSpecialtyFromDetails(item?.details)||(specialtyChoices.some(([value])=>value===item?.session_type)?item.session_type:'Libre'); updateTypes(specialtyChoices.some(([value])=>value===item?.session_type)?'LIBRE':(item?.session_type||'')); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningRpe').value=item?.rpe??''; $('planningRpeWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=stripPlanningSpecialty(item?.details||''); $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); $('planningSpecialty').value='Libre'; $('planningActualDurationWrap').classList.add('hidden'); $('planningRpeWrap').classList.add('hidden'); syncPlanningChoiceButtons(); editingId=null; }
  function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— CRÉATION MANUELLE —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
  async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
  $('planningPrevWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,-7);render()});
@@ -4694,9 +4730,10 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  $('planningCancelEdit').addEventListener('click',closeEditor);
  $('planningDeleteFromEditor').addEventListener('click',async()=>{if(!editingId)return;if(!confirm('Supprimer définitivement cette séance du planning ?'))return;const id=editingId;$('planningDeleteFromEditor').disabled=true;try{await window.deletePlanningSession(id);await refresh();closeEditor()}catch(err){alert('Suppression impossible : '+err.message)}finally{$('planningDeleteFromEditor').disabled=false}});
  $('planningCategory').addEventListener('change',()=>{updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD');syncPlanningChoiceButtons()});
- $('planningStatusSelect').addEventListener('change',()=>{$('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE');$('planningRunMetricsWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE');syncPlanningChoiceButtons()});
+ $('planningStatusSelect').addEventListener('change',()=>{const done=$('planningStatusSelect').value==='DONE';$('planningActualDurationWrap').classList.toggle('hidden',!done);$('planningRpeWrap').classList.toggle('hidden',!done);syncPlanningChoiceButtons()});
  $('planningCalendarTab').addEventListener('click',()=>setPlanningView('calendar'));
  $('planningStatsTab').addEventListener('click',()=>setPlanningView('stats'));
+
  ['planningWodAmrapDuration','planningWodEmomDuration','planningWodEmomWork','planningWodTabataCycles','planningWodTabataWork','planningWodTabataRest','planningWodFortimeCap','planningWodFortimeRounds','planningWodFortimeRest'].forEach(id=>$(id).addEventListener('input',updatePlanningWodFormatFields));
  $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod){syncPlanningChoiceButtons();return;}const format=String(wod.type||'').toUpperCase()==='FORTIME'?'FOR TIME':String(wod.type||'').toUpperCase();if(['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){$('planningType').value=format;syncPlanningChoiceButtons();updatePlanningWodFormatFields();loadPlanningWodConfig(wod);} $('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
  $('planningWeekDays').addEventListener('click',async e=>{
@@ -4705,14 +4742,14 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   if(timer){const item=sessions.find(x=>String(x.id)===timer.dataset.planTimer);if(item)launchPlanningSession(item);return;}
   if(edit){const item=sessions.find(x=>String(x.id)===edit.dataset.planEdit);if(item)openEditor(item);return;}
   if(dup){const item=sessions.find(x=>String(x.id)===dup.dataset.planDuplicate);if(item){selectedDate=parseDate(item.session_date);openEditor({...item,id:null,session_date:dateKey(addDays(parseDate(item.session_date),1)),title:item.title+' (copie)'})}return;}
-  if(done){const item=sessions.find(x=>String(x.id)===done.dataset.planDone);if(item){const entered=prompt('Durée réellement effectuée en minutes :',item.actual_duration_minutes??item.duration_minutes??'');if(entered===null)return;const actual=Number(entered);if(!Number.isFinite(actual)||actual<0||actual>1440){alert('Saisis une durée comprise entre 0 et 1440 minutes.');return;}try{await window.updatePlanningSession(item.id,{status:'DONE',actual_duration_minutes:actual});await refresh()}catch(err){alert('Mise à jour impossible : '+err.message)}}}
+  if(done){const item=sessions.find(x=>String(x.id)===done.dataset.planDone);if(item){const entered=prompt('Durée réellement effectuée en minutes :',item.actual_duration_minutes??item.duration_minutes??'');if(entered===null)return;const actual=Number(entered);if(!Number.isFinite(actual)||actual<0||actual>1440){alert('Saisis une durée comprise entre 0 et 1440 minutes.');return;}const rpeText=prompt('RPE de la séance (1 à 10). Laisse vide si tu ne sais pas :',item.rpe??'');if(rpeText===null)return;const rpe=rpeText.trim()===''?null:Number(rpeText);if(rpe!==null&&(!Number.isInteger(rpe)||rpe<1||rpe>10)){alert('Le RPE doit être un nombre entier entre 1 et 10.');return;}try{await window.updatePlanningSession(item.id,{status:'DONE',actual_duration_minutes:actual,rpe});await refresh()}catch(err){alert('Mise à jour impossible : '+err.message)}}}
  });
  let draggedSessionId=null;
  $('planningWeekDays').addEventListener('dragstart',e=>{const card=e.target.closest('[data-plan-card]');if(!card)return;draggedSessionId=card.dataset.planCard;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',draggedSessionId);});
  $('planningWeekDays').addEventListener('dragover',e=>{const col=e.target.closest('[data-plan-drop]');if(!col)return;e.preventDefault();col.classList.add('drag-over');});
  $('planningWeekDays').addEventListener('dragleave',e=>{const col=e.target.closest('[data-plan-drop]');if(col&&!col.contains(e.relatedTarget))col.classList.remove('drag-over');});
  $('planningWeekDays').addEventListener('drop',async e=>{const col=e.target.closest('[data-plan-drop]');if(!col)return;e.preventDefault();col.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain')||draggedSessionId;const item=sessions.find(x=>String(x.id)===String(id));if(!item||item.session_date===col.dataset.planDrop)return;try{await window.updatePlanningSession(item.id,{session_date:col.dataset.planDrop});await refresh()}catch(err){alert('Déplacement impossible : '+err.message)}finally{draggedSessionId=null;}});
- $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,actual_duration_minutes:$('planningStatusSelect').value==='DONE'&&$('planningActualDuration').value!==''?Number($('planningActualDuration').value):null,distance_km:$('planningStatusSelect').value==='DONE'&&$('planningDistanceKm').value!==''?Number($('planningDistanceKm').value):null,hr_zone_1_minutes:$('planningStatusSelect').value==='DONE'&&$('planningHrZone1').value!==''?Number($('planningHrZone1').value):null,hr_zone_2_minutes:$('planningStatusSelect').value==='DONE'&&$('planningHrZone2').value!==''?Number($('planningHrZone2').value):null,hr_zone_3_minutes:$('planningStatusSelect').value==='DONE'&&$('planningHrZone3').value!==''?Number($('planningHrZone3').value):null,hr_zone_4_minutes:$('planningStatusSelect').value==='DONE'&&$('planningHrZone4').value!==''?Number($('planningHrZone4').value):null,hr_zone_5_minutes:$('planningStatusSelect').value==='DONE'&&$('planningHrZone5').value!==''?Number($('planningHrZone5').value):null,status:$('planningStatusSelect').value,details:($('planningDetails').value.trim()+(normalizeCategory($('planningCategory').value)==='WOD'?planningWodConfigText()+'\nSPECIALITÉ SÉANCE : '+$('planningSpecialty').value:'' )).trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
+ $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();if($('planningStatusSelect').value==='DONE'&&$('planningRpe').value!==''&&(!Number.isInteger(Number($('planningRpe').value))||Number($('planningRpe').value)<1||Number($('planningRpe').value)>10)){alert('Le RPE doit être un nombre entier entre 1 et 10.');return;}const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,actual_duration_minutes:$('planningStatusSelect').value==='DONE'&&$('planningActualDuration').value!==''?Number($('planningActualDuration').value):null,rpe:$('planningStatusSelect').value==='DONE'&&$('planningRpe').value!==''?Number($('planningRpe').value):null,status:$('planningStatusSelect').value,details:($('planningDetails').value.trim()+(normalizeCategory($('planningCategory').value)==='WOD'?planningWodConfigText()+'\nSPECIALITÉ SÉANCE : '+$('planningSpecialty').value:'' )).trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
  $('planningSaveToLibrary').addEventListener('click',async()=>{if(normalizeCategory($('planningCategory').value)!=='WOD')return;const name=$('planningTitle').value.trim(),details=$('planningDetails').value.trim();if(!name||!details){$('planningFormStatus').textContent='Renseigne le nom et le contenu du WOD avant de l’enregistrer.';return;}const movements=details.split(/\n+/).map((line,i)=>({name:line.trim(),reps:null,position:i+1})).filter(x=>x.name);try{const saved=await window.saveManualWodToSupabase({name,type:'LIBRE',duration:Number($('planningDuration').value)||null,movements,timerConfig:{format:'LIBRE'},consigne:$('planningNotes').value.trim(),category:'WOD',collection:'PERSONAL'});window.wods.unshift(saved);fillWodSelect();$('planningWodSource').value=saved.id;$('planningFormStatus').textContent='WOD enregistré dans la bibliothèque. Tu peux maintenant enregistrer la séance au planning.';}catch(err){$('planningFormStatus').textContent='Enregistrement dans la bibliothèque impossible : '+err.message}});
  window.refreshSportPlanning=refresh;window.onSportPlanningPage=()=>{fillWodSelect();refresh()};
  document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="planningPage"]'))window.onSportPlanningPage()});
