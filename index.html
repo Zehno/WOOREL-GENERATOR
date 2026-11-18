@@ -1302,6 +1302,18 @@ label {font-weight:800;letter-spacing:.55px;color:#aab7ad;}
  .planning-drag-hint{margin-left:0;width:100%}
 }
 
+
+.planning-week-layout{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:start}
+.planning-week-sidebar{position:sticky;top:14px;border:1px solid var(--border);border-radius:11px;padding:10px;background:rgba(255,255,255,.018)}
+.planning-week-sidebar-title{font-size:9px;font-weight:1000;letter-spacing:.8px;color:var(--muted);padding:4px 5px 9px}
+.planning-week-choice{display:flex;align-items:center;justify-content:space-between;gap:5px;width:100%;padding:9px 8px;margin:3px 0;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--text);text-align:left;cursor:pointer}
+.planning-week-choice span:first-child{font-size:12px;font-weight:1000}
+.planning-week-choice small{font-size:9px;color:var(--muted)}
+.planning-week-choice.active{border-color:var(--green);background:rgba(140,255,0,.09);color:var(--green)}
+.planning-week-choice.active small{color:var(--green)}
+.planning-week-content{min-width:0}
+@media(max-width:850px){.planning-week-layout{grid-template-columns:1fr}.planning-week-sidebar{position:static}.planning-week-sidebar #planningWeekSelector{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.planning-week-choice{justify-content:center;flex-direction:column;text-align:center;padding:8px 3px;margin:0}}
+
 /* Statistiques du planning sportif */
 /* Sélections du formulaire planning et bibliothèque : boutons */
 .manual-format-buttons{display:flex;flex-wrap:wrap;gap:7px;margin-top:7px}
@@ -1959,14 +1971,19 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
       </div>
     </div>
 
-    <div class="planning-kpis">
-      <div class="planning-kpi"><span>SÉANCES PROGRAMMÉES</span><strong id="planningWeekCount">0</strong><small>cette semaine</small></div>
-      <div class="planning-kpi"><span>VOLUME PLANIFIÉ</span><strong id="planningWeekHours">0 h</strong><small>durée totale</small></div>
-      <div class="planning-kpi"><span>SÉANCES RÉALISÉES</span><strong id="planningWeekDone">0</strong><small>validées</small></div>
-    </div>
-
-    <div class="planning-calendar-scroll">
-      <div class="planning-week" id="planningWeekDays"></div>
+    <div class="planning-week-layout">
+      <aside class="planning-week-sidebar" aria-label="Navigation des semaines">
+        <div class="planning-week-sidebar-title">CYCLES DE 4 SEMAINES</div>
+        <div id="planningWeekSelector"></div>
+      </aside>
+      <div class="planning-week-content">
+        <div class="planning-kpis">
+          <div class="planning-kpi"><span>SÉANCES PROGRAMMÉES</span><strong id="planningWeekCount">0</strong><small>cette semaine</small></div>
+          <div class="planning-kpi"><span>VOLUME PLANIFIÉ</span><strong id="planningWeekHours">0 h</strong><small>durée totale</small></div>
+          <div class="planning-kpi"><span>SÉANCES RÉALISÉES</span><strong id="planningWeekDone">0</strong><small>validées</small></div>
+        </div>
+        <div class="planning-calendar-scroll"><div class="planning-week" id="planningWeekDays"></div></div>
+      </div>
     </div>
     <div class="planning-legend">
       <span><i class="legend-dot course"></i>Course à pied</span>
@@ -2024,6 +2041,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
           <div class="stats-card"><span>JOURS DE REPOS · 7 J</span><strong id="statsRestDays7">—</strong><small>sans séance enregistrée comme réalisée</small></div>
           <div class="stats-card"><span>CHARGE ZONÉE · 7 J</span><strong id="statsZoneLoad7">— UA</strong><small>pondération des minutes Z1 à Z5</small></div>
           <div class="stats-card"><span>TEMPS EN ZONES · 7 J</span><strong id="statsZoneTime7">—</strong><small>temps cardiaque cumulé</small></div>
+          <div class="stats-card"><span>CHARGE RPE · 7 J</span><strong id="statsRpeLoad7">— UA</strong><small>durée réelle × RPE</small></div>
           <div class="stats-card"><span>CHARGE · SEMAINE EN COURS</span><strong id="statsLoadWeek">— UA</strong><small id="statsLoadWeekSub">Séances avec temps en zones renseigné</small></div>
           <div class="stats-card"><span>CHARGE · 4 DERNIÈRES SEM.</span><strong id="statsLoad4">— UA</strong><small>Charge cumulée</small></div>
           <div class="stats-card"><span>MOYENNE HEBDO · 4 SEM.</span><strong id="statsLoadAvg4">— UA</strong><small>Charge moyenne sur 4 semaines</small></div>
@@ -2031,9 +2049,10 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
         </div>
         <div id="statsLoadDisciplines"><div class="planning-empty">Renseigne le temps passé en Z1 à Z5 après tes séances pour calculer la charge.</div></div>
         <div class="stats-chart-card" style="margin-top:14px"><div class="stats-chart-title">RÉPARTITION DU TEMPS · 5 ZONES FC</div><div id="statsHrZones" class="planning-empty">Les temps en zones apparaîtront après les séances renseignées.</div></div>
+        <div class="stats-chart-card" style="margin-top:14px"><div class="stats-chart-head"><div><div class="stats-chart-title">CHARGE GLOBALE RPE</div><div class="stats-chart-subtitle">Durée réelle × RPE · 12 semaines · WOD / HYROX / force</div></div><div class="stats-chart-total" id="statsRpeChartTotal">— UA</div></div><div id="statsRpeChart" class="stats-chart-empty">Renseigne le RPE après tes séances pour afficher la charge globale.</div></div>
       </div>
     </details>
-    <p class="stats-period-note">Les séances annulées sont exclues. Les durées réelles alimentent le volume ; la charge est calculée à partir des minutes passées dans chaque zone cardiaque (pondération Z1 ×1 à Z5 ×5).</p>
+    <p class="stats-period-note">Les séances annulées sont exclues. Deux indicateurs distincts sont suivis : charge cardiovasculaire par zones FC (Z1 ×1 à Z5 ×5) et charge globale par RPE (durée réelle en minutes × RPE). Ces scores ne sont pas additionnés.</p>
   </div>
 
   <!-- Compatibilité conservée avec le formulaire et les fonctions existantes -->
@@ -2071,7 +2090,8 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
         <div class="field"><label for="planningHrZone3">Z3 · VERT</label><input type="number" id="planningHrZone3" min="0" max="1440" step="1" value="0" placeholder="0"></div>
         <div class="field"><label for="planningHrZone4">Z4 · ORANGE</label><input type="number" id="planningHrZone4" min="0" max="1440" step="1" value="0" placeholder="0"></div>
         <div class="field"><label for="planningHrZone5">Z5 · ROUGE</label><input type="number" id="planningHrZone5" min="0" max="1440" step="1" value="0" placeholder="0"></div>
-      </div><p class="small-note">Saisis les minutes de chaque zone (Garmin ou autre). Charge interne : Z1 ×1 · Z2 ×2 · Z3 ×3 · Z4 ×4 · Z5 ×5.</p></div>
+      </div><p class="small-note">Saisis les minutes de chaque zone (Garmin ou autre). Charge cardiovasculaire : Z1 ×1 · Z2 ×2 · Z3 ×3 · Z4 ×4 · Z5 ×5.</p></div>
+      <div class="field hidden" id="planningRpeWrap"><label for="planningSessionRpe">DIFFICULTÉ GLOBALE DE LA SÉANCE — RPE (1 À 10)</label><input type="number" id="planningSessionRpe" min="1" max="10" step="1" placeholder="Ex. : 8"><p class="small-note">À renseigner 20 à 30 minutes après un WOD, HYROX ou une séance de force. 1 = très facile · 10 = effort maximal. Charge globale = durée réelle (min) × RPE.</p></div>
       <div class="field"><label for="planningDetails">CONTENU DE LA SÉANCE</label><textarea id="planningDetails" rows="7" placeholder="Échauffement, séries, répétitions, distances, allures, charges, récupération..."></textarea><div id="planningExerciseSuggestions" class="timer-exercise-suggestions" role="listbox" aria-label="Suggestions de mouvements" hidden></div><p class="small-note">Commence à saisir un mouvement (ex. Back Squat ou Rameur), puis sélectionne-le dans la bibliothèque. Les prescriptions comme 4x10, 80 kg ou 1000 m sont conservées.</p></div>
       <div class="field"><label for="planningNotes">OBJECTIF / CONSIGNES</label><textarea id="planningNotes" rows="3" placeholder="Objectif, zones FC, consignes techniques..."></textarea></div>
       <div class="actions"><button class="primary" id="planningSaveBtn" type="submit">ENREGISTRER LA SÉANCE</button><button class="secondary" id="planningSaveToLibrary" type="button">ENREGISTRER AUSSI DANS LA BIBLIOTHÈQUE WOD</button><button class="secondary danger-btn hidden" id="planningDeleteFromEditor" type="button">SUPPRIMER LA SÉANCE</button></div>
@@ -4486,8 +4506,11 @@ resetTimer();
   root.innerHTML=items.map(([value,label])=>`<button type="button" class="planning-choice-btn${String(value)===String(selected)?' active':''}" data-choice-value="${esc(value)}" aria-pressed="${String(value)===String(selected)}">${esc(label)}</button>`).join('');
  }
  function syncPlanningChoiceButtons(){
-  const isRunning=normalizeCategory($('planningCategory').value)==='COURSE';
+  const category=normalizeCategory($('planningCategory').value);
+  const isRunning=category==='COURSE';
   $('planningDistanceWrap').classList.toggle('hidden',!isRunning);
+  const useRpe=category==='WOD'||category==='FORCE';
+  $('planningRpeWrap').classList.toggle('hidden',!useRpe||$('planningStatusSelect').value!=='DONE');
   renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value);
   renderChoiceButtons('planningSpecialtyButtons',specialtyChoices,$('planningSpecialty')?.value||'Libre');
   renderChoiceButtons('planningStatusButtons',statusChoices,$('planningStatusSelect').value);
@@ -4644,15 +4667,19 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const weekLoad=weekLoadRows.reduce((a,x)=>a+loadOf(x),0),fourLoad=fourWeekRows.reduce((a,x)=>a+loadOf(x),0),twelveLoad=twelveWeekRows.reduce((a,x)=>a+loadOf(x),0);
   const todayKey=dateKey(now),rollingStart=dateKey(addDays(now,-6)),rollingSessions=sessions.filter(x=>x.session_date>=rollingStart&&x.session_date<=todayKey&&x.status==='DONE');
   const rollingLoad=withLoad(rollingSessions).reduce((a,x)=>a+loadOf(x),0),rollingZones=[1,2,3,4,5].map(z=>rollingSessions.reduce((a,x)=>a+Math.max(0,Number(x['hr_zone_'+z+'_minutes']||0)),0));
+  const rpeLoadOf=x=>Math.max(0,Number(x.actual_duration_minutes||0))*Math.max(0,Number(x.session_rpe||0));
+  const rpeEligible=x=>['WOD','FORCE'].includes(normalizeCategory(x.category))&&Number(x.session_rpe)>0&&Number(x.actual_duration_minutes)>0;
+  const rollingRpeLoad=rollingSessions.filter(rpeEligible).reduce((a,x)=>a+rpeLoadOf(x),0);
   const trainingDays=new Set(rollingSessions.map(x=>x.session_date)).size,restDays=7-trainingDays;
   $('statsTrainingDays7').textContent=trainingDays+'/7';$('statsTrainingDaysSub').textContent=`${trainingDays} jour(s) avec séance réalisée`;
   $('statsRestDays7').textContent=restDays+'/7';$('statsZoneLoad7').textContent=rollingLoad?Math.round(rollingLoad).toLocaleString('fr-FR')+' UA':'— UA';
   const rollingZoneTotal=rollingZones.reduce((a,v)=>a+v,0);$('statsZoneTime7').textContent=rollingZoneTotal?minutesLabel(rollingZoneTotal):'—';
+  $('statsRpeLoad7').textContent=rollingRpeLoad?Math.round(rollingRpeLoad).toLocaleString('fr-FR')+' UA':'— UA';
   // Graphiques calculés à partir des séances réellement enregistrées, sans données fictives.
   const chartWeeks=Array.from({length:12},(_,i)=>dateKey(addDays(start12,i*7)));
-  const volumeByWeek={},runByWeek={},loadByWeek={};
-  chartWeeks.forEach(k=>{volumeByWeek[k]=0;runByWeek[k]=0;loadByWeek[k]=0;});
-  done12.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in volumeByWeek){volumeByWeek[k]+=Number(x.actual_duration_minutes||0);if(normalizeCategory(x.category)==='COURSE')runByWeek[k]+=Math.max(0,Number(x.distance_km||0));}});
+  const volumeByWeek={},runByWeek={},loadByWeek={},rpeByWeek={};
+  chartWeeks.forEach(k=>{volumeByWeek[k]=0;runByWeek[k]=0;loadByWeek[k]=0;rpeByWeek[k]=0;});
+  done12.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in volumeByWeek){volumeByWeek[k]+=Number(x.actual_duration_minutes||0);if(normalizeCategory(x.category)==='COURSE')runByWeek[k]+=Math.max(0,Number(x.distance_km||0));if(rpeEligible(x))rpeByWeek[k]+=rpeLoadOf(x);}});
   twelveWeekRows.forEach(x=>{const k=dateKey(monday(parseDate(x.session_date)));if(k in loadByWeek)loadByWeek[k]+=loadOf(x);});
   const renderWeeklyBars=(targetId,values,colorClass,unit)=>{
    const target=$(targetId),max=Math.max(0,...values.map(v=>v.value)),sum=values.reduce((a,v)=>a+v.value,0);
@@ -4669,13 +4696,16 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const volumeValues=chartWeeks.map(key=>({key,value:volumeByWeek[key]}));
   const runValues=chartWeeks.map(key=>({key,value:runByWeek[key]}));
   const loadValues=chartWeeks.map(key=>({key,value:loadByWeek[key]}));
+  const rpeValues=chartWeeks.map(key=>({key,value:rpeByWeek[key]}));
   renderWeeklyBars('statsVolumeChart',volumeValues,'','min');
   renderWeeklyBars('statsRunChart',runValues,'','km');
   renderWeeklyBars('statsLoadChart',loadValues,'load','UA');
+  renderWeeklyBars('statsRpeChart',rpeValues,'load','UA');
   $('statsChartVolumeTotal').textContent=minutesLabel(total12);
   const totalRunKm=Object.values(runByWeek).reduce((a,v)=>a+v,0);
   $('statsChartRunTotal').textContent=totalRunKm.toLocaleString('fr-FR',{minimumFractionDigits:0,maximumFractionDigits:1})+' km';
   $('statsChartLoadTotal').textContent=twelveWeekRows.length?Math.round(twelveLoad).toLocaleString('fr-FR')+' UA':'— UA';
+  const twelveRpeLoad=done12.filter(rpeEligible).reduce((a,x)=>a+rpeLoadOf(x),0);$('statsRpeChartTotal').textContent=twelveRpeLoad?Math.round(twelveRpeLoad).toLocaleString('fr-FR')+' UA':'— UA';
   $('statsLoadWeek').textContent=weekLoadRows.length?Math.round(weekLoad).toLocaleString('fr-FR')+' UA':'— UA';
   $('statsLoadWeekSub').textContent=`${weekLoadRows.length} séance(s) avec temps en zones renseigné`;
   $('statsLoad4').textContent=fourWeekRows.length?Math.round(fourLoad).toLocaleString('fr-FR')+' UA':'— UA';
@@ -4689,8 +4719,24 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   $('statsHrZones').innerHTML=zoneTotal?`<div class="hr-zone-list">${zoneTotals.map((v,i)=>`<div class="hr-zone-row"><span class="hr-zone-label">${zoneNames[i]}</span><span class="hr-zone-track"><i class="hr-zone-fill ${zoneClasses[i]}" style="width:${Math.round(v/Math.max(...zoneTotals)*100)}%"></i></span><span class="hr-zone-time">${minutesLabel(v)}</span></div>`).join('')}</div><p class="small-note">Temps cumulé sur les 12 dernières semaines : ${minutesLabel(zoneTotal)}</p>`:'Aucun temps en zone renseigné sur les 12 dernières semaines.';
  }
  function setPlanningView(view){const stats=view==='stats';$('planningCalendarPanel').classList.toggle('hidden',stats);$('planningStatsPanel').classList.toggle('hidden',!stats);$('planningCalendarTab').classList.toggle('active',!stats);$('planningStatsTab').classList.toggle('active',stats);$('planningCalendarTab').setAttribute('aria-selected',String(!stats));$('planningStatsTab').setAttribute('aria-selected',String(stats));if(stats)renderStats();}
+ function renderWeekSelector(){
+  const base=monday(new Date());
+  const activeKey=dateKey(monday(selectedDate));
+  const blocks=[];
+  for(let block=0;block<6;block++){
+   let html=`<div class="planning-week-block"><div class="planning-week-block-label">${block===0?'BLOC ACTUEL':`BLOC ${block+1}`}</div>`;
+   for(let w=0;w<4;w++){
+    const offset=block*4+w,weekStart=addDays(base,offset*7),weekEnd=addDays(weekStart,6),key=dateKey(weekStart);
+    const label=`S${w+1}`;
+    html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>${label}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
+   }
+   html+='</div>';blocks.push(html);
+  }
+  $('planningWeekSelector').innerHTML=blocks.join('');
+ }
  function render(){
   renderStats();
+  renderWeekSelector();
   const start=monday(selectedDate),end=addDays(start,6),today=dateKey(new Date());
   $('planningMonthLabel').textContent=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(selectedDate).toUpperCase();
   $('planningWeekRange').textContent=fmtRange(start,end);
@@ -4727,11 +4773,12 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function planningSpecialtyFromDetails(details){const match=String(details||'').match(/SPECIALITÉ SÉANCE\s*:\s*([^\n]+)/i);return match?match[1].trim():'';}
  function stripPlanningSpecialty(details){return String(details||'').replace(/\n?SPECIALITÉ SÉANCE\s*:\s*[^\n]*/i,'').trim();}
- function openEditor(item=null){ editingId=item?.id||null; $('planningDeleteFromEditor').classList.toggle('hidden',!item?.id); $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); $('planningSpecialty').value=planningSpecialtyFromDetails(item?.details)||(specialtyChoices.some(([value])=>value===item?.session_type)?item.session_type:'Libre'); updateTypes(specialtyChoices.some(([value])=>value===item?.session_type)?'LIBRE':(item?.session_type||'')); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDistanceKm').value=item?.distance_km??''; $('planningDistanceWrap').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='COURSE'); [1,2,3,4,5].forEach(z=>$('planningHrZone'+z).value=Number(item?.['hr_zone_'+z+'_minutes']||0)); $('planningHrZonesWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=stripPlanningSpecialty(item?.details||''); $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
- function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); $('planningSpecialty').value='Libre'; $('planningActualDurationWrap').classList.add('hidden'); $('planningDistanceWrap').classList.add('hidden'); $('planningDistanceKm').value=''; $('planningHrZonesWrap').classList.add('hidden'); syncPlanningChoiceButtons(); editingId=null; }
+ function openEditor(item=null){ editingId=item?.id||null; $('planningDeleteFromEditor').classList.toggle('hidden',!item?.id); $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); $('planningSpecialty').value=planningSpecialtyFromDetails(item?.details)||(specialtyChoices.some(([value])=>value===item?.session_type)?item.session_type:'Libre'); updateTypes(specialtyChoices.some(([value])=>value===item?.session_type)?'LIBRE':(item?.session_type||'')); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDistanceKm').value=item?.distance_km??''; $('planningDistanceWrap').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='COURSE'); [1,2,3,4,5].forEach(z=>$('planningHrZone'+z).value=Number(item?.['hr_zone_'+z+'_minutes']||0)); $('planningHrZonesWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningSessionRpe').value=item?.session_rpe??''; $('planningRpeWrap').classList.toggle('hidden',!(['WOD','FORCE'].includes(normalizeCategory(item?.category||'COURSE')))||$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=stripPlanningSpecialty(item?.details||''); $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); $('planningSpecialty').value='Libre'; $('planningActualDurationWrap').classList.add('hidden'); $('planningDistanceWrap').classList.add('hidden'); $('planningDistanceKm').value=''; $('planningHrZonesWrap').classList.add('hidden'); $('planningRpeWrap').classList.add('hidden'); $('planningSessionRpe').value=''; syncPlanningChoiceButtons();editingId=null; }
  function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— CRÉATION MANUELLE —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
  async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
  $('planningPrevWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,-7);render()});
+ $('planningWeekSelector').addEventListener('click',e=>{const btn=e.target.closest('[data-week-start]');if(!btn)return;selectedDate=parseDate(btn.dataset.weekStart);render()});
  $('planningNextWeek').addEventListener('click',()=>{selectedDate=addDays(selectedDate,7);render()});
  $('planningToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);render()});
  $('planningAddSession').addEventListener('click',()=>openEditor());
@@ -4757,7 +4804,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  $('planningWeekDays').addEventListener('dragover',e=>{const col=e.target.closest('[data-plan-drop]');if(!col)return;e.preventDefault();col.classList.add('drag-over');});
  $('planningWeekDays').addEventListener('dragleave',e=>{const col=e.target.closest('[data-plan-drop]');if(col&&!col.contains(e.relatedTarget))col.classList.remove('drag-over');});
  $('planningWeekDays').addEventListener('drop',async e=>{const col=e.target.closest('[data-plan-drop]');if(!col)return;e.preventDefault();col.classList.remove('drag-over');const id=e.dataTransfer.getData('text/plain')||draggedSessionId;const item=sessions.find(x=>String(x.id)===String(id));if(!item||item.session_date===col.dataset.planDrop)return;try{await window.updatePlanningSession(item.id,{session_date:col.dataset.planDrop});await refresh()}catch(err){alert('Déplacement impossible : '+err.message)}finally{draggedSessionId=null;}});
- $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();if(normalizeCategory($('planningCategory').value)==='COURSE'&&$('planningDistanceKm').value!==''&&(!Number.isFinite(Number($('planningDistanceKm').value))||Number($('planningDistanceKm').value)<0||Number($('planningDistanceKm').value)>500)){alert('La distance doit être comprise entre 0 et 500 km.');return;}if($('planningStatusSelect').value==='DONE'){for(let z=1;z<=5;z++){const v=$('planningHrZone'+z).value;if(v!==''&&(!Number.isInteger(Number(v))||Number(v)<0||Number(v)>1440)){alert('Le temps de chaque zone doit être un nombre entier entre 0 et 1440 minutes.');return;}}}const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,actual_duration_minutes:$('planningStatusSelect').value==='DONE'&&$('planningActualDuration').value!==''?Number($('planningActualDuration').value):null,distance_km:normalizeCategory($('planningCategory').value)==='COURSE'&&$('planningDistanceKm').value!==''?Number($('planningDistanceKm').value):null,...Object.fromEntries([1,2,3,4,5].map(z=>['hr_zone_'+z+'_minutes',$('planningStatusSelect').value==='DONE'&&$('planningHrZone'+z).value!==''?Number($('planningHrZone'+z).value):0])),status:$('planningStatusSelect').value,details:($('planningDetails').value.trim()+(normalizeCategory($('planningCategory').value)==='WOD'?planningWodConfigText()+'\nSPECIALITÉ SÉANCE : '+$('planningSpecialty').value:'' )).trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
+ $('planningSessionForm').addEventListener('submit',async e=>{e.preventDefault();if(normalizeCategory($('planningCategory').value)==='COURSE'&&$('planningDistanceKm').value!==''&&(!Number.isFinite(Number($('planningDistanceKm').value))||Number($('planningDistanceKm').value)<0||Number($('planningDistanceKm').value)>500)){alert('La distance doit être comprise entre 0 et 500 km.');return;}if($('planningStatusSelect').value==='DONE'&&(['WOD','FORCE'].includes(normalizeCategory($('planningCategory').value)))&&$('planningSessionRpe').value!==''&&(!Number.isInteger(Number($('planningSessionRpe').value))||Number($('planningSessionRpe').value)<1||Number($('planningSessionRpe').value)>10)){alert('Le RPE doit être un nombre entier entre 1 et 10.');return;}if($('planningStatusSelect').value==='DONE'){for(let z=1;z<=5;z++){const v=$('planningHrZone'+z).value;if(v!==''&&(!Number.isInteger(Number(v))||Number(v)<0||Number(v)>1440)){alert('Le temps de chaque zone doit être un nombre entier entre 0 et 1440 minutes.');return;}}}const payload={session_date:$('planningDate').value,category:$('planningCategory').value,session_type:$('planningType').value,title:$('planningTitle').value.trim(),duration_minutes:$('planningDuration').value?Number($('planningDuration').value):null,actual_duration_minutes:$('planningStatusSelect').value==='DONE'&&$('planningActualDuration').value!==''?Number($('planningActualDuration').value):null,distance_km:normalizeCategory($('planningCategory').value)==='COURSE'&&$('planningDistanceKm').value!==''?Number($('planningDistanceKm').value):null,session_rpe:$('planningStatusSelect').value==='DONE'&&(['WOD','FORCE'].includes(normalizeCategory($('planningCategory').value)))&&$('planningSessionRpe').value!==''?Number($('planningSessionRpe').value):null,...Object.fromEntries([1,2,3,4,5].map(z=>['hr_zone_'+z+'_minutes',$('planningStatusSelect').value==='DONE'&&$('planningHrZone'+z).value!==''?Number($('planningHrZone'+z).value):0])),status:$('planningStatusSelect').value,details:($('planningDetails').value.trim()+(normalizeCategory($('planningCategory').value)==='WOD'?planningWodConfigText()+'\nSPECIALITÉ SÉANCE : '+$('planningSpecialty').value:'' )).trim(),notes:$('planningNotes').value.trim(),wod_id:$('planningWodSource').value||null};if(!payload.title)return;$('planningSaveBtn').disabled=true;$('planningFormStatus').textContent='Enregistrement...';try{if(editingId)await window.updatePlanningSession(editingId,payload);else await window.createPlanningSession(payload);selectedDate=parseDate(payload.session_date);await refresh();closeEditor()}catch(err){$('planningFormStatus').textContent='Enregistrement impossible : '+err.message}finally{$('planningSaveBtn').disabled=false}});
  $('planningSaveToLibrary').addEventListener('click',async()=>{if(normalizeCategory($('planningCategory').value)!=='WOD')return;const name=$('planningTitle').value.trim(),details=$('planningDetails').value.trim();if(!name||!details){$('planningFormStatus').textContent='Renseigne le nom et le contenu du WOD avant de l’enregistrer.';return;}const movements=details.split(/\n+/).map((line,i)=>({name:line.trim(),reps:null,position:i+1})).filter(x=>x.name);try{const saved=await window.saveManualWodToSupabase({name,type:'LIBRE',duration:Number($('planningDuration').value)||null,movements,timerConfig:{format:'LIBRE'},consigne:$('planningNotes').value.trim(),category:'WOD',collection:'PERSONAL'});window.wods.unshift(saved);fillWodSelect();$('planningWodSource').value=saved.id;$('planningFormStatus').textContent='WOD enregistré dans la bibliothèque. Tu peux maintenant enregistrer la séance au planning.';}catch(err){$('planningFormStatus').textContent='Enregistrement dans la bibliothèque impossible : '+err.message}});
  window.refreshSportPlanning=refresh;window.onSportPlanningPage=()=>{fillWodSelect();refresh()};
  document.addEventListener('click',e=>{if(e.target.closest('.tab[data-page="planningPage"]'))window.onSportPlanningPage()});
