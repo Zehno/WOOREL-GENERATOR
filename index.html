@@ -1596,6 +1596,34 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
   }
 }
 
+
+
+/* HUB EN TUILES — accueil responsive, sans modifier les pages métier */
+.hub-welcome{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:4px 0 22px;padding:22px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(130deg,rgba(38,194,129,.13),rgba(27,34,42,.96) 58%,rgba(27,34,42,.75));}
+.hub-eyebrow{font-size:10px;font-weight:900;letter-spacing:1.8px;color:var(--green);margin-bottom:8px}
+.hub-welcome h1{font-size:clamp(23px,3vw,34px);line-height:1.12;margin:0 0 8px;letter-spacing:-.7px}
+.hub-welcome p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.hub-date{flex:none;padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:rgba(0,0,0,.12);color:var(--muted);font-size:11px;font-weight:800}
+.hub-section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 2px 12px}
+.hub-section-title h2{margin:0;font-size:13px;letter-spacing:1.1px}
+.hub-section-title span{font-size:10px;color:var(--muted)}
+.hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.hub-tile{position:relative;display:flex;align-items:center;gap:16px;min-height:128px;width:100%;padding:20px;text-align:left;border:1px solid var(--border);border-radius:16px;background:linear-gradient(145deg,var(--panel),var(--card-bg));color:var(--text);cursor:pointer;overflow:hidden;transition:transform .18s,border-color .18s,box-shadow .18s}
+.hub-tile:hover{transform:translateY(-2px);border-color:var(--green);box-shadow:0 10px 28px rgba(0,0,0,.18)}
+.hub-tile::after{content:'›';position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:28px;color:var(--muted);opacity:.65}
+.hub-tile-icon{display:grid;place-items:center;flex:0 0 54px;width:54px;height:54px;border-radius:15px;background:rgba(38,194,129,.13);color:var(--green);font-size:27px;font-weight:900}
+.hub-tile-copy{min-width:0;padding-right:18px}
+.hub-tile-copy strong{display:block;font-size:14px;font-weight:900;letter-spacing:.5px;margin-bottom:6px}
+.hub-tile-copy small{display:block;color:var(--muted);font-size:11px;line-height:1.45}
+.hub-tile.timer-tile .hub-tile-icon{background:rgba(242,163,68,.14);color:var(--orange)}
+.hub-tile.history-tile .hub-tile-icon{background:rgba(130,155,255,.14);color:#91a7ff}
+.hub-tile.library-tile .hub-tile-icon{background:rgba(38,194,129,.13);color:var(--green)}
+.hub-bottom-note{margin-top:18px;padding:13px 15px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:11px;line-height:1.5}
+.tab-home .tab-icon{font-size:19px}
+@media(max-width:760px){.hub-welcome{align-items:flex-start;flex-direction:column;padding:18px;margin-bottom:17px}.hub-date{align-self:flex-start}.hub-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.hub-tile{min-height:116px;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:11px;padding:14px}.hub-tile-icon{width:42px;height:42px;flex-basis:42px;border-radius:12px;font-size:22px}.hub-tile-copy{padding-right:12px}.hub-tile-copy strong{font-size:12px}.hub-tile-copy small{font-size:10px}.hub-tile::after{right:10px;top:16px;transform:none;font-size:22px}}
+@media(max-width:380px){.hub-grid{gap:7px}.hub-tile{padding:11px;min-height:108px}.hub-tile-copy strong{font-size:11px}.hub-tile-copy small{font-size:9px}}
+@media(min-width:1000px){.hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hub-tile{min-height:142px;padding:23px}}
+
 </style>
 </head>
 
@@ -1634,6 +1662,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 <nav class="tabs" aria-label="Navigation principale">
   <div class="sidebar-brand"><span class="sidebar-mark">P</span><div><strong>LES WODs D'OREL</strong><small>TRAINING HUB</small></div></div>
   <div class="sidebar-label">ESPACE PERSONNEL</div>
+  <button class="tab tab-home" data-page="homePage"><span class="tab-icon">⌂</span><span class="tab-text">ACCUEIL</span></button>
   <button class="tab" data-page="planningPage"><span class="tab-icon">▦</span><span class="tab-text">PLANNING</span></button>
   <button class="tab" data-page="libraryPage"><span class="tab-icon">▤</span><span class="tab-text">BIBLIOTHÈQUE WOD</span></button>
   <button class="tab" data-page="timer"><span class="tab-icon">◷</span><span class="tab-text">CHRONOMÈTRE</span></button>
@@ -1642,6 +1671,35 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 </nav>
 
 <main>
+
+<!-- ACCUEIL / HUB EN TUILES -->
+<section id="homePage" class="page">
+  <div class="hub-welcome">
+    <div>
+      <div class="hub-eyebrow">TRAINING HUB · PRÉPARATION PHYSIQUE</div>
+      <h1>Bienvenue dans ton espace d’entraînement.</h1>
+      <p>Retrouve rapidement tes outils et tes séances depuis un seul écran.</p>
+    </div>
+    <div class="hub-date" id="hubTodayLabel">ESPACE PERSONNEL</div>
+  </div>
+
+  <div class="hub-section-title"><h2>MES OUTILS</h2><span>Accès direct</span></div>
+  <div class="hub-grid" aria-label="Accès aux fonctionnalités">
+    <button class="hub-tile" type="button" data-hub-page="planningPage">
+      <span class="hub-tile-icon">▦</span><span class="hub-tile-copy"><strong>PLANNING</strong><small>Organiser tes séances et consulter tes statistiques</small></span>
+    </button>
+    <button class="hub-tile library-tile" type="button" data-hub-page="libraryPage">
+      <span class="hub-tile-icon">▤</span><span class="hub-tile-copy"><strong>BIBLIOTHÈQUE WOD</strong><small>Créer, retrouver et gérer tes WOD et mouvements</small></span>
+    </button>
+    <button class="hub-tile timer-tile" type="button" data-hub-page="timer">
+      <span class="hub-tile-icon">◷</span><span class="hub-tile-copy"><strong>CHRONOMÈTRE</strong><small>Lancer un AMRAP, EMOM, TABATA, FOR TIME ou chrono libre</small></span>
+    </button>
+    <button class="hub-tile history-tile" type="button" data-hub-page="historyPage">
+      <span class="hub-tile-icon">↺</span><span class="hub-tile-copy"><strong>HISTORIQUE</strong><small>Retrouver les séances réalisées et enregistrées</small></span>
+    </button>
+  </div>
+  <div class="hub-bottom-note">Toutes tes fonctionnalités existantes restent accessibles. Cet accueil est une nouvelle porte d’entrée : il ne remplace ni le planning, ni la bibliothèque, ni le chronomètre, ni l’historique.</div>
+</section>
 
 <!-- BIBLIOTHEQUE -->
 <section id="libraryPage" class="page">
@@ -2385,6 +2443,19 @@ document.addEventListener("click", event => {
   if (!button) return;
   activateMainPage(button.dataset.page);
 });
+
+document.addEventListener("click", event => {
+  const tile = event.target.closest("[data-hub-page]");
+  if (!tile) return;
+  activateMainPage(tile.dataset.hubPage);
+});
+
+function updateHubDateLabel() {
+  const label = document.getElementById("hubTodayLabel");
+  if (!label) return;
+  label.textContent = new Intl.DateTimeFormat("fr-FR", { weekday:"long", day:"numeric", month:"long" }).format(new Date()).toLocaleUpperCase("fr-FR");
+}
+updateHubDateLabel();
 
 // La navigation mobile se fait uniquement avec les onglets, sans balayage horizontal.
 
@@ -5570,8 +5641,8 @@ async function showLoggedIn() {
     await clearDuplicateGirlHeroConsignes();
     await importCrossfitHeroWods();
     await importCrossfitGirlsWods();
-    await openSharedWodFromLink();
-    openPage("timer");
+    const openedSharedWod = await openSharedWodFromLink();
+    openPage(openedSharedWod ? "timer" : "homePage");
   } catch (error) {
     console.error("Erreur chargement WOD :", error);
     alert("Connexion réussie, mais impossible de charger les WOD. Vérifie les autorisations Supabase. Détail : " + error.message);
