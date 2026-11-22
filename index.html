@@ -1716,6 +1716,47 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
     min-width: 88px;
   }
 }
+
+/* NAVIGATION HUB ÉPURÉE : aucune barre latérale ou inférieure.
+   Les rubriques s'ouvrent seules et disposent d'un retour au HUB. */
+.tabs { display:none !important; }
+header {
+  margin-left:0 !important;
+  width:100%;
+  max-width:none;
+}
+main {
+  margin:0 auto !important;
+  width:100%;
+  max-width:1240px;
+  padding:24px clamp(14px,3vw,42px) 60px !important;
+}
+.hub-back-button {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:44px;
+  margin:0 0 18px;
+  padding:10px 16px;
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:linear-gradient(180deg,#1b241d,#121914);
+  color:var(--text);
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.5px;
+  cursor:pointer;
+}
+.hub-back-button[hidden] { display:none !important; }
+.hub-back-button:hover { border-color:var(--green); color:var(--green); }
+.hub-back-button:focus-visible { outline:2px solid var(--green); outline-offset:3px; }
+@media(max-width:760px) {
+  header { margin-left:0 !important; padding:58px 13px 14px !important; }
+  main { padding:14px 12px calc(35px + env(safe-area-inset-bottom)) !important; }
+  .hub-back-button { width:100%; justify-content:flex-start; min-height:46px; }
+}
+
 </style>
 </head>
 
@@ -1763,6 +1804,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 </nav>
 
 <main>
+<button type="button" id="hubBackButton" class="hub-back-button" aria-label="Retour au tableau de bord" hidden>← <span>TABLEAU DE BORD</span></button>
 
 <!-- ACCUEIL / HUB EN TUILES -->
 <section id="homePage" class="page">
@@ -2521,6 +2563,9 @@ function activateMainPage(pageId) {
   if (!pages.some(p => p.id === pageId)) return;
   tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.page === pageId));
   pages.forEach(p => p.classList.toggle("active", p.id === pageId));
+  const backButton = document.getElementById("hubBackButton");
+  if (backButton) backButton.hidden = pageId === "homePage";
+  document.body.classList.toggle("hub-subpage-open", pageId !== "homePage");
 }
 
 // Compatibilité avec les appels historiques de navigation dans l’application.
@@ -2529,6 +2574,7 @@ function openPage(pageId) {
   return activateMainPage(pageId);
 }
 window.openPage = openPage;
+document.getElementById("hubBackButton")?.addEventListener("click", () => openPage("homePage"));
 
 document.addEventListener("click", event => {
   const button = event.target.closest(".tab");
