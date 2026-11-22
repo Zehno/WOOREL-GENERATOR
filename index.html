@@ -1624,6 +1624,53 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:380px){.hub-grid{gap:7px}.hub-tile{padding:11px;min-height:108px}.hub-tile-copy strong{font-size:11px}.hub-tile-copy small{font-size:9px}}
 @media(min-width:1000px){.hub-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.hub-tile{min-height:142px;padding:23px}}
 
+
+/* PLANNING MOBILE — semaines disposées sur une seule ligne horizontale */
+@media (max-width: 650px) {
+  .planning-week-sidebar #planningWeekSelector {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 2px 2px 9px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  /* Chaque mois est un groupe horizontal : S44, S45, S46... */
+  .planning-week-sidebar #planningWeekSelector > .planning-week-block {
+    display: flex !important;
+    flex: 0 0 auto;
+    flex-direction: row !important;
+    align-items: center;
+    gap: 7px;
+    min-width: max-content;
+    margin: 0 8px 0 0;
+    padding: 0 8px 0 0;
+    border: 0;
+    border-right: 1px solid var(--border);
+  }
+  .planning-week-sidebar #planningWeekSelector .planning-week-block-label {
+    flex: 0 0 auto;
+    padding: 0 2px;
+    font-size: 8px;
+    white-space: nowrap;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    opacity: .7;
+  }
+  .planning-week-sidebar .planning-week-choice {
+    flex: 0 0 66px;
+    width: 66px;
+    min-height: 52px;
+    margin: 0;
+    padding: 6px 4px;
+  }
+}
+
 </style>
 </head>
 
