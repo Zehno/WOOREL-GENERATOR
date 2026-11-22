@@ -2231,7 +2231,18 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
         <div class="planning-form-grid" id="planningWodAmrapFields"><div class="field"><label for="planningWodAmrapDuration">DURÉE (MM:SS)</label><input type="text" inputmode="numeric" id="planningWodAmrapDuration" value="20:00" placeholder="MM:SS"></div></div>
         <div class="planning-form-grid hidden" id="planningWodEmomFields"><div class="field"><label for="planningWodEmomDuration">DURÉE (MM:SS)</label><input type="text" inputmode="numeric" id="planningWodEmomDuration" value="12:00" placeholder="MM:SS"></div><div class="field"><label for="planningWodEmomWork">TRAVAIL PAR MINUTE (SEC)</label><input type="number" id="planningWodEmomWork" min="1" value="40"></div></div>
         <div class="planning-form-grid hidden" id="planningWodTabataFields"><div class="field"><label for="planningWodTabataCycles">ROUNDS / CYCLES</label><input type="number" id="planningWodTabataCycles" min="1" value="8"></div><div class="field"><label for="planningWodTabataWork">TEMPS DE TRAVAIL (SEC)</label><input type="number" id="planningWodTabataWork" min="1" value="20"></div><div class="field"><label for="planningWodTabataRest">TEMPS DE REPOS (SEC)</label><input type="number" id="planningWodTabataRest" min="0" value="10"></div></div>
-        <div class="planning-form-grid hidden" id="planningWodFortimeFields"><div class="field"><label for="planningWodFortimeCap">TIME CAP (MM:SS, 0:00 = SANS LIMITE)</label><input type="text" inputmode="numeric" id="planningWodFortimeCap" value="0:00" placeholder="MM:SS"></div><div class="field"><label for="planningWodFortimeRounds">ROUNDS</label><input type="number" id="planningWodFortimeRounds" min="1" value="5"></div><div class="field"><label for="planningWodFortimeRest">REPOS ENTRE ROUNDS (SEC)</label><input type="number" id="planningWodFortimeRest" min="0" value="60"></div></div>
+        <div class="hidden" id="planningWodFortimeFields">
+          <div class="field"><label>SOUS-FORMAT FOR TIME</label><div id="planningWodFortimeFormatButtons" class="manual-format-buttons" role="group" aria-label="Sous-format For Time">
+            <button class="manual-format-btn active" type="button" data-planning-fortime="simple" aria-pressed="true">FOR TIME SIMPLE</button>
+            <button class="manual-format-btn" type="button" data-planning-fortime="rft" aria-pressed="false">ROUNDS CHRONOMÉTRÉ (RFT)</button>
+            <button class="manual-format-btn" type="button" data-planning-fortime="rft-rest" aria-pressed="false">RFT AVEC RÉCUPÉRATION</button>
+            <button class="manual-format-btn" type="button" data-planning-fortime="intermediate" aria-pressed="false">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</button>
+          </div><select id="planningWodFortimeFormat" class="hidden" aria-hidden="true" tabindex="-1"><option value="simple">FOR TIME SIMPLE</option><option value="rft">ROUNDS CHRONOMÉTRÉ (RFT)</option><option value="rft-rest">RFT AVEC RÉCUPÉRATION</option><option value="intermediate">FOR TIME AVEC MOUVEMENT INTERMÉDIAIRE</option></select></div>
+          <div class="planning-form-grid"><div class="field"><label for="planningWodFortimeCap">TIME CAP (MM:SS, 0:00 = SANS LIMITE)</label><input type="text" inputmode="numeric" id="planningWodFortimeCap" value="0:00" placeholder="MM:SS"></div></div>
+          <div class="planning-form-grid hidden" id="planningWodFortimeRftFields"><div class="field"><label for="planningWodFortimeRounds">NOMBRE DE ROUNDS</label><input type="number" id="planningWodFortimeRounds" min="1" value="5"></div><div class="field hidden" id="planningWodFortimeRestField"><label for="planningWodFortimeRest">REPOS APRÈS CHAQUE ROUND (SECONDES)</label><input type="number" id="planningWodFortimeRest" min="0" value="60"></div></div>
+          <div class="panel hidden" id="planningWodFortimeIntermediateFields" style="margin:12px 0"><div class="field"><label for="planningWodFortimeTriggerInterval">DÉCLENCHEMENT TOUTES LES (MINUTES)</label><input type="number" id="planningWodFortimeTriggerInterval" min="1" step="1" value="5"></div><div class="field"><label for="planningWodFortimeIntermediateMoves">MOUVEMENT(S) INTERMÉDIAIRE(S)</label><textarea id="planningWodFortimeIntermediateMoves" rows="3" placeholder="20 Burpees&#10;30 Wall Balls"></textarea><p class="small-note">Ces mouvements se déclenchent toutes les X minutes, en complément du corps de séance.</p></div></div>
+          <p class="small-note" id="planningWodFortimeFormatHelp">FOR TIME SIMPLE : termine le WOD le plus vite possible. Mets le Time Cap à 0 pour un chrono sans limite.</p>
+        </div>
         <p class="small-note" id="planningWodFormatSummary">Les paramètres du format sélectionné seront repris dans le contenu de la séance.</p>
       </div>
       <div class="field hidden" id="planningWodSourceWrap"><label for="planningWodSource">CHOISIR DANS MA BIBLIOTHÈQUE DE WOD</label><select id="planningWodSource"><option value="">— CRÉATION MANUELLE —</option></select><p class="small-note">Sélectionne un WOD existant pour préremplir le contenu, ou laisse la création manuelle.</p></div>
@@ -2748,7 +2759,7 @@ function sendWodToTimer(wod) {
   }
   sequenceBlocks = [];
   if (["AMRAP","EMOM","TABATA","FORTIME"].includes(type)) setTimerType(type);
-  if (wod.duration || wod.timerConfig?.duration_seconds || wod.timerConfig?.time_cap_seconds) {
+  if (wod.duration || wod.timerConfig?.duration_seconds || wod.timerConfig?.time_cap_seconds != null || type === "FORTIME") {
     const cfgSeconds=wod.timerConfig?.duration_seconds ?? wod.timerConfig?.time_cap_seconds;
     const timerMinutes=cfgSeconds!=null?Number(cfgSeconds)/60:Number(wod.duration||0);
     if (type === "AMRAP") document.getElementById("amrapDuration").value = timerMinutes;
@@ -4673,6 +4684,13 @@ resetTimer();
   renderChoiceButtons('planningTypeButtons',(typeOptions[normalizeCategory($('planningCategory').value)]||typeOptions.COURSE).map(x=>[x,x]),currentType);
  }
  function planningWodFormat(){const value=String($('planningType').value||'').toUpperCase();return value==='FORTIME'?'FOR TIME':value;}
+ function syncPlanningFortimeButtons(){
+  const selected=$('planningWodFortimeFormat')?.value||'simple';
+  document.querySelectorAll('[data-planning-fortime]').forEach(btn=>{
+   const active=btn.dataset.planningFortime===selected;
+   btn.classList.toggle('active',active);btn.setAttribute('aria-pressed',String(active));
+  });
+ }
  function updatePlanningWodFormatFields(){
   const isWod=normalizeCategory($('planningCategory').value)==='WOD';
   const format=planningWodFormat();
@@ -4681,34 +4699,73 @@ resetTimer();
   ['Amrap','Emom','Tabata','Fortime'].forEach(name=>$('planningWod'+name+'Fields').classList.add('hidden'));
   const target={AMRAP:'Amrap',EMOM:'Emom',TABATA:'Tabata','FOR TIME':'Fortime'}[format];
   if(isWod&&target)$('planningWod'+target+'Fields').classList.remove('hidden');
+  const fortimeFmt=$('planningWodFortimeFormat')?.value||'simple';
+  $('planningWodFortimeRftFields')?.classList.toggle('hidden',!['rft','rft-rest'].includes(fortimeFmt));
+  $('planningWodFortimeRestField')?.classList.toggle('hidden',fortimeFmt!=='rft-rest');
+  $('planningWodFortimeIntermediateFields')?.classList.toggle('hidden',fortimeFmt!=='intermediate');
+  const help=$('planningWodFortimeFormatHelp');
+  if(help)help.textContent=fortimeFmt==='simple'?'FOR TIME SIMPLE : termine le WOD le plus vite possible. Mets le Time Cap à 0 pour un chrono sans limite.':fortimeFmt==='rft'?'RFT : valide chaque round avec le bouton ROUND TERMINÉ. Le chrono continue de tourner.':fortimeFmt==='rft-rest'?'RFT avec récupération : chaque validation déclenche le repos choisi. Le chrono principal continue pendant le repos.':'Les mouvements intermédiaires se déclenchent toutes les X minutes. Le chrono continue pendant leur réalisation.';
+  syncPlanningFortimeButtons();
   const summary=$('planningWodFormatSummary');
-  if(summary){const vals={AMRAP:`AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`,EMOM:`EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail/min`,TABATA:`TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||0}s repos`,'FOR TIME':`FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||'0:00'} · repos ${$('planningWodFortimeRest').value||0}s`};summary.textContent=vals[format]||'Choisis AMRAP, EMOM, TABATA ou FOR TIME pour afficher les paramètres.';}
+  if(summary){
+   const vals={
+    AMRAP:`AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`,
+    EMOM:`EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail/min`,
+    TABATA:`TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||0}s repos`,
+    'FOR TIME':`FOR TIME · ${{simple:'Simple',rft:'RFT', 'rft-rest':'RFT avec récupération',intermediate:'Mouvement intermédiaire'}[fortimeFmt]} · time cap ${$('planningWodFortimeCap').value||'0:00'}`
+   };
+   summary.textContent=vals[format]||'Choisis AMRAP, EMOM, TABATA ou FOR TIME pour afficher les paramètres.';
+  }
  }
  function loadPlanningWodConfig(wod){
   const cfg=wod?.timerConfig||{};const type=String(wod?.type||'').toUpperCase();
   if(type==='AMRAP')$('planningWodAmrapDuration').value=formatWodDurationInput(cfg.duration_seconds??Number(cfg.duration_minutes??wod.duration??20)*60);
   if(type==='EMOM'){$('planningWodEmomDuration').value=formatWodDurationInput(cfg.duration_seconds??Number(cfg.duration_minutes??wod.duration??12)*60);$('planningWodEmomWork').value=cfg.work_seconds??40;}
   if(type==='TABATA'){$('planningWodTabataCycles').value=cfg.cycles??8;$('planningWodTabataWork').value=cfg.work_seconds??20;$('planningWodTabataRest').value=cfg.rest_seconds??10;}
-  if(type==='FOR TIME'||type==='FORTIME'){$('planningWodFortimeCap').value=formatWodDurationInput(cfg.time_cap_seconds??Number(cfg.time_cap_minutes??wod.duration??0)*60);$('planningWodFortimeRounds').value=cfg.rounds??5;$('planningWodFortimeRest').value=cfg.rest_seconds??60;}
+  if(type==='FOR TIME'||type==='FORTIME'){
+   $('planningWodFortimeFormat').value=cfg.format||'simple';
+   $('planningWodFortimeCap').value=formatWodDurationInput(cfg.time_cap_seconds??Number(cfg.time_cap_minutes??wod.duration??0)*60);
+   $('planningWodFortimeRounds').value=cfg.rounds??5;$('planningWodFortimeRest').value=cfg.rest_seconds??60;
+   $('planningWodFortimeTriggerInterval').value=cfg.trigger_interval_minutes??5;
+   $('planningWodFortimeIntermediateMoves').value=cfg.intermediate_moves||'';
+  }
   updatePlanningWodFormatFields();
  }
- function planningWodConfigText(){const type=planningWodFormat();if(type==='AMRAP')return `
-
-FORMAT : AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`;
-  if(type==='EMOM')return `
-
-FORMAT : EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail par minute`;
-  if(type==='TABATA')return `
-
-FORMAT : TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||10}s repos`;
-  if(type==='FOR TIME')return `
-
-FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time cap ${$('planningWodFortimeCap').value||'0:00'} · repos ${$('planningWodFortimeRest').value||0}s`;
-  return '';}
+ function loadPlanningWodConfigFromDetails(details){
+  const raw=String(details||'');
+  const get=(label)=>raw.match(new RegExp('^'+label+'\\s*:\\s*(.*)$','im'))?.[1]?.trim();
+  const fmt=get('SOUS-FORMAT FOR TIME');
+  if(fmt)$('planningWodFortimeFormat').value=fmt;
+  const cap=get('TIME CAP');if(cap)$('planningWodFortimeCap').value=cap;
+  const rounds=get('NOMBRE DE ROUNDS');if(rounds)$('planningWodFortimeRounds').value=rounds;
+  const rest=get('REPOS APRÈS CHAQUE ROUND');if(rest)$('planningWodFortimeRest').value=parseInt(rest,10)||0;
+  const interval=get('DÉCLENCHEMENT TOUTES LES');if(interval)$('planningWodFortimeTriggerInterval').value=parseInt(interval,10)||5;
+  const moves=raw.match(/MOUVEMENTS INTERMÉDIAIRES BEGIN\n([\s\S]*?)\nMOUVEMENTS INTERMÉDIAIRES END/i);
+  if(moves)$('planningWodFortimeIntermediateMoves').value=moves[1].trim();
+  updatePlanningWodFormatFields();
+ }
+ function planningWodConfigText(){
+  const type=planningWodFormat();
+  if(type==='AMRAP')return `\n\nFORMAT : AMRAP · ${$('planningWodAmrapDuration').value||'20:00'}`;
+  if(type==='EMOM')return `\n\nFORMAT : EMOM · ${$('planningWodEmomDuration').value||'12:00'} · ${$('planningWodEmomWork').value||40} sec de travail par minute`;
+  if(type==='TABATA')return `\n\nFORMAT : TABATA · ${$('planningWodTabataCycles').value||8} rounds · ${$('planningWodTabataWork').value||20}s travail / ${$('planningWodTabataRest').value||10}s repos`;
+  if(type==='FOR TIME'){
+   const fmt=$('planningWodFortimeFormat').value||'simple';
+   const labels={simple:'SIMPLE',rft:'RFT', 'rft-rest':'RFT AVEC RÉCUPÉRATION',intermediate:'MOUVEMENT INTERMÉDIAIRE'};
+   let text=`\n\nFORMAT : FOR TIME\nSOUS-FORMAT FOR TIME : ${fmt}\nTIME CAP : ${$('planningWodFortimeCap').value||'0:00'}`;
+   if(fmt==='rft'||fmt==='rft-rest')text+=`\nNOMBRE DE ROUNDS : ${$('planningWodFortimeRounds').value||5}`;
+   if(fmt==='rft-rest')text+=`\nREPOS APRÈS CHAQUE ROUND : ${$('planningWodFortimeRest').value||0}s`;
+   if(fmt==='intermediate')text+=`\nDÉCLENCHEMENT TOUTES LES : ${$('planningWodFortimeTriggerInterval').value||5} minutes\nMOUVEMENTS INTERMÉDIAIRES BEGIN\n${$('planningWodFortimeIntermediateMoves').value.trim()}\nMOUVEMENTS INTERMÉDIAIRES END`;
+   return text;
+  }
+  return '';
+ }
  const planningChoiceForm=$('planningSessionForm');
  if(planningChoiceForm && planningChoiceForm.dataset.choiceButtonsBound!=='true'){
   planningChoiceForm.dataset.choiceButtonsBound='true';
   planningChoiceForm.addEventListener('click',event=>{
+   const fortimeButton=event.target.closest('[data-planning-fortime]');
+   if(fortimeButton){$('planningWodFortimeFormat').value=fortimeButton.dataset.planningFortime;updatePlanningWodFormatFields();return;}
    const button=event.target.closest('#planningCategoryButtons [data-choice-value],#planningSpecialtyButtons [data-choice-value],#planningTypeButtons [data-choice-value],#planningStatusButtons [data-choice-value]');
    if(!button)return;
    const value=button.dataset.choiceValue;
@@ -4738,8 +4795,12 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  function planningMovementLines(details){
   const lines=String(details||'').split(/\n+/).map(line=>line.trim()).filter(Boolean);
   const result=[];
+  let inIntermediate=false;
   for(const line of lines){
-   if(/^(FORMAT\s*:|SPECIALITÉ SÉANCE\s*:)/i.test(line))continue;
+   if(/^MOUVEMENTS INTERMÉDIAIRES BEGIN$/i.test(line)){inIntermediate=true;continue;}
+   if(/^MOUVEMENTS INTERMÉDIAIRES END$/i.test(line)){inIntermediate=false;continue;}
+   if(inIntermediate)continue;
+   if(/^(FORMAT\s*:|SOUS-FORMAT FOR TIME\s*:|TIME CAP\s*:|NOMBRE DE ROUNDS\s*:|REPOS APRÈS CHAQUE ROUND\s*:|DÉCLENCHEMENT TOUTES LES\s*:|SPECIALITÉ SÉANCE\s*:)/i.test(line))continue;
    const setRep=line.match(/^\s*(\d+)\s*[x×]\s*(\d+(?:[.,]\d+)?)\s+/i);
    const simpleRep=!setRep?line.match(/^\s*(\d+(?:[.,]\d+)?)\s+/):null;
    const load=line.match(/\s+(\d+(?:[.,]\d+)?)\s*(kg|kgs|lb|lbs)\s*$/i);
@@ -4765,14 +4826,31 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
   const movements=planningMovementLines(details).map(m=>({name:m.name,reps:m.reps||null,unit:'',load:m.load||''}));
   const formatMatch=details.match(/FORMAT\s*:\s*(AMRAP|EMOM|TABATA|FOR TIME)\b([^\n]*)/i);
   const format=formatMatch?formatMatch[1].toUpperCase():String(item.session_type||'').toUpperCase();
-  const tail=formatMatch?.[2]||'';
+  const get=(label)=>details.match(new RegExp('^'+label+'\\s*:\\s*(.*)$','im'))?.[1]?.trim()||'';
+  const parseDuration=(value)=>{
+   const v=String(value||'').trim();if(!v||v==='0:00')return 0;
+   if(/^\d+:\d{1,2}$/.test(v)){const [m,sec]=v.split(':').map(Number);return m*60+sec;}
+   return Math.max(0,Number(v)*60||0);
+  };
   const timerConfig={};let duration=Number(item.duration_minutes)||null;let type='STOPWATCH';
   if(category==='WOD'&&['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){
    type=format==='FOR TIME'?'FOR TIME':format;
-   if(format==='AMRAP'){const n=tail.match(/(\d+)\s*min/i);if(n)duration=Number(n[1]);timerConfig.duration_minutes=duration;}
-   if(format==='EMOM'){const n=tail.match(/(\d+)\s*min/i),w=tail.match(/(\d+)\s*sec/i);if(n)duration=Number(n[1]);if(w)timerConfig.work_seconds=Number(w[1]);}
-   if(format==='TABATA'){const c=tail.match(/(\d+)\s*round/i),w=tail.match(/(\d+)\s*s\s*travail/i),r=tail.match(/(\d+)\s*s\s*repos/i);if(c)timerConfig.cycles=Number(c[1]);if(w)timerConfig.work_seconds=Number(w[1]);if(r)timerConfig.rest_seconds=Number(r[1]);}
-   if(format==='FOR TIME'){const c=tail.match(/(\d+)\s*round/i),cap=tail.match(/time cap\s*(\d+)\s*min/i),r=tail.match(/repos\s*(\d+)\s*s/i);if(c)timerConfig.rounds=Number(c[1]);if(cap)duration=Number(cap[1]);if(r)timerConfig.rest_seconds=Number(r[1]);timerConfig.time_cap_minutes=duration??0;}
+   if(format==='AMRAP'){const n=details.match(/FORMAT\s*:\s*AMRAP\s*·\s*(\d+):(\d+)/i);if(n)duration=(Number(n[1])*60+Number(n[2]))/60;timerConfig.duration_minutes=duration;}
+   if(format==='EMOM'){const n=details.match(/FORMAT\s*:\s*EMOM\s*·\s*(\d+):(\d+)/i),w=details.match(/(\d+)\s*sec/i);if(n)duration=(Number(n[1])*60+Number(n[2]))/60;if(w)timerConfig.work_seconds=Number(w[1]);}
+   if(format==='TABATA'){const c=details.match(/(\d+)\s*round/i),w=details.match(/(\d+)\s*s\s*travail/i),r=details.match(/(\d+)\s*s\s*repos/i);if(c)timerConfig.cycles=Number(c[1]);if(w)timerConfig.work_seconds=Number(w[1]);if(r)timerConfig.rest_seconds=Number(r[1]);}
+   if(format==='FOR TIME'){
+    const sub=get('SOUS-FORMAT FOR TIME')||'simple';
+    const capSeconds=parseDuration(get('TIME CAP')||'0:00');
+    timerConfig.format=sub;timerConfig.time_cap_seconds=capSeconds;timerConfig.time_cap_minutes=capSeconds/60;
+    duration=capSeconds>0?capSeconds/60:null;
+    if(sub==='rft'||sub==='rft-rest')timerConfig.rounds=Math.max(1,Number(get('NOMBRE DE ROUNDS'))||5);
+    if(sub==='rft-rest')timerConfig.rest_seconds=Math.max(0,parseInt(get('REPOS APRÈS CHAQUE ROUND'),10)||0);
+    if(sub==='intermediate'){
+     timerConfig.trigger_interval_minutes=Math.max(1,parseInt(get('DÉCLENCHEMENT TOUTES LES'),10)||5);
+     const moves=details.match(/MOUVEMENTS INTERMÉDIAIRES BEGIN\n([\s\S]*?)\nMOUVEMENTS INTERMÉDIAIRES END/i);
+     timerConfig.intermediate_moves=moves?.[1]?.trim()||'';
+    }
+   }
   }
   return {name:item.title||'Séance planifiée',type,duration,consigne:item.notes||'',timerConfig,movements};
  }
@@ -4933,7 +5011,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  }
  function planningSpecialtyFromDetails(details){const match=String(details||'').match(/SPECIALITÉ SÉANCE\s*:\s*([^\n]+)/i);return match?match[1].trim():'';}
  function stripPlanningSpecialty(details){return String(details||'').replace(/\n?SPECIALITÉ SÉANCE\s*:\s*[^\n]*/i,'').trim();}
- function openEditor(item=null){ editingId=item?.id||null; $('planningDeleteFromEditor').classList.toggle('hidden',!item?.id); $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); $('planningSpecialty').value=planningSpecialtyFromDetails(item?.details)||(specialtyChoices.some(([value])=>value===item?.session_type)?item.session_type:'Libre'); updateTypes(specialtyChoices.some(([value])=>value===item?.session_type)?'LIBRE':(item?.session_type||'')); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDistanceKm').value=item?.distance_km??''; $('planningDistanceWrap').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='COURSE'); [1,2,3,4,5].forEach(z=>$('planningHrZone'+z).value=Number(item?.['hr_zone_'+z+'_minutes']||0)); $('planningHrZonesWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningSessionRpe').value=item?.session_rpe??''; $('planningRpeWrap').classList.toggle('hidden',!(['WOD','HYROX','FORCE'].includes(normalizeCategory(item?.category||'COURSE')))||$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=stripPlanningSpecialty(item?.details||''); $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ function openEditor(item=null){ editingId=item?.id||null; $('planningDeleteFromEditor').classList.toggle('hidden',!item?.id); $('planningEditorPanel').classList.remove('hidden'); $('planningEditorTitle').textContent=item?'MODIFIER LA SÉANCE':'AJOUTER UNE SÉANCE'; $('planningSessionId').value=item?.id||''; $('planningDate').value=item?.session_date||dateKey(selectedDate); $('planningCategory').value=normalizeCategory(item?.category||'COURSE'); $('planningSpecialty').value=planningSpecialtyFromDetails(item?.details)||(specialtyChoices.some(([value])=>value===item?.session_type)?item.session_type:'Libre'); updateTypes(specialtyChoices.some(([value])=>value===item?.session_type)?'LIBRE':(item?.session_type||'')); if(!$('planningType').value) $('planningType').value=(typeOptions[$('planningCategory').value]||typeOptions.COURSE)[0]; $('planningTitle').value=item?.title||''; $('planningDuration').value=item?.duration_minutes??''; $('planningStatusSelect').value=item?.status||'PLANNED'; $('planningActualDuration').value=item?.actual_duration_minutes??''; $('planningActualDurationWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningDistanceKm').value=item?.distance_km??''; $('planningDistanceWrap').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='COURSE'); [1,2,3,4,5].forEach(z=>$('planningHrZone'+z).value=Number(item?.['hr_zone_'+z+'_minutes']||0)); $('planningHrZonesWrap').classList.toggle('hidden',$('planningStatusSelect').value!=='DONE'); $('planningSessionRpe').value=item?.session_rpe??''; $('planningRpeWrap').classList.toggle('hidden',!(['WOD','HYROX','FORCE'].includes(normalizeCategory(item?.category||'COURSE')))||$('planningStatusSelect').value!=='DONE'); $('planningDetails').value=stripPlanningSpecialty(item?.details||''); if(item)loadPlanningWodConfigFromDetails(item.details||'');else{$('planningWodFortimeFormat').value='simple';$('planningWodFortimeCap').value='0:00';$('planningWodFortimeRounds').value=5;$('planningWodFortimeRest').value=60;$('planningWodFortimeTriggerInterval').value=5;$('planningWodFortimeIntermediateMoves').value='';updatePlanningWodFormatFields();} $('planningNotes').value=item?.notes||''; $('planningWodSource').value=item?.wod_id||''; $('planningFormStatus').textContent=''; $('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD'); syncPlanningChoiceButtons();fillWodSelect();$('planningEditorPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
  function closeEditor(){ $('planningEditorPanel').classList.add('hidden'); $('planningSessionForm').reset(); $('planningSpecialty').value='Libre'; $('planningActualDurationWrap').classList.add('hidden'); $('planningDistanceWrap').classList.add('hidden'); $('planningDistanceKm').value=''; $('planningHrZonesWrap').classList.add('hidden'); $('planningRpeWrap').classList.add('hidden'); $('planningSessionRpe').value=''; syncPlanningChoiceButtons();editingId=null; }
  function fillWodSelect(){const select=$('planningWodSource');if(!select)return;const current=select.value;const list=(window.wods||[]).filter(w=>w.collection!=='ELODIE');select.innerHTML='<option value="">— CRÉATION MANUELLE —</option>'+list.map(w=>`<option value="${esc(w.id)}">${esc(w.name)} · ${esc(w.type)}</option>`).join('');if(current)select.value=current;}
  async function refresh(){try{if(window.loadPlanningSessions){sessions=await window.loadPlanningSessions();}render();fillWodSelect();$('planningStatus').textContent='Planning synchronisé avec Supabase.';}catch(e){$('planningStatus').textContent='Chargement du planning impossible : '+(e.message||e);}}
@@ -4949,7 +5027,7 @@ FORMAT : FOR TIME · ${$('planningWodFortimeRounds').value||5} rounds · time ca
  $('planningCalendarTab').addEventListener('click',()=>setPlanningView('calendar'));
  $('planningStatsTab').addEventListener('click',()=>setPlanningView('stats'));
 
- ['planningWodAmrapDuration','planningWodEmomDuration','planningWodEmomWork','planningWodTabataCycles','planningWodTabataWork','planningWodTabataRest','planningWodFortimeCap','planningWodFortimeRounds','planningWodFortimeRest'].forEach(id=>$(id).addEventListener('input',updatePlanningWodFormatFields));
+ ['planningWodAmrapDuration','planningWodEmomDuration','planningWodEmomWork','planningWodTabataCycles','planningWodTabataWork','planningWodTabataRest','planningWodFortimeCap','planningWodFortimeRounds','planningWodFortimeRest','planningWodFortimeTriggerInterval','planningWodFortimeIntermediateMoves'].forEach(id=>$(id).addEventListener('input',updatePlanningWodFormatFields));
  $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod){syncPlanningChoiceButtons();return;}const format=String(wod.type||'').toUpperCase()==='FORTIME'?'FOR TIME':String(wod.type||'').toUpperCase();if(['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){$('planningType').value=format;syncPlanningChoiceButtons();updatePlanningWodFormatFields();loadPlanningWodConfig(wod);} $('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
  $('planningWeekDays').addEventListener('click',async e=>{
   const add=e.target.closest('[data-plan-add]'),edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),done=e.target.closest('[data-plan-done]'),timer=e.target.closest('[data-plan-timer]');
