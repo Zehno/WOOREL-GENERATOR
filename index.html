@@ -1776,6 +1776,37 @@ main {
   .hub-back-button[hidden] { display:none !important; }
 }
 
+
+/* CARTES PLANNING — lecture immédiate, sans répétition des métadonnées */
+.planning-session{
+ padding:12px;
+ border-radius:12px;
+ background:linear-gradient(145deg,#121a14,#0b100d);
+}
+.planning-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+.planning-card-format{
+ display:inline-flex;align-items:center;width:max-content;max-width:70%;
+ padding:5px 9px;border:1px solid rgba(183,243,74,.32);
+ border-radius:999px;background:rgba(183,243,74,.09);
+ color:var(--accent);font-size:10px;font-weight:950;letter-spacing:.8px;text-transform:uppercase;
+}
+.planning-card-top .planning-status{white-space:nowrap}
+.planning-session .planning-session-title{font-size:19px;line-height:1.15;font-weight:1000;letter-spacing:.2px;margin:0 0 7px;overflow-wrap:anywhere}
+.planning-card-specialty{display:inline-block;margin:0 0 10px;color:var(--muted);font-size:11px;font-weight:850;letter-spacing:.45px}
+.planning-card-format-summary{margin:0 0 9px;padding:7px 9px;border-radius:7px;background:rgba(255,255,255,.045);color:#c4d0c7;font-size:11px;font-weight:800;line-height:1.35}
+.planning-session .planning-session-details{
+ margin-top:0;padding:0;background:transparent;border:0;border-radius:0;
+ color:#d3dbd5;font-size:13px;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere;
+}
+.planning-session .planning-session-actions{margin-top:12px;gap:7px}
+.planning-session .planning-session-actions button{flex:0 0 38px;width:38px;height:38px;min-width:38px;padding:0!important;border-radius:10px;font-size:17px}
+@media(max-width:650px){
+ .planning-session{padding:12px}
+ .planning-session .planning-session-title{font-size:18px}
+ .planning-session .planning-session-details{font-size:13px;line-height:1.5}
+ .planning-session .planning-session-actions button{flex-basis:36px;width:36px;height:36px;min-width:36px}
+}
+
 </style>
 </head>
 
@@ -1802,7 +1833,7 @@ main {
 
 <div id="appShell">
 <header>
-  <div class="logo">LES WODs<span>D'OREL</span></span></div>
+  <div class="logo">PREPA <span>SOLO</span></div>
   <div class="subtitle">Chronomètre et séances personnalisées</div>
   <div class="header-controls">
     <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
@@ -5197,6 +5228,33 @@ resetTimer();
   }
   $('planningWeekSelector').innerHTML=html+'</div>';
  }
+ function planningCardExerciseText(details){
+  return String(details||'').split(/\r?\n/).map(line=>line.trim()).filter(line=>{
+   if(!line)return false;
+   if(/^(FORMAT\s*:|SOUS-FORMAT FOR TIME\s*:|TIME CAP\s*:|NOMBRE DE ROUNDS\s*:|REPOS APRÈS CHAQUE ROUND\s*:|DÉCLENCHEMENT TOUTES LES\s*:|SPECIALITÉ SÉANCE\s*:|MOUVEMENTS INTERMÉDIAIRES BEGIN|MOUVEMENTS INTERMÉDIAIRES END)/i.test(line))return false;
+   return true;
+  }).join('\n').trim();
+ }
+ function planningCardFormatSummary(details){
+  const raw=String(details||'');
+  const format=raw.match(/^FORMAT\s*:\s*(AMRAP|EMOM|TABATA|FOR TIME)\b/im)?.[1]?.toUpperCase();
+  if(!format)return '';
+  const get=label=>raw.match(new RegExp('^'+label+'\\s*:\\s*(.*)$','im'))?.[1]?.trim()||'';
+  const bits=[];
+  if(format==='FOR TIME'){
+   const sub=(get('SOUS-FORMAT FOR TIME')||'simple').toLowerCase();
+   if(sub==='rft'||sub==='rft-rest')bits.push(`${get('NOMBRE DE ROUNDS')||'5'} rounds`);
+   else if(sub==='intermediate')bits.push('Mouvement intermédiaire');
+   const cap=get('TIME CAP');
+   if(cap&&cap!=='0:00')bits.push(`CAP ${cap}`);
+   if(sub==='rft-rest'){const rest=get('REPOS APRÈS CHAQUE ROUND');if(rest)bits.push(`Repos ${rest}`);}
+  }else{
+   const line=raw.match(/^FORMAT\s*:\s*[^\n]+/im)?.[0]||'';
+   const detail=line.replace(/^FORMAT\s*:\s*/i,'').replace(/^'+|'+$/g,'').trim();
+   if(detail.includes('·'))bits.push(...detail.split('·').slice(1).map(v=>v.trim()).filter(Boolean));
+  }
+  return bits.join(' · ');
+ }
  function render(){
   renderStats();
   renderWeekSelector();
@@ -5209,11 +5267,14 @@ resetTimer();
    const cards=items.length?items.map(x=>{
     const status=x.status==='DONE'?'RÉALISÉE':x.status==='CANCELLED'?'ANNULÉE':'À FAIRE';
     return `<article class="planning-session cat-${esc(x.category)} ${sessionTypeClass(x.session_type)} ${x.status==='DONE'?'is-done':''} ${x.status==='CANCELLED'?'is-cancelled':''}" draggable="true" data-plan-card="${esc(x.id)}">
-      <div class="planning-session-statusline"><span class="planning-session-meta">${esc(x.session_type)}</span><span class="planning-status ${x.status==='DONE'?'done':x.status==='CANCELLED'?'cancelled':''}">${status}</span></div>
+      <div class="planning-card-top">
+       <span class="planning-card-format">${esc(x.session_type || categoryName(x.category))}</span>
+       <span class="planning-status ${x.status==='DONE'?'done':x.status==='CANCELLED'?'cancelled':''}">${status}</span>
+      </div>
       <div class="planning-session-title">${esc(x.title)}</div>
-      <div class="planning-session-meta">${categoryName(x.category)}${x.duration_minutes?` · ${Number(x.duration_minutes)} MIN`:''}</div>
-      ${normalizeCategory(x.category)==='WOD'&&planningSpecialtyFromDetails(x.details)?`<div class="planning-session-meta">SPÉCIALITÉ : ${esc(planningSpecialtyFromDetails(x.details))}</div>`:''}
-      ${stripPlanningSpecialty(x.details)?`<div class="planning-session-details"><strong>SÉANCE :</strong> ${esc(stripPlanningSpecialty(x.details).length>180?stripPlanningSpecialty(x.details).slice(0,177)+'…':stripPlanningSpecialty(x.details))}</div>`:''}
+      ${normalizeCategory(x.category)==='WOD'&&planningSpecialtyFromDetails(x.details)?`<div class="planning-card-specialty">${esc(planningSpecialtyFromDetails(x.details))}</div>`:`<div class="planning-card-specialty">${esc(categoryName(x.category))}${x.duration_minutes?` · ${Number(x.duration_minutes)} min`:''}</div>`}
+      ${planningCardFormatSummary(x.details)?`<div class="planning-card-format-summary">${esc(planningCardFormatSummary(x.details))}</div>`:''}
+      ${planningCardExerciseText(x.details)?`<div class="planning-session-details">${esc(planningCardExerciseText(x.details).length>260?planningCardExerciseText(x.details).slice(0,257)+'…':planningCardExerciseText(x.details))}</div>`:''}
       <div class="planning-session-actions">
        <button class="primary" type="button" data-plan-timer="${esc(x.id)}" title="Ouvrir dans le chronomètre" aria-label="Ouvrir dans le chronomètre">⏱</button>
        <button class="secondary" type="button" data-plan-edit="${esc(x.id)}" title="Modifier la séance" aria-label="Modifier la séance">✎</button>
