@@ -1807,6 +1807,91 @@ main {
  .planning-session .planning-session-actions button{flex-basis:36px;width:36px;height:36px;min-width:36px}
 }
 
+
+/* PLANNING ORDINATEUR — colonnes plus larges et commandes sur une ligne */
+@media (min-width: 900px) {
+  .planning-week-layout {
+    grid-template-columns: 125px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .planning-week-content {
+    min-width: 0;
+  }
+  .planning-calendar-scroll {
+    overflow-x: auto;
+    overflow-y: visible;
+    padding: 2px 2px 12px;
+  }
+  .planning-week {
+    grid-template-columns: repeat(7, minmax(168px, 1fr));
+    min-width: 1232px;
+    gap: 10px;
+    align-items: start;
+  }
+  .planning-day-column {
+    padding: 11px;
+    min-width: 0;
+  }
+  .planning-column-head {
+    padding: 4px 3px 11px;
+    margin-bottom: 11px;
+  }
+  .planning-column-day {
+    font-size: 11px;
+  }
+  .planning-column-date {
+    font-size: 21px;
+  }
+  .planning-session {
+    padding: 11px;
+    margin: 9px 0;
+    border-radius: 10px;
+  }
+  .planning-session .planning-session-title {
+    font-size: 17px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .planning-session .planning-session-meta,
+  .planning-card-specialty {
+    font-size: 11px;
+    line-height: 1.35;
+  }
+  .planning-session .planning-session-details {
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: break-word;
+  }
+  .planning-session .planning-session-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 12px;
+  }
+  .planning-session .planning-session-actions button {
+    display: inline-flex;
+    flex: 0 0 34px;
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 !important;
+    font-size: 15px;
+  }
+}
+@media (min-width: 900px) and (max-width: 1250px) {
+  .planning-week-layout {
+    grid-template-columns: 105px minmax(0, 1fr);
+    gap: 10px;
+  }
+  .planning-week {
+    grid-template-columns: repeat(7, minmax(158px, 1fr));
+    min-width: 1166px;
+  }
+}
+
 </style>
 </head>
 
@@ -1814,7 +1899,7 @@ main {
 
 <section id="authScreen" class="auth-screen">
   <div class="auth-card">
-    <h1>LES WODs <span style="color:var(--green)"> D'OREL</span></h1>
+    <h1>LES WODs<span style="color:var(--green)">D'OREL</span></h1>
     <div class="muted">CONNEXION À TA BIBLIOTHÈQUE PRIVÉE</div>
     <form id="loginForm">
       <div class="field">
