@@ -1671,6 +1671,51 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
   }
 }
 
+
+/* CORRECTIF FINAL — libellés de semaines compacts et sans chevauchement */
+@media (max-width: 650px) {
+  .planning-week-sidebar #planningWeekSelector > .planning-week-block {
+    gap: 7px;
+    min-width: max-content;
+  }
+  .planning-week-sidebar #planningWeekSelector .planning-week-block-label {
+    flex: 0 0 auto;
+    font-size: 8px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .planning-week-sidebar .planning-week-choice {
+    flex: 0 0 92px;
+    width: 92px;
+    min-width: 92px;
+    min-height: 60px;
+    padding: 7px 5px;
+    gap: 5px;
+    overflow: hidden;
+  }
+  .planning-week-sidebar .planning-week-choice span:first-child {
+    font-size: 14px;
+    line-height: 1.1;
+  }
+  .planning-week-sidebar .planning-week-choice small {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    font-size: 9px;
+    line-height: 1.15;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
+  }
+}
+@media (max-width: 380px) {
+  .planning-week-sidebar .planning-week-choice {
+    flex-basis: 88px;
+    width: 88px;
+    min-width: 88px;
+  }
+}
 </style>
 </head>
 
@@ -1697,7 +1742,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 
 <div id="appShell">
 <header>
-  <div class="logo">LES WODs<span>D'OREL</span></div>
+  <div class="logo">PREPA <span>SOLO</span></div>
   <div class="subtitle">Chronomètre et séances personnalisées</div>
   <div class="header-controls">
     <button class="install-btn hidden" id="installPwaBtn" type="button" title="Installer l'application">📲 INSTALLER</button>
@@ -5079,7 +5124,11 @@ resetTimer();
   };
   for(let weekStart=new Date(firstWeek);weekStart<=lastWeek;weekStart=addDays(weekStart,7)){
    const weekEnd=addDays(weekStart,6),key=dateKey(weekStart);
-   html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>S${isoWeekNumber(weekStart)}</span><small>${fmtRange(weekStart,weekEnd)}</small></button>`;
+   const shortMonth=d=>new Intl.DateTimeFormat('fr-FR',{month:'short'}).format(d).replace(/\.$/,'');
+   const weekDates=weekStart.getMonth()===weekEnd.getMonth()
+    ? `${weekStart.getDate()}–${weekEnd.getDate()} ${shortMonth(weekEnd)}`
+    : `${weekStart.getDate()} ${shortMonth(weekStart)}–${weekEnd.getDate()} ${shortMonth(weekEnd)}`;
+   html+=`<button type="button" class="planning-week-choice ${key===activeKey?'active':''}" data-week-start="${key}"><span>S${isoWeekNumber(weekStart)}</span><small>${weekDates}</small></button>`;
   }
   $('planningWeekSelector').innerHTML=html+'</div>';
  }
