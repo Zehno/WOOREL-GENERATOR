@@ -1964,6 +1964,7 @@ main {
   <button class="tab" data-page="libraryPage"><span class="tab-icon">▤</span><span class="tab-text">BIBLIOTHÈQUE WOD</span></button>
   <button class="tab" data-page="timer"><span class="tab-icon">◷</span><span class="tab-text">CHRONOMÈTRE</span></button>
   <button class="tab" data-page="historyPage"><span class="tab-icon">↺</span><span class="tab-text">HISTORIQUE</span></button>
+  <button class="tab" data-page="interpretationPage"><span class="tab-icon">ⓘ</span><span class="tab-text">INTERPRÉTATION TEST</span></button>
   <div class="sidebar-footer">PRÉPARATION · PERFORMANCE</div>
 </nav>
 
@@ -1998,8 +1999,11 @@ main {
     <button class="hub-tile history-tile" type="button" data-hub-page="historyPage">
       <span class="hub-tile-icon">↺</span><span class="hub-tile-copy"><strong>HISTORIQUE</strong><small>Retrouver les séances réalisées et enregistrées</small></span>
     </button>
+    <button class="hub-tile" type="button" data-hub-page="interpretationPage">
+      <span class="hub-tile-icon">ⓘ</span><span class="hub-tile-copy"><strong>INTERPRÉTATION TEST</strong><small>Comprendre les tests de terrain et exploiter leurs résultats en préparation</small></span>
+    </button>
   </div>
-  <div class="hub-bottom-note">Toutes tes fonctionnalités existantes restent accessibles. Cet accueil est une nouvelle porte d’entrée : il ne remplace ni le planning, ni la bibliothèque, ni le chronomètre, ni l’historique.</div>
+  <div class="hub-bottom-note">Toutes tes fonctionnalités existantes restent accessibles. Cet accueil est une nouvelle porte d’entrée : il ne remplace ni le planning, ni la bibliothèque, ni le chronomètre, ni l’historique, ni l’interprétation des tests.</div>
 </section>
 
 <!-- BIBLIOTHEQUE -->
@@ -2700,6 +2704,99 @@ main {
       </div>
       <p class="small-note" style="margin-top:12px">Repères indicatifs : les seuils physiologiques varient selon le profil, le protocole de test et la durée soutenable. Le pourcentage de VMA ne permet pas, à lui seul, de déterminer précisément les seuils lactiques ou la VO₂max. À affiner avec tes données de terrain et tes tests.</p>
     </div>
+  </div>
+</section>
+
+
+<!-- INTERPRETATION DES TESTS -->
+<section id="interpretationPage" class="page">
+  <div class="planning-page-heading">
+    <div>
+      <div class="planning-eyebrow">COMPRENDRE · ÉVALUER · PROGRESSER</div>
+      <h2>INTERPRÉTATION TEST</h2>
+      <p class="muted">À quoi servent les tests, ce que leurs résultats signifient et comment les utiliser pour orienter l'entraînement.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">AVANT DE COMPARER LES RÉSULTATS</h3>
+    <p>Ces quatre tests évaluent des qualités proches, mais ils ne mesurent pas exactement la même chose et leurs résultats ne sont pas parfaitement interchangeables.</p>
+    <ul>
+      <li><strong>VMA :</strong> vitesse minimale associée à la consommation maximale d'oxygène, estimée par un protocole de terrain.</li>
+      <li><strong>VO₂max :</strong> quantité maximale d'oxygène que l'organisme peut utiliser. Elle ne se déduit pas précisément d'une simple vitesse sans modèle d'estimation.</li>
+      <li><strong>Performance :</strong> le résultat dépend aussi de l'économie de course, de la capacité à soutenir un effort, de la motivation, du protocole et des conditions du test.</li>
+    </ul>
+    <p class="small-note">Pour suivre une progression, privilégie la répétition du même test, avec le même protocole et des conditions comparables. Évite de conclure à une progression ou une régression à partir d'un écart minime isolé.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">1. VAMEVAL</h3>
+    <p><strong>Principe :</strong> test progressif et continu, généralement sur piste, avec une vitesse qui augmente par paliers réguliers. Dans le protocole courant : départ à 8 km/h, puis +0,5 km/h chaque minute, avec une bande sonore pour régler l'allure.</p>
+    <p><strong>Son rôle :</strong> estimer la VMA à partir de la vitesse du dernier palier entièrement réalisé. C'est un test utile pour construire des vitesses de travail individualisées.</p>
+    <p><strong>Comment lire le résultat :</strong> si le dernier palier complet est à 16 km/h, tu retiens environ 16 km/h comme VMA de terrain. Si tu arrêtes au milieu du palier, note-le précisément ; ne transforme pas automatiquement une fraction de palier en valeur exacte.</p>
+    <p><strong>En préparation :</strong> utilise cette valeur comme repère pour calibrer les séances de course à intensité élevée. Elle ne signifie pas que tu peux tenir 16 km/h longtemps : la durée de soutien dépend de ton endurance et de ton niveau.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">2. DEMI-COOPER — 6 MINUTES</h3>
+    <p><strong>Principe :</strong> parcourir la plus grande distance possible en 6 minutes, en gérant l'effort pour éviter un départ trop rapide.</p>
+    <p><strong>Son rôle :</strong> fournir une estimation simple de la VMA. Une formule de terrain couramment utilisée est : <strong>distance en mètres ÷ 100 = VMA estimée en km/h</strong>. Exemple : 1 500 m en 6 minutes donnent environ 15 km/h.</p>
+    <p><strong>Comment lire le résultat :</strong> c'est une estimation dépendante de la capacité à maintenir un effort maximal pendant 6 minutes, du pacing et de l'expérience. Elle peut différer du VAMEVAL sans que l'un des tests soit nécessairement « faux ».</p>
+    <p><strong>En préparation :</strong> utile pour obtenir un repère rapide ou suivre une évolution, à condition de reproduire le test dans des conditions similaires.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">3. COOPER — 12 MINUTES</h3>
+    <p><strong>Principe :</strong> parcourir la plus grande distance possible en 12 minutes.</p>
+    <p><strong>Son rôle :</strong> évaluer la performance aérobie sur un effort prolongé et estimer indirectement la capacité aérobie. Le test est davantage influencé par l'endurance et la gestion d'allure qu'un test progressif court.</p>
+    <p><strong>Comment lire le résultat :</strong> la distance parcourue est le résultat principal. Il existe des équations d'estimation du VO₂max, mais elles restent des modèles indirects et ne donnent pas une mesure physiologique directe. Évite de convertir ce résultat en VMA exacte comme s'il s'agissait d'un VAMEVAL.</p>
+    <p><strong>En préparation :</strong> il renseigne sur ta capacité à soutenir une allure élevée dans la durée. Il complète le test VMA en donnant une indication sur l'endurance aérobie, mais ne permet pas à lui seul d'identifier précisément ton seuil lactique.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">4. LUC LÉGER — NAVETTES DE 20 M</h3>
+    <p><strong>Principe :</strong> courir des navettes de 20 mètres en suivant une bande sonore. La vitesse augmente progressivement par paliers. Le protocole standard débute généralement à 8,5 km/h, puis augmente de 0,5 km/h par palier.</p>
+    <p><strong>Son rôle :</strong> évaluer la capacité à suivre une vitesse croissante avec des changements de direction. Il est souvent utilisé dans les évaluations de terrain et les contextes sportifs ou de sélection.</p>
+    <p><strong>Comment lire le résultat :</strong> note le dernier palier entièrement validé et la vitesse terminale correspondante. Les demi-tours, les relances et la qualité des changements de direction influencent le résultat : cette vitesse terminale n'est pas directement équivalente à une VMA mesurée en course continue sur piste.</p>
+    <p><strong>En préparation :</strong> il peut aider à suivre une performance spécifique aux navettes. Pour programmer tes allures de course continue, préfère un test adapté à cette modalité, comme le VAMEVAL ou le Demi-Cooper.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">COMMENT CORRÉLER LES 4 TESTS ?</h3>
+    <p>Ne cherche pas à obtenir exactement le même chiffre. Cherche plutôt une cohérence entre les informations :</p>
+    <div class="vma-table-wrap">
+      <table class="vma-table">
+        <thead><tr><th>Comparaison</th><th>Ce que tu peux en tirer</th></tr></thead>
+        <tbody>
+          <tr><td><strong>VAMEVAL ↔ Demi-Cooper</strong></td><td>Deux estimations de VMA de terrain. Des résultats proches renforcent la cohérence du repère ; un écart peut venir du protocole, du pacing ou de la tolérance à l'effort.</td></tr>
+          <tr><td><strong>Cooper ↔ VAMEVAL / Demi-Cooper</strong></td><td>Le Cooper renseigne davantage sur la capacité à soutenir un effort de 12 minutes. Une bonne VMA avec un Cooper moins performant peut suggérer un axe de travail sur l'endurance aérobie et le maintien d'allure.</td></tr>
+          <tr><td><strong>Luc Léger ↔ tests continus</strong></td><td>Le Luc Léger ajoute une composante de relances et de demi-tours. Compare-le surtout à tes propres résultats précédents au Luc Léger, pas directement à une VMA de piste.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small-note">Les écarts ne suffisent pas à diagnostiquer une faiblesse physiologique. Vérifie d'abord le protocole, la surface, la météo, la fatigue, l'échauffement, la motivation et la régularité du test.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">COMMENT TRAVAILLER ENSUITE ?</h3>
+    <ul>
+      <li><strong>Construire l'endurance fondamentale :</strong> des sorties faciles et régulières pour développer la base aérobie et la capacité à accumuler du volume.</li>
+      <li><strong>Développer le seuil et l'endurance à allure soutenue :</strong> des blocs contrôlés, continus ou fractionnés, pour mieux maintenir une vitesse élevée sans partir trop vite.</li>
+      <li><strong>Travailler la VMA :</strong> des répétitions courtes ou moyennes à intensité élevée, avec une récupération adaptée et une technique de course maîtrisée.</li>
+      <li><strong>Développer l'allure spécifique :</strong> des séances à l'allure de l'objectif (par exemple 5 km, 10 km ou course HYROX), car la VMA seule ne prédit pas le résultat final.</li>
+    </ul>
+    <p class="small-note">Le choix du contenu dépend de l'objectif, du volume déjà toléré, de la récupération et des résultats croisés. Il n'est pas nécessaire de multiplier les séances intenses : la majorité du travail de course reste généralement facile.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">UNE MÉTHODE SIMPLE POUR SUIVRE TA PROGRESSION</h3>
+    <ol>
+      <li>Choisis un test principal pour établir ta référence de VMA (VAMEVAL ou Demi-Cooper, par exemple).</li>
+      <li>Note le protocole exact, la date, la distance ou le palier, les conditions et ton ressenti.</li>
+      <li>Utilise le Cooper comme information complémentaire sur l'effort soutenu, et le Luc Léger pour suivre spécifiquement ta performance en navettes.</li>
+      <li>Après un bloc d'entraînement, répète le même test principal dans des conditions comparables.</li>
+      <li>Observe aussi tes allures habituelles, ta fréquence cardiaque et ta capacité à récupérer : un seul chiffre ne résume pas ta condition physique.</li>
+    </ol>
   </div>
 </section>
 
