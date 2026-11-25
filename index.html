@@ -2631,6 +2631,41 @@ main {
       <div class="vma-kpi"><small>VITESSE À 90 %</small><strong id="vmaKpi90">14,4 km/h</strong></div>
     </div>
   </div>
+
+  <div class="panel" id="vmaTestsPanel">
+    <h3 style="margin-top:0">TESTS DE TERRAIN — CALCUL DE VMA</h3>
+    <p class="small-note">Sélectionne ton test puis renseigne le résultat brut obtenu. Le calcul est effectué automatiquement ; les tests ne donnent pas tous une mesure strictement équivalente de la VMA.</p>
+    <div class="planning-form-grid">
+      <div class="field">
+        <label for="vmaTestType">TEST RÉALISÉ</label>
+        <select id="vmaTestType">
+          <option value="vameval">VAMEVAL</option>
+          <option value="demicooper">DEMI-COOPER — 6 MIN</option>
+          <option value="cooper">COOPER — 12 MIN</option>
+          <option value="lucleger">LUC LÉGER — NAVETTE 20 M</option>
+        </select>
+      </div>
+      <div class="field" id="vmaTestStageField">
+        <label for="vmaTestStage">DERNIER PALIER ENTIÈREMENT VALIDÉ</label>
+        <input type="number" id="vmaTestStage" min="1" max="30" step="1" value="16" inputmode="numeric">
+      </div>
+      <div class="field" id="vmaTestDistanceField" style="display:none">
+        <label for="vmaTestDistance">DISTANCE PARCOURUE (MÈTRES)</label>
+        <input type="number" id="vmaTestDistance" min="1" max="10000" step="1" placeholder="Ex. : 1500" inputmode="numeric">
+      </div>
+    </div>
+    <div class="vma-kpis" style="margin-top:12px">
+      <div class="vma-kpi"><small id="vmaTestResultLabel">VMA ESTIMÉE</small><strong id="vmaTestResult">—</strong></div>
+      <div class="vma-kpi"><small>ALLURE CORRESPONDANTE</small><strong id="vmaTestPace">—</strong></div>
+      <div class="vma-kpi"><small>DONNÉE DU TEST</small><strong id="vmaTestRaw">—</strong></div>
+    </div>
+    <p class="small-note" id="vmaTestExplanation" style="margin-top:12px">VAMEVAL : départ à 8 km/h, puis +0,5 km/h par palier d'une minute. La vitesse du dernier palier entièrement validé donne l'estimation de VMA.</p>
+    <div class="actions" style="margin-top:12px">
+      <button class="primary" type="button" id="applyVmaTestBtn">UTILISER CE RÉSULTAT COMME VMA DE RÉFÉRENCE</button>
+    </div>
+    <p class="small-note" id="vmaTestApplyNote">Le résultat sera reporté dans le champ « Ta VMA » et recalculera le tableau des allures.</p>
+  </div>
+
   <div class="panel">
     <h3 style="margin-top:0">CALCULER UNE INTENSITÉ PRÉCISE</h3>
     <div class="planning-form-grid">
@@ -6279,6 +6314,81 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
   stepInput.addEventListener('change',render);
   $('vmaCustomPercent').addEventListener('input',renderCustom);
   render();
+})();
+</script>
+
+
+<script>
+/* ================= TESTS VMA ================= */
+(function(){
+  const $ = id => document.getElementById(id);
+  const type=$('vmaTestType'), stage=$('vmaTestStage'), distance=$('vmaTestDistance');
+  const stageField=$('vmaTestStageField'), distanceField=$('vmaTestDistanceField');
+  if(!type || !stage || !distance) return;
+
+  const pace = speed => {
+    if(!Number.isFinite(speed) || speed<=0) return '—';
+    const sec=Math.round(3600/speed);
+    return `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')} /km`;
+  };
+  const fmt = n => n.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1});
+  let currentResult=null;
+
+  function calculate(){
+    const t=type.value, palier=Number(stage.value), metres=Number(distance.value);
+    stageField.style.display = (t==='vameval'||t==='lucleger') ? '' : 'none';
+    distanceField.style.display = (t==='demicooper'||t==='cooper') ? '' : 'none';
+
+    let result=null, label='VMA ESTIMÉE', raw='—', explanation='';
+    if(t==='vameval'){
+      if(Number.isInteger(palier)&&palier>=1&&palier<=30) result=8+0.5*(palier-1);
+      raw=`Palier ${palier||'—'}`;
+      explanation="VAMEVAL : départ à 8 km/h, puis +0,5 km/h par palier d'une minute. Le résultat correspond à la vitesse du dernier palier entièrement validé.";
+    } else if(t==='demicooper'){
+      if(Number.isFinite(metres)&&metres>0) result=metres/100;
+      raw=metres>0?`${Math.round(metres)} m en 6 min`:'Distance non renseignée';
+      explanation="Demi-Cooper : cours la plus grande distance possible en 6 minutes. Estimation de VMA = distance parcourue (en mètres) ÷ 100.";
+    } else if(t==='cooper'){
+      if(Number.isFinite(metres)&&metres>0){
+        const vo2=(metres-504.9)/44.73;
+        result=vo2/3.5;
+      }
+      raw=metres>0?`${Math.round(metres)} m en 12 min`:'Distance non renseignée';
+      label='VMA ESTIMÉE (INDIRECTE)';
+      explanation="Cooper : cours la plus grande distance possible en 12 minutes. Estimation indirecte : VO₂max = (distance − 504,9) ÷ 44,73, puis VMA estimée = VO₂max ÷ 3,5. Cette conversion reste une approximation.";
+    } else {
+      // Luc Léger standard 20 m: starting speed 8.5 km/h, +0.5 km/h per stage.
+      if(Number.isInteger(palier)&&palier>=1&&palier<=30) result=8.5+0.5*(palier-1);
+      label='VITESSE DU DERNIER PALIER';
+      raw=`Palier ${palier||'—'}`;
+      explanation="Luc Léger : navettes de 20 m, départ à 8,5 km/h puis +0,5 km/h par palier (version standard). Le résultat affiché est la vitesse terminale de la navette : les demi-tours modifient le coût énergétique, elle ne doit donc pas être assimilée directement à une VMA de course sur piste.";
+    }
+
+    currentResult=(Number.isFinite(result)&&result>=5&&result<=30)?result:null;
+    $('vmaTestResultLabel').textContent=label;
+    $('vmaTestResult').textContent=currentResult?`${fmt(currentResult)} km/h`:'—';
+    $('vmaTestPace').textContent=currentResult?pace(currentResult):'—';
+    $('vmaTestRaw').textContent=raw;
+    $('vmaTestExplanation').textContent=explanation;
+    $('applyVmaTestBtn').disabled=!currentResult || t==='lucleger';
+    $('vmaTestApplyNote').textContent=t==='lucleger'
+      ? "Pour le Luc Léger, la vitesse terminale est affichée comme résultat de navette. Elle n'est pas reportée automatiquement comme VMA de course."
+      : "Le résultat sera reporté dans le champ « Ta VMA » et recalculera le tableau des allures.";
+  }
+
+  type.addEventListener('change',calculate);
+  stage.addEventListener('input',calculate);
+  distance.addEventListener('input',calculate);
+  $('applyVmaTestBtn').addEventListener('click',()=>{
+    if(!currentResult || type.value==='lucleger') return;
+    const input=$('vmaInput');
+    if(input){
+      input.value=currentResult.toFixed(1);
+      input.dispatchEvent(new Event('input',{bubbles:true}));
+      $('vmaPage')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+  });
+  calculate();
 })();
 </script>
 
