@@ -1892,6 +1892,23 @@ main {
   }
 }
 
+
+/* ================= CALCULATEUR VMA / ALLURES ================= */
+.vma-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:14px 0}
+.vma-kpi{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px}
+.vma-kpi small{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.7px}
+.vma-kpi strong{display:block;font-size:23px;margin-top:7px}
+.vma-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+.vma-table{width:100%;border-collapse:collapse;min-width:560px;font-size:12px}
+.vma-table th,.vma-table td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.vma-table th{font-size:10px;color:var(--muted);letter-spacing:.6px;background:var(--panel2)}
+.vma-table tr:last-child td{border-bottom:0}
+.vma-zone{display:inline-block;border-radius:6px;padding:5px 8px;font-size:10px;font-weight:900;background:var(--panel2);color:var(--text)}
+.vma-zone.z1{color:#8da0b5}.vma-zone.z2{color:#45a3ff}.vma-zone.z3{color:#26c281}.vma-zone.z4{color:#ff9f1c}.vma-zone.z5{color:#ff5b5b}
+.vma-highlight{background:rgba(140,255,0,.07)}
+.vma-custom-result{margin-top:12px;padding:14px;border:1px solid var(--green);border-radius:10px;background:rgba(140,255,0,.07)}
+@media(max-width:600px){.vma-table th,.vma-table td{padding:9px 8px}.vma-kpi strong{font-size:20px}}
+
 </style>
 </head>
 
@@ -1962,6 +1979,9 @@ main {
     </button>
     <button class="hub-tile timer-tile" type="button" data-hub-page="timer">
       <span class="hub-tile-icon">◷</span><span class="hub-tile-copy"><strong>CHRONOMÈTRE</strong><small>Lancer un AMRAP, EMOM, TABATA, FOR TIME ou chrono libre</small></span>
+    </button>
+    <button class="hub-tile" type="button" data-hub-page="vmaPage">
+      <span class="hub-tile-icon">↗</span><span class="hub-tile-copy"><strong>VMA &amp; ALLURES</strong><small>Convertir chaque pourcentage de VMA en vitesse et allure au kilomètre</small></span>
     </button>
     <button class="hub-tile history-tile" type="button" data-hub-page="historyPage">
       <span class="hub-tile-icon">↺</span><span class="hub-tile-copy"><strong>HISTORIQUE</strong><small>Retrouver les séances réalisées et enregistrées</small></span>
@@ -2590,6 +2610,44 @@ main {
       <div class="actions"><button class="primary" id="planningSaveBtn" type="submit">ENREGISTRER LA SÉANCE</button><button class="secondary" id="planningSaveToLibrary" type="button">ENREGISTRER AUSSI DANS LA BIBLIOTHÈQUE WOD</button><button class="secondary danger-btn hidden" id="planningDeleteFromEditor" type="button">SUPPRIMER LA SÉANCE</button></div>
       <p class="small-note" id="planningFormStatus"></p>
     </form>
+  </div>
+</section>
+
+<!-- VMA / ALLURES -->
+<section id="vmaPage" class="page">
+  <div class="planning-page-heading">
+    <div><div class="planning-eyebrow">OUTIL DE PRÉPARATION PHYSIQUE</div><h2>VMA &amp; ALLURES</h2><p class="muted">Table de correspondance entre le pourcentage de VMA, la vitesse et l’allure de course.</p></div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">PARAMÈTRE DE RÉFÉRENCE</h3>
+    <div class="planning-form-grid">
+      <div class="field"><label for="vmaInput">TA VMA (KM/H)</label><input type="number" id="vmaInput" min="5" max="30" step="0.1" value="16.0" inputmode="decimal" placeholder="Ex. : 16.0"></div>
+      <div class="field"><label for="vmaStep">INCRÉMENT DU TABLEAU</label><select id="vmaStep"><option value="5">Tous les 5 %</option><option value="1">Tous les 1 %</option><option value="2">Tous les 2 %</option><option value="10">Tous les 10 %</option></select></div>
+    </div>
+    <p class="small-note">Modifie la VMA pour recalculer automatiquement toutes les vitesses et allures. La valeur est conservée sur cet appareil.</p>
+    <div class="vma-kpis">
+      <div class="vma-kpi"><small>VMA DE RÉFÉRENCE</small><strong id="vmaKpiSpeed">16,0 km/h</strong></div>
+      <div class="vma-kpi"><small>ALLURE À 100 % VMA</small><strong id="vmaKpiPace">3:45 /km</strong></div>
+      <div class="vma-kpi"><small>VITESSE À 90 %</small><strong id="vmaKpi90">14,4 km/h</strong></div>
+    </div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">CALCULER UNE INTENSITÉ PRÉCISE</h3>
+    <div class="planning-form-grid">
+      <div class="field"><label for="vmaCustomPercent">POURCENTAGE DE VMA (%)</label><input type="number" id="vmaCustomPercent" min="30" max="150" step="0.5" value="85" inputmode="decimal"></div>
+      <div class="field"><label>ZONE PHYSIOLOGIQUE INDICATIVE</label><div id="vmaCustomZone" class="vma-custom-result">Endurance active / aérobie</div></div>
+    </div>
+    <div class="vma-custom-result" id="vmaCustomResult">13,6 km/h · 4:25 /km</div>
+  </div>
+  <div class="panel">
+    <h3 style="margin-top:0">TABLEAU DES ZONES ET DES ALLURES</h3>
+    <div class="vma-table-wrap">
+      <table class="vma-table">
+        <thead><tr><th>% VMA</th><th>VITESSE</th><th>ALLURE / KM</th><th>ZONE / OBJECTIF</th></tr></thead>
+        <tbody id="vmaTableBody"></tbody>
+      </table>
+    </div>
+    <p class="small-note" style="margin-top:12px">Repères indicatifs : les seuils physiologiques varient selon le profil, le protocole de test et la durée soutenable. Le pourcentage de VMA ne permet pas, à lui seul, de déterminer précisément les seuils lactiques ou la VO₂max. À affiner avec tes données de terrain et tes tests.</p>
   </div>
 </section>
 
@@ -6164,6 +6222,63 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
  function openMovementDetail(id){const m=movements.find(x=>x.id===id);if(!m)return;$('movementDetailContent').innerHTML=`<h2 id="movementDetailTitle">${m.fr} — ${m.name}</h2>${movementImageMarkup(m,true)}<span class="tag">${m.family}</span><span class="tag">${m.equipment}</span><h3>Description</h3><p>${m.desc}</p><h3>Muscles sollicités</h3><p>${m.muscles}</p>${m.steps?.length?`<h3>Consignes techniques</h3><ol>${m.steps.map(x=>`<li>${x}</li>`).join('')}</ol>`:''}${m.cautions?.length?`<h3>Points de vigilance</h3><ul>${m.cautions.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}${m.benefits?.length?`<h3>Bénéfices</h3><ul>${m.benefits.map(x=>`<li>${x}</li>`).join('')}</ul>`:''}${m.variations?.length?`<h3>Variantes</h3><p>${m.variations.join(' · ')}</p>`:''}${m.source?`<a class="movement-source-link" href="${m.source}" target="_blank" rel="noopener noreferrer">Consulter la fiche Lift Manual ↗</a>`:''}`;$('movementDetailModal').classList.remove('hidden');}
  window.WODFactoryMovements = movements; window.WODFactoryOpenMovementDetail = openMovementDetail; renderTimerDemoPreview(); renderManualDemoPreview();
  $('movementSearch')?.addEventListener('input',renderLibrary);$('movementCategory')?.addEventListener('change',renderLibrary);$('movementResults')?.addEventListener('click',e=>{if(e.target.closest('a'))return;const card=e.target.closest('[data-detail]');if(card)openMovementDetail(card.dataset.detail)});$('movementResults')?.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('[data-detail]')){e.preventDefault();openMovementDetail(e.target.closest('[data-detail]').dataset.detail)}});$('closeMovementDetail')?.addEventListener('click',()=>$('movementDetailModal').classList.add('hidden'));$('movementDetailModal')?.addEventListener('click',e=>{if(e.target===$('movementDetailModal'))$('movementDetailModal').classList.add('hidden')});renderLibrary();
+})();
+</script>
+
+
+<script>
+/* ================= VMA / ALLURES ================= */
+(function(){
+  const $ = id => document.getElementById(id);
+  const vmaInput=$('vmaInput'), stepInput=$('vmaStep'), body=$('vmaTableBody');
+  if(!vmaInput || !body) return;
+  try {
+    const saved=localStorage.getItem('wodFactoryVMA');
+    if(saved && Number.isFinite(Number(saved))) vmaInput.value=saved;
+  } catch(e) {}
+  function pace(speed){
+    if(!Number.isFinite(speed)||speed<=0) return '—';
+    const total=Math.round(3600/speed);
+    return `${Math.floor(total/60)}:${String(total%60).padStart(2,'0')}`;
+  }
+  function zone(p){
+    if(p<60) return ['Récupération / endurance très facile','z1'];
+    if(p<70) return ['Endurance fondamentale','z2'];
+    if(p<80) return ['Endurance active / aérobie','z3'];
+    if(p<90) return ['Tempo / seuil bas (approche)','z4'];
+    if(p<100) return ['Seuil haut / travail proche du seuil','z4'];
+    if(p<=105) return ['VMA','z5'];
+    return ['VO₂max / puissance aérobie','z5'];
+  }
+  function fmt(n){return n.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1});}
+  function render(){
+    const v=Number(vmaInput.value), step=Math.max(1,Number(stepInput.value)||5);
+    if(!Number.isFinite(v)||v<5||v>30){body.innerHTML='<tr><td colspan="4">Saisis une VMA comprise entre 5 et 30 km/h.</td></tr>';return;}
+    try{localStorage.setItem('wodFactoryVMA',String(v));}catch(e){}
+    $('vmaKpiSpeed').textContent=fmt(v)+' km/h';
+    $('vmaKpiPace').textContent=pace(v)+' /km';
+    $('vmaKpi90').textContent=fmt(v*.9)+' km/h';
+    const rows=[];
+    for(let p=50;p<=120;p+=step) rows.push(p);
+    if(!rows.includes(100)) rows.push(100);
+    rows.sort((a,b)=>a-b);
+    body.innerHTML=rows.map(p=>{
+      const speed=v*p/100, z=zone(p);
+      return `<tr class="${p===100?'vma-highlight':''}"><td><strong>${p} %</strong></td><td>${fmt(speed)} km/h</td><td>${pace(speed)} /km</td><td><span class="vma-zone ${z[1]}">${z[0]}</span></td></tr>`;
+    }).join('');
+    renderCustom();
+  }
+  function renderCustom(){
+    const p=Number($('vmaCustomPercent').value), v=Number(vmaInput.value);
+    if(!Number.isFinite(p)||!Number.isFinite(v)||v<=0){$('vmaCustomResult').textContent='Saisis un pourcentage valide.';return;}
+    const z=zone(p);
+    $('vmaCustomZone').textContent=z[0];
+    $('vmaCustomResult').textContent=`${fmt(v*p/100)} km/h · ${pace(v*p/100)} /km à ${fmt(p)} % VMA`;
+  }
+  vmaInput.addEventListener('input',render);
+  stepInput.addEventListener('change',render);
+  $('vmaCustomPercent').addEventListener('input',renderCustom);
+  render();
 })();
 </script>
 
