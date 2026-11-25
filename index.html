@@ -1907,6 +1907,18 @@ main {
 .vma-zone.z1{color:#8da0b5}.vma-zone.z2{color:#45a3ff}.vma-zone.z3{color:#26c281}.vma-zone.z4{color:#ff9f1c}.vma-zone.z5{color:#ff5b5b}
 .vma-highlight{background:rgba(140,255,0,.07)}
 .vma-custom-result{margin-top:12px;padding:14px;border:1px solid var(--green);border-radius:10px;background:rgba(140,255,0,.07)}
+.vma-zone.z1,.vma-custom-result.z1{--zone-color:#94a3b8}
+.vma-zone.z2,.vma-custom-result.z2{--zone-color:#3298ff}
+.vma-zone.z3,.vma-custom-result.z3{--zone-color:#20b879}
+.vma-zone.z4,.vma-custom-result.z4{--zone-color:#f0a329}
+.vma-zone.z5,.vma-custom-result.z5{--zone-color:#e05252}
+.vma-custom-result.z1,.vma-custom-result.z2,.vma-custom-result.z3,.vma-custom-result.z4,.vma-custom-result.z5{border:1px solid var(--zone-color);background:color-mix(in srgb,var(--zone-color) 12%,transparent);color:var(--text)}
+.vma-zone{background:color-mix(in srgb,var(--zone-color,#94a3b8) 14%,transparent);color:var(--zone-color,#94a3b8)}
+.vma-accordion-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;gap:12px;padding:0;background:transparent;border:0;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.vma-accordion-toggle h3{margin:0}
+.vma-accordion-chevron{font-size:20px;transition:transform .2s ease}
+.vma-accordion-toggle[aria-expanded="false"] .vma-accordion-chevron{transform:rotate(-90deg)}
+
 @media(max-width:600px){.vma-table th,.vma-table td{padding:9px 8px}.vma-kpi strong{font-size:20px}}
 
 </style>
@@ -2670,19 +2682,24 @@ main {
     <h3 style="margin-top:0">CALCULER UNE INTENSITÉ PRÉCISE</h3>
     <div class="planning-form-grid">
       <div class="field"><label for="vmaCustomPercent">POURCENTAGE DE VMA (%)</label><input type="number" id="vmaCustomPercent" min="30" max="150" step="0.5" value="85" inputmode="decimal"></div>
-      <div class="field"><label>ZONE PHYSIOLOGIQUE INDICATIVE</label><div id="vmaCustomZone" class="vma-custom-result">Endurance active / aérobie</div></div>
+      <div class="field"><label>ZONE PHYSIOLOGIQUE INDICATIVE</label><div id="vmaCustomZone" class="vma-custom-result z3">Endurance active / aérobie</div></div>
     </div>
-    <div class="vma-custom-result" id="vmaCustomResult">13,6 km/h · 4:25 /km</div>
+    <div class="vma-custom-result z3" id="vmaCustomResult">13,6 km/h · 4:25 /km</div>
   </div>
   <div class="panel">
-    <h3 style="margin-top:0">TABLEAU DES ZONES ET DES ALLURES</h3>
-    <div class="vma-table-wrap">
-      <table class="vma-table">
-        <thead><tr><th>% VMA</th><th>VITESSE</th><th>ALLURE / KM</th><th>ZONE / OBJECTIF</th></tr></thead>
-        <tbody id="vmaTableBody"></tbody>
-      </table>
+    <button type="button" class="vma-accordion-toggle" id="vmaZonesToggle" aria-expanded="true" aria-controls="vmaZonesContent">
+      <h3>TABLEAU DES ZONES ET DES ALLURES</h3>
+      <span class="vma-accordion-chevron" aria-hidden="true">⌄</span>
+    </button>
+    <div id="vmaZonesContent" style="margin-top:14px">
+      <div class="vma-table-wrap">
+        <table class="vma-table">
+          <thead><tr><th>% VMA</th><th>VITESSE</th><th>ALLURE / KM</th><th>ZONE / OBJECTIF</th></tr></thead>
+          <tbody id="vmaTableBody"></tbody>
+        </table>
+      </div>
+      <p class="small-note" style="margin-top:12px">Repères indicatifs : les seuils physiologiques varient selon le profil, le protocole de test et la durée soutenable. Le pourcentage de VMA ne permet pas, à lui seul, de déterminer précisément les seuils lactiques ou la VO₂max. À affiner avec tes données de terrain et tes tests.</p>
     </div>
-    <p class="small-note" style="margin-top:12px">Repères indicatifs : les seuils physiologiques varient selon le profil, le protocole de test et la durée soutenable. Le pourcentage de VMA ne permet pas, à lui seul, de déterminer précisément les seuils lactiques ou la VO₂max. À affiner avec tes données de terrain et tes tests.</p>
   </div>
 </section>
 
@@ -6308,8 +6325,17 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
     if(!Number.isFinite(p)||!Number.isFinite(v)||v<=0){$('vmaCustomResult').textContent='Saisis un pourcentage valide.';return;}
     const z=zone(p);
     $('vmaCustomZone').textContent=z[0];
+    $('vmaCustomZone').className=`vma-custom-result ${z[1]}`;
     $('vmaCustomResult').textContent=`${fmt(v*p/100)} km/h · ${pace(v*p/100)} /km à ${fmt(p)} % VMA`;
+    $('vmaCustomResult').className=`vma-custom-result ${z[1]}`;
   }
+  const zonesToggle=$('vmaZonesToggle'), zonesContent=$('vmaZonesContent');
+  zonesToggle?.addEventListener('click',()=>{
+    const expanded=zonesToggle.getAttribute('aria-expanded')==='true';
+    zonesToggle.setAttribute('aria-expanded',String(!expanded));
+    zonesContent.hidden=expanded;
+    zonesToggle.querySelector('.vma-accordion-chevron').textContent=expanded?'›':'⌄';
+  });
   vmaInput.addEventListener('input',render);
   stepInput.addEventListener('change',render);
   $('vmaCustomPercent').addEventListener('input',renderCustom);
