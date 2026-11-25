@@ -1921,6 +1921,24 @@ main {
 
 @media(max-width:600px){.vma-table th,.vma-table td{padding:9px 8px}.vma-kpi strong{font-size:20px}}
 
+
+/* Calculateur fréquence cardiaque - Karvonen */
+.karvonen-input-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.karvonen-result-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+.karvonen-kpi{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:14px;min-width:0}
+.karvonen-kpi small{display:block;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:.04em}
+.karvonen-kpi strong{display:block;font-size:clamp(20px,3vw,27px);margin-top:7px}
+.karvonen-zone{display:inline-flex;align-items:center;padding:5px 9px;border-radius:7px;font-size:12px;font-weight:800;white-space:nowrap}
+.karvonen-z1{--kz:#94a3b8}.karvonen-z2{--kz:#3298ff}.karvonen-z3{--kz:#20b879}.karvonen-z4{--kz:#f0a329}.karvonen-z5{--kz:#e05252}
+.karvonen-zone.karvonen-z1,.karvonen-zone.karvonen-z2,.karvonen-zone.karvonen-z3,.karvonen-zone.karvonen-z4,.karvonen-zone.karvonen-z5{background:color-mix(in srgb,var(--kz) 17%,transparent);color:var(--kz)}
+.karvonen-table{width:100%;border-collapse:collapse;min-width:520px}
+.karvonen-table th,.karvonen-table td{padding:11px 12px;border-bottom:1px solid var(--border);text-align:left}
+.karvonen-table th{color:var(--muted);font-size:11px}
+.karvonen-table td{font-size:14px}
+.karvonen-highlight{background:color-mix(in srgb,var(--green) 9%,transparent)}
+.karvonen-formula{padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);font-weight:700;text-align:center;line-height:1.7}
+@media(max-width:650px){.karvonen-input-grid,.karvonen-result-grid{grid-template-columns:1fr}.karvonen-table th,.karvonen-table td{padding:9px 8px}}
+
 </style>
 
 <style>
@@ -1980,6 +1998,7 @@ main {
   <button class="tab" data-page="timer"><span class="tab-icon">◷</span><span class="tab-text">CHRONOMÈTRE</span></button>
   <button class="tab" data-page="historyPage"><span class="tab-icon">↺</span><span class="tab-text">HISTORIQUE</span></button>
   <button class="tab" data-page="interpretationPage"><span class="tab-icon">ⓘ</span><span class="tab-text">INTERPRÉTATION TEST</span></button>
+  <button class="tab" data-page="karvonenPage"><span class="tab-icon">♥</span><span class="tab-text">FC KARVONEN</span></button>
   <div class="sidebar-footer">PRÉPARATION · PERFORMANCE</div>
 </nav>
 
@@ -2016,6 +2035,9 @@ main {
     </button>
     <button class="hub-tile" type="button" data-hub-page="interpretationPage">
       <span class="hub-tile-icon">ⓘ</span><span class="hub-tile-copy"><strong>INTERPRÉTATION TEST</strong><small>Comprendre les tests de terrain et exploiter leurs résultats en préparation</small></span>
+    </button>
+    <button class="hub-tile" type="button" data-hub-page="karvonenPage">
+      <span class="hub-tile-icon">♥</span><span class="hub-tile-copy"><strong>FRÉQUENCE CARDIAQUE</strong><small>Calculer tes zones d'entraînement avec la formule de Karvonen</small></span>
     </button>
   </div>
   <div class="hub-bottom-note">Toutes tes fonctionnalités existantes restent accessibles. Cet accueil est une nouvelle porte d’entrée : il ne remplace ni le planning, ni la bibliothèque, ni le chronomètre, ni l’historique, ni l’interprétation des tests.</div>
@@ -2722,6 +2744,83 @@ main {
   </div>
 </section>
 
+
+
+<!-- CALCULATEUR FC KARVONEN -->
+<section id="karvonenPage" class="page">
+  <div class="planning-page-heading">
+    <div>
+      <div class="planning-eyebrow">OUTIL DE PRÉPARATION PHYSIQUE</div>
+      <h2>FRÉQUENCE CARDIAQUE — KARVONEN</h2>
+      <p class="muted">Calcul de tes fréquences cardiaques cibles à partir de la fréquence cardiaque de réserve.</p>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">1. RENSEIGNE TES FRÉQUENCES CARDIAQUES</h3>
+    <div class="karvonen-input-grid">
+      <div class="field">
+        <label for="karvonenMax">FC MAXIMALE (BPM)</label>
+        <input type="number" id="karvonenMax" min="100" max="240" step="1" value="196" inputmode="numeric">
+        <small class="small-note">Privilégie une FC max réellement observée lors d'un effort maximal ou d'un test adapté.</small>
+      </div>
+      <div class="field">
+        <label for="karvonenRest">FC AU REPOS (BPM)</label>
+        <input type="number" id="karvonenRest" min="25" max="120" step="1" value="46" inputmode="numeric">
+        <small class="small-note">À mesurer au calme, idéalement au réveil, sur plusieurs jours.</small>
+      </div>
+    </div>
+    <div class="karvonen-result-grid">
+      <div class="karvonen-kpi"><small>FRÉQUENCE CARDIAQUE DE RÉSERVE</small><strong id="karvonenReserve">150 bpm</strong></div>
+      <div class="karvonen-kpi"><small>FC MAXIMALE UTILISÉE</small><strong id="karvonenMaxDisplay">196 bpm</strong></div>
+      <div class="karvonen-kpi"><small>FC AU REPOS UTILISÉE</small><strong id="karvonenRestDisplay">46 bpm</strong></div>
+    </div>
+    <p class="small-note" style="margin-top:12px">Valeurs initiales modifiables : vérifie-les avant d'utiliser les zones pour programmer tes séances.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">2. CALCULER UNE INTENSITÉ CIBLE</h3>
+    <div class="field">
+      <label for="karvonenIntensity">INTENSITÉ (% DE LA FC DE RÉSERVE)</label>
+      <input type="number" id="karvonenIntensity" min="40" max="100" step="1" value="70" inputmode="numeric">
+    </div>
+    <div class="karvonen-result-grid">
+      <div class="karvonen-kpi"><small>FC CIBLE</small><strong id="karvonenTarget">151 bpm</strong></div>
+      <div class="karvonen-kpi"><small>ZONE INDICATIVE</small><strong id="karvonenZone" class="karvonen-zone karvonen-z3">Z3 · Aérobie</strong></div>
+      <div class="karvonen-kpi"><small>PLAGE DE TRAVAIL</small><strong id="karvonenRange">—</strong></div>
+    </div>
+    <p class="small-note" id="karvonenInterpretation" style="margin-top:12px">Intensité indicative calculée avec la formule de Karvonen.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">3. TABLEAU DES ZONES CARDIAQUES</h3>
+    <div style="overflow-x:auto">
+      <table class="karvonen-table">
+        <thead><tr><th>ZONE</th><th>INTENSITÉ FC RÉSERVE</th><th>FC CIBLE</th><th>ORIENTATION</th></tr></thead>
+        <tbody id="karvonenZonesBody"></tbody>
+      </table>
+    </div>
+    <p class="small-note" style="margin-top:12px">Les zones ci-dessous sont des repères pratiques basés sur le pourcentage de réserve cardiaque, pas des seuils physiologiques mesurés. Les frontières peuvent varier selon les méthodes de zonage et le profil de l'athlète.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">4. COMPRENDRE LA FORMULE</h3>
+    <div class="karvonen-formula">FC cible = FC repos + (% intensité × (FC max − FC repos))</div>
+    <p>La formule de Karvonen utilise la <strong>fréquence cardiaque de réserve</strong> : FC maximale moins FC au repos. Elle tient donc compte de ta FC de repos, contrairement à un calcul simple en pourcentage de FC maximale.</p>
+    <p class="small-note">Exemple avec FC max 196 bpm, FC repos 46 bpm et intensité 70 % : 46 + (0,70 × 150) = 151 bpm.</p>
+  </div>
+
+  <div class="panel">
+    <h3 style="margin-top:0">5. COMMENT L'UTILISER EN ENTRAÎNEMENT ?</h3>
+    <ul>
+      <li><strong>Endurance fondamentale :</strong> utilise une zone basse et vérifie que l'effort reste facile, avec une respiration maîtrisée et la possibilité de parler.</li>
+      <li><strong>Endurance active :</strong> effort plus soutenu, mais encore contrôlé.</li>
+      <li><strong>Seuil :</strong> les zones hautes peuvent servir de repères, mais le seuil réel ne se détermine pas uniquement avec Karvonen.</li>
+      <li><strong>Intervalles VO₂max :</strong> la FC monte progressivement ; ne cherche pas à atteindre la cible dès les premières secondes d'une répétition courte.</li>
+    </ul>
+    <p class="small-note">La fréquence cardiaque varie avec la chaleur, la fatigue, l'hydratation, le stress, le sommeil et certains médicaments. Croise toujours la FC avec l'allure, le ressenti (RPE) et le contexte de la séance.</p>
+  </div>
+</section>
 
 <!-- INTERPRETATION DES TESTS -->
 <section id="interpretationPage" class="page">
@@ -6581,6 +6680,67 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
   $('diagResetBtn').addEventListener('click',()=>{ids.forEach(id=>{const el=$(id);if(!el)return;el.value=el.tagName==='SELECT'?(id==='diagGoal'?'10k':id==='diagEasy'||id==='diagThreshold'||id==='diagIntervals'?'unknown':''):''});$('diagVma').value='';axes.innerHTML='';cautions.innerHTML='';summary.textContent='Aucune analyse réalisée pour le moment.';$('diagIntro').textContent='Renseigne les informations ci-dessus puis lance l’analyse.'});
   // La VMA de l'onglet Allures démarre avec une valeur par défaut : ne pas la recopier ici comme si elle avait été testée. L'utilisateur renseigne uniquement une valeur qu'il connaît.
 })();
+
+// Calculateur FC selon la formule de Karvonen
+(function(){
+  const $ = id => document.getElementById(id);
+  const maxInput=$('karvonenMax'), restInput=$('karvonenRest'), intensityInput=$('karvonenIntensity');
+  if(!maxInput || !restInput || !intensityInput) return;
+
+  const zones=[
+    {min:50,max:60,code:'Z1',name:'Récupération',className:'karvonen-z1',detail:'Récupération et effort très facile'},
+    {min:60,max:70,code:'Z2',name:'Endurance fondamentale',className:'karvonen-z2',detail:'Endurance fondamentale'},
+    {min:70,max:80,code:'Z3',name:'Aérobie active',className:'karvonen-z3',detail:'Endurance active / aérobie'},
+    {min:80,max:90,code:'Z4',name:'Seuil indicatif',className:'karvonen-z4',detail:'Effort soutenu / proche du seuil'},
+    {min:90,max:100,code:'Z5',name:'Haute intensité',className:'karvonen-z5',detail:'Intensité élevée / travail VO₂max'}
+  ];
+  const round = n => Math.round(n);
+  const zoneFor = p => zones.find((z,i)=>p>=z.min && (p<z.max || (i===zones.length-1 && p<=z.max))) || null;
+  let reserve=150, resting=46, max=196;
+
+  function calculate(){
+    max=Number(maxInput.value); resting=Number(restInput.value);
+    const valid=Number.isFinite(max)&&Number.isFinite(resting)&&max>=100&&max<=240&&resting>=25&&resting<=120&&max>resting;
+    if(!valid){
+      $('karvonenReserve').textContent='—';
+      $('karvonenTarget').textContent='—';
+      $('karvonenZone').textContent='Valeurs à vérifier';
+      $('karvonenRange').textContent='—';
+      $('karvonenInterpretation').textContent='Saisis une FC max valide, supérieure à la FC de repos.';
+      $('karvonenZonesBody').innerHTML='<tr><td colspan="4">Vérifie les deux fréquences cardiaques.</td></tr>';
+      return;
+    }
+    reserve=max-resting;
+    $('karvonenReserve').textContent=`${reserve} bpm`;
+    $('karvonenMaxDisplay').textContent=`${max} bpm`;
+    $('karvonenRestDisplay').textContent=`${resting} bpm`;
+
+    const p=Number(intensityInput.value);
+    if(!Number.isFinite(p)||p<40||p>100){
+      $('karvonenTarget').textContent='—';
+      $('karvonenZone').textContent='Intensité à vérifier';
+      $('karvonenRange').textContent='—';
+      $('karvonenInterpretation').textContent='Saisis une intensité comprise entre 40 et 100 %.';
+    } else {
+      const target=round(resting+(p/100)*reserve);
+      const z=zoneFor(p);
+      $('karvonenTarget').textContent=`${target} bpm`;
+      $('karvonenZone').textContent=z?`${z.code} · ${z.name}`:'Hors zone';
+      $('karvonenZone').className=`karvonen-zone ${z?z.className:''}`;
+      $('karvonenRange').textContent=z?`${round(resting+z.min/100*reserve)}–${round(resting+z.max/100*reserve)} bpm`:'—';
+      $('karvonenInterpretation').textContent=z?`${p} % de réserve cardiaque : ${z.detail}. Repère indicatif, à croiser avec le ressenti et les données de terrain.`:'Intensité hors des zones proposées.';
+    }
+
+    $('karvonenZonesBody').innerHTML=zones.map(z=>{
+      const lo=round(resting+z.min/100*reserve), hi=round(resting+z.max/100*reserve);
+      const active=Number.isFinite(p)&&p>=z.min&&(p<z.max||(z.max===100&&p<=100));
+      return `<tr class="${active?'karvonen-highlight':''}"><td><span class="karvonen-zone ${z.className}">${z.code}</span></td><td>${z.min}–${z.max} %</td><td><strong>${lo}–${hi} bpm</strong></td><td>${z.detail}</td></tr>`;
+    }).join('');
+  }
+  [maxInput,restInput,intensityInput].forEach(el=>el.addEventListener('input',calculate));
+  calculate();
+})();
+
 </script>
 
 </body>
