@@ -6519,8 +6519,128 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
   });
   calculate();
 })();
+
+
+// Calculateur FC selon la formule de Karvonen
+(function(){
+  const $ = id => document.getElementById(id);
+  const maxInput=$('karvonenMax'), restInput=$('karvonenRest'), intensityInput=$('karvonenIntensity');
+  if(!maxInput || !restInput || !intensityInput) return;
+
+  const zones=[
+    {min:50,max:60,code:'Z1',name:'Récupération',className:'karvonen-z1',detail:'Récupération et effort très facile'},
+    {min:60,max:70,code:'Z2',name:'Endurance fondamentale',className:'karvonen-z2',detail:'Endurance fondamentale'},
+    {min:70,max:80,code:'Z3',name:'Aérobie active',className:'karvonen-z3',detail:'Endurance active / aérobie'},
+    {min:80,max:90,code:'Z4',name:'Seuil indicatif',className:'karvonen-z4',detail:'Effort soutenu / proche du seuil'},
+    {min:90,max:100,code:'Z5',name:'Haute intensité',className:'karvonen-z5',detail:'Intensité élevée / travail VO₂max'}
+  ];
+  const round = n => Math.round(n);
+  const zoneFor = p => zones.find((z,i)=>p>=z.min && (p<z.max || (i===zones.length-1 && p<=z.max))) || null;
+  let reserve=150, resting=46, max=196;
+
+  function calculate(){
+    max=Number(maxInput.value); resting=Number(restInput.value);
+    const valid=Number.isFinite(max)&&Number.isFinite(resting)&&max>=100&&max<=240&&resting>=25&&resting<=120&&max>resting;
+    if(!valid){
+      $('karvonenReserve').textContent='—';
+      $('karvonenTarget').textContent='—';
+      $('karvonenZone').textContent='Valeurs à vérifier';
+      $('karvonenRange').textContent='—';
+      $('karvonenInterpretation').textContent='Saisis une FC max valide, supérieure à la FC de repos.';
+      $('karvonenZonesBody').innerHTML='<tr><td colspan="4">Vérifie les deux fréquences cardiaques.</td></tr>';
+      return;
+    }
+    reserve=max-resting;
+    $('karvonenReserve').textContent=`${reserve} bpm`;
+    $('karvonenMaxDisplay').textContent=`${max} bpm`;
+    $('karvonenRestDisplay').textContent=`${resting} bpm`;
+
+    const p=Number(intensityInput.value);
+    if(!Number.isFinite(p)||p<40||p>100){
+      $('karvonenTarget').textContent='—';
+      $('karvonenZone').textContent='Intensité à vérifier';
+      $('karvonenRange').textContent='—';
+      $('karvonenInterpretation').textContent='Saisis une intensité comprise entre 40 et 100 %.';
+    } else {
+      const target=round(resting+(p/100)*reserve);
+      const z=zoneFor(p);
+      $('karvonenTarget').textContent=`${target} bpm`;
+      $('karvonenZone').textContent=z?`${z.code} · ${z.name}`:'Hors zone';
+      $('karvonenZone').className=`karvonen-zone ${z?z.className:''}`;
+      $('karvonenRange').textContent=z?`${round(resting+z.min/100*reserve)}–${round(resting+z.max/100*reserve)} bpm`:'—';
+      $('karvonenInterpretation').textContent=z?`${p} % de réserve cardiaque : ${z.detail}. Repère indicatif, à croiser avec le ressenti et les données de terrain.`:'Intensité hors des zones proposées.';
+    }
+
+    $('karvonenZonesBody').innerHTML=zones.map(z=>{
+      const lo=round(resting+z.min/100*reserve), hi=round(resting+z.max/100*reserve);
+      const active=Number.isFinite(p)&&p>=z.min&&(p<z.max||(z.max===100&&p<=100));
+      return `<tr class="${active?'karvonen-highlight':''}"><td><span class="karvonen-zone ${z.className}">${z.code}</span></td><td>${z.min}–${z.max} %</td><td><strong>${lo}–${hi} bpm</strong></td><td>${z.detail}</td></tr>`;
+    }).join('');
+  }
+  [maxInput,restInput,intensityInput].forEach(el=>el.addEventListener('input',calculate));
+  calculate();
+})();
 </script>
 
+
+\n<script>
+// Initialisation indépendante du calculateur Karvonen
+(function initKarvonenStandalone(){
+  function init(){
+    const byId = id => document.getElementById(id);
+    const maxInput=byId('karvonenMax');
+    const restInput=byId('karvonenRest');
+    const intensityInput=byId('karvonenIntensity');
+    const required=['karvonenReserve','karvonenMaxDisplay','karvonenRestDisplay','karvonenTarget','karvonenZone','karvonenRange','karvonenInterpretation','karvonenZonesBody'];
+    if(!maxInput||!restInput||!intensityInput||required.some(id=>!byId(id))) return;
+
+    const zones=[
+      {min:50,max:60,code:'Z1',name:'Récupération',className:'karvonen-z1',detail:'Récupération et effort très facile'},
+      {min:60,max:70,code:'Z2',name:'Endurance fondamentale',className:'karvonen-z2',detail:'Endurance fondamentale'},
+      {min:70,max:80,code:'Z3',name:'Aérobie active',className:'karvonen-z3',detail:'Endurance active / aérobie'},
+      {min:80,max:90,code:'Z4',name:'Seuil indicatif',className:'karvonen-z4',detail:'Effort soutenu / proche du seuil'},
+      {min:90,max:100,code:'Z5',name:'Haute intensité',className:'karvonen-z5',detail:'Intensité élevée / travail VO₂max'}
+    ];
+    const round=n=>Math.round(n);
+    const zoneFor=p=>zones.find((z,i)=>p>=z.min&&(p<z.max||(i===zones.length-1&&p<=z.max)))||null;
+    function calculate(){
+      const max=Number(maxInput.value), resting=Number(restInput.value), p=Number(intensityInput.value);
+      const valid=Number.isFinite(max)&&Number.isFinite(resting)&&max>=100&&max<=240&&resting>=25&&resting<=120&&max>resting;
+      if(!valid){
+        byId('karvonenReserve').textContent='—'; byId('karvonenTarget').textContent='—';
+        byId('karvonenZone').textContent='Valeurs à vérifier'; byId('karvonenRange').textContent='—';
+        byId('karvonenInterpretation').textContent='Saisis une FC max valide, supérieure à la FC de repos.';
+        byId('karvonenZonesBody').innerHTML='<tr><td colspan="4">Vérifie les deux fréquences cardiaques.</td></tr>';
+        return;
+      }
+      const reserve=max-resting;
+      byId('karvonenReserve').textContent=reserve+' bpm';
+      byId('karvonenMaxDisplay').textContent=max+' bpm';
+      byId('karvonenRestDisplay').textContent=resting+' bpm';
+      const intensityValid=Number.isFinite(p)&&p>=40&&p<=100;
+      const z=intensityValid?zoneFor(p):null;
+      if(!intensityValid){
+        byId('karvonenTarget').textContent='—'; byId('karvonenZone').textContent='Intensité à vérifier';
+        byId('karvonenRange').textContent='—'; byId('karvonenInterpretation').textContent='Saisis une intensité comprise entre 40 et 100 %.';
+      }else{
+        byId('karvonenTarget').textContent=round(resting+(p/100)*reserve)+' bpm';
+        byId('karvonenZone').textContent=z?z.code+' · '+z.name:'Hors zone';
+        byId('karvonenZone').className='karvonen-zone '+(z?z.className:'');
+        byId('karvonenRange').textContent=z?round(resting+z.min/100*reserve)+'–'+round(resting+z.max/100*reserve)+' bpm':'—';
+        byId('karvonenInterpretation').textContent=z?p+' % de réserve cardiaque : '+z.detail+'. Repère indicatif, à croiser avec le ressenti et les données de terrain.':'Intensité hors des zones proposées.';
+      }
+      byId('karvonenZonesBody').innerHTML=zones.map(z=>{
+        const lo=round(resting+z.min/100*reserve), hi=round(resting+z.max/100*reserve);
+        const active=intensityValid&&p>=z.min&&(p<z.max||(z.max===100&&p<=100));
+        return '<tr class="'+(active?'karvonen-highlight':'')+'"><td><span class="karvonen-zone '+z.className+'">'+z.code+'</span></td><td>'+z.min+'–'+z.max+' %</td><td><strong>'+lo+'–'+hi+' bpm</strong></td><td>'+z.detail+'</td></tr>';
+      }).join('');
+    }
+    [maxInput,restInput,intensityInput].forEach(el=>el.addEventListener('input',calculate));
+    calculate();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true}); else init();
+})();
+</script>
 
 
 
