@@ -1941,19 +1941,7 @@ main {
 
 </style>
 
-<style>
-.diag-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:14px}
-.diag-summary{padding:14px;border:1px solid var(--border,rgba(150,150,150,.25));border-radius:12px;margin:12px 0;font-weight:600}
-.diag-axes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-.diag-axis{border:1px solid var(--border,rgba(150,150,150,.25));border-left:4px solid var(--axis-color,#64748b);border-radius:10px;padding:13px;background:var(--card-bg,rgba(120,120,120,.04))}
-.diag-axis h4{margin:0 0 7px;font-size:1rem}
-.diag-axis p{margin:6px 0;font-size:.92rem;line-height:1.45}
-.diag-axis .diag-priority{font-size:.76rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--axis-color,#64748b)}
-.diag-cautions{margin-top:12px;font-size:.88rem;line-height:1.5;color:var(--muted,#888)}
-.diag-reference-list{display:grid;gap:12px}
-.diag-reference-list>div{padding:12px;border-left:3px solid var(--accent,#64748b);background:var(--card-bg,rgba(120,120,120,.04));border-radius:8px}
-.diag-reference-list p{margin:5px 0 0;line-height:1.5}
-</style>
+
 
 </head>
 
@@ -1997,7 +1985,6 @@ main {
   <button class="tab" data-page="libraryPage"><span class="tab-icon">▤</span><span class="tab-text">BIBLIOTHÈQUE WOD</span></button>
   <button class="tab" data-page="timer"><span class="tab-icon">◷</span><span class="tab-text">CHRONOMÈTRE</span></button>
   <button class="tab" data-page="historyPage"><span class="tab-icon">↺</span><span class="tab-text">HISTORIQUE</span></button>
-  <button class="tab" data-page="interpretationPage"><span class="tab-icon">ⓘ</span><span class="tab-text">INTERPRÉTATION TEST</span></button>
   <button class="tab" data-page="karvonenPage"><span class="tab-icon">♥</span><span class="tab-text">FC KARVONEN</span></button>
   <div class="sidebar-footer">PRÉPARATION · PERFORMANCE</div>
 </nav>
@@ -2033,14 +2020,11 @@ main {
     <button class="hub-tile history-tile" type="button" data-hub-page="historyPage">
       <span class="hub-tile-icon">↺</span><span class="hub-tile-copy"><strong>HISTORIQUE</strong><small>Retrouver les séances réalisées et enregistrées</small></span>
     </button>
-    <button class="hub-tile" type="button" data-hub-page="interpretationPage">
-      <span class="hub-tile-icon">ⓘ</span><span class="hub-tile-copy"><strong>INTERPRÉTATION TEST</strong><small>Comprendre les tests de terrain et exploiter leurs résultats en préparation</small></span>
-    </button>
     <button class="hub-tile" type="button" data-hub-page="karvonenPage">
       <span class="hub-tile-icon">♥</span><span class="hub-tile-copy"><strong>FRÉQUENCE CARDIAQUE</strong><small>Calculer tes zones d'entraînement avec la formule de Karvonen</small></span>
     </button>
   </div>
-  <div class="hub-bottom-note">Toutes tes fonctionnalités existantes restent accessibles. Cet accueil est une nouvelle porte d’entrée : il ne remplace ni le planning, ni la bibliothèque, ni le chronomètre, ni l’historique, ni l’interprétation des tests.</div>
+  <div class="hub-bottom-note">Toutes tes fonctionnalités existantes restent accessibles. Cet accueil est une nouvelle porte d’entrée : il ne remplace ni le planning, ni la bibliothèque, ni le chronomètre, ni l’historique.</div>
 </section>
 
 <!-- BIBLIOTHEQUE -->
@@ -2819,59 +2803,6 @@ main {
       <li><strong>Intervalles VO₂max :</strong> la FC monte progressivement ; ne cherche pas à atteindre la cible dès les premières secondes d'une répétition courte.</li>
     </ul>
     <p class="small-note">La fréquence cardiaque varie avec la chaleur, la fatigue, l'hydratation, le stress, le sommeil et certains médicaments. Croise toujours la FC avec l'allure, le ressenti (RPE) et le contexte de la séance.</p>
-  </div>
-</section>
-
-<!-- INTERPRETATION DES TESTS -->
-<section id="interpretationPage" class="page">
-  <div class="planning-page-heading">
-    <div>
-      <div class="planning-eyebrow">ANALYSER · ORIENTER · PLANIFIER</div>
-      <h2>INTERPRÉTATION & AXES DE TRAVAIL</h2>
-      <p class="muted">Un outil d'aide à la décision pour transformer tes résultats et ton contexte d'entraînement en pistes de travail concrètes.</p>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3 style="margin-top:0">1. RENSEIGNE TES DONNÉES</h3>
-    <p>Tu peux renseigner un seul résultat ou en combiner plusieurs. Les champs sont facultatifs : l'analyse s'adapte aux informations disponibles.</p>
-    <div class="diag-grid">
-      <div class="field"><label for="diagGoal">OBJECTIF PRINCIPAL</label><select id="diagGoal"><option value="general">Condition physique générale</option><option value="5k">Course 5 km</option><option value="10k" selected>Course 10 km</option><option value="hyrox">HYROX / préparation hybride</option><option value="other">Autre objectif de course</option></select></div>
-      <div class="field"><label for="diagVma">VMA DE RÉFÉRENCE (KM/H)</label><input id="diagVma" type="number" min="5" max="30" step="0.1" placeholder="Ex. : 16,0" inputmode="decimal"></div>
-      <div class="field"><label for="diagVameval">VAMEVAL — DERNIER PALIER (KM/H)</label><input id="diagVameval" type="number" min="5" max="30" step="0.5" placeholder="Ex. : 16" inputmode="decimal"></div>
-      <div class="field"><label for="diagDemi">DEMI-COOPER — DISTANCE EN 6 MIN (M)</label><input id="diagDemi" type="number" min="100" max="3000" step="10" placeholder="Ex. : 1500" inputmode="numeric"></div>
-      <div class="field"><label for="diagCooper">COOPER — DISTANCE EN 12 MIN (M)</label><input id="diagCooper" type="number" min="200" max="5000" step="10" placeholder="Ex. : 2800" inputmode="numeric"></div>
-      <div class="field"><label for="diagLuc">LUC LÉGER — DERNIER PALIER</label><input id="diagLuc" type="number" min="1" max="30" step="1" placeholder="Ex. : 12" inputmode="numeric"></div>
-      <div class="field"><label for="diagSessions">SÉANCES DE COURSE PAR SEMAINE</label><select id="diagSessions"><option value="">Non renseigné</option><option value="1">1 séance</option><option value="2">2 séances</option><option value="3">3 séances</option><option value="4">4 séances</option><option value="5">5 séances</option><option value="6">6 séances ou plus</option></select></div>
-      <div class="field"><label for="diagKm">VOLUME DE COURSE HEBDOMADAIRE (KM)</label><input id="diagKm" type="number" min="0" max="200" step="1" placeholder="Ex. : 30" inputmode="numeric"></div>
-      <div class="field"><label for="diagEasy">ENDURANCE FACILE (EF)</label><select id="diagEasy"><option value="unknown">Non évaluée</option><option value="good">Je suis à l'aise sur les sorties faciles</option><option value="hard">Je peine à tenir une sortie facile régulière</option></select></div>
-      <div class="field"><label for="diagThreshold">ALLURE SOUTENUE (ENV. 8 À 20 MIN)</label><select id="diagThreshold"><option value="unknown">Non évaluée</option><option value="good">Je tiens correctement une allure soutenue</option><option value="hard">Je peine à maintenir une allure soutenue</option></select></div>
-      <div class="field"><label for="diagIntervals">FRACTIONS RAPIDES / VMA</label><select id="diagIntervals"><option value="unknown">Non évaluées</option><option value="good">Je réalise correctement les fractions rapides</option><option value="hard">Je peine à tenir les fractions rapides</option></select></div>
-    </div>
-    <div class="actions" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
-      <button type="button" class="primary" id="diagAnalyzeBtn">ANALYSER MES DONNÉES</button>
-      <button type="button" class="secondary" id="diagResetBtn">EFFACER LES DONNÉES</button>
-    </div>
-    <p class="small-note" style="margin-top:12px">Conseil : utilise des résultats récents, obtenus dans des conditions comparables. Ne saisis pas le Luc Léger comme une VMA de course continue : les navettes et les demi-tours changent la nature du test.</p>
-  </div>
-
-  <div class="panel" id="diagResultsPanel">
-    <h3 style="margin-top:0">2. TON BILAN ET TES AXES DE DÉVELOPPEMENT</h3>
-    <p id="diagIntro" class="small-note">Renseigne les informations ci-dessus puis lance l'analyse. Le bilan s'adaptera aux données que tu as fournies.</p>
-    <div id="diagSummary" class="diag-summary" aria-live="polite">Aucune analyse réalisée pour le moment.</div>
-    <div id="diagAxes" class="diag-axes"></div>
-    <div id="diagCautions" class="diag-cautions"></div>
-  </div>
-
-  <div class="panel">
-    <h3 style="margin-top:0">3. COMPRENDRE LES AXES DE TRAVAIL</h3>
-    <div class="diag-reference-list">
-      <div><strong>Capacité aérobie — endurance fondamentale (EF)</strong><p>Développer la base qui permet d'accumuler du temps de course, de mieux récupérer et de soutenir la charge d'entraînement. Travail majoritairement facile, régulier et progressif.</p></div>
-      <div><strong>Endurance à allure soutenue — seuil / tempo</strong><p>Améliorer la capacité à maintenir une allure exigeante de façon contrôlée. Travail en blocs continus ou fractionnés, sans transformer chaque séance en effort maximal. Le terme « seuil » recouvre plusieurs repères : ce module ne prétend pas mesurer tes seuils physiologiques.</p></div>
-      <div><strong>Puissance aérobie — VMA</strong><p>Développer la capacité à courir à haute intensité aérobie. Travail par répétitions courtes ou moyennes, avec une allure et une récupération adaptées. La VMA sert de repère de vitesse, pas de diagnostic complet.</p></div>
-      <div><strong>Endurance spécifique</strong><p>Apprendre à tenir l'allure et les contraintes de ton objectif : 5 km, 10 km, HYROX ou autre. Les séances spécifiques se construisent à partir de l'objectif et de ton niveau actuel.</p></div>
-    </div>
-    <p class="small-note">Les propositions sont des orientations de préparation, pas un diagnostic médical ou une prescription automatique de charge. La récupération, les antécédents de blessure, le sommeil et la progression récente doivent aussi guider les choix.</p>
   </div>
 </section>
 
@@ -6591,157 +6522,7 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
 </script>
 
 
-<script>
-/* AIDE A LA DECISION — INTERPRETATION DES TESTS */
-(function(){
-  const $=id=>document.getElementById(id);
-  const ids=['diagGoal','diagVma','diagVameval','diagDemi','diagCooper','diagLuc','diagSessions','diagKm','diagEasy','diagThreshold','diagIntervals'];
-  if(!$('diagAnalyzeBtn')) return;
-  const num=id=>{const v=$(id).value.trim().replace(',','.');return v===''?null:Number(v)};
-  const valid=(v,min,max)=>Number.isFinite(v)&&v>=min&&v<=max;
-  const pace=s=>{if(!s||s<=0)return '—';const n=Math.round(3600/s);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')} /km`};
-  const fmt=n=>n.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1});
-  const axes=$('diagAxes'), summary=$('diagSummary'), cautions=$('diagCautions');
-  const colors={base:'#3298ff',threshold:'#f0a329',vma:'#e05252',specific:'#20b879',neutral:'#87909d'};
-  function card(key,title,priority,why,action){return `<article class="diag-axis" style="--axis-color:${colors[key]||colors.neutral}"><div class="diag-priority">${priority}</div><h4>${title}</h4><p>${why}</p><p><strong>Orientation :</strong> ${action}</p></article>`}
-  function analyze(){
-    const goal=$('diagGoal').value, vma=num('diagVma'), vameval=num('diagVameval'), demi=num('diagDemi'), cooper=num('diagCooper'), luc=num('diagLuc'), sessions=num('diagSessions'), km=num('diagKm');
-    const issues=[]; let vmaRef=valid(vma,5,30)?vma:null;
-    if(!vmaRef&&valid(vameval,5,30)) vmaRef=vameval;
-    if(!vmaRef&&valid(demi,100,3000)) vmaRef=demi/100;
-    const sources=[];
-    if(valid(vma,5,30)) sources.push(`VMA renseignée : ${fmt(vma)} km/h`);
-    if(valid(vameval,5,30)) sources.push(`VAMEVAL : ${fmt(vameval)} km/h`);
-    if(valid(demi,100,3000)) sources.push(`Demi-Cooper : ${Math.round(demi)} m, soit environ ${fmt(demi/100)} km/h`);
-    if(valid(cooper,200,5000)) sources.push(`Cooper : ${Math.round(cooper)} m en 12 min`);
-    if(valid(luc,1,30)) sources.push(`Luc Léger : palier ${Math.round(luc)} (navettes)`);
 
-    if(vma!==null&&!valid(vma,5,30)) issues.push('La VMA saisie est hors de la plage attendue : vérifie la valeur.');
-    if(vameval!==null&&!valid(vameval,5,30)) issues.push('La vitesse VAMEVAL doit être comprise entre 5 et 30 km/h.');
-    if(demi!==null&&!valid(demi,100,3000)) issues.push('La distance du Demi-Cooper semble incohérente : vérifie la distance en mètres.');
-    if(cooper!==null&&!valid(cooper,200,5000)) issues.push('La distance du Cooper semble incohérente : vérifie la distance en mètres.');
-    if(luc!==null&&!valid(luc,1,30)) issues.push('Le palier Luc Léger doit être compris entre 1 et 30.');
-
-    const usableVameval=valid(vameval,5,30)?vameval:null;
-    const usableDemi=valid(demi,100,3000)?demi/100:null;
-    const usableCooper=valid(cooper,200,5000)?cooper/200:null;
-    const usableLuc=valid(luc,1,30)?8.5+0.5*(Math.round(luc)-1):null;
-    const ratios=[];
-    if(usableVameval&&usableDemi){const delta=Math.abs(usableVameval-usableDemi)/((usableVameval+usableDemi)/2)*100;ratios.push(delta);if(delta>=5)issues.push(`VAMEVAL et Demi-Cooper diffèrent d'environ ${fmt(delta)} %. Vérifie les protocoles et les conditions avant de modifier ta VMA de référence.`)}
-    if(!vmaRef&&usableVameval) vmaRef=usableVameval;
-    if(!vmaRef&&usableDemi) vmaRef=usableDemi;
-
-    const findings=[];
-    if(sources.length) summary.innerHTML=`<strong>Données prises en compte :</strong><br>${sources.join('<br>')}${vmaRef?`<br><br><strong>Repère de VMA utilisé pour l'analyse :</strong> ${fmt(vmaRef)} km/h.`:''}`;
-    else summary.textContent='Aucun test valide renseigné. Ajoute au moins une donnée pour obtenir une première orientation.';
-
-    // Base aerobic: volume and frequency are contextual indicators, not a physiological diagnosis.
-    let basePriority=false, baseWhy='';
-    if(sessions!==null&&sessions<3){basePriority=true;baseWhy=`Tu déclares ${sessions} séance(s) de course par semaine. La régularité et la fréquence de course peuvent être un premier levier, selon ta récupération et ton volume global.`}
-    if(km!==null&&valid(km,0,200)){
-      if((goal==='10k'&&km<20)||(goal==='5k'&&km<15)||(goal==='hyrox'&&km<15)){basePriority=true;baseWhy+=(baseWhy?' ':'')+`Ton volume déclaré (${fmt(km)} km/semaine) est relativement limité pour accumuler une base de course sur l'objectif sélectionné ; à augmenter progressivement uniquement si tu le tolères.`}
-    }
-    if($('diagEasy').value==='hard'){basePriority=true;baseWhy+=(baseWhy?' ':'')+'Tu indiques que les sorties faciles sont difficiles à tenir : vérifie d’abord que l’allure EF est réellement facile et que la charge est adaptée.'}
-    if(basePriority) findings.push({rank:1,html:card('base','Capacité aérobie — endurance fondamentale','AXE À CONSOLIDER',baseWhy,'Prioriser des footings faciles, réguliers et progressifs. Construire la fréquence avant de chercher à augmenter fortement l’intensité.')});
-
-    // Threshold / sustained pace proxy from Cooper relative to VMA.
-    let cooperRatio=null;
-    if(usableCooper&&vmaRef) cooperRatio=usableCooper/vmaRef;
-    if($('diagThreshold').value==='hard' || (cooperRatio!==null&&cooperRatio<0.88)){
-      const why=$('diagThreshold').value==='hard'?'Tu signales une difficulté à maintenir une allure soutenue. C’est un indice de terrain à recouper avec tes séances et tes sensations.':`La vitesse moyenne du Cooper représente environ ${fmt(cooperRatio*100)} % de la VMA de référence. Ce ratio peut suggérer une marge sur le maintien d’une allure soutenue, mais il dépend du protocole et ne mesure pas directement un seuil.`;
-      findings.push({rank:2,html:card('threshold','Endurance à allure soutenue — tempo / seuil','PISTE À EXPLORER',why,'Introduire progressivement des blocs contrôlés à allure soutenue, avec récupération suffisante. Ne pas chercher à courir chaque séance au maximum.')});
-    }
-
-    if($('diagIntervals').value==='hard'){
-      findings.push({rank:3,html:card('vma','Puissance aérobie — travail VMA','PISTE À EXPLORER','Tu indiques que les fractions rapides sont difficiles à tenir. Cela peut venir de la vitesse, mais aussi d’une allure de départ trop élevée, de récupérations inadaptées ou d’une fatigue résiduelle.','Revoir la calibration des allures, la qualité d’exécution et la récupération. Utiliser des fractions courtes ou moyennes sans dégrader la technique.')});
-    }
-    if(goal!=='general'){
-      const g=goal==='hyrox'?'HYROX / préparation hybride':goal==='10k'?'10 km':goal==='5k'?'5 km':'ton objectif de course';
-      findings.push({rank:4,html:card('specific','Endurance spécifique','À INTÉGRER AU PLAN',`L’objectif sélectionné est ${g}. Les tests généraux ne suffisent pas à prédire la performance spécifique : il faut aussi développer la capacité à tenir l’allure cible dans le contexte de l’épreuve.`,`Prévoir, au bon moment du cycle, des séances proches de l’allure et des contraintes de l’objectif. Pour HYROX, articuler course et ateliers sans négliger la récupération.`)});
-    }
-    if(!findings.length){
-      const hasData=!!(vmaRef||usableCooper||usableLuc);
-      if(hasData){findings.push({rank:5,html:card('neutral','Données plutôt équilibrées ou insuffisantes pour trancher','PAS DE DÉFICIT ÉVIDENT',`Les données disponibles ne font pas ressortir un axe prioritaire net. Cela ne signifie pas que toutes les qualités sont optimales : les tests renseignés ne mesurent pas tout.`,'Conserver une préparation équilibrée et compléter le suivi avec des séances repères, les sensations et l’évolution des performances.')})}
-      else findings.push({rank:5,html:card('neutral','Compléter le bilan','DONNÉES INSUFFISANTES','Une seule information générale ne permet pas de hiérarchiser les axes de développement.','Commencer par renseigner une VMA issue d’un test continu ou une distance de Demi-Cooper, puis ajouter le Cooper et le contexte d’entraînement si tu les as.')});
-    }
-    if(!vmaRef && usableLuc && !usableCooper && !usableDemi && !usableVameval){
-      issues.push('Le Luc Léger seul ne permet pas de fixer une VMA de course continue. Utilise-le pour suivre les navettes et ajoute si possible un VAMEVAL ou un Demi-Cooper pour calibrer les allures de course.');
-    }
-    if(usableLuc) issues.push(`Luc Léger : vitesse terminale théorique d’environ ${fmt(usableLuc)} km/h au palier renseigné, mais elle reste spécifique aux navettes et n’est pas utilisée comme VMA de course continue.`);
-    if(usableCooper&&!vmaRef) issues.push('Le Cooper renseigne une vitesse moyenne sur 12 minutes, mais ne suffit pas à lui seul pour déterminer précisément la VMA ou les seuils.');
-    if(vmaRef&&!usableCooper) issues.push('Avec une VMA seule, on peut calibrer des allures, mais pas conclure sur l’endurance à seuil ni sur la capacité à soutenir la vitesse. Un Cooper ou un suivi d’allure soutenue aiderait à compléter le bilan.');
-    if(!sources.length) issues.push('Renseigne au moins une valeur de test valide pour obtenir une analyse plus précise.');
-    if(!findings.some(x=>x.rank===1)&&sessions===null&&km===null&&$('diagEasy').value==='unknown') issues.push('Le niveau de base aérobie est difficile à apprécier sans fréquence de course, kilométrage hebdomadaire ou retour sur les sorties faciles.');
-    axes.innerHTML=findings.sort((a,b)=>a.rank-b.rank).map(x=>x.html).join('');
-    cautions.innerHTML=issues.length?'<strong>Points de vigilance et limites :</strong><ul>'+issues.map(x=>`<li>${x}</li>`).join('')+'</ul>':'<strong>Lecture :</strong> ces axes sont des hypothèses de préparation. Confirme-les avec les séances, les sensations et la répétition des tests dans des conditions comparables.';
-    $('diagIntro').textContent='Analyse générée à partir des informations renseignées. Les priorités sont des pistes à valider, pas des diagnostics physiologiques.';
-  }
-  $('diagAnalyzeBtn').addEventListener('click',analyze);
-  $('diagResetBtn').addEventListener('click',()=>{ids.forEach(id=>{const el=$(id);if(!el)return;el.value=el.tagName==='SELECT'?(id==='diagGoal'?'10k':id==='diagEasy'||id==='diagThreshold'||id==='diagIntervals'?'unknown':''):''});$('diagVma').value='';axes.innerHTML='';cautions.innerHTML='';summary.textContent='Aucune analyse réalisée pour le moment.';$('diagIntro').textContent='Renseigne les informations ci-dessus puis lance l’analyse.'});
-  // La VMA de l'onglet Allures démarre avec une valeur par défaut : ne pas la recopier ici comme si elle avait été testée. L'utilisateur renseigne uniquement une valeur qu'il connaît.
-})();
-
-// Calculateur FC selon la formule de Karvonen
-(function(){
-  const $ = id => document.getElementById(id);
-  const maxInput=$('karvonenMax'), restInput=$('karvonenRest'), intensityInput=$('karvonenIntensity');
-  if(!maxInput || !restInput || !intensityInput) return;
-
-  const zones=[
-    {min:50,max:60,code:'Z1',name:'Récupération',className:'karvonen-z1',detail:'Récupération et effort très facile'},
-    {min:60,max:70,code:'Z2',name:'Endurance fondamentale',className:'karvonen-z2',detail:'Endurance fondamentale'},
-    {min:70,max:80,code:'Z3',name:'Aérobie active',className:'karvonen-z3',detail:'Endurance active / aérobie'},
-    {min:80,max:90,code:'Z4',name:'Seuil indicatif',className:'karvonen-z4',detail:'Effort soutenu / proche du seuil'},
-    {min:90,max:100,code:'Z5',name:'Haute intensité',className:'karvonen-z5',detail:'Intensité élevée / travail VO₂max'}
-  ];
-  const round = n => Math.round(n);
-  const zoneFor = p => zones.find((z,i)=>p>=z.min && (p<z.max || (i===zones.length-1 && p<=z.max))) || null;
-  let reserve=150, resting=46, max=196;
-
-  function calculate(){
-    max=Number(maxInput.value); resting=Number(restInput.value);
-    const valid=Number.isFinite(max)&&Number.isFinite(resting)&&max>=100&&max<=240&&resting>=25&&resting<=120&&max>resting;
-    if(!valid){
-      $('karvonenReserve').textContent='—';
-      $('karvonenTarget').textContent='—';
-      $('karvonenZone').textContent='Valeurs à vérifier';
-      $('karvonenRange').textContent='—';
-      $('karvonenInterpretation').textContent='Saisis une FC max valide, supérieure à la FC de repos.';
-      $('karvonenZonesBody').innerHTML='<tr><td colspan="4">Vérifie les deux fréquences cardiaques.</td></tr>';
-      return;
-    }
-    reserve=max-resting;
-    $('karvonenReserve').textContent=`${reserve} bpm`;
-    $('karvonenMaxDisplay').textContent=`${max} bpm`;
-    $('karvonenRestDisplay').textContent=`${resting} bpm`;
-
-    const p=Number(intensityInput.value);
-    if(!Number.isFinite(p)||p<40||p>100){
-      $('karvonenTarget').textContent='—';
-      $('karvonenZone').textContent='Intensité à vérifier';
-      $('karvonenRange').textContent='—';
-      $('karvonenInterpretation').textContent='Saisis une intensité comprise entre 40 et 100 %.';
-    } else {
-      const target=round(resting+(p/100)*reserve);
-      const z=zoneFor(p);
-      $('karvonenTarget').textContent=`${target} bpm`;
-      $('karvonenZone').textContent=z?`${z.code} · ${z.name}`:'Hors zone';
-      $('karvonenZone').className=`karvonen-zone ${z?z.className:''}`;
-      $('karvonenRange').textContent=z?`${round(resting+z.min/100*reserve)}–${round(resting+z.max/100*reserve)} bpm`:'—';
-      $('karvonenInterpretation').textContent=z?`${p} % de réserve cardiaque : ${z.detail}. Repère indicatif, à croiser avec le ressenti et les données de terrain.`:'Intensité hors des zones proposées.';
-    }
-
-    $('karvonenZonesBody').innerHTML=zones.map(z=>{
-      const lo=round(resting+z.min/100*reserve), hi=round(resting+z.max/100*reserve);
-      const active=Number.isFinite(p)&&p>=z.min&&(p<z.max||(z.max===100&&p<=100));
-      return `<tr class="${active?'karvonen-highlight':''}"><td><span class="karvonen-zone ${z.className}">${z.code}</span></td><td>${z.min}–${z.max} %</td><td><strong>${lo}–${hi} bpm</strong></td><td>${z.detail}</td></tr>`;
-    }).join('');
-  }
-  [maxInput,restInput,intensityInput].forEach(el=>el.addEventListener('input',calculate));
-  calculate();
-})();
-
-</script>
 
 </body>
 </html>
