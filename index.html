@@ -1939,6 +1939,42 @@ main {
 .karvonen-formula{padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg);font-weight:700;text-align:center;line-height:1.7}
 @media(max-width:650px){.karvonen-input-grid,.karvonen-result-grid{grid-template-columns:1fr}.karvonen-table th,.karvonen-table td{padding:9px 8px}}
 
+
+/* ===== PREMIER JET — INTERFACE CHRONOMETRE RENFORCEE ===== */
+.fs-overlay {
+  padding: clamp(14px,2.5vh,28px) clamp(14px,3vw,38px) clamp(16px,3vh,30px);
+  background: radial-gradient(ellipse at 50% 42%, #26302a 0%, #111713 66%, #090d0a 100%);
+}
+.fs-overlay.phase-prep {background:radial-gradient(ellipse at 50% 42%,#263b58 0%,#111923 72%);}
+.fs-overlay.phase-work {background:radial-gradient(ellipse at 50% 42%,#57282c 0%,#1b1012 72%);}
+.fs-overlay.phase-rest {background:radial-gradient(ellipse at 50% 42%,#14543b 0%,#0b1912 72%);}
+.fs-overlay.phase-done {background:radial-gradient(ellipse at 50% 42%,#344052 0%,#111820 72%);}
+.fs-top {max-width:1500px;}
+.fs-badge {border-radius:999px;background:rgba(0,0,0,.3);font-size:clamp(12px,1.5vw,19px);}
+.fs-phase-pill {border-radius:999px;padding:10px 26px;font-size:clamp(15px,2vw,25px);}
+.fs-clock-caption {font-size:clamp(11px,1.3vw,16px);font-weight:900;letter-spacing:4px;color:rgba(255,255,255,.62);}
+.fs-clock {font-size:clamp(112px,25vw, min(34vh,330px));line-height:.9;letter-spacing:-.065em;margin:clamp(8px,2vh,22px) 0 12px;text-shadow:0 10px 55px rgba(0,0,0,.38);}
+.fs-round-info {border-radius:999px;padding:10px 26px;font-size:clamp(17px,2.6vw,34px);letter-spacing:1.5px;}
+.fs-time-meta {display:flex;justify-content:center;align-items:center;gap:10px;margin:18px 0 0;color:rgba(255,255,255,.6);font-size:11px;font-weight:900;letter-spacing:2px;}
+.fs-time-meta strong {font-size:15px;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:1px;}
+.fs-progress {height:9px;max-width:900px;margin:12px auto 0;background:rgba(255,255,255,.13);border-radius:99px;overflow:hidden;}
+.fs-progress-fill {height:100%;width:0;background:linear-gradient(90deg,#a4f542,#e1ff9c);border-radius:99px;box-shadow:0 0 18px rgba(164,245,66,.45);transition:width .3s linear;}
+.fs-next-info {display:inline-flex;align-items:center;justify-content:center;max-width:min(900px,100%);min-height:36px;margin:12px auto 0;padding:8px 16px;border:1px solid rgba(255,255,255,.13);border-radius:9px;background:rgba(0,0,0,.22);color:rgba(255,255,255,.83);font-size:clamp(11px,1.4vw,16px);font-weight:800;letter-spacing:.5px;}
+.fs-next-info.is-empty {opacity:.55;}
+.fs-exercises-box {max-width:1000px;margin:14px auto 0;padding:clamp(10px,1.6vh,18px) 20px;border:1px solid rgba(255,255,255,.17);border-left:4px solid #a4f542;border-radius:13px;background:rgba(0,0,0,.24);font-size:clamp(14px,1.8vw,22px);font-weight:750;line-height:1.55;}
+.fs-controls {max-width:850px;gap:12px;}
+.fs-controls button {min-height:58px;border-radius:13px;font-size:clamp(13px,1.5vw,17px);box-shadow:0 8px 22px rgba(0,0,0,.18);}
+.fs-btn-pause {background:#f3b34f;color:#17120a;}
+.fs-btn-reset {background:rgba(255,255,255,.1);}
+@media(max-width:700px) {
+  .fs-top {justify-content:center;}
+  .fs-exit-btn {padding:9px 12px;font-size:11px;}
+  .fs-clock {font-size:clamp(88px,25vw,170px);}
+  .fs-controls {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+  .fs-controls button {min-height:50px;padding:10px 8px;font-size:13px;}
+  .fs-exercises-box {max-height:24vh;overflow:auto;}
+}
+
 </style>
 
 
@@ -2880,9 +2916,12 @@ main {
   </div>
 
   <div class="fs-center">
+    <div class="fs-clock-caption">TEMPS RESTANT</div>
     <div class="fs-clock" id="fsClock">00:10</div>
     <div class="fs-round-info" id="fsRoundInfo">PRÉPARE-TOI</div>
+    <div class="fs-time-meta"><span>ÉCOULÉ</span><strong id="fsElapsed">00:00</strong></div>
     <div class="fs-progress"><div class="fs-progress-fill" id="fsProgressFill"></div></div>
+    <div class="fs-next-info" id="fsNextInfo">PRÉPARE-TOI</div>
     <div class="fs-exercises-box" id="fsExerciseFocus"></div>
   </div>
 
@@ -3947,6 +3986,13 @@ function syncFullscreenDisplay(state) {
   document.getElementById("fsPhasePill").textContent = state.phaseLabel;
   document.getElementById("fsClock").textContent = state.clockText;
   document.getElementById("fsRoundInfo").textContent = state.roundLabel;
+  const elapsedEl = document.getElementById("fsElapsed");
+  if (elapsedEl) elapsedEl.textContent = formatTime(elapsed);
+  const nextEl = document.getElementById("fsNextInfo");
+  if (nextEl) {
+    nextEl.textContent = state.nextText || "DERNIER SEGMENT DE LA SÉANCE";
+    nextEl.classList.toggle("is-empty", !state.nextText);
+  }
   const fsRoundBtn = document.getElementById("fsAmrapAddRoundBtn");
   if (fsRoundBtn) {
     fsRoundBtn.classList.toggle("hidden", timerType !== "AMRAP");
