@@ -405,7 +405,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
 }
 .fs-overlay.hidden { display: none !important; }
 .fs-overlay.phase-prep { background: #1c2430; }
-.fs-overlay.phase-work { background: #4a2025; }
+.fs-overlay.phase-work { background: #3d3018; }
 .fs-overlay.phase-rest { background: #123d2d; }
 .fs-overlay.phase-done { background: #1f2937; }
 
@@ -436,7 +436,7 @@ header {position:relative; padding-right:110px; padding-left:110px}
   text-transform: uppercase;
 }
 .phase-prep .fs-phase-pill { background: #3b82f6; color: #fff; }
-.phase-work .fs-phase-pill { background: #e45b5b; color: #fff; }
+.phase-work .fs-phase-pill { background: #d99a2b; color: #17130b; }
 .phase-rest .fs-phase-pill { background: #26c281; color: #101419; }
 .phase-done .fs-phase-pill { background: #e45b5b; color: #fff; }
 
@@ -716,7 +716,7 @@ header {
 .fs-progress-fill {height:100%;width:0%;background:#60a5fa;transition:width .25s linear}
 .fs-exercise-focus {font-size:clamp(18px,3vw,32px);font-weight:900;margin-top:18px;color:#fff}
 .fs-exercise-focus small {display:block;font-size:.48em;letter-spacing:2px;color:#cbd5e1;margin-bottom:6px}
-.fs-overlay.phase-work .fs-phase-pill{box-shadow:0 0 28px rgba(228,91,91,.28)}
+.fs-overlay.phase-work .fs-phase-pill{background:#d99a2b;color:#17130b;box-shadow:0 0 28px rgba(217,154,43,.28)}
 .fs-overlay.phase-rest .fs-phase-pill{box-shadow:0 0 28px rgba(38,194,129,.25)}
 .fs-skip-btn {background:#60a5fa;color:#101419;border:0;border-radius:10px;padding:12px 16px;font-weight:900;cursor:pointer}
 @media(max-width:600px){.fs-clock{font-size:clamp(82px,23vw,170px)}.fs-round-info{font-size:clamp(18px,5vw,28px);padding:8px 12px}.fs-controls{gap:8px}.fs-controls button{padding:13px 8px;font-size:14px}}
@@ -1946,7 +1946,7 @@ main {
   background: radial-gradient(ellipse at 50% 42%, #26302a 0%, #111713 66%, #090d0a 100%);
 }
 .fs-overlay.phase-prep {background:radial-gradient(ellipse at 50% 42%,#263b58 0%,#111923 72%);}
-.fs-overlay.phase-work {background:radial-gradient(ellipse at 50% 42%,#57282c 0%,#1b1012 72%);}
+.fs-overlay.phase-work {background:radial-gradient(ellipse at 50% 42%,#59421b 0%,#1b170e 72%);}
 .fs-overlay.phase-rest {background:radial-gradient(ellipse at 50% 42%,#14543b 0%,#0b1912 72%);}
 .fs-overlay.phase-done {background:radial-gradient(ellipse at 50% 42%,#344052 0%,#111820 72%);}
 .fs-top {max-width:1500px;}
@@ -1974,6 +1974,11 @@ main {
   .fs-controls button {min-height:50px;padding:10px 8px;font-size:13px;}
   .fs-exercises-box {max-height:24vh;overflow:auto;}
 }
+
+
+/* GENERATEUR CROSSFit / HYROX */
+.generator-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin:8px 0 18px}.generator-heading h2{margin:5px 0 7px}.generator-tag,.generator-result-badge{font-size:10px;font-weight:900;letter-spacing:1px;padding:8px 11px;border-radius:999px;background:rgba(164,245,66,.12);color:var(--green);border:1px solid rgba(164,245,66,.25);white-space:nowrap}.generator-layout{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(320px,1.1fr);gap:16px;align-items:start}.generator-controls,.generator-result-panel{min-width:0}.generator-choice-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.generator-choice{padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--panel2);color:var(--text);font-weight:900;cursor:pointer}.generator-choice.active{border-color:var(--green);background:rgba(164,245,66,.12);color:var(--green)}.generator-equipment{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.generator-equipment label{display:flex;align-items:center;gap:8px;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--panel2);font-size:12px}.generator-equipment input{accent-color:var(--green)}.generator-actions,.generator-result-actions{display:flex;flex-wrap:wrap;gap:9px}.generator-actions button,.generator-result-actions button{flex:1;min-width:145px}.generator-result-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}.generator-result-top h3{font-size:22px;margin:5px 0 0}.generator-result-badge{background:rgba(242,163,68,.12);color:var(--orange);border-color:rgba(242,163,68,.25)}.generator-meta{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}.generator-meta span{font-size:11px;font-weight:800;padding:6px 9px;border-radius:7px;background:var(--panel2);border:1px solid var(--border);color:var(--muted)}.generator-result-content{border-top:1px solid var(--border);padding-top:12px}.generator-result-content ol{padding-left:24px;margin:10px 0}.generator-result-content li{padding:7px 0;border-bottom:1px solid var(--border);line-height:1.5}.generator-result-content li:last-child{border-bottom:0}.generator-result-content strong{color:var(--text)}.generator-block-title{font-size:12px;color:var(--green);font-weight:900;letter-spacing:1px;margin:14px 0 5px}.generator-notes{margin:12px 0;padding:12px;border-radius:9px;background:var(--panel2);font-size:12px;line-height:1.55;color:var(--muted)}.generator-disclaimer{margin:14px 0;padding:12px;border-left:3px solid var(--orange);background:var(--panel2);border-radius:8px;color:var(--muted);font-size:11px;line-height:1.6}.generator-tile .hub-tile-icon{background:rgba(164,245,66,.13);color:var(--green)}
+@media(max-width:850px){.generator-layout{grid-template-columns:1fr}}@media(max-width:520px){.generator-heading{flex-direction:column}.generator-equipment{grid-template-columns:1fr 1fr}.generator-result-top h3{font-size:18px}}
 
 </style>
 
@@ -2019,6 +2024,7 @@ main {
   <button class="tab tab-home" data-page="homePage"><span class="tab-icon">⌂</span><span class="tab-text">ACCUEIL</span></button>
   <button class="tab" data-page="planningPage"><span class="tab-icon">▦</span><span class="tab-text">PLANNING</span></button>
   <button class="tab" data-page="libraryPage"><span class="tab-icon">▤</span><span class="tab-text">BIBLIOTHÈQUE WOD</span></button>
+  <button class="tab" data-page="generatorPage"><span class="tab-icon">✦</span><span class="tab-text">GÉNÉRATEUR WOD</span></button>
   <button class="tab" data-page="timer"><span class="tab-icon">◷</span><span class="tab-text">CHRONOMÈTRE</span></button>
   <button class="tab" data-page="historyPage"><span class="tab-icon">↺</span><span class="tab-text">HISTORIQUE</span></button>
   <button class="tab" data-page="karvonenPage"><span class="tab-icon">♥</span><span class="tab-text">FC KARVONEN</span></button>
@@ -2046,6 +2052,9 @@ main {
     </button>
     <button class="hub-tile library-tile" type="button" data-hub-page="libraryPage">
       <span class="hub-tile-icon">▤</span><span class="hub-tile-copy"><strong>BIBLIOTHÈQUE WOD</strong><small>Créer, retrouver et gérer tes WOD et mouvements</small></span>
+    </button>
+    <button class="hub-tile generator-tile" type="button" data-hub-page="generatorPage">
+      <span class="hub-tile-icon">✦</span><span class="hub-tile-copy"><strong>GÉNÉRATEUR WOD</strong><small>Créer une séance CrossFit ou HYROX selon son objectif et le matériel</small></span>
     </button>
     <button class="hub-tile timer-tile" type="button" data-hub-page="timer">
       <span class="hub-tile-icon">◷</span><span class="hub-tile-copy"><strong>CHRONOMÈTRE</strong><small>Lancer un AMRAP, EMOM, TABATA, FOR TIME ou chrono libre</small></span>
@@ -2197,6 +2206,27 @@ main {
 </section>
 
 <div id="movementDetailModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="movementDetailTitle"><div class="modal-card"><button class="secondary" id="closeMovementDetail" type="button" style="float:right">FERMER ✕</button><div id="movementDetailContent"></div></div></div>
+
+<!-- GENERATEUR CROSSfit / HYROX -->
+<section id="generatorPage" class="page">
+  <div class="generator-heading"><div><div class="hub-eyebrow">WOD FACTORY · CONSTRUCTION DE SÉANCE</div><h2>GÉNÉRATEUR CROSSFit / HYROX</h2><p class="small-note">Un premier générateur basé sur des formats d'entraînement identifiés. Les propositions restent modifiables avant enregistrement.</p></div><span class="generator-tag">PREMIER JET</span></div>
+  <div class="generator-layout">
+    <div class="panel generator-controls">
+      <div class="field"><label>DISCIPLINE</label><div class="generator-choice-row"><button type="button" class="generator-choice active" data-gen-discipline="CROSSFIT">CROSSFIT</button><button type="button" class="generator-choice" data-gen-discipline="HYROX">HYROX</button></div></div>
+      <div class="field"><label for="genFormat">TYPE DE SÉANCE</label><select id="genFormat"></select><p class="small-note" id="genFormatHelp"></p></div>
+      <div class="grid"><div class="field"><label for="genDuration">DURÉE CIBLE (MIN)</label><select id="genDuration"><option>10</option><option>12</option><option>15</option><option selected>20</option><option>25</option><option>30</option><option>35</option><option>40</option><option>45</option><option>60</option></select></div><div class="field"><label for="genLevel">NIVEAU</label><select id="genLevel"><option value="SCALED">SCALED</option><option value="INTER" selected>INTERMÉDIAIRE</option><option value="RX">RX</option><option value="HYROX_OPEN">HYROX OPEN</option><option value="HYROX_PRO">HYROX PRO</option></select></div></div>
+      <div class="field"><label for="genGoal">OBJECTIF PRINCIPAL</label><select id="genGoal"><option value="balanced">Conditionnement général</option><option value="engine">Capacité aérobie / Engine</option><option value="strength">Force / puissance</option><option value="threshold">Seuil / tolérance à l'effort</option><option value="specific">Spécificité compétition</option><option value="technique">Technique / qualité de mouvement</option></select></div>
+      <div class="field"><label>MATÉRIEL DISPONIBLE</label><div class="generator-equipment" id="genEquipment">
+        <label><input type="checkbox" value="run" checked> Tapis / course</label><label><input type="checkbox" value="row" checked> Rameur</label><label><input type="checkbox" value="bike" checked> Assault Bike</label><label><input type="checkbox" value="tacx" checked> Vélo / Tacx</label><label><input type="checkbox" value="barbell" checked> Barre + disques</label><label><input type="checkbox" value="db" checked> Haltères</label><label><input type="checkbox" value="kb" checked> Kettlebell 24 kg</label><label><input type="checkbox" value="sandbag" checked> Sandbag</label><label><input type="checkbox" value="wallball" checked> Wall Ball 6 kg</label><label><input type="checkbox" value="rope" checked> Corde à sauter</label><label><input type="checkbox" value="rings" checked> Anneaux</label><label><input type="checkbox" value="landmine" checked> Landmine</label><label><input type="checkbox" value="sled"> Sled push / pull</label><label><input type="checkbox" value="ski"> SkiErg</label><label><input type="checkbox" value="bodyweight" checked> Poids de corps</label>
+      </div><p class="small-note">La sélection conditionne les exercices proposés. Les équipements non cochés ne doivent pas apparaître dans le WOD.</p></div>
+      <div class="field"><label for="genExerciseCount">NOMBRE DE MOUVEMENTS</label><select id="genExerciseCount"><option value="2">2 — Couplet</option><option value="3" selected>3 — Triplet</option><option value="4">4 mouvements</option><option value="5">5 mouvements</option><option value="6">6 mouvements</option></select></div>
+      <div class="generator-actions"><button type="button" class="primary" id="generateWodBtn">✦ GÉNÉRER UNE SÉANCE</button><button type="button" class="secondary" id="regenerateWodBtn" disabled>↻ AUTRE PROPOSITION</button></div>
+      <div class="small-note" id="generatorStatus" role="status"></div>
+    </div>
+    <div class="panel generator-result-panel"><div class="generator-result-top"><div><div class="hub-eyebrow">TA PROPOSITION</div><h3 id="genResultTitle">Aucune séance générée</h3></div><span id="genResultType" class="generator-result-badge">EN ATTENTE</span></div><div id="genResultMeta" class="generator-meta"></div><div id="genResultContent" class="generator-result-content"><p class="muted">Choisis tes paramètres puis lance la génération. Le résultat apparaîtra ici.</p></div><div id="genResultNotes" class="generator-notes"></div><div class="generator-result-actions"><button type="button" class="primary" id="sendGeneratedToLibrary" disabled>ENVOYER VERS « CRÉER UN WOD »</button><button type="button" class="secondary" id="copyGeneratedWod" disabled>COPIER LA SÉANCE</button></div></div>
+  </div>
+  <div class="generator-disclaimer">Logique de programmation : formats CrossFit classiques (AMRAP, EMOM, couplet/triplet, FOR TIME, Chipper, intervalles, force) et formats HYROX (compromised running, intervalles de stations, endurance, force spécifique, simulation). Ce générateur crée une proposition, pas une prescription individualisée ni une garantie de temps de passage.</div>
+</section>
 
 <!-- CHRONOMETRE -->
 
@@ -2488,6 +2518,7 @@ main {
     </div>
     <div id="fortimeEventNotice" class="small-note hidden" role="status" aria-live="assertive" style="margin-top:12px;font-weight:900"></div>
     <button type="button" class="secondary hidden" id="fortimeIntermediateDoneBtn">MOUVEMENTS INTERMÉDIAIRES TERMINÉS</button>
+    <button type="button" class="primary hidden" id="fortimeFinishBtn" style="background:#d99a2b;color:#17130b;border-color:#d99a2b;font-weight:900">FINISH — WOD TERMINÉ</button>
     <div class="actions" style="margin-top:25px">
       <button class="primary" id="startTimer">DÉMARRER</button>
       <button class="secondary" id="pauseTimer">PAUSE</button>
@@ -2929,6 +2960,7 @@ main {
     <button type="button" class="fs-btn-resume hidden" id="fsAmrapAddRoundBtn">+1 TOUR — 0</button>
     <button type="button" class="fs-btn-resume hidden" id="fsFortimeCompleteRoundBtn">ROUND TERMINÉ</button>
     <button type="button" class="fs-btn-resume hidden" id="fsFortimeIntermediateDoneBtn">MOUVEMENTS TERMINÉS</button>
+    <button type="button" class="fs-btn-resume hidden" id="fsFortimeFinishBtn" style="background:#d99a2b;color:#17130b;border-color:#d99a2b;font-weight:900">FINISH — WOD TERMINÉ</button>
     <button type="button" class="fs-btn-pause" id="fsPauseResumeBtn">PAUSE</button>
     <button type="button" class="fs-btn-reset" id="fsResetBtn">RESET</button>
     <button type="button" class="fs-skip-btn hidden" id="fsSkipBlockBtn">BLOC SUIVANT →</button>
@@ -4613,6 +4645,9 @@ function updateFortimeRoundCounter() {
   const count = document.getElementById("fortimeRoundCount"); if (count) count.textContent = label;
   const btn = document.getElementById("fsFortimeCompleteRoundBtn");
   if (btn) { btn.classList.toggle("hidden", !show); btn.textContent = `ROUND TERMINÉ — ${fortimeRoundsDone}/${total}`; }
+  const isFortime = timerType === "FORTIME";
+  document.getElementById("fortimeFinishBtn")?.classList.toggle("hidden", !isFortime);
+  document.getElementById("fsFortimeFinishBtn")?.classList.toggle("hidden", !isFortime);
   const intermediate = timerType === "FORTIME" && fmt === "intermediate" && fortimeIntermediateActive;
   document.getElementById("fortimeIntermediateDoneBtn")?.classList.toggle("hidden", !intermediate);
   document.getElementById("fsFortimeIntermediateDoneBtn")?.classList.toggle("hidden", !intermediate);
@@ -4647,6 +4682,12 @@ document.getElementById("fortimeFormat")?.addEventListener("change", () => { upd
 document.getElementById("fortimeRounds")?.addEventListener("input", updateFortimeRoundCounter);
 document.getElementById("fortimeCompleteRoundBtn")?.addEventListener("click", completeFortimeRound);
 document.getElementById("fsFortimeCompleteRoundBtn")?.addEventListener("click", completeFortimeRound);
+function finishFortimeManually() {
+  if (timerType !== "FORTIME" || (!running && !countdownActive)) return;
+  finishTimer("FOR TIME TERMINÉ");
+}
+document.getElementById("fortimeFinishBtn")?.addEventListener("click", finishFortimeManually);
+document.getElementById("fsFortimeFinishBtn")?.addEventListener("click", finishFortimeManually);
 
 function updateAmrapRoundCounter() {
   const wrap = document.getElementById("amrapRoundCounter");
@@ -6689,6 +6730,95 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
 </script>
 
 
+
+<script>
+// GENERATEUR WOD : moteur de proposition local, sans appel externe.
+(function initWodGenerator(){
+ const $=id=>document.getElementById(id); if(!$('generatorPage')) return;
+ const formats={
+  CROSSFIT:[
+   ['amrap','AMRAP','Accumuler un maximum de tours ou répétitions sur une durée fixe.'],['emom','EMOM','Réaliser le travail au début de chaque minute et conserver le temps restant en récupération.'],['rft','FOR TIME / RFT','Terminer un volume défini ou un nombre de rounds le plus vite possible, avec time cap.'],['chipper','CHIPPER','Enchaîner une longue liste de mouvements et de répétitions, dans l’ordre.'],['ladder','LADDER','Faire progresser ou décroître les répétitions à chaque palier.'],['intervals','INTERVALLES','Répéter des efforts courts ou moyens avec récupération programmée.'],['strength','FORCE','Travail structuré en séries, répétitions et récupération, sans recherche de vitesse.']
+  ],
+  HYROX:[
+   ['compromised','COMPROMISED RUNNING','Alterner course et stations pour apprendre à courir avec la fatigue musculaire.'],['stations','INTERVALLES DE STATIONS','Développer la capacité sur une station ou un petit groupe de stations avec récupération.'],['run','BLOC COURSE','Construire l’endurance, le seuil ou la capacité à répéter des fractions de course.'],['engine','ENGINE HYBRIDE','Effort continu ou fractionné mêlant ergomètre et mouvements fonctionnels.'],['strength','FORCE SPÉCIFIQUE','Renforcer les patterns utiles : poussée, tirage, portés, fentes et squats.'],['simulation','SIMULATION HYROX','Enchaîner les ateliers dans une structure proche de la compétition, avec adaptations matérielles.']
+  ]
+ };
+ const pools={
+  run:[['400 m course','run'],['600 m course','run'],['800 m course','run'],['1 000 m course','run'],['1 200 m course','run']],
+  row:[['500 m rameur','row'],['400 m rameur','row'],['250 m rameur','row'],['15/12 cal rameur','row']],
+  bike:[['15/12 cal Assault Bike','bike'],['20/16 cal Assault Bike','bike'],['12/10 cal Assault Bike','bike']],
+  tacx:[['3 min vélo Tacx','tacx'],['4 min vélo Tacx','tacx']],
+  barbell:[['10 Deadlifts','barbell'],['8 Front Squats','barbell'],['8 Push Press','barbell'],['6 Power Cleans','barbell'],['8 Back Squats','barbell'],['6 Hang Power Snatches','barbell']],
+  db:[['10 DB Snatches alternés','db'],['12 DB Thrusters','db'],['10 DB Push Press','db'],['12 DB Walking Lunges','db'],['10 DB Renegade Rows','db']],
+  kb:[['15 KB Swings','kb'],['12 Goblet Squats','kb'],['10 KB Clean & Press alternés','kb'],['20 m KB Farmer Carry','kb']],
+  sandbag:[['20 m Sandbag Bear Hug Carry','sandbag'],['12 Sandbag Lunges','sandbag'],['8 Sandbag over Shoulder','sandbag']],
+  wallball:[['15 Wall Balls','wallball'],['20 Wall Balls','wallball'],['10 Wall Balls','wallball']],
+  rope:[['40 Double Unders','rope'],['60 Single Unders','rope']],
+  rings:[['8 Ring Rows','rings'],['6 Ring Dips','rings']],
+  landmine:[['10 Landmine Squats','landmine'],['10 Landmine Push Press','landmine'],['12 Landmine Rows','landmine']],
+  sled:[['20 m Sled Push','sled'],['20 m Sled Pull','sled']],
+  ski:[['500 m SkiErg','ski'],['250 m SkiErg','ski']],
+  bodyweight:[['12 Burpees','bodyweight'],['10 Push-ups','bodyweight'],['15 Air Squats','bodyweight'],['12 Sit-ups','bodyweight'],['10 Toes-to-Bar / relevés de genoux','bodyweight'],['10 Burpee Broad Jumps','bodyweight'],['20 m Bear Crawl','bodyweight'],['12 Box Step-ups','bodyweight'],['20 Walking Lunges','bodyweight']]
+ };
+ let discipline='CROSSFIT', current=null;
+ const levelFactors={SCALED:.7,INTER:.85,RX:1,HYROX_OPEN:.85,HYROX_PRO:1.1};
+ function checked(){return [...document.querySelectorAll('#genEquipment input:checked')].map(x=>x.value)}
+ function choose(arr){return arr[Math.floor(Math.random()*arr.length)]}
+ function shuffle(arr){let a=[...arr];for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+ function updateFormats(){const sel=$('genFormat');sel.innerHTML=formats[discipline].map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('');updateFormatHelp();$('genLevel').value=discipline==='HYROX'?'HYROX_OPEN':'INTER'}
+ function updateFormatHelp(){const f=formats[discipline].find(x=>x[0]===$('genFormat').value);$('genFormatHelp').textContent=f?f[2]:''}
+ function movements(keys,count){let available=keys.flatMap(k=>pools[k]||[]);available=shuffle(available);const out=[];const seen=new Set();for(const m of available){if(!seen.has(m[1])){out.push(m);seen.add(m[1])}if(out.length>=count)break}if(out.length<count){for(const m of available){if(!out.includes(m)&&out.length<count)out.push(m)}}return out}
+ function scaledLine(line,factor){if(/^\d+\s*m\b/i.test(line))return line.replace(/^(\d+)/,n=>String(Math.max(100,Math.round(Number(n)*factor/100)*100)));return line.replace(/^(\d+)/,n=>String(Math.max(4,Math.round(Number(n)*factor/2)*2)))}
+ function generate(){const keys=checked();if(!keys.length){$('generatorStatus').textContent='Sélectionne au moins un équipement.';return}const format=$('genFormat').value,duration=Number($('genDuration').value),level=$('genLevel').value,factor=levelFactors[level]||1,count=Number($('genExerciseCount').value);let selected;
+  if(discipline==='HYROX'){
+   const must=keys.includes('run')?['run']:[];let hyroxKeys=['run','row','ski','sled','sandbag','wallball','db','kb','bodyweight','bike'].filter(k=>keys.includes(k));
+   if(format==='compromised'){selected=movements(hyroxKeys.filter(k=>k!=='tacx'),Math.max(3,Math.min(count,5)));if(keys.includes('run')&&!selected.some(x=>x[1]==='run'))selected.unshift(choose(pools.run));}
+   else if(format==='run'){if(!keys.includes('run')){ $('generatorStatus').textContent='Le bloc course nécessite de cocher Tapis / course.';return;}selected=[choose(pools.run),choose(pools.run),...(keys.includes('row')?[choose(pools.row)]:[])];}
+   else if(format==='stations'){selected=movements(hyroxKeys.filter(k=>k!=='run'),Math.max(2,Math.min(count,4)));}
+   else if(format==='strength'){selected=movements(hyroxKeys.filter(k=>['sandbag','db','kb','sled','bodyweight','barbell','landmine'].includes(k)),Math.max(3,Math.min(count,5)));}
+   else if(format==='simulation'){const order=['run','sled','run','row','run','sandbag','run','wallball'];selected=order.map(k=>{let pool=pools[k];if(!keys.includes(k)){if(k==='sled'&&keys.includes('sandbag'))return ['20 m Sandbag Bear Hug Carry (substitution du sled)','sandbag'];if(k==='row'&&keys.includes('bike'))return choose(pools.bike);if(k==='wallball'&&keys.includes('db'))return choose(pools.db);return null;}return choose(pool)}).filter(Boolean);}
+   else {selected=movements(hyroxKeys,Math.max(3,Math.min(count,5)));}
+  } else {
+   let allowed=keys.filter(k=>k!=='run'||true);selected=movements(allowed,Math.max(2,Math.min(count,6)));
+   if(format==='strength')selected=movements(keys.filter(k=>['barbell','db','kb','landmine','sandbag'].includes(k)),Math.max(2,Math.min(count,5)));
+  }
+  if(!selected||selected.length<2){$('generatorStatus').textContent='Pas assez de mouvements disponibles pour ce format. Coche davantage de matériel.';return}
+  const reps=selected.map(m=>scaledLine(m[0],factor));let title='',instructions=[],timerFormat='FOR TIME',consigne='',cap=duration;
+  if(discipline==='CROSSFIT'){
+   if(format==='amrap'){title=`AMRAP ${duration}’`;timerFormat='AMRAP';instructions=reps;consigne='Réaliser le maximum de tours et répétitions pendant le temps imparti. Garder un rythme durable et noter les tours + répétitions.'}
+   if(format==='emom'){title=`EMOM ${duration}’`;timerFormat='EMOM';instructions=reps.map((x,i)=>`Minute ${i+1} : ${x}`).concat(reps.length<duration?['Répéter le cycle dans le même ordre jusqu’à la fin.']:[]);consigne='Terminer le travail dans la minute et utiliser le temps restant pour récupérer. Ajuster les répétitions pour conserver une marge de récupération.'}
+   if(format==='rft'){title=`${Math.max(3,Math.round(duration/4))} ROUNDS FOR TIME`;instructions=[`${Math.max(3,Math.round(duration/4))} rounds :`,...reps];consigne=`Terminer les rounds le plus rapidement possible. Time cap indicatif : ${duration} min. La qualité technique prime sur la vitesse.`}
+   if(format==='chipper'){title=`CHIPPER · ${duration}’ CAP`;instructions=reps.map((x,i)=>`${scaledLine(x.replace(/^\d+/,String([50,40,30,20,10,8][i]||10)),factor)}`);consigne='Effectuer toutes les répétitions d’un mouvement avant de passer au suivant. Time cap indicatif, sans précipiter les transitions.'}
+   if(format==='ladder'){title=`LADDER ${duration}’`;instructions=reps.map(x=>`${x} · échelle 2-4-6-8…`);consigne='Augmenter les répétitions à chaque palier. Repartir à 2 répétitions après le dernier palier réalisable si le format choisi est en boucle.'}
+   if(format==='intervals'){title=`INTERVALLES · ${duration}’`;instructions=reps.map((x,i)=>`${i+1}. ${x} · effort 40 sec / récupération 20 sec`);consigne=`Répéter le circuit par intervalles pendant ${duration} min. Chercher une intensité reproductible sur chaque effort.`}
+   if(format==='strength'){title=`FORCE · ${duration}’`;instructions=reps.map(x=>`${x} · 4 séries de 5 à 8 répétitions · repos 90 à 150 sec`);consigne='Choisir une charge laissant 1 à 3 répétitions en réserve. Priorité à la technique, à la vitesse d’exécution et à la progression, pas à l’épuisement.'}
+  } else {
+   if(format==='compromised'){title=`HYROX COMPROMISED · ${duration}’`;timerFormat='FOR TIME';instructions=[];for(let i=0;i<reps.length;i++){if(reps[i].toLowerCase().includes('course'))instructions.push(reps[i]);else instructions.push(reps[i])}consigne='Enchaîner course et atelier avec des transitions courtes. Objectif : retrouver une foulée efficace après la station. Ne pas transformer chaque répétition en test maximal.'}
+   if(format==='stations'){title=`HYROX STATION INTERVALS · ${duration}’`;instructions=reps.map((x,i)=>`${x} · 4 à 6 séries · récupération 45 à 90 sec`);consigne='Développer la capacité spécifique sur les ateliers. Garder une exécution reproductible et suivre le volume total réalisé.'}
+   if(format==='run'){title=`HYROX RUNNING BLOCK · ${duration}’`;instructions=[`Échauffement : 10 min progressives`,...reps.map((x,i)=>`${x} · allure contrôlée, récupération 90 sec`),'Retour au calme : 5 min facile'];consigne='Travail orienté course à pied. Contrôler l’allure et éviter de partir trop vite sur les premières fractions.'}
+   if(format==='engine'){title=`HYROX ENGINE · ${duration}’`;instructions=reps.map(x=>`${x} · enchaîner à intensité régulière`);consigne='Construire une capacité aérobie hybride. Rester sous contrôle et viser une baisse minimale de rendement au fil de la séance.'}
+   if(format==='strength'){title=`HYROX STRENGTH · ${duration}’`;instructions=reps.map(x=>`${x} · 4 séries · repos 90 sec`);consigne='Renforcer les patterns de poussée, tirage, portés et flexion de jambes. Garder une exécution stricte et une charge maîtrisée.'}
+   if(format==='simulation'){title=`HYROX MINI SIMULATION · ${duration}’`;instructions=reps;consigne='Simulation partielle inspirée de l’ordre de course HYROX. Les stations manquantes sont remplacées par des mouvements disponibles. Ce n’est pas une simulation officielle à charges/règles réglementaires.'}
+  }
+  const movementsText=instructions.join('\n');current={discipline,format,duration,level,title,timerFormat,instructions,consigne,cap,movementsText};
+  $('genResultTitle').textContent=title;$('genResultType').textContent=discipline;$('genResultMeta').innerHTML=[discipline,formats[discipline].find(x=>x[0]===format)?.[1]||format,`${duration} min`,level,`${instructions.length} lignes`].map(x=>`<span>${x}</span>`).join('');
+  $('genResultContent').innerHTML=`<div class="generator-block-title">PROTOCOLE</div><ol>${instructions.map(x=>`<li>${x}</li>`).join('')}</ol>`;
+  $('genResultNotes').textContent=consigne;$('sendGeneratedToLibrary').disabled=false;$('copyGeneratedWod').disabled=false;$('regenerateWodBtn').disabled=false;$('generatorStatus').textContent='Séance générée. Tu peux relancer une proposition ou l’envoyer dans la création de WOD.';
+ }
+ function sendToLibrary(){if(!current)return;openPage('libraryPage');openLibraryPanel('createWodPanel');$('manualWodTitle').value=current.title;$('manualWodExercises').value=current.movementsText;$('manualWodConsigne').value=current.consigne;
+  const cat=current.discipline==='HYROX'?'HYROX':'WOD';const catBtn=document.querySelector(`[data-manual-choice="category"][data-value="${cat}"]`);if(catBtn)catBtn.click();
+  const fm=current.timerFormat==='AMRAP'?'AMRAP':current.timerFormat==='EMOM'?'EMOM':'FOR TIME';const fmtBtn=document.querySelector(`[data-manual-format="${fm}"]`);if(fmtBtn)fmtBtn.click();
+  if(fm==='AMRAP')$('manualAmrapDuration').value=`${current.duration}:00`;
+  if(fm==='EMOM')$('manualEmomDuration').value=`${current.duration}:00`;
+  if(fm==='FOR TIME')$('manualFortimeCap').value=`${current.duration}:00`;
+  $('manualWodExercises').dispatchEvent(new Event('input',{bubbles:true}));$('manualWodTitle').scrollIntoView({behavior:'smooth',block:'center'});$('generatorStatus').textContent='Séance transférée. Vérifie les charges, répétitions et paramètres puis enregistre-la dans ta bibliothèque.';
+ }
+ document.querySelectorAll('[data-gen-discipline]').forEach(b=>b.addEventListener('click',()=>{discipline=b.dataset.genDiscipline;document.querySelectorAll('[data-gen-discipline]').forEach(x=>x.classList.toggle('active',x===b));updateFormats()}));
+ $('genFormat').addEventListener('change',updateFormatHelp);$('generateWodBtn').addEventListener('click',generate);$('regenerateWodBtn').addEventListener('click',generate);$('sendGeneratedToLibrary').addEventListener('click',sendToLibrary);
+ $('copyGeneratedWod').addEventListener('click',()=>{if(!current)return;const txt=`${current.title}\n${current.movementsText}\n\n${current.consigne}`;if(navigator.clipboard?.writeText){navigator.clipboard.writeText(txt).then(()=>$('generatorStatus').textContent='Séance copiée.').catch(()=>$('generatorStatus').textContent='Copie non disponible sur ce navigateur.')}else $('generatorStatus').textContent='Copie non disponible sur ce navigateur.'});
+ updateFormats();
+})();
+</script>
 
 </body>
 </html>
