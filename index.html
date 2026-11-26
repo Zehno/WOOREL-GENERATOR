@@ -3018,9 +3018,24 @@ updateHubDateLabel();
 
 
 function openLibraryPanel(panelId) {
-  document.querySelectorAll(".library-subtab").forEach(tab => tab.classList.toggle("active", tab.dataset.libraryPanel === panelId));
+  const target = document.getElementById(panelId);
+  if (!target || !target.classList.contains("library-panel")) return;
+  document.querySelectorAll(".library-subtab").forEach(tab => {
+    const active = tab.dataset.libraryPanel === panelId;
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", active ? "true" : "false");
+  });
   document.querySelectorAll(".library-panel").forEach(panel => panel.classList.toggle("active", panel.id === panelId));
 }
+
+// Navigation interne de la bibliothèque : délégation pour que les trois onglets
+// restent cliquables même après le rendu dynamique des contenus.
+document.addEventListener("click", event => {
+  const tab = event.target.closest(".library-subtab[data-library-panel]");
+  if (!tab) return;
+  event.preventDefault();
+  openLibraryPanel(tab.dataset.libraryPanel);
+});
 
 // =======================================
 // BIBLIOTHEQUE
