@@ -6766,6 +6766,7 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
 
 <script>
 // GENERATEUR WOD : génération cohérente, bibliothèque comme source unique.
+(()=>{
  const $=id=>document.getElementById(id); if(!$('generatorPage')) return;
  const formats={amrap:'AMRAP',emom:'EMOM',rft:'FOR TIME / RFT',chipper:'CHIPPER',intervals:'INTERVALLES',strength:'FORCE / SÉRIES',engine:'ENGINE',compromised:'COMPROMISED RUNNING'};
  const equipmentMatchers={run:/BODYWEIGHT\s*\/\s*RUNNING/i,row:/ROWING ERGOMETER/i,bike:/ASSAULT BIKE/i,tacx:/\bTACX\b|BIKE ERGOMETER/i,barbell:/BARBELL/i,db:/DUMBBELLS?/i,kb:/(?:2\s*)?KETTLEBELLS?/i,sandbag:/SANDBAG/i,wallball:/MEDICINE BALL/i,rope:/JUMP ROPE/i,rings:/GYMNASTIC RINGS/i,landmine:/LANDMINE/i,sled:/\bSLED\b/i,ski:/SKI ERG/i,bodyweight:/^BODYWEIGHT$|BODYWEIGHT \/ (ABMAT|WALL|DIP STATION)|BODYWEIGHT \+ (BENCH \/ BOX|WALL)|PULL-UP BAR|PLYOMETRIC BOX|^ROPE$/i};
@@ -6777,7 +6778,62 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
  const durationRange=()=>({short10:[6,9],short20:[10,19],short30:[20,29],long30:[30,45]})[$('genDurationGroup').querySelector('input:checked')?.value||'short20'];
  function records(){const lib=window.WODFactoryMovements||[];return lib.map(m=>{const e=Object.keys(equipmentMatchers).find(k=>equipmentMatchers[k].test(String(m.equipment||'')));return e?{m,e}:null}).filter(Boolean)}
  function classify(r){const m=r.m,n=(m.name+' '+(m.fr||'')+' '+(m.family||'')).toLowerCase();return {weight:/barbell|halter|kettlebell|weightlifting|clean|snatch|deadlift|squat|press|thruster|landmine/.test(n),gym:/pull|push|ring|dip|muscle.?up|burpee|gymnast|handstand|sit.?up|toes.?to.?bar|plank/.test(n),mono:['run','row','bike','tacx','ski','rope'].includes(r.e)||/running|rowing|ergometer|assault bike|ski erg/.test(n),lower:/quadriceps|ischio|hamstring|fessier|glute|mollet|calf|adducteur|squat|lunge|fente|sled|course|running/i.test(m.muscles+' '+n),upper:/pector|delto|épaule|triceps|biceps|grand dorsal|dorsaux|trapèze|rhombo|pull|press|push/i.test(m.muscles+' '+n),core:/abdomin|oblique|gainage|sangle abdominale|érecteur|lombaire|core/i.test(m.muscles+' '+n)}}
- function compatible(r,goals,bodies){const c=classify(r);if(goals.length&&!goals.some(g=>g==='mixed'||(g==='weightlifting'&&c.weight)||(g==='gym'&&c.gym)||(g==='monostructural'&&c.mono)))return false;if(bodies.includes('full'))return c.upper||c.lower||c.core;if(bodies.length&&!bodies.some(b=>(b==='upper'&&c.upper)||(b==='lower'&&c.lower)))return false;return true}
+ function compatible(r,goals,bodies){const c=classify(r);if(goals.length&&!goals.some(g=>g==='mixed'||(g==='weightlifting'&&c.weight)||(g==='gym'&&c.gym)||(g==='monostructural'&&c.mono)))return false;const bodyMatch=bodies.includes('full')?(c.upper||c.lower||c.core):bodies.some(b=>(b==='upper'&&c.upper)||(b==='lower'&&c.lower));if(!bodyMatch)return false;return true}
+ // Un WOD ne doit pas empiler deux variantes du même geste (ex. Air Squat + Goblet Squat).
+ const normalizeMovementText=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+ function movementPattern(r){
+  const n=normalizeMovementText([r.m.name,r.m.fr,r.m.family].join(' '));
+  // Regroupement par schéma moteur réel, pas seulement par nom ou matériel.
+  if(r.e==='run'||/\b(run|running|sprint|jog)\b|course a pied/.test(n))return 'engine-run';
+  if(r.e==='row'||/\b(row|rowing|rameur)\b/.test(n))return 'engine-row';
+  if(r.e==='bike'||r.e==='tacx'||/assault bike|bike erg|velo ergometre/.test(n))return 'engine-bike';
+  if(r.e==='ski'||/ski erg/.test(n))return 'engine-ski';
+  if(/double under|single under|jump rope|corde a sauter/.test(n))return 'engine-rope';
+  if(/sled push|poussee de traineau/.test(n))return 'sled-push';
+  if(/sled pull|tirage de traineau|traction de traineau/.test(n))return 'sled-pull';
+  if(/wall ball|wallball|med ball throw|lancer de medecine/.test(n))return 'wall-ball';
+  if(/burpee/.test(n))return 'burpee';
+  if(/farmer.?s? carry|suitcase carry|front rack carry|overhead carry|carry|marche du fermier|port(e|er) de charge/.test(n))return 'loaded-carry';
+  if(/thruster/.test(n))return 'thruster';
+  if(/air squat|goblet squat|front squat|back squat|overhead squat|zercher squat|box squat|sumo squat|split squat|bulgarian|pistol squat|squat|fente|lunge|step.?up|montee sur banc/.test(n))return 'knee-dominant';
+  if(/deadlift|souleve de terre|kettlebell swing|dumbbell swing|hip hinge|good morning|hip thrust|glute bridge|extension de hanche/.test(n))return 'hip-hinge';
+  if(/clean|snatch|epaule.?jete|arrache|hang power/.test(n))return 'olympic-lift';
+  if(/push.?up|pompe|bench press|developpe couche|floor press|chest press|dips?/.test(n))return 'horizontal-push';
+  if(/strict press|shoulder press|push press|jerk|handstand push|developpe militaire|overhead press/.test(n))return 'vertical-push';
+  if(/pull.?up|chin.?up|traction|rope climb|montee de corde/.test(n))return 'vertical-pull';
+  if(/ring row|barbell row|dumbbell row|bent.?over row|tirage horizontal|rowing/.test(n))return 'horizontal-pull';
+  if(/sit.?up|toes.?to.?bar|knee.?raise|leg raise|plank|planche|hollow|crunch|abmat|gainage/.test(n))return 'trunk';
+  const family=normalizeMovementText(r.m.family||'');
+  if(/\bpush\b/.test(family))return 'other-push';
+  if(/\bpull\b/.test(family))return 'other-pull';
+  if(/legs|lower body|quadriceps/.test(family))return 'other-knee-dominant';
+  return 'other:'+family+':'+r.e;
+ }
+ function movementRegion(r){const p=movementPattern(r);if(p.startsWith('engine-'))return 'engine';if(['knee-dominant','hip-hinge','olympic-lift','sled-push','sled-pull','thruster'].includes(p))return 'lower';if(['horizontal-push','vertical-push','vertical-pull','horizontal-pull','loaded-carry','other-push','other-pull'].includes(p))return 'upper';return 'mixed'}
+ function selectCoherentMovements(pool,count){
+  const candidates=shuffle(pool),selected=[],patterns=new Set(),regions={lower:0,upper:0,engine:0,mixed:0};
+  const conflict=(a,b)=>{
+   const pa=movementPattern(a),pb=movementPattern(b);
+   if(pa===pb)return true;
+   // Deux exercices de même dominante genou/hanche ou deux mouvements de poussée/tirage ne sont pas empilés.
+   const groups=[['knee-dominant','other-knee-dominant','wall-ball','sled-push'],['hip-hinge'],['horizontal-push','vertical-push','other-push'],['horizontal-pull','vertical-pull','other-pull'],['trunk']];
+   if(groups.some(g=>g.includes(pa)&&g.includes(pb)))return true;
+   // Évite de doubler une modalité cardio sous des appellations différentes.
+   if(pa.startsWith('engine-')&&pb.startsWith('engine-'))return true;
+   return false;
+  };
+  for(const r of candidates){
+   if(selected.some(s=>conflict(s,r)))continue;
+   const region=movementRegion(r);
+   if(region==='lower'&&regions.lower>=2)continue;
+   if(region==='upper'&&regions.upper>=2)continue;
+   if(region==='engine'&&regions.engine>=2)continue;
+   if(region==='mixed'&&regions.mixed>=2)continue;
+   selected.push(r);patterns.add(movementPattern(r));regions[region]++;
+   if(selected.length>=count)break;
+  }
+  return selected;
+ }
  function equipmentChosen(){return checked('genEquipment')}
  function makeDose(r,minutes,format,adapt){const n=(r.m.fr||r.m.name).toLowerCase(),e=r.e;let base,unit='';
   if(e==='run'){base=minutes<10?200:minutes<20?400:minutes<30?600:800;unit='m'}
@@ -6795,7 +6851,7 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
  function muscleExposure(rows){const groups={Jambes:/quadriceps|ischio|hamstring|fessier|glute|mollet|calf|adducteur|abducteur/i,'Haut du corps':/pector|delto|épaule|épaul|triceps|biceps|grand dorsal|dorsaux|trapèze|rhombo/i,Tronc:/abdomin|oblique|gainage|sangle abdominale|érecteur|lombaire/i};return Object.entries(groups).map(([g,re])=>`${g} ${rows.filter(r=>re.test(String(r.m.muscles||''))).length}`).join(' · ')}
  function generate(){const keys=equipmentChosen(),goals=checked('genGoalGroup'),bodies=checked('genBodyGroup'),chosenFormats=checked('genFormatGroup');if(!keys.length||!goals.length||!bodies.length||!chosenFormats.length){$('generatorStatus').textContent='Choisis au moins un type de séance, un objectif, une partie du corps et un matériel.';return}const [min,max]=durationRange(),duration=Math.round((min+max)/2),format=pick(chosenFormats);$('generateWodBtn').disabled=true;$('generatorStatus').textContent='Analyse de tes dernières séances et construction du WOD…';Promise.resolve(adaptation(format)).then(adapt=>{
    let pool=records().filter(r=>keys.includes(r.e)&&compatible(r,goals,bodies));if(discipline==='HYROX')pool=pool.filter(r=>r.e!=='barbell'||goals.includes('weightlifting'));if(format==='compromised')pool=pool.filter(r=>['run','sled','row','ski','sandbag','wallball','db','kb','bike'].includes(r.e));if(format==='strength')pool=pool.filter(r=>classify(r).weight||classify(r).lower);if(format==='engine'||format==='compromised')pool=pool.filter(r=>classify(r).mono||classify(r).lower);
-   if(format==='monostructural')pool=pool.filter(r=>classify(r).mono);pool=shuffle(pool);const selected=[],seen=new Set();for(const r of pool){const key=(r.m.id||r.m.name);if(!seen.has(key)){selected.push(r);seen.add(key)}if(selected.length>= (duration<10?2:duration<20?3:duration<30?4:5))break}if(selected.length<2){$('generatorStatus').textContent='Pas assez de mouvements compatibles dans ta bibliothèque. Élargis les objectifs ou le matériel.';$('generateWodBtn').disabled=false;return}
+   if(format==='monostructural')pool=pool.filter(r=>classify(r).mono);const targetCount=duration<10?2:duration<20?3:duration<30?4:5;const selected=selectCoherentMovements(pool,targetCount);if(selected.length<2){$('generatorStatus').textContent='Pas assez de mouvements compatibles dans ta bibliothèque. Élargis les objectifs ou le matériel.';$('generateWodBtn').disabled=false;return}
    const doses=selected.map(r=>makeDose(r,duration,format,adapt));const rounds=estimateLoad(selected,duration,format);let title='',lines=[],timerFormat='FOR TIME',instructions='';
    if(format==='amrap'){title=`AMRAP ${duration}’`;timerFormat='AMRAP';lines=doses;instructions='Enchaîner les mouvements dans l’ordre et accumuler les tours. Le volume par tour est calibré pour viser une durée de tour régulière, sans mouvement interminable.'}
    else if(format==='emom'){title=`EMOM ${duration}’`;timerFormat='EMOM';lines=doses.map((x,i)=>`Minute ${i+1}: ${x}`);instructions=`Cycle de ${selected.length} minutes à répéter jusqu'à ${duration} minutes. Chaque minute doit laisser environ 15 à 25 secondes de récupération.`}
