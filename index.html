@@ -1977,6 +1977,186 @@ main {
 
 
 
+
+/* ==========================================================
+   WOD FACTORY — REFONTE VISUELLE GLOBALE
+   Direction : dashboard sportif sombre, graphite et cyan.
+   Couche CSS uniquement : aucune logique métier modifiée.
+   ========================================================== */
+:root{
+  --bg:#17191b;
+  --panel:#202326;
+  --panel2:#282c30;
+  --card-bg:#1b1e21;
+  --input-bg:#171a1d;
+  --text:#f1f3f5;
+  --muted:#92999f;
+  --green:#35a9dc;
+  --orange:#e5ad4b;
+  --red:#e46b70;
+  --border:#353a3f;
+  --accent:#35a9dc;
+  --accent-soft:rgba(53,169,220,.13);
+  --sidebar-width:248px;
+  color-scheme:dark;
+}
+body,body.theme-light,body.theme-box{
+  --bg:#17191b;--panel:#202326;--panel2:#282c30;--card-bg:#1b1e21;--input-bg:#171a1d;--text:#f1f3f5;--muted:#92999f;--green:#35a9dc;--orange:#e5ad4b;--red:#e46b70;--border:#353a3f;
+  background:#17191b !important;
+  color:var(--text) !important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif !important;
+  letter-spacing:0 !important;
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;background:linear-gradient(135deg,rgba(255,255,255,.018),transparent 42%)}
+#appShell{min-height:100vh;background:#17191b}
+#appShell>header{
+  min-height:76px !important;padding:14px clamp(16px,3vw,42px) !important;
+  background:#111315 !important;border-bottom:1px solid #303438 !important;
+  box-shadow:0 4px 18px rgba(0,0,0,.18);text-align:left !important;
+}
+.logo{font-size:20px !important;font-weight:800 !important;letter-spacing:.3px !important;color:#f5f6f7}
+.logo span{color:#39afe4 !important}
+.subtitle{margin-top:4px !important;color:#858d94 !important;font-size:10px !important;letter-spacing:1.1px !important}
+.header-controls{gap:8px !important}
+.theme-btn,.install-btn,.logout-button{
+  background:#202428 !important;color:#cbd1d6 !important;border:1px solid #3a4045 !important;
+  border-radius:8px !important;padding:9px 12px !important;font-size:10px !important;
+}
+.theme-btn:hover,.install-btn:hover,.logout-button:hover{border-color:#39afe4 !important;color:#fff !important}
+main{max-width:1540px !important;padding:28px clamp(16px,3vw,44px) 64px !important}
+.page{color:var(--text)}
+.page h1,.page h2,.page h3{color:#f3f5f6}
+.page h2{font-size:17px !important;font-weight:750 !important;letter-spacing:.35px !important}
+.hub-back-button{
+  background:#202428 !important;border:1px solid #3a4045 !important;color:#dce1e5 !important;
+  border-radius:8px !important;box-shadow:none !important;font-size:11px !important;
+}
+.hub-back-button:hover{background:#292e33 !important;border-color:#39afe4 !important;color:#39afe4 !important}
+/* Cartes, panneaux et surfaces */
+.panel,.wod-card,.auth-card,.modal-card,.planning-week-sidebar,.stats-chart-card,.timer-demo-card{
+  background:#202326 !important;border:1px solid #363b40 !important;border-radius:10px !important;
+  box-shadow:0 8px 24px rgba(0,0,0,.13) !important;
+}
+.panel{padding:21px !important}
+.wod-card{background:#1b1e21 !important}
+.exercise{background:#25292d !important;border-radius:6px !important;border-bottom:1px solid #363b40 !important}
+.tag{background:rgba(53,169,220,.14) !important;color:#62c5ef !important;border:1px solid rgba(53,169,220,.18)}
+/* Boutons */
+button{font-family:inherit !important}
+.primary,.generate-button{
+  background:#269fd5 !important;color:#06131a !important;border:1px solid #269fd5 !important;
+  border-radius:8px !important;font-weight:800 !important;box-shadow:none !important;
+}
+.primary:hover,.generate-button:hover{background:#42b5e8 !important;filter:none !important}
+.secondary,.manual-format-btn,.planning-choice-btn,.wod-category-filter,.type-button,.library-subtab,.manual-choice-btn{
+  background:#282d31 !important;color:#cbd1d6 !important;border:1px solid #3b4248 !important;
+  border-radius:7px !important;box-shadow:none !important;
+}
+.secondary:hover,.manual-format-btn:hover,.planning-choice-btn:hover,.wod-category-filter:hover,.type-button:hover,.library-subtab:hover,.manual-choice-btn:hover{
+  border-color:#399fcf !important;color:#eaf8ff !important;background:#30383e !important;
+}
+.manual-format-btn.active,.planning-choice-btn.active,.wod-category-filter.active,.type-button.active,.library-subtab.active,.manual-choice-btn.active{
+  background:rgba(53,169,220,.16) !important;color:#59c2ef !important;border-color:#299fda !important;
+  box-shadow:inset 0 -2px 0 #299fda !important;
+}
+/* Champs */
+input,select,textarea{
+  background:#171a1d !important;color:#f0f3f5 !important;border:1px solid #3a4045 !important;
+  border-radius:7px !important;box-shadow:none !important;
+}
+input:focus,select:focus,textarea:focus{border-color:#35a9dc !important;box-shadow:0 0 0 2px rgba(53,169,220,.12) !important}
+label{color:#a7afb6 !important;font-weight:750 !important;letter-spacing:.35px}
+.small-note,.muted{color:#929ba2 !important}
+/* Accueil */
+.hub-welcome{
+  background:linear-gradient(110deg,#22272b,#1b1f22) !important;border:1px solid #383e43 !important;
+  border-radius:11px !important;padding:28px !important;box-shadow:none !important;
+}
+.hub-eyebrow{color:#50b8e7 !important;letter-spacing:1.5px !important}
+.hub-welcome h1{font-size:clamp(25px,3vw,36px) !important;line-height:1.12 !important;letter-spacing:-.7px !important}
+.hub-welcome p{color:#9ba4ab !important}
+.hub-date{background:#171b1e !important;border:1px solid #3a4248 !important;color:#aeb8bf !important;border-radius:7px !important}
+.hub-section-title{border-bottom:1px solid #343a3f !important;margin:24px 0 14px !important}
+.hub-section-title h2{font-size:12px !important;letter-spacing:1.2px !important;color:#aab2b8 !important}
+.hub-section-title span{color:#7f8991 !important}
+.hub-grid{grid-template-columns:repeat(3,minmax(0,1fr)) !important;gap:12px !important}
+.hub-tile{
+  min-height:138px !important;padding:19px !important;background:#202427 !important;
+  border:1px solid #383e43 !important;border-radius:9px !important;box-shadow:none !important;
+  transition:background .16s,border-color .16s,transform .16s !important;
+}
+.hub-tile:hover{background:#272d31 !important;border-color:#399fcf !important;transform:translateY(-2px)}
+.hub-tile-icon{background:rgba(53,169,220,.13) !important;color:#53bce8 !important;border:1px solid rgba(53,169,220,.18) !important;border-radius:8px !important}
+.hub-tile-copy strong{font-size:12px !important;letter-spacing:.5px !important;color:#edf1f3 !important}
+.hub-tile-copy small{color:#929ba2 !important;line-height:1.5 !important}
+.hub-tile::after{color:#65717a !important}
+.hub-bottom-note{background:#1d2124 !important;border:1px solid #343a3f !important;color:#879199 !important;border-radius:8px !important}
+/* Navigation secondaire */
+.library-subtabs{gap:8px !important;border-bottom:1px solid #353b40;padding-bottom:12px}
+.library-subtab{font-size:10px !important;letter-spacing:.5px}
+/* Planning : calendrier et statistiques */
+.planning-calendar-panel{background:#202326 !important;border:1px solid #363b40 !important;border-radius:10px !important}
+.planning-week-title>div{font-size:20px !important;color:#f2f4f5 !important}
+.planning-week-title>span{color:#929ba2 !important}
+.planning-navigation button,.planning-column-add{background:#292e32 !important;border:1px solid #3c4349 !important;color:#dce2e6 !important;border-radius:7px !important}
+.planning-navigation button:hover,.planning-column-add:hover{border-color:#35a9dc !important;color:#5cc2ed !important}
+.planning-kpi,.planning-week-totals{background:#252a2e !important;border:1px solid #3a4146 !important;border-radius:8px !important}
+.planning-kpi span,.planning-week-totals span{color:#98a2aa !important}
+.planning-kpi strong,.planning-week-totals strong{color:#f2f4f5 !important}
+.planning-week-sidebar{background:#1b1f22 !important;border-color:#363d42 !important;border-radius:8px !important}
+.planning-week-choice{border-radius:6px !important}
+.planning-week-choice.active{background:rgba(53,169,220,.13) !important;border-color:#299fda !important;color:#55bce8 !important}
+.planning-day-column{background:#1b1e21 !important;border:1px solid #343a3f !important;border-radius:7px !important}
+.planning-day-column.is-today{border-color:#35a9dc !important;background:rgba(53,169,220,.045) !important}
+.planning-column-head{border-bottom:1px solid #363c41 !important}
+.planning-column-day{color:#9ca5ac !important}
+.planning-column-date{color:#edf1f3 !important}
+.planning-day-column.is-today .planning-column-date,.planning-day.today .planning-day-num{color:#52bce9 !important}
+.planning-session{background:#252a2e !important;border:1px solid #3a4146 !important;border-left-width:3px !important;border-radius:6px !important;box-shadow:none !important}
+.planning-session.cat-COURSE{background:linear-gradient(90deg,rgba(69,163,255,.09),#252a2e 48%) !important}
+.planning-session.cat-CYCLISME{background:linear-gradient(90deg,rgba(34,197,94,.08),#252a2e 48%) !important}
+.planning-session.cat-FORCE,.planning-session.cat-MUSCULATION{background:linear-gradient(90deg,rgba(255,159,28,.09),#252a2e 48%) !important}
+.planning-session.cat-WOD{background:linear-gradient(90deg,rgba(167,139,250,.09),#252a2e 48%) !important}
+.planning-session-title{color:#eef1f3 !important}
+.planning-session-meta,.planning-session-details{color:#9ca5ac !important}
+.planning-column-empty{border-color:#394046 !important;color:#79838b !important}
+/* Graphiques */
+.stats-week-bar{background:linear-gradient(180deg,#48b9e8,#247ca7) !important;box-shadow:none !important}
+.stats-week-bar.load{background:linear-gradient(180deg,#e9b65d,#a9782b) !important}
+/* Chronomètre */
+.clock{color:#f4f6f7 !important;letter-spacing:-3px !important}
+.timer-status{color:#58bce7 !important}
+.timer-types{gap:8px !important}
+.timer-demo-card{background:#202427 !important}
+/* Authentification et modales */
+.auth-screen{background:#17191b !important}
+.auth-card{background:#202326 !important;border-radius:12px !important;padding:30px !important}
+.modal-backdrop{background:rgba(0,0,0,.78) !important}
+.consigne-box{background:rgba(53,169,220,.10) !important;border-left-color:#35a9dc !important}
+.consigne-label,.fs-consigne-title{color:#59bde8 !important}
+/* Focus et scrollbars */
+button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !important}
+*{scrollbar-color:#48525a #1b1f22}
+/* Responsive : cartes et formulaires */
+@media(max-width:900px){.hub-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important}}
+@media(max-width:650px){
+  #appShell>header{padding:58px 14px 14px !important;min-height:0 !important;gap:8px !important}
+  .logo{font-size:18px !important}
+  .header-controls{left:10px !important;right:10px !important;top:9px !important;justify-content:flex-end !important}
+  .header-controls button{font-size:9px !important;padding:7px 9px !important}
+  main{padding:16px 12px 42px !important}
+  .panel{padding:15px !important}
+  .hub-welcome{padding:19px !important;gap:12px !important}
+  .hub-welcome h1{font-size:25px !important}
+  .hub-grid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:8px !important}
+  .hub-tile{min-height:122px !important;padding:13px !important}
+  .hub-tile-icon{width:38px !important;height:38px !important;flex-basis:38px !important}
+  .hub-tile-copy strong{font-size:10px !important}
+  .hub-tile-copy small{font-size:9px !important}
+  .planning-kpi{padding:10px 8px !important}
+}
+@media(max-width:390px){.hub-grid{grid-template-columns:1fr !important}.hub-tile{min-height:92px !important;flex-direction:row !important;align-items:center !important}.hub-tile-copy strong{font-size:11px !important}.hub-tile-copy small{font-size:10px !important}}
+
 </style>
 
 
