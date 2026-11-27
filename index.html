@@ -3577,58 +3577,87 @@ function getAudioContext() {
   return audioContext;
 }
 
-function playTone(frequency = 880, duration = 0.35) {
+// Chaîne audio maître : compresseur + gain pour des sons forts et nets (même avec de la musique)
+let audioMaster = null;
+function getAudioMaster(audio) {
+  if (!audioMaster || audioMaster.ctx !== audio) {
+    const comp = audio.createDynamicsCompressor();
+    comp.threshold.value = -18; comp.knee.value = 12; comp.ratio.value = 6;
+    comp.attack.value = 0.002; comp.release.value = 0.15;
+    const out = audio.createGain();
+    out.gain.value = 1.6;
+    comp.connect(out); out.connect(audio.destination);
+    audioMaster = { ctx: audio, input: comp };
+  }
+  return audioMaster.input;
+}
+
+// playTone(fréquence, durée, {type, vol, delay}) — formes d'onde riches (square/sawtooth) = bien plus audibles qu'une sinusoïde
+function playTone(frequency = 880, duration = 0.35, opts = {}) {
   try {
     const audio = getAudioContext();
+    const { type = "square", vol = 0.5, delay = 0 } = opts;
+    const t0 = audio.currentTime + delay;
     const oscillator = audio.createOscillator();
     const gain = audio.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = frequency;
-
-    gain.gain.setValueAtTime(0.0001, audio.currentTime);
-    // Niveau nettement renforcé pour rester audible avec une musique en fond.
-    gain.gain.exponentialRampToValueAtTime(0.55, audio.currentTime + 0.025);
-    gain.gain.setValueAtTime(0.55, audio.currentTime + duration * 0.65);
-    gain.gain.exponentialRampToValueAtTime(0.0001, audio.currentTime + duration);
-
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(vol, t0 + 0.01);
+    gain.gain.setValueAtTime(vol, t0 + Math.max(0.011, duration * 0.7));
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duration);
     oscillator.connect(gain);
-    gain.connect(audio.destination);
-
-    oscillator.start();
-    oscillator.stop(audio.currentTime + duration);
-
+    gain.connect(getAudioMaster(audio));
+    oscillator.start(t0);
+    oscillator.stop(t0 + duration + 0.02);
   } catch (error) {
     console.warn("Signal sonore indisponible :", error);
   }
 }
 
-// Timbre de préparation : deux notes simultanées
+// ── VOCABULAIRE SONORE ──────────────────────────────────────────────
+// PRÉPARATION : cloche grave de mise en route (début des 10 s)
 function playStartBell() {
-  playTone(660, 0.8);
-  playTone(990, 0.8);
+  playTone(440, 0.9, { type: "triangle", vol: 0.8 });
+  playTone(660, 0.9, { type: "triangle", vol: 0.6 });
 }
-
-// Même tonalité pour tous les signaux de mi-temps
+// DÉCOMPTE 3 / 2 / 1 : bips courts, secs, identiques
+function playCountBeep() {
+  playTone(1000, 0.16, { type: "square", vol: 0.55 });
+}
+// GO : départ — long, aigu, puissant (accord + montée)
+function playGoSound() {
+  playTone(1047, 0.85, { type: "sawtooth", vol: 0.55 });
+  playTone(1568, 0.85, { type: "sawtooth", vol: 0.45 });
+  playTone(2093, 0.85, { type: "square", vol: 0.25 });
+}
+// STOP / REPOS : deux buzz graves descendants
+function playStopSound() {
+  playTone(330, 0.30, { type: "sawtooth", vol: 0.6 });
+  playTone(220, 0.50, { type: "sawtooth", vol: 0.6, delay: 0.32 });
+}
+// FIN DE SÉANCE : trois notes descendantes longues
+function playEndSound() {
+  playTone(784, 0.40, { type: "sawtooth", vol: 0.55 });
+  playTone(659, 0.40, { type: "sawtooth", vol: 0.55, delay: 0.42 });
+  playTone(523, 0.40, { type: "sawtooth", vol: 0.55, delay: 0.84 });
+  playTone(392, 1.00, { type: "sawtooth", vol: 0.6, delay: 1.26 });
+}
+// MI-PARCOURS : double « ding-ding » cristallin (type cloche)
 function playMidpointTone() {
-  playTone(880, 0.55);
+  playTone(1319, 0.28, { type: "triangle", vol: 0.95 });
+  playTone(1319, 0.28, { type: "triangle", vol: 0.95, delay: 0.30 });
+}
+// ROUND VALIDÉ (RFT) : ping court
+function playRoundSound() {
+  playTone(1175, 0.22, { type: "triangle", vol: 0.9 });
+  playTone(1568, 0.30, { type: "triangle", vol: 0.9, delay: 0.12 });
 }
 function playTransitionSound(kind) {
-  // REPOS : deux notes graves descendantes ; TRAVAIL : trois notes aiguës montantes
-  if (kind === "rest") { playTone(520, .22); setTimeout(() => playTone(390, .32), 170); }
-  else { playTone(880, .14); setTimeout(() => playTone(1100, .14), 130); setTimeout(() => playTone(1400, .30), 260); }
+  if (kind === "rest") playStopSound(); else playGoSound();
 }
-
-// Décompte sonore
 function playCountdownTone(number) {
-  const frequencies = {
-    3: 600,
-    2: 700,
-    1: 800,
-    GO: 1100
-  };
-
-  playTone(frequencies[number] || 880, number === "GO" ? 0.6 : 0.22);
+  if (number === "GO") playGoSound(); else playCountBeep();
 }
 
 // Saisie des durées WOD : accepte les minutes seules ou le format MM:SS (ex. 12:30).
@@ -4447,11 +4476,6 @@ function checkMidpointSignal() {
   }
 }
 
-// Alerte distincte « 10 secondes » pour la fin de chaque minute EMOM.
-function playEmomTenSecondsWarning() {
-  playTone(1320, 0.32);
-  setTimeout(() => playTone(1580, 0.32), 180);
-}
 
 // =======================================
 // TICK DU CHRONOMETRE
@@ -4469,13 +4493,19 @@ function tick() {
     const total = timeline.length ? timeline[timeline.length - 1].restEnd : 0;
     if (elapsed >= total) {
       remaining = 0;
-      playCountdownTone("GO");
+      playEndSound();
       updateClock();
       finishTimer("SÉANCE TERMINÉE");
       return;
     }
-    if (timeline.some(b => elapsed === b.start || (b.rest > 0 && elapsed === b.restStart) || elapsed === b.restEnd)) {
-      playCountdownTone("GO");
+    if (timeline.some(b => elapsed === b.start || elapsed === b.restEnd)) {
+      playGoSound();
+    } else if (timeline.some(b => b.rest > 0 && elapsed === b.restStart)) {
+      playStopSound();
+    }
+    // Décompte 3/2/1 avant chaque départ de bloc
+    if (timeline.some(b => b.start - elapsed >= 1 && b.start - elapsed <= 3)) {
+      playCountBeep();
     }
     const current = timeline.find(b => elapsed < b.end || (b.rest && elapsed < b.restEnd));
     if (current && elapsed < current.end) {
@@ -4485,6 +4515,12 @@ function tick() {
         const prevPhase = (prev % (current.work + current.rest)) < current.work ? "work" : "rest";
         const nowPhase = (local % (current.work + current.rest)) < current.work ? "work" : "rest";
         if (prevPhase !== nowPhase) playTransitionSound(nowPhase);
+        const cl = current.work + current.rest, pos = local % cl, toNext = cl - pos;
+        if (pos > current.work && toNext >= 1 && toNext <= 3) playCountBeep();
+      }
+      if (current.type === "EMOM") {
+        const posE = local % 60, toNextE = 60 - posE;
+        if (current.work < 60 && posE > current.work && toNextE >= 1 && toNextE <= 3) playCountBeep();
       }
       if (current.type === "EMOM" && local > 0 && (local % 60 === current.work || local % 60 === 0)) {
         playTransitionSound(local % 60 === 0 ? "work" : "rest");
@@ -4501,9 +4537,10 @@ function tick() {
 
     if (limit > 0) {
       remaining = Math.max(0, limit - elapsed);
+      if (remaining >= 1 && remaining <= 3) playCountBeep();
       if (elapsed >= limit) {
         remaining = 0;
-        playCountdownTone("GO");
+        playEndSound();
         updateClock();
         finishTimer("TIME CAP");
         return;
@@ -4539,6 +4576,7 @@ function tick() {
   // TABATA
   if (timerType === "TABATA") {
     remaining--;
+    if (phase === "rest" && remaining >= 1 && remaining <= 3) playCountBeep();
 
     if (remaining <= 0) {
       const work = Math.max(1, Number(document.getElementById("tabataWork").value) || 20);
@@ -4555,7 +4593,7 @@ function tick() {
 
         if (cycle > cycles) {
           remaining = 0;
-          playCountdownTone("GO");
+          playEndSound();
           updateClock();
           finishTimer("TERMINÉ");
           return;
@@ -4592,10 +4630,11 @@ function tick() {
 
   // AMRAP ET EMOM
   remaining--;
+  if (timerType === "AMRAP" && remaining >= 1 && remaining <= 3) playCountBeep();
 
   if (remaining <= 0) {
     remaining = 0;
-    playCountdownTone("GO");
+    playEndSound();
     updateClock();
     finishTimer("TERMINÉ");
     return;
@@ -4707,7 +4746,7 @@ function completeFortimeRound() {
   const total = Math.max(1, Number(document.getElementById("fortimeRounds").value) || 5);
   if (fortimeRoundsDone >= total) return;
   fortimeRoundsDone++;
-  playCountdownTone("GO");
+  playRoundSound();
   updateFortimeRoundCounter();
   if (fortimeRoundsDone >= total) { updateClock(); finishTimer("RFT TERMINÉ — TOUS LES ROUNDS VALIDÉS"); return; }
   if (fmt === "rft-rest") {
@@ -5120,8 +5159,13 @@ document.getElementById("themeToggleBtn")?.addEventListener("click", () => {
 // 2. TEST AUDIO & MODALE QR CODE
 // =======================================
 document.getElementById("testAudioBtn")?.addEventListener("click", () => {
+  // Démo : préparation → 3·2·1 → GO → mi-parcours → STOP → fin
   playStartBell();
-  setTimeout(() => playCountdownTone("GO"), 450);
+  [[1,3],[2,4],[3,5]].forEach(([t,n])=>setTimeout(playCountBeep,t*1000));
+  setTimeout(playGoSound, 4000);
+  setTimeout(playMidpointTone, 5800);
+  setTimeout(playStopSound, 7200);
+  setTimeout(playEndSound, 8800);
   const btn = document.getElementById("testAudioBtn");
   if (btn) {
     const oldText = btn.textContent;
