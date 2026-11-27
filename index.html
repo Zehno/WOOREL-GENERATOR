@@ -3596,6 +3596,11 @@ function getAudioMaster(audio) {
 function playTone(frequency = 880, duration = 0.35, opts = {}) {
   try {
     const audio = getAudioContext();
+    if (audio.state !== "running") {
+      // Contexte encore suspendu (politique anti-autoplay) : on reprend, puis on joue
+      audio.resume().then(() => { if (audio.state === "running") playTone(frequency, duration, opts); }).catch(() => {});
+      return;
+    }
     const { type = "square", vol = 0.5, delay = 0 } = opts;
     const t0 = audio.currentTime + delay;
     const oscillator = audio.createOscillator();
@@ -3614,6 +3619,20 @@ function playTone(frequency = 880, duration = 0.35, opts = {}) {
     console.warn("Signal sonore indisponible :", error);
   }
 }
+
+// Déblocage de l'audio dès la première interaction (clic, touche, toucher)
+function unlockAudio() {
+  try {
+    const audio = getAudioContext();
+    const buf = audio.createBuffer(1, 1, 22050);
+    const src = audio.createBufferSource();
+    src.buffer = buf; src.connect(audio.destination); src.start(0);
+    audio.resume();
+  } catch (e) {}
+}
+["pointerdown", "click", "keydown", "touchstart"].forEach(ev =>
+  document.addEventListener(ev, unlockAudio, { passive: true })
+);
 
 // ── VOCABULAIRE SONORE ──────────────────────────────────────────────
 // PRÉPARATION : cloche grave de mise en route (début des 10 s)
@@ -5169,8 +5188,10 @@ document.getElementById("testAudioBtn")?.addEventListener("click", () => {
   const btn = document.getElementById("testAudioBtn");
   if (btn) {
     const oldText = btn.textContent;
-    btn.textContent = "🔊 SON ACTIVÉ !";
-    setTimeout(() => { btn.textContent = oldText; }, 1500);
+    let st = "?";
+    try { st = getAudioContext().state; } catch (e) { st = "indisponible"; }
+    btn.textContent = st === "running" ? "🔊 SON ACTIVÉ !" : `🔇 AUDIO : ${st}`;
+    setTimeout(() => { btn.textContent = oldText; }, 2500);
   }
 });
 
