@@ -2235,7 +2235,9 @@ main {
             <select id="emomWork">
               <option value="20">20 sec</option>
               <option value="30">30 sec</option>
+              <option value="40">40 sec</option>
               <option value="45">45 sec</option>
+              <option value="50">50 sec</option>
               <option value="60" selected>1 min</option>
               <option value="75">1 min 15 sec</option>
               <option value="90">1 min 30 sec</option>
@@ -2281,6 +2283,17 @@ main {
               <option value="690">11 min 30 sec</option>
               <option value="705">11 min 45 sec</option>
               <option value="720">12 min</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="emomInterval">DURÉE DU ROUND (TRAVAIL + REPOS)</label>
+            <select id="emomInterval">
+              <option value="0" selected>= temps de travail (sans repos)</option>
+              <option value="60">1 min</option>
+              <option value="90">1 min 30 sec</option>
+              <option value="120">2 min</option>
+              <option value="180">3 min</option>
+              <option value="300">5 min</option>
             </select>
           </div>
           <div class="field">
@@ -3378,12 +3391,25 @@ function sendWodToTimer(wod) {
     const cfgSeconds=wod.timerConfig?.duration_seconds ?? wod.timerConfig?.time_cap_seconds;
     const timerMinutes=cfgSeconds!=null?Number(cfgSeconds)/60:Number(wod.duration||0);
     if (type === "AMRAP") document.getElementById("amrapDuration").value = timerMinutes;
-    if (type === "EMOM") document.getElementById("emomDuration").value = timerMinutes;
+    if (type === "EMOM") {
+      const itv = Number(wod.timerConfig?.interval_seconds) || 60;
+      const selI = document.getElementById("emomInterval");
+      if (selI && ![...selI.options].some(o => Number(o.value) === itv)) selI.add(new Option(formatTime(itv), itv));
+      if (selI) selI.value = itv;
+      const rounds = Math.max(1, Math.round(timerMinutes * 60 / itv));
+      const selD = document.getElementById("emomDuration");
+      if (![...selD.options].some(o => Number(o.value) === rounds)) selD.add(new Option("x" + rounds, rounds));
+      selD.value = rounds;
+    }
     if (type === "FORTIME") document.getElementById("fortimeLimit").value = timerMinutes;
   }
   if (wod.timerConfig) {
     const cfg = wod.timerConfig;
-    if (type === "EMOM" && cfg.work_seconds) document.getElementById("emomWork").value = cfg.work_seconds;
+    if (type === "EMOM" && cfg.work_seconds) {
+      const selW = document.getElementById("emomWork");
+      if (![...selW.options].some(o => Number(o.value) === Number(cfg.work_seconds))) selW.add(new Option(cfg.work_seconds + " sec", cfg.work_seconds));
+      selW.value = cfg.work_seconds;
+    }
     if (type === "TABATA") {
       if (cfg.work_seconds) document.getElementById("tabataWork").value = cfg.work_seconds;
       if (cfg.rest_seconds != null) document.getElementById("tabataRest").value = cfg.rest_seconds;
@@ -3588,8 +3614,9 @@ function playMidpointTone() {
   playTone(880, 0.55);
 }
 function playTransitionSound(kind) {
-  if (kind === "rest") { playTone(520, .18); setTimeout(() => playTone(420, .22), 130); }
-  else { playTone(920, .16); setTimeout(() => playTone(1180, .28), 140); }
+  // REPOS : deux notes graves descendantes ; TRAVAIL : trois notes aiguës montantes
+  if (kind === "rest") { playTone(520, .22); setTimeout(() => playTone(390, .32), 170); }
+  else { playTone(880, .14); setTimeout(() => playTone(1100, .14), 130); setTimeout(() => playTone(1400, .30), 260); }
 }
 
 // Décompte sonore
@@ -3653,6 +3680,14 @@ function updateMixControls() {
   if (preview) preview.textContent = "La séance multi-blocs est configurée depuis l'onglet Bibliothèque.";
 }
 
+// EMOM : travail + repos dans chaque round (intervalle). Repos = intervalle − travail.
+function getEmomParams() {
+  const work = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
+  const interval = Math.max(work, Number(document.getElementById("emomInterval")?.value) || 0);
+  const rounds = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
+  return { interval, work, rest: interval - work, rounds };
+}
+
 function getDuration() {
   if (timerType === "MIX") return getSequenceDuration();
   if (timerType === "AMRAP") {
@@ -3660,9 +3695,8 @@ function getDuration() {
   }
 
   if (timerType === "EMOM") {
-    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
-    const multiplier = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
-    return workSeconds * multiplier;
+    const e = getEmomParams();
+    return e.interval * e.rounds;
   }
 
   if (timerType === "FORTIME") {
@@ -4087,14 +4121,19 @@ function updateClock() {
   }
 
   if (timerType === "EMOM") {
-    const totalSeconds = getDuration();
-    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
-    const totalRounds = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
-    const currentRound = Math.min(totalRounds, Math.floor(elapsed / workSeconds) + 1);
-    state.visualPhase = "work";
-    state.phaseLabel = "TRAVAIL";
-    state.blockLabel = "EMOM — SANS RÉCUPÉRATION";
-    state.roundLabel = `ROUND ${currentRound} / ${totalRounds}`;
+    const e = getEmomParams();
+    const pos = elapsed % e.interval;
+    const isWork = pos < e.work || e.rest === 0;
+    const currentRound = Math.min(e.rounds, Math.floor(elapsed / e.interval) + 1);
+    state.visualPhase = isWork ? "work" : "rest";
+    state.phaseLabel = isWork ? "TRAVAIL" : "REPOS";
+    state.blockLabel = e.rest > 0 ? `EMOM — ${e.work}s TRAVAIL / ${e.rest}s REPOS` : "EMOM — SANS RÉCUPÉRATION";
+    state.roundLabel = `ROUND ${currentRound} / ${e.rounds}`;
+    if (e.rest > 0 && running) {
+      state.nextText = isWork
+        ? `REPOS DANS ${e.work - pos}s`
+        : `TRAVAIL DANS ${e.interval - pos}s`;
+    }
   }
 
   if (timerType === "MIX") {
@@ -4347,16 +4386,17 @@ function startPreparation() {
 // Les options EMOM sont définies directement dans le HTML pour garantir leur affichage.
 
 function updateEmomComputedPreview() {
-  const multiplier = Math.max(1, Number(document.getElementById("emomDuration").value) || 12);
-  const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
-  const totalSeconds = workSeconds * multiplier;
+  const e = getEmomParams();
+  const totalSeconds = e.interval * e.rounds;
   const preview = document.getElementById("emomComputedPreview");
   if (preview) {
-    preview.textContent = `${formatTime(workSeconds)} de travail × ${multiplier} (${multiplier} rounds) = durée totale : ${formatTime(totalSeconds)}. Aucun repos entre les rounds.`;
+    const restTxt = e.rest > 0 ? `${formatTime(e.work)} de travail + ${formatTime(e.rest)} de repos` : `${formatTime(e.work)} de travail, sans repos`;
+    preview.textContent = `${restTxt} par round × ${e.rounds} rounds = durée totale : ${formatTime(totalSeconds)}.`;
   }
 }
 document.getElementById("emomDuration").addEventListener("change", updateEmomComputedPreview);
 document.getElementById("emomWork").addEventListener("change", updateEmomComputedPreview);
+document.getElementById("emomInterval").addEventListener("change", updateEmomComputedPreview);
 updateEmomComputedPreview();
 updateFortimeFormatFields();
 
@@ -4402,8 +4442,8 @@ function checkMidpointSignal() {
 
   // EMOM : signal à mi-parcours de chaque round de travail
   if (timerType === "EMOM") {
-    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
-    if (workSeconds > 1 && elapsed % workSeconds === Math.floor(workSeconds / 2)) playMidpointTone();
+    const e = getEmomParams();
+    if (e.work > 1 && elapsed % e.interval === Math.floor(e.work / 2)) playMidpointTone();
   }
 }
 
@@ -4532,13 +4572,21 @@ function tick() {
 
   // EMOM sans récupération : chaque intervalle enchaîne directement le round suivant.
   if (timerType === "EMOM") {
-    const workSeconds = Math.max(1, Number(document.getElementById("emomWork").value) || 60);
-    const roundPosition = elapsed % workSeconds;
-    if (workSeconds > 10 && roundPosition === workSeconds - 10 && elapsed < getDuration()) {
-      playEmomTenSecondsWarning();
+    const e = getEmomParams();
+    const roundPosition = elapsed % e.interval;
+    const notFinished = elapsed < getDuration();
+    // Fin du travail → son de REPOS (descendant)
+    if (e.rest > 0 && roundPosition === e.work && notFinished) {
+      playTransitionSound("rest");
     }
-    if (roundPosition === 0 && elapsed < getDuration()) {
-      playTransitionSound("work");
+    // Décompte 3 / 2 / 1 avant le prochain round de TRAVAIL
+    const toNext = e.interval - roundPosition;
+    if (toNext >= 1 && toNext <= 3 && roundPosition > (e.rest > 0 ? e.work : 0)) {
+      playCountdownTone(toNext);
+    }
+    // GO : début d'un round de travail
+    if (roundPosition === 0 && notFinished) {
+      playCountdownTone("GO");
     }
   }
 
