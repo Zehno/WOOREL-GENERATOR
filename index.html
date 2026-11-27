@@ -6867,7 +6867,9 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
   if(/\bpush\b/.test(family))return 'other-push';
   if(/\bpull\b/.test(family))return 'other-pull';
   if(/legs|lower body|quadriceps/.test(family))return 'other-knee-dominant';
-  return 'other:'+family+':'+r.e;
+  // Les mouvements non classés gardent une identité propre : ne pas considérer
+  // tous les exercices d'une même famille/matériel comme un seul doublon.
+  return 'other:'+String(r.m.id||r.m.name||n).toLowerCase().replace(/[^a-z0-9]+/g,'-');
  }
  function movementRegion(r){const p=movementPattern(r);if(p.startsWith('engine-'))return 'engine';if(['knee-dominant','hip-hinge','olympic-lift','sled-push','sled-pull','thruster'].includes(p))return 'lower';if(['horizontal-push','vertical-push','vertical-pull','horizontal-pull','loaded-carry','other-push','other-pull'].includes(p))return 'upper';return 'mixed'}
  function selectCoherentMovements(pool,count){
@@ -6892,6 +6894,18 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
    selected.push(r);patterns.add(movementPattern(r));regions[region]++;
    if(selected.length>=count)break;
   }
+  // Deuxième passe de secours : si la bibliothèque est limitée par les
+  // filtres choisis, autoriser une répartition moins stricte sans doublons
+  // biomécaniques évidents. Cela évite de bloquer toute génération.
+  if(selected.length<Math.min(2,count)){
+   for(const r of candidates){
+    if(selected.some(s=>String(s.m.id)===String(r.m.id)))continue;
+    const pa=movementPattern(r);
+    if(selected.some(s=>movementPattern(s)===pa))continue;
+    selected.push(r);
+    if(selected.length>=Math.min(2,count))break;
+   }
+  }
   return selected;
  }
  function equipmentChosen(){return checked('genEquipment')}
@@ -6911,7 +6925,7 @@ function renderLibrary(){const q=norm($('movementSearch')?.value),cat=$('movemen
  function muscleExposure(rows){const groups={Jambes:/quadriceps|ischio|hamstring|fessier|glute|mollet|calf|adducteur|abducteur/i,'Haut du corps':/pector|delto|épaule|épaul|triceps|biceps|grand dorsal|dorsaux|trapèze|rhombo/i,Tronc:/abdomin|oblique|gainage|sangle abdominale|érecteur|lombaire/i};return Object.entries(groups).map(([g,re])=>`${g} ${rows.filter(r=>re.test(String(r.m.muscles||''))).length}`).join(' · ')}
  function generate(){const keys=equipmentChosen(),goals=checked('genGoalGroup'),bodies=checked('genBodyGroup'),chosenFormats=checked('genFormatGroup');if(!keys.length||!goals.length||!bodies.length||!chosenFormats.length){$('generatorStatus').textContent='Choisis au moins un type de séance, un objectif, une partie du corps et un matériel.';return}const [min,max]=durationRange(),duration=Math.round((min+max)/2),format=pick(chosenFormats);$('generateWodBtn').disabled=true;$('generatorStatus').textContent='Analyse de tes dernières séances et construction du WOD…';Promise.resolve(adaptation(format)).then(adapt=>{
    let pool=records().filter(r=>keys.includes(r.e)&&compatible(r,goals,bodies));if(discipline==='HYROX')pool=pool.filter(r=>r.e!=='barbell'||goals.includes('weightlifting'));if(format==='compromised')pool=pool.filter(r=>['run','sled','row','ski','sandbag','wallball','db','kb','bike'].includes(r.e));if(format==='strength')pool=pool.filter(r=>classify(r).weight||classify(r).lower);if(format==='engine'||format==='compromised')pool=pool.filter(r=>classify(r).mono||classify(r).lower);
-   if(format==='monostructural')pool=pool.filter(r=>classify(r).mono);const targetCount=duration<10?2:duration<20?3:duration<30?4:5;const selected=selectCoherentMovements(pool,targetCount);if(selected.length<2){$('generatorStatus').textContent='Pas assez de mouvements compatibles dans ta bibliothèque. Élargis les objectifs ou le matériel.';$('generateWodBtn').disabled=false;return}
+   if(format==='monostructural')pool=pool.filter(r=>classify(r).mono);const targetCount=duration<10?2:duration<20?3:duration<30?4:5;const selected=selectCoherentMovements(pool,targetCount);if(selected.length<2){const available=records().filter(r=>keys.includes(r.e)).length;$('generatorStatus').textContent=available===0?'Aucun mouvement reconnu avec le matériel sélectionné. Vérifie les équipements cochés et les fiches de ta bibliothèque.':'Pas assez de mouvements distincts pour ces filtres ('+available+' mouvements compatibles matériel). Coche davantage de matériel ou sélectionne Mixed modality.';$('generateWodBtn').disabled=false;return}
    const doses=selected.map(r=>makeDose(r,duration,format,adapt));const rounds=estimateLoad(selected,duration,format);let title='',lines=[],timerFormat='FOR TIME',instructions='',protocolSummary='';
    if(format==='amrap'){title=`AMRAP ${duration}’`;timerFormat='AMRAP';lines=doses;protocolSummary=`Pendant ${duration} minutes : enchaîner les mouvements dans l’ordre et réaliser un maximum de tours. Score : nombre de tours complets + répétitions restantes.`;instructions='Conserver une cadence régulière et des séries techniquement propres. Le score correspond aux tours complets et aux répétitions réalisées au signal.'}
    else if(format==='emom'){title=`EMOM ${duration}’`;timerFormat='EMOM';const cycle=selected.length,cycles=Math.max(1,Math.floor(duration/cycle));lines=doses.map((x,i)=>`Minute ${(i%cycle)+1} du cycle : ${x}`);protocolSummary=`EMOM ${duration} min · ${cycle} ateliers par cycle · ${cycles} cycle(s) complet(s)${duration%cycle?` + ${duration%cycle} minute(s) supplémentaire(s)`:''}. Reprendre le cycle dans le même ordre jusqu’à la fin du temps.`;instructions='Démarrer chaque atelier au début de sa minute. Terminer le travail dans la minute et utiliser le temps restant pour récupérer. Adapter les répétitions si la récupération devient insuffisante.'}
