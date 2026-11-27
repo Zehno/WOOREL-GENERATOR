@@ -6026,7 +6026,7 @@ resetTimer();
        <button class="secondary" type="button" data-plan-edit="${esc(x.id)}" title="Modifier la séance" aria-label="Modifier la séance">✎</button>
        ${x.status!=='DONE'?`<button class="secondary planning-done-btn" type="button" data-plan-done="${esc(x.id)}" title="Marquer comme réalisée" aria-label="Marquer comme réalisée">✓</button>`:''}
        <button class="secondary" type="button" data-plan-duplicate="${esc(x.id)}" title="Dupliquer la séance" aria-label="Dupliquer la séance">⧉</button>
-       
+       <button class="secondary danger-btn" type="button" data-plan-delete="${esc(x.id)}" title="Supprimer du planning" aria-label="Supprimer du planning">🗑</button>
       </div>
     </article>`;
    }).join(''):'<div class="planning-column-empty">Aucune séance<br>programmée</div>';
@@ -6080,8 +6080,11 @@ resetTimer();
  ['planningWodAmrapDuration','planningWodEmomDuration','planningWodEmomWork','planningWodTabataCycles','planningWodTabataWork','planningWodTabataRest','planningWodFortimeCap','planningWodFortimeRounds','planningWodFortimeRest','planningWodFortimeTriggerInterval','planningWodFortimeIntermediateMoves'].forEach(id=>$(id).addEventListener('input',updatePlanningWodFormatFields));
  $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod){syncPlanningChoiceButtons();return;}const format=String(wod.type||'').toUpperCase()==='FORTIME'?'FOR TIME':String(wod.type||'').toUpperCase();if(['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){$('planningType').value=format;syncPlanningChoiceButtons();updatePlanningWodFormatFields();loadPlanningWodConfig(wod);} $('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
  $('planningWeekDays').addEventListener('click',async e=>{
-  const add=e.target.closest('[data-plan-add]'),edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),done=e.target.closest('[data-plan-done]'),timer=e.target.closest('[data-plan-timer]');
+  const add=e.target.closest('[data-plan-add]'),edit=e.target.closest('[data-plan-edit]'),dup=e.target.closest('[data-plan-duplicate]'),done=e.target.closest('[data-plan-done]'),timer=e.target.closest('[data-plan-timer]'),del=e.target.closest('[data-plan-delete]');
   if(add){selectedDate=parseDate(add.dataset.planAdd);openEditor();return;}
+  if(del){const item=sessions.find(x=>String(x.id)===String(del.dataset.planDelete));if(!item)return;if(!confirm(`Supprimer « ${item.title} » du planning ?
+
+Le WOD enregistré dans la bibliothèque ne sera pas supprimé.`))return;del.disabled=true;try{await window.deletePlanningSession(item.id);await refresh();}catch(err){alert('Suppression impossible : '+err.message);del.disabled=false;}return;}
   if(timer){const item=sessions.find(x=>String(x.id)===timer.dataset.planTimer);if(item)launchPlanningSession(item);return;}
   if(edit){const item=sessions.find(x=>String(x.id)===edit.dataset.planEdit);if(item)openEditor(item);return;}
   if(dup){const item=sessions.find(x=>String(x.id)===dup.dataset.planDuplicate);if(item){selectedDate=parseDate(item.session_date);openEditor({...item,id:null,session_date:dateKey(addDays(parseDate(item.session_date),1)),title:item.title+' (copie)'})}return;}
@@ -6154,8 +6157,12 @@ window.updatePlanningSession = async function(id,payload) {
   return data;
 };
 window.deletePlanningSession = async function(id) {
-  const { error } = await supabase.from('training_sessions').delete().eq('id',id);
+  const { data:{user}, error:userError } = await supabase.auth.getUser();
+  if (userError) throw new Error('Vérification de la connexion impossible : ' + userError.message);
+  if (!user) throw new Error('Ta session a expiré. Reconnecte-toi avant de supprimer cette séance.');
+  const { data, error } = await supabase.from('training_sessions').delete().eq('id',id).eq('user_id',user.id).select('id').maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error('Aucune séance supprimée. Vérifie que cette séance t’appartient et que les droits Supabase autorisent sa suppression.');
 };
 
 
