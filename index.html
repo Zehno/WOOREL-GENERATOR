@@ -5662,7 +5662,8 @@ resetTimer();
  const sportColorClass = value => ({COURSE:'sport-course',CYCLISME:'sport-cyclisme',FORCE:'sport-force',RECUPERATION:'sport-recuperation',NATATION:'sport-natation',CORE:'sport-core',TESTS:'sport-tests',WOD:'sport-wod'}[normalizeCategory(value)]||'sport-course');
  const fmtRange = (a,b) => `${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long'}).format(a)} — ${new Intl.DateTimeFormat('fr-FR',{day:'numeric',month:'long',year:'numeric'}).format(b)}`;
  const categoryChoices=[['COURSE','COURSE À PIED'],['CYCLISME','CYCLISME'],['FORCE','FORCE'],['RECUPERATION','RÉCUPÉRATION'],['NATATION','NATATION'],['CORE','CORE TRAINING'],['TESTS','TESTS PHYSIQUES'],['WOD','WOD']];
- const specialtyChoices=[['HYROX — Run Compromised','HYROX — RUN COMPROMISED'],['HYROX — Circuit','HYROX — CIRCUIT'],['CrossFit — Mixed Modality','CROSSFIT — MIXED MODALITY'],['CrossFit — Gym','CROSSFIT — GYM'],['CrossFit — Haltérophilie','CROSSFIT — HALTÉROPHILIE'],['CrossFit — Ergomètre','CROSSFIT — ERGOMÈTRE'],['HYROX','HYROX'],['CrossFit','CROSSFIT'],['Libre','LIBRE']];
+ const specialtyChoices=[['HYROX','HYROX'],['CrossFit','CROSSFIT']];
+ const specialtyFamily = value => /^HYROX/i.test(String(value||''))?'HYROX':/^CrossFit/i.test(String(value||''))?'CrossFit':'';
  const statusChoices=[['PLANNED','À FAIRE'],['DONE','RÉALISÉE'],['CANCELLED','ANNULÉE']];
  function renderChoiceButtons(containerId,items,selected){
   const root=$(containerId);if(!root)return;
@@ -5676,7 +5677,7 @@ resetTimer();
   const useRpe=['WOD','HYROX','FORCE'].includes(category);
   $('planningRpeWrap').classList.toggle('hidden',!useRpe||$('planningStatusSelect').value!=='DONE');
   renderChoiceButtons('planningCategoryButtons',categoryChoices,$('planningCategory').value);
-  renderChoiceButtons('planningSpecialtyButtons',specialtyChoices,$('planningSpecialty')?.value||'Libre');
+  renderChoiceButtons('planningSpecialtyButtons',specialtyChoices,specialtyFamily($('planningSpecialty')?.value));
   renderChoiceButtons('planningStatusButtons',statusChoices,$('planningStatusSelect').value);
   const currentType=$('planningType').value;
   renderChoiceButtons('planningTypeButtons',(typeOptions[normalizeCategory($('planningCategory').value)]||typeOptions.COURSE).map(x=>[x,x]),currentType);
