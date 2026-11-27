@@ -2157,6 +2157,28 @@ button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !im
 }
 @media(max-width:390px){.hub-grid{grid-template-columns:1fr !important}.hub-tile{min-height:92px !important;flex-direction:row !important;align-items:center !important}.hub-tile-copy strong{font-size:11px !important}.hub-tile-copy small{font-size:10px !important}}
 
+
+/* PLANNING — vues mensuelle, annuelle et périodisation */
+.planning-cycle-week-label{color:#5dbdff!important;font-size:10px!important;font-weight:800;letter-spacing:.3px}
+.planning-cycle-ribbons{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0 15px}.planning-cycle-ribbon{border:1px solid var(--border);border-left:3px solid #35a9e8;border-radius:7px;padding:8px 10px;background:var(--card-bg);font-size:10px;color:var(--muted)}.planning-cycle-ribbon strong{color:var(--text);margin-right:5px}.planning-cycle-ribbon[data-load="DELOAD"]{border-left-color:#38bdf8}.planning-cycle-ribbon[data-load="TAPER"]{border-left-color:#a78bfa}
+.planning-view-tabs-new{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 15px}
+.planning-view-tabs-new button{font-size:11px;letter-spacing:.55px;padding:11px 15px}
+.planning-view-tabs-new button.active{border-color:#35a9e8;color:#5dbdff;background:rgba(53,169,232,.12)}
+.planning-section-title{font-size:20px;margin:6px 0 8px}
+.planning-month-summary,.planning-year-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:16px 0}
+.planning-summary-card{padding:13px;border:1px solid var(--border);border-radius:10px;background:var(--card-bg)}
+.planning-summary-card span{display:block;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.7px}
+.planning-summary-card strong{display:block;font-size:23px;margin-top:5px}
+.planning-month-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.planning-month-weekday{padding:8px 3px;text-align:center;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase}
+.planning-month-cell{min-height:105px;border:1px solid var(--border);border-radius:8px;background:var(--card-bg);padding:8px;min-width:0;cursor:pointer;text-align:left;color:var(--text)}
+.planning-month-cell.outside{opacity:.35}.planning-month-cell.today{border-color:#35a9e8}.planning-month-cell.selected{box-shadow:inset 0 0 0 1px #35a9e8;background:rgba(53,169,232,.08)}
+.planning-month-cell-number{font-weight:900;font-size:13px}.planning-month-cell-count{font-size:10px;color:var(--muted);margin:5px 0}
+.planning-month-dots{display:flex;gap:3px;flex-wrap:wrap}.planning-month-dot{width:7px;height:7px;border-radius:50%;background:#35a9e8}.planning-month-dot.cat-COURSE{background:#45a3ff}.planning-month-dot.cat-CYCLISME{background:#22c55e}.planning-month-dot.cat-FORCE{background:#f59e0b}.planning-month-dot.cat-WOD{background:#a78bfa}.planning-month-dot.cat-RECUPERATION{background:#38bdf8}
+.planning-year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.planning-year-month{border:1px solid var(--border);border-radius:10px;padding:13px;background:var(--card-bg);cursor:pointer;color:var(--text);text-align:left}.planning-year-month:hover,.planning-month-cell:hover{border-color:#35a9e8}.planning-year-month h3{font-size:13px;margin:0 0 10px;text-transform:uppercase}.planning-year-month-stats{display:flex;justify-content:space-between;color:var(--muted);font-size:10px}.planning-year-bar{height:7px;background:var(--panel2);border-radius:9px;overflow:hidden;margin-top:10px}.planning-year-bar span{display:block;height:100%;background:#35a9e8;border-radius:9px}
+.planning-cycle-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:15px;border:1px solid var(--border);border-radius:12px;background:var(--card-bg);margin:18px 0}.planning-cycle-notes{grid-column:span 2}.planning-cycle-actions{display:flex;align-items:end;gap:8px;flex-wrap:wrap}.planning-cycle-guidance{display:flex;gap:9px;flex-wrap:wrap;padding:13px;border:1px solid var(--border);border-radius:10px;margin:14px 0}.planning-cycle-guidance strong{width:100%;font-size:12px}.planning-cycle-guidance span{font-size:10px;color:var(--muted);padding:7px 9px;background:var(--panel2);border-radius:7px}.planning-cycle-list-heading{display:flex;align-items:center;justify-content:space-between;margin-top:22px}.planning-cycle-list-heading h3{font-size:13px}.planning-cycle-list{display:grid;gap:9px;margin-top:10px}.planning-cycle-card{display:grid;grid-template-columns:120px 1fr auto;gap:12px;align-items:center;border:1px solid var(--border);border-left:3px solid #35a9e8;border-radius:9px;background:var(--card-bg);padding:13px}.planning-cycle-card[data-load="DELOAD"]{border-left-color:#38bdf8}.planning-cycle-card[data-load="TAPER"]{border-left-color:#a78bfa}.planning-cycle-kind{font-size:9px;font-weight:900;color:#5dbdff;letter-spacing:.7px}.planning-cycle-card h4{margin:3px 0;font-size:13px}.planning-cycle-meta{font-size:10px;color:var(--muted)}.planning-cycle-controls{display:flex;gap:5px}.planning-cycle-controls button{font-size:10px;padding:7px 9px}
+@media(max-width:800px){.planning-month-summary,.planning-year-summary{grid-template-columns:repeat(2,minmax(0,1fr))}.planning-year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.planning-cycle-form{grid-template-columns:repeat(2,minmax(0,1fr))}.planning-cycle-card{grid-template-columns:1fr auto}.planning-cycle-kind{grid-column:1/-1}}
+@media(max-width:560px){.planning-view-tabs-new{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.planning-view-tabs-new button{width:100%}.planning-month-cell{min-height:75px;padding:5px}.planning-month-cell-count{font-size:9px}.planning-year-grid{grid-template-columns:1fr}.planning-cycle-form{grid-template-columns:1fr}.planning-cycle-notes{grid-column:auto}.planning-cycle-actions{grid-column:auto}.planning-cycle-card{grid-template-columns:1fr}.planning-cycle-controls{justify-content:flex-start}}
 </style>
 
 
@@ -2726,9 +2748,12 @@ button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !im
     <button class="primary planning-main-add" id="planningAddSession" type="button">＋ AJOUTER UNE SÉANCE</button>
   </div>
 
-  <div class="planning-view-tabs" role="tablist" aria-label="Vues du planning">
-    <button class="secondary active" id="planningCalendarTab" type="button" role="tab" aria-selected="true">📅 PLANNING</button>
-    <button class="secondary" id="planningStatsTab" type="button" role="tab" aria-selected="false">📊 STATISTIQUES</button>
+  <div class="planning-view-tabs planning-view-tabs-new" role="tablist" aria-label="Vues du planning">
+    <button class="secondary active" id="planningCalendarTab" type="button" role="tab" aria-selected="true">HEBDOMADAIRE</button>
+    <button class="secondary" id="planningMonthTab" type="button" role="tab" aria-selected="false">MENSUEL</button>
+    <button class="secondary" id="planningYearTab" type="button" role="tab" aria-selected="false">ANNUEL</button>
+    <button class="secondary" id="planningCyclesTab" type="button" role="tab" aria-selected="false">PÉRIODISATION</button>
+    <button class="secondary" id="planningStatsTab" type="button" role="tab" aria-selected="false">STATISTIQUES</button>
   </div>
 
   <div class="panel planning-calendar-panel" id="planningCalendarPanel">
@@ -2736,6 +2761,7 @@ button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !im
       <div class="planning-week-title">
         <div id="planningMonthLabel">SEMAINE</div>
         <span id="planningWeekRange">Du lundi au dimanche</span>
+        <span id="planningActiveCycle" class="planning-cycle-week-label"></span>
       </div>
       <div class="planning-navigation">
         <button class="secondary" id="planningPrevWeek" type="button" aria-label="Semaine précédente">‹</button>
@@ -2775,6 +2801,38 @@ button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !im
       <span class="planning-drag-hint">Glisse une séance vers un autre jour pour la déplacer.</span>
     </div>
     <div class="small-note" id="planningStatus" role="status" style="margin-top:12px"></div>
+  </div>
+
+  <div class="panel planning-calendar-panel hidden" id="planningMonthPanel">
+    <div class="planning-toolbar"><div class="planning-week-title"><div id="planningMonthViewTitle">MOIS</div><span>Vue d’ensemble des séances et de la charge programmée</span></div><div class="planning-navigation"><button class="secondary" id="planningMonthPrev" type="button">‹</button><button class="secondary planning-today-btn" id="planningMonthToday" type="button">CE MOIS</button><button class="secondary" id="planningMonthNext" type="button">›</button></div></div>
+    <div class="planning-month-summary" id="planningMonthSummary"></div>
+    <div id="planningMonthCycles" class="planning-cycle-ribbons"></div>
+    <div class="planning-month-grid" id="planningMonthGrid"></div>
+  </div>
+
+  <div class="panel planning-calendar-panel hidden" id="planningYearPanel">
+    <div class="planning-toolbar"><div class="planning-week-title"><div id="planningYearViewTitle">SAISON</div><span>Répartition annuelle des entraînements</span></div><div class="planning-navigation"><button class="secondary" id="planningYearPrev" type="button">‹</button><button class="secondary planning-today-btn" id="planningYearToday" type="button">CETTE ANNÉE</button><button class="secondary" id="planningYearNext" type="button">›</button></div></div>
+    <div class="planning-year-summary" id="planningYearSummary"></div>
+    <div id="planningYearCycles" class="planning-cycle-ribbons"></div>
+    <div class="planning-year-grid" id="planningYearGrid"></div>
+  </div>
+
+  <div class="panel planning-calendar-panel hidden" id="planningCyclesPanel">
+    <div class="planning-eyebrow">CONSTRUCTION DE LA SAISON</div><h2 class="planning-section-title">PÉRIODISATION DE L’ENTRAÎNEMENT</h2>
+    <p class="small-note">Structure tes objectifs en macrocycles, mésocycles et microcycles. Les blocs sont affichés sur les vues mensuelle et annuelle.</p>
+    <div class="planning-cycle-form">
+      <div class="field"><label for="cycleType">NIVEAU DE CYCLE</label><select id="cycleType"><option value="MACROCYCLE">MACROCYCLE</option><option value="MESOCYCLE">MÉSOCYCLE</option><option value="MICROCYCLE">MICROCYCLE</option></select></div>
+      <div class="field"><label for="cycleName">NOM DU CYCLE</label><input id="cycleName" placeholder="Ex. Préparation HYROX Pro"></div>
+      <div class="field"><label for="cycleStart">DATE DE DÉBUT</label><input id="cycleStart" type="date"></div>
+      <div class="field"><label for="cycleEnd">DATE DE FIN</label><input id="cycleEnd" type="date"></div>
+      <div class="field"><label for="cycleFocus">OBJECTIF PRINCIPAL</label><select id="cycleFocus"><option>Développement aérobie</option><option>Développement de la vitesse</option><option>Seuil / capacité</option><option>Force maximale</option><option>Puissance</option><option>Spécifique HYROX</option><option>Affûtage</option><option>Récupération / transition</option><option>Tests / compétition</option></select></div>
+      <div class="field"><label for="cycleLoad">ORIENTATION DE CHARGE</label><select id="cycleLoad"><option value="PROGRESSIVE">Progressive</option><option value="HAUTE">Haute</option><option value="MODEREE">Modérée</option><option value="DELOAD">Allégée / récupération</option><option value="TAPER">Affûtage</option></select></div>
+      <div class="field planning-cycle-notes"><label for="cycleNotes">CONTENU / NOTES</label><textarea id="cycleNotes" rows="2" placeholder="Volume cible, séances clés, tests, compétition..."></textarea></div>
+      <div class="planning-cycle-actions"><button class="primary" id="cycleSave" type="button">＋ AJOUTER LE CYCLE</button><button class="secondary hidden" id="cycleCancel" type="button">ANNULER LA MODIFICATION</button></div>
+    </div>
+    <div class="planning-cycle-guidance"><strong>Repères de périodisation</strong><span>Macrocycle : saison ou objectif majeur</span><span>Mésocycle : bloc de développement de plusieurs semaines</span><span>Microcycle : organisation détaillée d’une semaine</span><span>La semaine allégée et l’affûtage se définissent selon la charge réelle et la proximité de l’objectif.</span></div>
+    <div class="planning-cycle-list-heading"><h3>MES CYCLES PROGRAMMÉS</h3><span id="cycleCount">0 cycle</span></div>
+    <div id="planningCycleList" class="planning-cycle-list"></div>
   </div>
 
   <div class="panel planning-stats-panel hidden" id="planningStatsPanel">
@@ -5878,7 +5936,31 @@ resetTimer();
   const zoneTotals=[1,2,3,4,5].map(z=>done12.reduce((a,x)=>a+Math.max(0,Number(x['hr_zone_'+z+'_minutes']||0)),0)),zoneTotal=zoneTotals.reduce((a,v)=>a+v,0),zoneNames=['Z1','Z2','Z3','Z4','Z5'],zoneClasses=['hr-zone-z1','hr-zone-z2','hr-zone-z3','hr-zone-z4','hr-zone-z5'];
   $('statsHrZones').innerHTML=zoneTotal?`<div class="hr-zone-list">${zoneTotals.map((v,i)=>`<div class="hr-zone-row"><span class="hr-zone-label">${zoneNames[i]}</span><span class="hr-zone-track"><i class="hr-zone-fill ${zoneClasses[i]}" style="width:${Math.round(v/Math.max(...zoneTotals)*100)}%"></i></span><span class="hr-zone-time">${minutesLabel(v)}</span></div>`).join('')}</div><p class="small-note">Temps cumulé sur les 12 dernières semaines : ${minutesLabel(zoneTotal)}</p>`:'Aucun temps en zone renseigné sur les 12 dernières semaines.';
  }
- function setPlanningView(view){const stats=view==='stats';$('planningCalendarPanel').classList.toggle('hidden',stats);$('planningStatsPanel').classList.toggle('hidden',!stats);$('planningCalendarTab').classList.toggle('active',!stats);$('planningStatsTab').classList.toggle('active',stats);$('planningCalendarTab').setAttribute('aria-selected',String(!stats));$('planningStatsTab').setAttribute('aria-selected',String(stats));if(stats)renderStats();}
+ let activePlanningView='calendar';
+ const planningViews={calendar:['planningCalendarPanel','planningCalendarTab'],month:['planningMonthPanel','planningMonthTab'],year:['planningYearPanel','planningYearTab'],cycles:['planningCyclesPanel','planningCyclesTab'],stats:['planningStatsPanel','planningStatsTab']};
+ function setPlanningView(view){activePlanningView=view;Object.entries(planningViews).forEach(([key,[panel,tab]])=>{$(panel).classList.toggle('hidden',key!==view);$(tab).classList.toggle('active',key===view);$(tab).setAttribute('aria-selected',String(key===view));});if(view==='stats')renderStats();if(view==='month')renderPlanningMonth();if(view==='year')renderPlanningYear();if(view==='cycles')renderPlanningCycles();} 
+
+ const cycleStorageKey='wodfactory_training_cycles_v1';
+ let planningCycles=[];let editingCycleId=null;
+ try{planningCycles=JSON.parse(localStorage.getItem(cycleStorageKey)||'[]');if(!Array.isArray(planningCycles))planningCycles=[];}catch(_){planningCycles=[];}
+ const saveCycles=()=>{try{localStorage.setItem(cycleStorageKey,JSON.stringify(planningCycles));}catch(e){console.warn('Sauvegarde des cycles impossible',e);}};
+ const monthLabel=d=>new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(d);
+ const summaryCard=(label,value)=>`<div class="planning-summary-card"><span>${label}</span><strong>${value}</strong></div>`;
+ function sessionsInRange(start,end){const a=dateKey(start),b=dateKey(end);return sessions.filter(x=>x.session_date>=a&&x.session_date<=b&&x.status!=='CANCELLED');}
+ function renderPlanningMonth(){
+  const y=selectedDate.getFullYear(),m=selectedDate.getMonth(),first=new Date(y,m,1,12),last=new Date(y,m+1,0,12),gridStart=monday(first),gridEnd=addDays(monday(last),6),items=sessionsInRange(first,last),done=items.filter(x=>x.status==='DONE');
+  $('planningMonthViewTitle').textContent=monthLabel(first).toUpperCase();
+  const monthStart=dateKey(first),monthEnd=dateKey(last),monthCycles=planningCycles.filter(c=>c.start<=monthEnd&&c.end>=monthStart);$('planningMonthCycles').innerHTML=monthCycles.map(c=>`<div class=\"planning-cycle-ribbon\" data-load=\"${esc(c.load)}\"><strong>${esc(c.type)} · ${esc(c.name)}</strong>${esc(c.focus)} · ${esc(c.start)} → ${esc(c.end)}</div>`).join('');
+  $('planningMonthSummary').innerHTML=summaryCard('SÉANCES PROGRAMMÉES',items.length)+summaryCard('SÉANCES RÉALISÉES',done.length)+summaryCard('VOLUME PRÉVU',minutesLabel(items.reduce((a,x)=>a+Number(x.duration_minutes||0),0)))+summaryCard('DISTANCE COURSE',done.filter(x=>normalizeCategory(x.category)==='COURSE').reduce((a,x)=>a+Number(x.distance_km||0),0).toLocaleString('fr-FR',{maximumFractionDigits:1})+' km');
+  const heads=['LUN','MAR','MER','JEU','VEN','SAM','DIM'].map(x=>`<div class="planning-month-weekday">${x}</div>`).join('');let cells='';
+  for(let d=new Date(gridStart);d<=gridEnd;d=addDays(d,1)){const key=dateKey(d),day=sessions.filter(x=>x.session_date===key&&x.status!=='CANCELLED'),outside=d.getMonth()!==m,classes=['planning-month-cell',outside?'outside':'',key===dateKey(new Date())?'today':'',key===dateKey(selectedDate)?'selected':''].filter(Boolean).join(' ');cells+=`<button type="button" class="${classes}" data-month-day="${key}"><div class="planning-month-cell-number">${d.getDate()}</div><div class="planning-month-cell-count">${day.length?day.length+' séance(s)':'—'}</div><div class="planning-month-dots">${day.slice(0,10).map(x=>`<i class="planning-month-dot cat-${esc(normalizeCategory(x.category))}" title="${esc(x.title)}"></i>`).join('')}</div></button>`;}
+  $('planningMonthGrid').innerHTML=heads+cells;
+ }
+ function renderPlanningYear(){const y=selectedDate.getFullYear(),all=sessionsInRange(new Date(y,0,1,12),new Date(y,11,31,12)),done=all.filter(x=>x.status==='DONE');const yearStart=`${y}-01-01`,yearEnd=`${y}-12-31`,yearCycles=planningCycles.filter(c=>c.start<=yearEnd&&c.end>=yearStart);$('planningYearCycles').innerHTML=yearCycles.map(c=>`<div class=\"planning-cycle-ribbon\" data-load=\"${esc(c.load)}\"><strong>${esc(c.type)} · ${esc(c.name)}</strong>${esc(c.focus)} · ${esc(c.start)} → ${esc(c.end)}</div>`).join('');$('planningYearViewTitle').textContent='SAISON '+y;$('planningYearSummary').innerHTML=summaryCard('SÉANCES PROGRAMMÉES',all.length)+summaryCard('SÉANCES RÉALISÉES',done.length)+summaryCard('TEMPS RÉALISÉ',minutesLabel(done.reduce((a,x)=>a+Number(x.actual_duration_minutes||0),0)))+summaryCard('COURSE À PIED',done.filter(x=>normalizeCategory(x.category)==='COURSE').reduce((a,x)=>a+Number(x.distance_km||0),0).toLocaleString('fr-FR',{maximumFractionDigits:1})+' km');const counts=Array.from({length:12},(_,m)=>{const a=new Date(y,m,1,12),b=new Date(y,m+1,0,12),arr=sessionsInRange(a,b),completed=arr.filter(x=>x.status==='DONE'),mins=arr.reduce((v,x)=>v+Number(x.duration_minutes||0),0);return {m,arr,completed,mins};});const max=Math.max(1,...counts.map(x=>x.arr.length));$('planningYearGrid').innerHTML=counts.map(x=>`<button type="button" class="planning-year-month" data-year-month="${x.m}"><h3>${monthLabel(new Date(y,x.m,1,12))}</h3><div class="planning-year-month-stats"><span>${x.arr.length} séance(s)</span><span>${x.completed.length} réalisée(s)</span></div><div class="planning-year-bar"><span style="width:${Math.round(x.arr.length/max*100)}%"></span></div><div class="planning-year-month-stats" style="margin-top:8px"><span>${minutesLabel(x.mins)} planifiées</span><span>${x.arr.filter(a=>a.status==='PLANNED').length} à venir</span></div></button>`).join('');}
+ function renderPlanningCycles(){planningCycles.sort((a,b)=>a.start.localeCompare(b.start));$('cycleCount').textContent=planningCycles.length+' cycle(s)';$('planningCycleList').innerHTML=planningCycles.length?planningCycles.map(c=>`<article class="planning-cycle-card" data-load="${esc(c.load)}"><div class="planning-cycle-kind">${esc(c.type)}</div><div><h4>${esc(c.name)}</h4><div class="planning-cycle-meta">${esc(c.start)} → ${esc(c.end)} · ${esc(c.focus)} · Charge ${esc(c.load.toLowerCase())}</div>${c.notes?`<div class="planning-cycle-meta" style="margin-top:5px">${esc(c.notes)}</div>`:''}</div><div class="planning-cycle-controls"><button class="secondary" type="button" data-cycle-edit="${esc(c.id)}">MODIFIER</button><button class="secondary" type="button" data-cycle-delete="${esc(c.id)}">✕</button></div></article>`).join(''):'<div class="planning-empty">Aucun cycle défini. Commence par créer ton macrocycle, puis détaille les mésocycles et microcycles.</div>';}
+ function resetCycleForm(){editingCycleId=null;['cycleName','cycleStart','cycleEnd','cycleNotes'].forEach(id=>$(id).value='');$('cycleType').value='MACROCYCLE';$('cycleFocus').selectedIndex=0;$('cycleLoad').value='PROGRESSIVE';$('cycleSave').textContent='＋ AJOUTER LE CYCLE';$('cycleCancel').classList.add('hidden');}
+ function saveCycle(){const name=$('cycleName').value.trim(),start=$('cycleStart').value,end=$('cycleEnd').value;if(!name||!start||!end){alert('Renseigne le nom, la date de début et la date de fin du cycle.');return;}if(end<start){alert('La date de fin doit être postérieure à la date de début.');return;}const item={id:editingCycleId||('cycle-'+Date.now()),type:$('cycleType').value,name,start,end,focus:$('cycleFocus').value,load:$('cycleLoad').value,notes:$('cycleNotes').value.trim()};if(editingCycleId)planningCycles=planningCycles.map(x=>x.id===editingCycleId?item:x);else planningCycles.push(item);saveCycles();resetCycleForm();renderPlanningCycles();renderPlanningMonth();renderPlanningYear();}
+ function editCycle(id){const c=planningCycles.find(x=>x.id===id);if(!c)return;editingCycleId=id;$('cycleType').value=c.type;$('cycleName').value=c.name;$('cycleStart').value=c.start;$('cycleEnd').value=c.end;$('cycleFocus').value=c.focus;$('cycleLoad').value=c.load;$('cycleNotes').value=c.notes||'';$('cycleSave').textContent='ENREGISTRER LES MODIFICATIONS';$('cycleCancel').classList.remove('hidden');$('cycleName').focus();}
  function renderWeekSelector(){
   const month=new Date(selectedDate.getFullYear(),selectedDate.getMonth(),1,12);
   const monthEnd=new Date(selectedDate.getFullYear(),selectedDate.getMonth()+1,0,12);
@@ -5930,10 +6012,12 @@ resetTimer();
  }
  function render(){
   renderStats();
+  if(activePlanningView==='month')renderPlanningMonth();if(activePlanningView==='year')renderPlanningYear();if(activePlanningView==='cycles')renderPlanningCycles();
   renderWeekSelector();
   const start=monday(selectedDate),end=addDays(start,6),today=dateKey(new Date());
   $('planningMonthLabel').textContent=new Intl.DateTimeFormat('fr-FR',{month:'long',year:'numeric'}).format(selectedDate).toUpperCase();
   $('planningWeekRange').textContent=fmtRange(start,end);
+  const activeCycles=planningCycles.filter(c=>c.start<=dateKey(end)&&c.end>=dateKey(start));$('planningActiveCycle').textContent=activeCycles.map(c=>`${c.type} · ${c.name} · ${c.load==='DELOAD'?'SEMAINE ALLÉGÉE':c.load==='TAPER'?'AFFÛTAGE':c.load==='HAUTE'?'CHARGE HAUTE':'CHARGE '+c.load.toLowerCase()}`).join('  /  ');
   const week=weekSessions();
   $('planningWeekDays').innerHTML=Array.from({length:7},(_,i)=>{
    const d=addDays(start,i),key=dateKey(d),items=week.filter(x=>x.session_date===key).sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||''));
@@ -5991,7 +6075,22 @@ resetTimer();
  $('planningCategory').addEventListener('change',()=>{updateTypes();$('planningSaveToLibrary').classList.toggle('hidden',normalizeCategory($('planningCategory').value)!=='WOD');syncPlanningChoiceButtons()});
  $('planningStatusSelect').addEventListener('change',()=>{const done=$('planningStatusSelect').value==='DONE';$('planningActualDurationWrap').classList.toggle('hidden',!done);$('planningHrZonesWrap').classList.toggle('hidden',!done);syncPlanningChoiceButtons()});
  $('planningCalendarTab').addEventListener('click',()=>setPlanningView('calendar'));
+ $('cycleStart').value=dateKey(new Date());$('cycleEnd').value=dateKey(addDays(new Date(),27));
  $('planningStatsTab').addEventListener('click',()=>setPlanningView('stats'));
+ $('planningMonthTab').addEventListener('click',()=>setPlanningView('month'));
+ $('planningYearTab').addEventListener('click',()=>setPlanningView('year'));
+ $('planningCyclesTab').addEventListener('click',()=>setPlanningView('cycles'));
+ $('planningMonthPrev').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear(),selectedDate.getMonth()-1,1,12);renderPlanningMonth()});
+ $('planningMonthNext').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear(),selectedDate.getMonth()+1,1,12);renderPlanningMonth()});
+ $('planningMonthToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);renderPlanningMonth()});
+ $('planningYearPrev').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear()-1,selectedDate.getMonth(),1,12);renderPlanningYear()});
+ $('planningYearNext').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear()+1,selectedDate.getMonth(),1,12);renderPlanningYear()});
+ $('planningYearToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);renderPlanningYear()});
+ $('planningMonthGrid').addEventListener('click',e=>{const b=e.target.closest('[data-month-day]');if(!b)return;selectedDate=parseDate(b.dataset.monthDay);setPlanningView('calendar');render()});
+ $('planningYearGrid').addEventListener('click',e=>{const b=e.target.closest('[data-year-month]');if(!b)return;selectedDate=new Date(selectedDate.getFullYear(),Number(b.dataset.yearMonth),1,12);setPlanningView('month')});
+ $('cycleSave').addEventListener('click',saveCycle);$('cycleCancel').addEventListener('click',resetCycleForm);
+ $('planningCycleList').addEventListener('click',e=>{const edit=e.target.closest('[data-cycle-edit]'),del=e.target.closest('[data-cycle-delete]');if(edit)editCycle(edit.dataset.cycleEdit);if(del){const c=planningCycles.find(x=>x.id===del.dataset.cycleDelete);if(c&&confirm('Supprimer ce cycle ?')){planningCycles=planningCycles.filter(x=>x.id!==c.id);saveCycles();renderPlanningCycles();}}});
+
 
  ['planningWodAmrapDuration','planningWodEmomDuration','planningWodEmomWork','planningWodTabataCycles','planningWodTabataWork','planningWodTabataRest','planningWodFortimeCap','planningWodFortimeRounds','planningWodFortimeRest','planningWodFortimeTriggerInterval','planningWodFortimeIntermediateMoves'].forEach(id=>$(id).addEventListener('input',updatePlanningWodFormatFields));
  $('planningWodSource').addEventListener('change',()=>{const wod=(window.wods||[]).find(w=>String(w.id)===String($('planningWodSource').value));if(!wod){syncPlanningChoiceButtons();return;}const format=String(wod.type||'').toUpperCase()==='FORTIME'?'FOR TIME':String(wod.type||'').toUpperCase();if(['AMRAP','EMOM','TABATA','FOR TIME'].includes(format)){$('planningType').value=format;syncPlanningChoiceButtons();updatePlanningWodFormatFields();loadPlanningWodConfig(wod);} $('planningTitle').value=wod.name;$('planningDetails').value=(wod.movements||[]).map(m=>`${m.reps?m.reps+' ':''}${m.name}${m.unit?' — '+m.unit:''}${m.load?' — '+m.load:''}`).join('\n');$('planningDuration').value=wod.duration||'';$('planningNotes').value=wod.consigne||'';});
