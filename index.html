@@ -2162,6 +2162,33 @@ button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !im
 /* Aperçu compact des séances dans la vue mensuelle */
 .planning-month-previews{display:grid;gap:4px;margin-top:7px;min-width:0}
 .planning-month-preview{display:block;min-width:0;padding:4px 5px;border-left:3px solid #35a9e8;border-radius:4px;background:rgba(255,255,255,.045);overflow:hidden}
+/* Les aperçus mensuels reprennent les couleurs des séances hebdomadaires */
+.planning-month-preview.sport-course{border-left-color:#ef4444;background:rgba(239,68,68,.10)}
+.planning-month-preview.sport-cyclisme{border-left-color:#36c995;background:rgba(54,201,149,.10)}
+.planning-month-preview.sport-force{border-left-color:#f2a344;background:rgba(242,163,68,.11)}
+.planning-month-preview.sport-recuperation{border-left-color:#38bdf8;background:rgba(56,189,248,.10)}
+.planning-month-preview.sport-natation{border-left-color:#16c7d8;background:rgba(22,199,216,.10)}
+.planning-month-preview.sport-core{border-left-color:#d879f2;background:rgba(216,121,242,.10)}
+.planning-month-preview.sport-tests{border-left-color:#f07845;background:rgba(240,120,69,.11)}
+.planning-month-preview.sport-wod,.planning-month-preview.sport-crossfit,.planning-month-preview.sport-crossfit-mixed{border-left-color:#a78bfa;background:rgba(167,139,250,.11)}
+.planning-month-preview.sport-hyrox,.planning-month-preview.sport-hyrox-circuit{border-left-color:#ff7048;background:rgba(255,112,72,.11)}
+.planning-month-preview.sport-hyrox-run{border-left-color:#ff9b43;background:rgba(255,155,67,.11)}
+.planning-month-preview.sport-crossfit-gym{border-left-color:#54b9ed;background:rgba(84,185,237,.11)}
+.planning-month-preview.sport-crossfit-lift{border-left-color:#f2a344;background:rgba(242,163,68,.11)}
+.planning-month-preview.sport-crossfit-erg{border-left-color:#36c995;background:rgba(54,201,149,.10)}
+.planning-month-cell{display:flex;flex-direction:column;gap:6px}
+.planning-month-cell-open{display:block;flex:1;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}
+.planning-work-toggle{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:6px;padding:4px 7px;background:var(--panel2);color:var(--muted);font:800 9px Arial,sans-serif;cursor:pointer}
+.planning-work-toggle .work-check{width:12px;height:12px;border:1px solid currentColor;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;line-height:1}
+.planning-work-toggle.is-work{color:#fff;background:#2563eb;border-color:#3b82f6}
+.planning-work-toggle.is-work .work-check{background:#fff;color:#2563eb;border-color:#fff}
+.planning-day-work{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:10px;font-weight:800;color:var(--muted)}
+.planning-day-work .planning-work-toggle{padding:4px 6px}
+.planning-day-column.is-work-day{border-color:rgba(59,130,246,.65);background:linear-gradient(180deg,rgba(37,99,235,.10),var(--card-bg) 35%)}
+.planning-month-cell.is-work-day{border-color:rgba(59,130,246,.75);background:rgba(37,99,235,.09)}
+.planning-work-legend{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:10px;margin:10px 0}
+.planning-work-legend i{width:10px;height:10px;border-radius:3px;background:#2563eb;display:inline-block}
+
 .planning-month-preview strong{display:block;font-size:9px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
 .planning-month-preview span{display:block;font-size:8px;line-height:1.25;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .planning-month-preview-more{font-size:8px;color:var(--muted);padding-left:3px}
@@ -2816,6 +2843,7 @@ button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !im
   <div class="panel planning-calendar-panel hidden" id="planningMonthPanel">
     <div class="planning-toolbar"><div class="planning-week-title"><div id="planningMonthViewTitle">MOIS</div><span>Vue d’ensemble des séances et de la charge programmée</span></div><div class="planning-navigation"><button class="secondary" id="planningMonthPrev" type="button">‹</button><button class="secondary planning-today-btn" id="planningMonthToday" type="button">CE MOIS</button><button class="secondary" id="planningMonthNext" type="button">›</button></div></div>
     <div class="planning-month-summary" id="planningMonthSummary"></div>
+    <div class="planning-work-legend"><i></i> Journée de travail</div>
     <div class="planning-month-grid" id="planningMonthGrid"></div>
   </div>
 
@@ -5616,6 +5644,19 @@ resetTimer();
  const $ = id => document.getElementById(id);
  let selectedDate = new Date(); selectedDate.setHours(12,0,0,0);
  let sessions = []; let editingId = null;
+ const WORK_DAYS_KEY='wodfactory_planning_work_days_v1';
+ let workDays = new Set();
+ try { const saved=JSON.parse(localStorage.getItem(WORK_DAYS_KEY)||'[]'); if(Array.isArray(saved)) workDays=new Set(saved.filter(v=>/^\\d{4}-\\d{2}-\\d{2}$/.test(v))); } catch(_) {}
+ function isWorkDay(key){return workDays.has(key);}
+ function toggleWorkDay(key){
+  if(isWorkDay(key))workDays.delete(key);else workDays.add(key);
+  try{localStorage.setItem(WORK_DAYS_KEY,JSON.stringify([...workDays]));}catch(_){}
+  render();
+ }
+ function workToggleMarkup(key,compact=false){
+  const active=isWorkDay(key);
+  return `<button type="button" class="planning-work-toggle ${active?'is-work':''}" data-work-toggle="${key}" aria-pressed="${active}" title="${active?'Retirer le jour travaillé':'Marquer comme jour travaillé'}"><span class="work-check">${active?'✓':''}</span>${compact?'TRAVAIL':'AU TRAVAIL'}</button>`;
+ }
  const dateKey = d => { const x=new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; };
  const parseDate = value => { const [y,m,d]=String(value).split('-').map(Number); return new Date(y,m-1,d,12); };
  const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
@@ -5946,7 +5987,7 @@ resetTimer();
   for(let d=new Date(gridStart);d<=gridEnd;d=addDays(d,1)){
    const key=dateKey(d),day=sessions.filter(x=>x.session_date===key&&x.status!=='CANCELLED').sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||'')),outside=d.getMonth()!==m,classes=['planning-month-cell',outside?'outside':'',key===dateKey(new Date())?'today':'',key===dateKey(selectedDate)?'selected':''].filter(Boolean).join(' ');
    const previews=day.slice(0,2).map(x=>{const format=planningCardFormatSummary(x.details),detail=planningCardExerciseText(x.details).split(/\r?\n/).map(v=>v.trim()).filter(Boolean)[0]||'',subtitle=[x.session_type||categoryName(x.category),format,detail].filter(Boolean).join(' · ');return `<div class="planning-month-preview ${planningSportClass(x)}" title="${esc(x.title+' — '+subtitle)}"><strong>${esc(x.title||categoryName(x.category))}</strong><span>${esc(subtitle.length>72?subtitle.slice(0,69)+'…':subtitle)}</span></div>`}).join('');
-   cells+=`<button type="button" class="${classes}" data-month-day="${key}"><div class="planning-month-cell-number">${d.getDate()}</div><div class="planning-month-cell-count">${day.length?day.length+' séance(s)':'—'}</div><div class="planning-month-previews">${previews}${day.length>2?`<div class="planning-month-preview-more">+ ${day.length-2} autre(s)</div>`:''}</div></button>`;
+   cells+=`<div class="${classes} ${isWorkDay(key)?'is-work-day':''}"><div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span class="planning-month-cell-number">${d.getDate()}</span>${workToggleMarkup(key,true)}</div><button type="button" class="planning-month-cell-open" data-month-day="${key}"><div class="planning-month-cell-count">${day.length?day.length+' séance(s)':'—'}</div><div class="planning-month-previews">${previews}${day.length>2?`<div class="planning-month-preview-more">+ ${day.length-2} autre(s)</div>`:''}</div></button></div>`;
   }
   $('planningMonthGrid').innerHTML=heads+cells;
  }
@@ -6030,8 +6071,8 @@ resetTimer();
       </div>
     </article>`;
    }).join(''):'<div class="planning-column-empty">Aucune séance<br>programmée</div>';
-   return `<div class="planning-day-column ${key===today?'is-today':''}" data-plan-drop="${key}">
-     <div class="planning-column-head"><div><div class="planning-column-day">${new Intl.DateTimeFormat('fr-FR',{weekday:'long'}).format(d)}</div><div class="planning-column-date">${d.getDate()}</div></div><button class="planning-column-add" type="button" data-plan-add="${key}" title="Ajouter une séance">+</button></div>
+   return `<div class="planning-day-column ${key===today?'is-today':''} ${isWorkDay(key)?'is-work-day':''}" data-plan-drop="${key}">
+     <div class="planning-column-head"><div><div class="planning-column-day">${new Intl.DateTimeFormat('fr-FR',{weekday:'long'}).format(d)}</div><div class="planning-column-date">${d.getDate()}</div><div class="planning-day-work">${workToggleMarkup(key,true)}</div></div><button class="planning-column-add" type="button" data-plan-add="${key}" title="Ajouter une séance">+</button></div>
      ${cards}
    </div>`;
   }).join('');
@@ -6073,7 +6114,8 @@ resetTimer();
  $('planningYearPrev').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear()-1,selectedDate.getMonth(),1,12);renderPlanningYear()});
  $('planningYearNext').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear()+1,selectedDate.getMonth(),1,12);renderPlanningYear()});
  $('planningYearToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);renderPlanningYear()});
- $('planningMonthGrid').addEventListener('click',e=>{const b=e.target.closest('[data-month-day]');if(!b)return;selectedDate=parseDate(b.dataset.monthDay);setPlanningView('calendar');render()});
+ $('planningMonthGrid').addEventListener('click',e=>{const work=e.target.closest('[data-work-toggle]');if(work){e.preventDefault();e.stopPropagation();toggleWorkDay(work.dataset.workToggle);return;}const b=e.target.closest('[data-month-day]');if(!b)return;selectedDate=parseDate(b.dataset.monthDay);setPlanningView('calendar');render()});
+ $('planningWeekDays').addEventListener('click',e=>{const work=e.target.closest('[data-work-toggle]');if(!work)return;e.preventDefault();e.stopPropagation();toggleWorkDay(work.dataset.workToggle)});
  $('planningYearGrid').addEventListener('click',e=>{const b=e.target.closest('[data-year-month]');if(!b)return;selectedDate=new Date(selectedDate.getFullYear(),Number(b.dataset.yearMonth),1,12);setPlanningView('month')});
 
 
