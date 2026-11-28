@@ -2182,6 +2182,11 @@ button:focus-visible{outline:2px solid #48b8e5 !important;outline-offset:2px !im
 .planning-work-toggle .work-check{width:12px;height:12px;border:1px solid currentColor;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;line-height:1}
 .planning-work-toggle.is-work{color:#fff;background:#2563eb;border-color:#3b82f6}
 .planning-work-toggle.is-work .work-check{background:#fff;color:#2563eb;border-color:#fff}
+.planning-partner-shifts{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.planning-shift-toggle{border:1px solid var(--border);border-radius:5px;padding:3px 5px;background:var(--panel2);color:var(--muted);font:800 8px Arial,sans-serif;cursor:pointer;white-space:nowrap}
+.planning-shift-toggle.is-active{background:#9333ea;border-color:#a855f7;color:#fff}
+.planning-month-cell .planning-partner-shifts{justify-content:flex-end}
+.planning-day-work{flex-wrap:wrap}
 .planning-day-work{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:10px;font-weight:800;color:var(--muted)}
 .planning-day-work .planning-work-toggle{padding:4px 6px}
 .planning-day-column.is-work-day{border-color:rgba(59,130,246,.65);background:linear-gradient(180deg,rgba(37,99,235,.10),var(--card-bg) 35%)}
@@ -5645,13 +5650,26 @@ resetTimer();
  let selectedDate = new Date(); selectedDate.setHours(12,0,0,0);
  let sessions = []; let editingId = null;
  const WORK_DAYS_KEY='wodfactory_planning_work_days_v1';
- let workDays = new Set();
+ const PARTNER_SHIFTS_KEY='wodfactory_planning_partner_shifts_v1';
+ let workDays = new Set(), partnerShifts = {};
  try { const saved=JSON.parse(localStorage.getItem(WORK_DAYS_KEY)||'[]'); if(Array.isArray(saved)) workDays=new Set(saved.filter(v=>/^\\d{4}-\\d{2}-\\d{2}$/.test(v))); } catch(_) {}
+ try { const saved=JSON.parse(localStorage.getItem(PARTNER_SHIFTS_KEY)||'{}'); if(saved&&typeof saved==='object'&&!Array.isArray(saved)) partnerShifts=saved; } catch(_) {}
  function isWorkDay(key){return workDays.has(key);}
  function toggleWorkDay(key){
   if(isWorkDay(key))workDays.delete(key);else workDays.add(key);
   try{localStorage.setItem(WORK_DAYS_KEY,JSON.stringify([...workDays]));}catch(_){}
   render();
+ }
+ function togglePartnerShift(key,shift){
+  const current=new Set(Array.isArray(partnerShifts[key])?partnerShifts[key]:[]);
+  if(current.has(shift))current.delete(shift);else current.add(shift);
+  if(current.size)partnerShifts[key]=[...current];else delete partnerShifts[key];
+  try{localStorage.setItem(PARTNER_SHIFTS_KEY,JSON.stringify(partnerShifts));}catch(_){}
+  render();
+ }
+ function partnerShiftMarkup(key){
+  const active=new Set(Array.isArray(partnerShifts[key])?partnerShifts[key]:[]);
+  return `<div class="planning-partner-shifts" aria-label="Horaires de travail de la copine"><button type="button" class="planning-shift-toggle ${active.has('AM')?'is-active':''}" data-partner-work-toggle="${key}" data-shift="AM" aria-pressed="${active.has('AM')}" title="Travail de la copine le matin">AM</button><button type="button" class="planning-shift-toggle ${active.has('PM')?'is-active':''}" data-partner-work-toggle="${key}" data-shift="PM" aria-pressed="${active.has('PM')}" title="Travail de la copine l’après-midi">PM</button></div>`;
  }
  function workToggleMarkup(key,compact=false){
   const active=isWorkDay(key);
@@ -5987,7 +6005,7 @@ resetTimer();
   for(let d=new Date(gridStart);d<=gridEnd;d=addDays(d,1)){
    const key=dateKey(d),day=sessions.filter(x=>x.session_date===key&&x.status!=='CANCELLED').sort((a,b)=>(a.created_at||'').localeCompare(b.created_at||'')),outside=d.getMonth()!==m,classes=['planning-month-cell',outside?'outside':'',key===dateKey(new Date())?'today':'',key===dateKey(selectedDate)?'selected':''].filter(Boolean).join(' ');
    const previews=day.slice(0,2).map(x=>{const format=planningCardFormatSummary(x.details),detail=planningCardExerciseText(x.details).split(/\r?\n/).map(v=>v.trim()).filter(Boolean)[0]||'',subtitle=[x.session_type||categoryName(x.category),format,detail].filter(Boolean).join(' · ');return `<div class="planning-month-preview ${planningSportClass(x)}" title="${esc(x.title+' — '+subtitle)}"><strong>${esc(x.title||categoryName(x.category))}</strong><span>${esc(subtitle.length>72?subtitle.slice(0,69)+'…':subtitle)}</span></div>`}).join('');
-   cells+=`<div class="${classes} ${isWorkDay(key)?'is-work-day':''}"><div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span class="planning-month-cell-number">${d.getDate()}</span>${workToggleMarkup(key,true)}</div><button type="button" class="planning-month-cell-open" data-month-day="${key}"><div class="planning-month-cell-count">${day.length?day.length+' séance(s)':'—'}</div><div class="planning-month-previews">${previews}${day.length>2?`<div class="planning-month-preview-more">+ ${day.length-2} autre(s)</div>`:''}</div></button></div>`;
+   cells+=`<div class="${classes} ${isWorkDay(key)?'is-work-day':''}"><div style="display:flex;align-items:center;justify-content:space-between;gap:4px"><span class="planning-month-cell-number">${d.getDate()}</span>${workToggleMarkup(key,true)}${partnerShiftMarkup(key)}</div><button type="button" class="planning-month-cell-open" data-month-day="${key}"><div class="planning-month-cell-count">${day.length?day.length+' séance(s)':'—'}</div><div class="planning-month-previews">${previews}${day.length>2?`<div class="planning-month-preview-more">+ ${day.length-2} autre(s)</div>`:''}</div></button></div>`;
   }
   $('planningMonthGrid').innerHTML=heads+cells;
  }
@@ -6072,7 +6090,7 @@ resetTimer();
     </article>`;
    }).join(''):'<div class="planning-column-empty">Aucune séance<br>programmée</div>';
    return `<div class="planning-day-column ${key===today?'is-today':''} ${isWorkDay(key)?'is-work-day':''}" data-plan-drop="${key}">
-     <div class="planning-column-head"><div><div class="planning-column-day">${new Intl.DateTimeFormat('fr-FR',{weekday:'long'}).format(d)}</div><div class="planning-column-date">${d.getDate()}</div><div class="planning-day-work">${workToggleMarkup(key,true)}</div></div><button class="planning-column-add" type="button" data-plan-add="${key}" title="Ajouter une séance">+</button></div>
+     <div class="planning-column-head"><div><div class="planning-column-day">${new Intl.DateTimeFormat('fr-FR',{weekday:'long'}).format(d)}</div><div class="planning-column-date">${d.getDate()}</div><div class="planning-day-work">${workToggleMarkup(key,true)}${partnerShiftMarkup(key)}</div></div><button class="planning-column-add" type="button" data-plan-add="${key}" title="Ajouter une séance">+</button></div>
      ${cards}
    </div>`;
   }).join('');
@@ -6114,8 +6132,8 @@ resetTimer();
  $('planningYearPrev').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear()-1,selectedDate.getMonth(),1,12);renderPlanningYear()});
  $('planningYearNext').addEventListener('click',()=>{selectedDate=new Date(selectedDate.getFullYear()+1,selectedDate.getMonth(),1,12);renderPlanningYear()});
  $('planningYearToday').addEventListener('click',()=>{selectedDate=new Date();selectedDate.setHours(12,0,0,0);renderPlanningYear()});
- $('planningMonthGrid').addEventListener('click',e=>{const work=e.target.closest('[data-work-toggle]');if(work){e.preventDefault();e.stopPropagation();toggleWorkDay(work.dataset.workToggle);return;}const b=e.target.closest('[data-month-day]');if(!b)return;selectedDate=parseDate(b.dataset.monthDay);setPlanningView('calendar');render()});
- $('planningWeekDays').addEventListener('click',e=>{const work=e.target.closest('[data-work-toggle]');if(!work)return;e.preventDefault();e.stopPropagation();toggleWorkDay(work.dataset.workToggle)});
+ $('planningMonthGrid').addEventListener('click',e=>{const shift=e.target.closest('[data-partner-work-toggle]');if(shift){e.preventDefault();e.stopPropagation();togglePartnerShift(shift.dataset.partnerWorkToggle,shift.dataset.shift);return;}const work=e.target.closest('[data-work-toggle]');if(work){e.preventDefault();e.stopPropagation();toggleWorkDay(work.dataset.workToggle);return;}const b=e.target.closest('[data-month-day]');if(!b)return;selectedDate=parseDate(b.dataset.monthDay);setPlanningView('calendar');render()});
+ $('planningWeekDays').addEventListener('click',e=>{const shift=e.target.closest('[data-partner-work-toggle]');if(shift){e.preventDefault();e.stopPropagation();togglePartnerShift(shift.dataset.partnerWorkToggle,shift.dataset.shift);return;}const work=e.target.closest('[data-work-toggle]');if(!work)return;e.preventDefault();e.stopPropagation();toggleWorkDay(work.dataset.workToggle)});
  $('planningYearGrid').addEventListener('click',e=>{const b=e.target.closest('[data-year-month]');if(!b)return;selectedDate=new Date(selectedDate.getFullYear(),Number(b.dataset.yearMonth),1,12);setPlanningView('month')});
 
 
